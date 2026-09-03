@@ -1,0 +1,14 @@
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.download-pdfs]
+verify_jwt = false
+
+[functions.resolve-download]
+verify_jwt = false
+
+[functions.stripe-checkout]
+verify_jwt = true
