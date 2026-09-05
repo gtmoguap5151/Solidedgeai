@@ -52,7 +52,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
       {/* Hero Section */}
       <section className="relative bg-gradient-to-b from-stone-100 to-stone-50 overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-14V6H22v6h-6v6H8v6h6v6H8v6h6v6H8v6h6v6h8V8h8v8h6V0H36v20zm-8 10v6h-6v-6h6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000'[...]
         }} />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 sm:pt-24 sm:pb-28">
           <div className="text-center max-w-3xl mx-auto">
@@ -78,10 +78,6 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
                 Get the Course — {COURSE.priceFormatted}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
-              <div className="text-stone-500 text-sm flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-green-600" />
-                30-day money-back guarantee
-              </div>
             </div>
 
             <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-stone-500">
@@ -267,7 +263,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
               <button
                 type="submit"
                 disabled={signupStatus === 'loading'}
-                className="w-full sm:w-auto bg-stone-900 hover:bg-stone-800 text-white font-bold px-6 py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-60 whitespace-nowrap"
+                className="w-full sm:w-auto bg-stone-900 hover:bg-stone-800 text-white font-bold px-6 py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {signupStatus === 'loading' ? (
                   <>
@@ -288,23 +284,6 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
           <p className="mt-4 text-amber-100 text-xs">
             We'll only email you useful stuff. Unsubscribe anytime.
           </p>
-        </div>
-      </section>
-
-      {/* Guarantee */}
-      <section className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-stone-50 rounded-2xl p-8 sm:p-10 border border-stone-200 text-center">
-            <ShieldCheck className="w-12 h-12 text-green-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-stone-900">
-              30-day money-back guarantee
-            </h2>
-            <p className="mt-3 text-stone-600 max-w-2xl mx-auto leading-relaxed">
-              Try the course for a full month. If it doesn't help you save time
-              and win more work, just email us and we'll refund every penny. No
-              questions asked, no hard feelings.
-            </p>
-          </div>
         </div>
       </section>
     </div>
