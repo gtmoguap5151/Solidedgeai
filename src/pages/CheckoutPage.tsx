@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   CheckCircle2,
   FileText,
-  ShieldCheck,
   Clock,
   BookOpen,
   Loader2,
@@ -130,7 +129,7 @@ export default function CheckoutPage({ onNavigate }: CheckoutPageProps) {
                 </div>
                 <div className="flex items-center justify-between text-stone-600">
                   <span>Access period</span>
-                  <span className="font-medium">30 days, unlimited</span>
+                  <span className="font-medium">30 days, up to 5 downloads</span>
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-stone-200">
                   <span className="font-bold text-stone-900 text-lg">Total</span>
@@ -218,10 +217,6 @@ export default function CheckoutPage({ onNavigate }: CheckoutPageProps) {
               </button>
 
               <div className="mt-5 space-y-3">
-                <div className="flex items-center gap-2 text-stone-600 text-sm">
-                  <ShieldCheck className="w-5 h-5 text-green-600 flex-shrink-0" />
-                  30-day money-back guarantee
-                </div>
                 <div className="flex items-center gap-2 text-stone-600 text-sm">
                   <Lock className="w-5 h-5 text-stone-400 flex-shrink-0" />
                   Secure payment by Stripe
