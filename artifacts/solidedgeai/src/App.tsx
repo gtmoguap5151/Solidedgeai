@@ -1,61 +1,78 @@
-import { type ReactNode } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ErrorBoundary } from '@/components/error-boundary';
-import { Toaster } from '@/components/ui/toaster';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import NotFound from '@/pages/not-found';
-import {
-  Route,
-  Switch,
-  useLocation,
-  Router as WouterRouter,
-} from 'wouter';
+import { useState, useEffect } from 'react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import LandingPage from '@/pages/LandingPage';
+import CheckoutPage from '@/pages/CheckoutPage';
+import DownloadPage from '@/pages/DownloadPage';
+import AssessmentPage from '@/pages/AssessmentPage';
 
-const queryClient = new QueryClient();
+type Page = 'home' | 'checkout' | 'download' | 'assessment';
 
-function Home() {
-  return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Replit Agent is building...
-        </h1>
-        <p className="mt-2 text-sm text-gray-600">
-          Your app will appear here once it's ready.
-        </p>
-      </div>
-    </div>
-  );
-}
+function getRouteInfo(): { page: Page; token?: string; sessionId?: string } {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token') || undefined;
+  const sessionId = params.get('session_id') || undefined;
+  const path = window.location.pathname;
 
-function Router() {
-  return (
-    // Keep a shared shell (sidebar, navbar) outside the boundary so it
-    // survives a page crash.
-    <RoutedErrorBoundary>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route component={NotFound} />
-      </Switch>
-    </RoutedErrorBoundary>
-  );
-}
-
-function RoutedErrorBoundary({ children }: { children: ReactNode }) {
-  const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
+  if (path === '/download') {
+    return { page: 'download', token, sessionId };
+  } else if (path === '/checkout') {
+    return { page: 'checkout' };
+  } else if (path === '/assessment') {
+    return { page: 'assessment' };
+  }
+  return { page: 'home' };
 }
 
 function App() {
+  const initial = getRouteInfo();
+  const [page, setPage] = useState<Page>(initial.page);
+  const [downloadToken, setDownloadToken] = useState<string | undefined>(initial.token);
+  const [sessionId, setSessionId] = useState<string | undefined>(initial.sessionId);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const info = getRouteInfo();
+      setPage(info.page);
+      setDownloadToken(info.token);
+      setSessionId(info.sessionId);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigate = (target: string) => {
+    if (target === 'home') {
+      window.history.pushState({}, '', '/');
+      setPage('home');
+    } else if (target === 'checkout') {
+      window.history.pushState({}, '', '/checkout');
+      setPage('checkout');
+    } else if (target === 'assessment') {
+      window.history.pushState({}, '', '/assessment');
+      setPage('assessment');
+    } else if (target === 'download') {
+      window.history.pushState({}, '', '/download');
+      setPage('download');
+      setDownloadToken(undefined);
+      setSessionId(undefined);
+    }
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <Router />
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <div className="min-h-screen flex flex-col bg-stone-50 font-sans">
+      <Header onNavigate={navigate} currentPage={page} />
+      <main className="flex-1">
+        {page === 'home' && <LandingPage onNavigate={navigate} />}
+        {page === 'assessment' && <AssessmentPage onNavigate={navigate} />}
+        {page === 'checkout' && <CheckoutPage onNavigate={navigate} />}
+        {page === 'download' && (
+          <DownloadPage onNavigate={navigate} token={downloadToken} sessionId={sessionId} />
+        )}
+      </main>
+      <Footer onNavigate={navigate} />
+    </div>
   );
 }
 
