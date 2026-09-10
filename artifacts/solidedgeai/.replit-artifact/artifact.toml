@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "SolidEdgeAI"
+description = "A course storefront for construction business owners, offering practical AI automation guides with email signup, secure checkout, and protected digital downloads."
+version = "1.0.0"
+id = "artifacts/solidedgeai"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 26223
+
+[services.development]
+run = "pnpm --filter @workspace/solidedgeai run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/solidedgeai", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/solidedgeai/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26223"
+BASE_PATH = "/"
