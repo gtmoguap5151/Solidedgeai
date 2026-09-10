@@ -4,7 +4,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const COURSE_PRICE = 19700; // $197.00 in cents
+// Live Stripe Price for the $197 A.I. Automation for Contractors course.
+const COURSE_PRICE_ID = "price_1UCV1cHug7ur1zc5NO6I6AK4";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -16,7 +17,7 @@ Deno.serve(async (req: Request) => {
     if (!stripeKey) {
       return new Response(
         JSON.stringify({ error: "Payment system is not yet configured. Please contact the site owner." }),
-        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
@@ -29,18 +30,25 @@ Deno.serve(async (req: Request) => {
       } catch {
         return false;
       }
-      if (url.protocol !== "https:" && url.protocol !== "http:") return false;
 
+      if (url.protocol !== "https:" && url.protocol !== "http:") return false;
       const host = url.hostname.toLowerCase();
 
       if (configuredSite) {
         try {
           if (host === new URL(configuredSite).hostname.toLowerCase()) return true;
-        } catch { /* ignore */ }
+        } catch {
+          // Ignore an invalid configured site and continue checking known preview hosts.
+        }
       }
 
       if (host === "localhost" || host === "127.0.0.1") return true;
-      if (host.endsWith(".netlify.app") || host.endsWith(".bolt.host")) return true;
+      if (
+        host.endsWith(".netlify.app") ||
+        host.endsWith(".bolt.host") ||
+        host.endsWith(".replit.app") ||
+        host.endsWith(".replit.dev")
+      ) return true;
 
       return false;
     };
@@ -55,17 +63,17 @@ Deno.serve(async (req: Request) => {
       try {
         const refOrigin = new URL(rawReferer).origin;
         if (isAllowedOrigin(refOrigin)) baseUrl = refOrigin;
-      } catch { /* ignore */ }
+      } catch {
+        // Fall back to SITE_URL below.
+      }
     }
 
-    if (!baseUrl && configuredSite) {
-      baseUrl = configuredSite;
-    }
+    if (!baseUrl && configuredSite) baseUrl = configuredSite;
 
     if (!baseUrl) {
       return new Response(
         JSON.stringify({ error: "Could not determine site URL. Please try again." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
@@ -80,10 +88,7 @@ Deno.serve(async (req: Request) => {
       },
       body: new URLSearchParams({
         "mode": "payment",
-        "line_items[0][price_data][currency]": "usd",
-        "line_items[0][price_data][product_data][name]": "A.I. Automation for Contractors — Complete Course",
-        "line_items[0][price_data][product_data][description]": "Four PDF guides covering bids, crew management, paperwork, and marketing with AI.",
-        "line_items[0][price_data][unit_amount]": String(COURSE_PRICE),
+        "line_items[0][price]": COURSE_PRICE_ID,
         "line_items[0][quantity]": "1",
         "success_url": successUrl,
         "cancel_url": cancelUrl,
@@ -96,21 +101,20 @@ Deno.serve(async (req: Request) => {
       console.error("Stripe checkout creation failed:", errText);
       return new Response(
         JSON.stringify({ error: "Could not start checkout. Please try again." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
     const session = await response.json();
-
     return new Response(
       JSON.stringify({ url: session.url }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
     console.error("Checkout error:", err);
     return new Response(
       JSON.stringify({ error: "Something went wrong. Please try again." }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 });
