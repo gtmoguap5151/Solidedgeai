@@ -1,139 +1,135 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import Stripe from 'npm:stripe@17.7.0';
-import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
+import { createClient } from 'npm:@supabase/supabase-js@2.57.4';
 
-const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY')!;
-const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
+const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY');
+const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+if (!stripeSecret || !stripeWebhookSecret || !supabaseUrl || !serviceRoleKey) {
+  throw new Error('Missing required Stripe or Supabase environment configuration.');
+}
+
 const stripe = new Stripe(stripeSecret, {
   appInfo: {
-    name: 'Bolt Integration',
+    name: 'Solid Edge AI',
     version: '1.0.0',
   },
 });
 
-const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-Deno.serve(async (req) => {
+Deno.serve(async (req: Request) => {
+  if (req.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405 });
+  }
+
+  const signature = req.headers.get('stripe-signature');
+  if (!signature) {
+    return new Response('Missing Stripe signature', { status: 400 });
+  }
+
+  const rawBody = await req.text();
+
+  let event: Stripe.Event;
   try {
-    // Handle OPTIONS request for CORS preflight
-    if (req.method === 'OPTIONS') {
-      return new Response(null, { status: 204 });
-    }
-
-    if (req.method !== 'POST') {
-      return new Response('Method not allowed', { status: 405 });
-    }
-
-    // get the signature from the header
-    const signature = req.headers.get('stripe-signature');
-
-    if (!signature) {
-      return new Response('No signature found', { status: 400 });
-    }
-
-    // get the raw body
-    const body = await req.text();
-
-    // verify the webhook signature
-    let event: Stripe.Event;
-
-    try {
-      event = await stripe.webhooks.constructEventAsync(body, signature, stripeWebhookSecret);
-    } catch (error: any) {
-      console.error(`Webhook signature verification failed: ${error.message}`);
-      return new Response(`Webhook signature verification failed: ${error.message}`, { status: 400 });
-    }
-
-    EdgeRuntime.waitUntil(handleEvent(event));
-
-    return Response.json({ received: true });
-  } catch (error: any) {
-    console.error('Error processing webhook:', error);
-    return Response.json({ error: error.message }, { status: 500 });
-  }
-});
-
-async function handleEvent(event: Stripe.Event) {
-  const stripeData = event?.data?.object ?? {};
-
-  if (!stripeData) {
-    return;
+    event = await stripe.webhooks.constructEventAsync(
+      rawBody,
+      signature,
+      stripeWebhookSecret,
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Webhook signature verification failed:', message);
+    return new Response('Invalid webhook signature', { status: 400 });
   }
 
-  // for one time payments, we only listen for the checkout.session.completed event
-  if (event.type === 'payment_intent.succeeded' && event.data.object.invoice === null) {
-    return;
-  }
-
-  // Only process checkout.session.completed events
   if (event.type !== 'checkout.session.completed') {
-    return;
+    return Response.json({ received: true, ignored: true });
   }
 
-  const session = stripeData as Stripe.Checkout.Session;
-  const { mode, payment_status, id: checkout_session_id } = session;
+  const session = event.data.object as Stripe.Checkout.Session;
 
-  // Only process one-time payments (mode === 'payment')
-  if (mode !== 'payment') {
-    console.info(`Skipping non-payment mode checkout session: ${checkout_session_id}`);
-    return;
-  }
-
-  // Only process paid sessions
-  if (payment_status !== 'paid') {
-    console.info(`Skipping unpaid checkout session: ${checkout_session_id}`);
-    return;
+  if (session.mode !== 'payment' || session.payment_status !== 'paid') {
+    return Response.json({ received: true, ignored: true });
   }
 
   try {
-    // Extract the necessary information from the session
-    const {
-      payment_intent,
-      amount_subtotal,
-      amount_total,
-      currency,
-      customer_email,
-    } = session;
+    const email = session.customer_details?.email ?? session.customer_email;
+    const name = session.customer_details?.name ?? null;
+    const amountPaid = session.amount_total ?? 0;
 
-    // For one-time payments, customer email should be available
-    if (!customer_email) {
-      console.warn(`No customer email found for checkout session: ${checkout_session_id}`);
-      // Continue processing; email is useful but not strictly required
+    if (!email) {
+      console.error('Paid checkout session has no customer email:', session.id);
+      return Response.json(
+        { error: 'Paid checkout session is missing customer email.' },
+        { status: 500 },
+      );
     }
 
-    // Check if we've already processed this session (idempotency)
-    const { data: existingOrder } = await supabase
-      .from('stripe_orders')
+    const { data: existingPurchase, error: lookupError } = await supabase
+      .from('course_purchases')
       .select('id')
-      .eq('checkout_session_id', checkout_session_id)
+      .eq('stripe_session_id', session.id)
       .maybeSingle();
 
-    if (existingOrder) {
-      console.info(`Checkout session already processed: ${checkout_session_id}`);
-      return;
+    if (lookupError) {
+      throw lookupError;
     }
 
-    // Insert the order into the stripe_orders table
-    const { error: orderError } = await supabase.from('stripe_orders').insert({
-      checkout_session_id,
-      payment_intent_id: payment_intent,
-      customer_id: null, // For one-time payments, customer_id may not be set
-      customer_email: customer_email || null,
-      amount_subtotal,
-      amount_total,
-      currency,
-      payment_status,
-      status: 'completed',
-    });
+    let purchaseId = existingPurchase?.id as string | undefined;
 
-    if (orderError) {
-      console.error('Error inserting order:', orderError);
-      throw new Error(`Failed to insert order: ${orderError.message}`);
+    if (!purchaseId) {
+      const { data: purchase, error: purchaseError } = await supabase
+        .from('course_purchases')
+        .insert({
+          stripe_session_id: session.id,
+          email,
+          name,
+          amount_paid: amountPaid,
+          status: 'paid',
+        })
+        .select('id')
+        .single();
+
+      if (purchaseError || !purchase) {
+        throw purchaseError ?? new Error('Purchase record was not created.');
+      }
+
+      purchaseId = purchase.id;
     }
 
-    console.info(`Successfully processed one-time payment for session: ${checkout_session_id}`);
+    const { data: existingLink, error: linkLookupError } = await supabase
+      .from('download_links')
+      .select('id, token')
+      .eq('purchase_id', purchaseId)
+      .maybeSingle();
+
+    if (linkLookupError) {
+      throw linkLookupError;
+    }
+
+    if (!existingLink) {
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+
+      const { error: linkError } = await supabase.from('download_links').insert({
+        purchase_id: purchaseId,
+        max_downloads: 5,
+        expires_at: expiresAt.toISOString(),
+      });
+
+      if (linkError) {
+        throw linkError;
+      }
+    }
+
+    console.info('Processed paid Solid Edge AI course purchase:', session.id);
+    return Response.json({ received: true });
   } catch (error) {
-    console.error('Error processing one-time payment:', error);
-    throw error;
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Error processing paid course purchase:', message);
+    return Response.json({ error: 'Failed to fulfill purchase.' }, { status: 500 });
   }
-}
+});
