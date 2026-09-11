@@ -11,7 +11,7 @@ if (!stripeSecret || !stripeWebhookSecret || !supabaseUrl || !serviceRoleKey) {
   throw new Error('Missing required Stripe or Supabase environment configuration.');
 }
 
-const stripe = new Stripe(stripeSecret, { appInfo: { name: 'Solid Edge AI', version: '1.0.0' } });
+const stripe = new Stripe(stripeSecret, { appInfo: { name: 'Solid Edge AI', version: '1.1.0' } });
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
 Deno.serve(async (req: Request) => {
@@ -39,11 +39,9 @@ Deno.serve(async (req: Request) => {
     const email = session.customer_details?.email ?? session.customer_email;
     const name = session.customer_details?.name ?? null;
     const amountPaid = session.amount_total ?? 0;
+    const productKey = session.metadata?.product_key || 'contractor_course';
 
-    if (!email) {
-      console.error('Paid checkout session has no customer email:', session.id);
-      return Response.json({ error: 'Paid checkout session is missing customer email.' }, { status: 500 });
-    }
+    if (!email) return Response.json({ error: 'Paid checkout session is missing customer email.' }, { status: 500 });
 
     const { data: existingPurchase, error: lookupError } = await supabase
       .from('course_purchases')
@@ -56,7 +54,7 @@ Deno.serve(async (req: Request) => {
     if (!purchaseId) {
       const { data: purchase, error: purchaseError } = await supabase
         .from('course_purchases')
-        .insert({ stripe_session_id: session.id, email, name, amount_paid: amountPaid, status: 'paid' })
+        .insert({ stripe_session_id: session.id, email, name, amount_paid: amountPaid, status: 'paid', product_key: productKey })
         .select('id')
         .single();
       if (purchaseError || !purchase) throw purchaseError ?? new Error('Purchase record was not created.');
@@ -77,11 +75,11 @@ Deno.serve(async (req: Request) => {
       if (linkError) throw linkError;
     }
 
-    console.info('Processed paid Solid Edge AI course purchase:', session.id);
+    console.info('Processed paid Solid Edge AI purchase:', session.id, productKey);
     return Response.json({ received: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error('Error processing paid course purchase:', message);
+    console.error('Error processing paid purchase:', message);
     return Response.json({ error: 'Failed to fulfill purchase.' }, { status: 500 });
   }
 });
