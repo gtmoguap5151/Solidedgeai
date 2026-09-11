@@ -27,8 +27,18 @@ if (!basePath) {
   );
 }
 
+const supabaseUrl =
+  process.env.VITE_SUPABASE_URL || 'https://nvqaqflokcxlexykpfpt.supabase.co';
+const supabaseAnonKey =
+  process.env.VITE_SUPABASE_ANON_KEY ||
+  'sb_publishable_IM7qkSONnDF7TsG-uszmtQ_Z8PNf7ol';
+
 export default defineConfig({
   base: basePath,
+  define: {
+    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(supabaseUrl),
+    'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey),
+  },
   plugins: [
     react(),
     tailwindcss(),
