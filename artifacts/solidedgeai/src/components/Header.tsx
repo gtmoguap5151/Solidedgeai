@@ -33,7 +33,7 @@ export default function Header({ onNavigate, currentPage }: HeaderProps) {
             <button onClick={() => scrollTo('explore')} className="hidden sm:inline text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">
               Explore
             </button>
-            <button onClick={() => scrollTo('programs')} className="hidden sm:inline text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">
+            <button onClick={() => onNavigate('programs')} className={`hidden sm:inline text-sm font-medium transition-colors ${currentPage === 'programs' ? 'text-amber-700' : 'text-stone-600 hover:text-stone-900'}`}>
               Programs
             </button>
             <button
