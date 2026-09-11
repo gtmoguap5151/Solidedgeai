@@ -5,8 +5,10 @@ import LandingPage from '@/pages/LandingPage';
 import CheckoutPage from '@/pages/CheckoutPage';
 import DownloadPage from '@/pages/DownloadPage';
 import AssessmentPage from '@/pages/AssessmentPage';
+import PrivacyPage from '@/pages/PrivacyPage';
+import TermsPage from '@/pages/TermsPage';
 
-type Page = 'home' | 'checkout' | 'download' | 'assessment';
+type Page = 'home' | 'checkout' | 'download' | 'assessment' | 'privacy' | 'terms';
 
 function getRouteInfo(): { page: Page; token?: string; sessionId?: string } {
   const params = new URLSearchParams(window.location.search);
@@ -14,13 +16,11 @@ function getRouteInfo(): { page: Page; token?: string; sessionId?: string } {
   const sessionId = params.get('session_id') || undefined;
   const path = window.location.pathname;
 
-  if (path === '/download') {
-    return { page: 'download', token, sessionId };
-  } else if (path === '/checkout') {
-    return { page: 'checkout' };
-  } else if (path === '/assessment') {
-    return { page: 'assessment' };
-  }
+  if (path === '/download') return { page: 'download', token, sessionId };
+  if (path === '/checkout') return { page: 'checkout' };
+  if (path === '/assessment') return { page: 'assessment' };
+  if (path === '/privacy') return { page: 'privacy' };
+  if (path === '/terms') return { page: 'terms' };
   return { page: 'home' };
 }
 
@@ -42,18 +42,28 @@ function App() {
   }, []);
 
   const navigate = (target: string) => {
-    if (target === 'home') {
-      window.history.pushState({}, '', '/');
-      setPage('home');
-    } else if (target === 'checkout') {
-      window.history.pushState({}, '', '/checkout');
-      setPage('checkout');
-    } else if (target === 'assessment') {
-      window.history.pushState({}, '', '/assessment');
-      setPage('assessment');
-    } else if (target === 'download') {
-      window.history.pushState({}, '', '/download');
-      setPage('download');
+    const routes: Record<string, Page> = {
+      home: 'home',
+      checkout: 'checkout',
+      assessment: 'assessment',
+      download: 'download',
+      privacy: 'privacy',
+      terms: 'terms',
+    };
+    const paths: Record<Page, string> = {
+      home: '/',
+      checkout: '/checkout',
+      assessment: '/assessment',
+      download: '/download',
+      privacy: '/privacy',
+      terms: '/terms',
+    };
+    const nextPage = routes[target];
+    if (!nextPage) return;
+
+    window.history.pushState({}, '', paths[nextPage]);
+    setPage(nextPage);
+    if (nextPage === 'download') {
       setDownloadToken(undefined);
       setSessionId(undefined);
     }
@@ -67,9 +77,9 @@ function App() {
         {page === 'home' && <LandingPage onNavigate={navigate} />}
         {page === 'assessment' && <AssessmentPage onNavigate={navigate} />}
         {page === 'checkout' && <CheckoutPage onNavigate={navigate} />}
-        {page === 'download' && (
-          <DownloadPage onNavigate={navigate} token={downloadToken} sessionId={sessionId} />
-        )}
+        {page === 'download' && <DownloadPage onNavigate={navigate} token={downloadToken} sessionId={sessionId} />}
+        {page === 'privacy' && <PrivacyPage />}
+        {page === 'terms' && <TermsPage />}
       </main>
       <Footer onNavigate={navigate} />
     </div>
