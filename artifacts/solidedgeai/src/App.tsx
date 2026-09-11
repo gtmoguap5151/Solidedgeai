@@ -5,10 +5,11 @@ import LandingPage from '@/pages/LandingPage';
 import CheckoutPage from '@/pages/CheckoutPage';
 import DownloadPage from '@/pages/DownloadPage';
 import AssessmentPage from '@/pages/AssessmentPage';
+import ProgramsPage from '@/pages/ProgramsPage';
 import PrivacyPage from '@/pages/PrivacyPage';
 import TermsPage from '@/pages/TermsPage';
 
-type Page = 'home' | 'checkout' | 'download' | 'assessment' | 'privacy' | 'terms';
+type Page = 'home' | 'checkout' | 'download' | 'assessment' | 'programs' | 'privacy' | 'terms';
 
 function getRouteInfo(): { page: Page; token?: string; sessionId?: string } {
   const params = new URLSearchParams(window.location.search);
@@ -19,6 +20,7 @@ function getRouteInfo(): { page: Page; token?: string; sessionId?: string } {
   if (path === '/download') return { page: 'download', token, sessionId };
   if (path === '/checkout') return { page: 'checkout' };
   if (path === '/assessment') return { page: 'assessment' };
+  if (path === '/programs') return { page: 'programs' };
   if (path === '/privacy') return { page: 'privacy' };
   if (path === '/terms') return { page: 'terms' };
   return { page: 'home' };
@@ -46,6 +48,7 @@ function App() {
       home: 'home',
       checkout: 'checkout',
       assessment: 'assessment',
+      programs: 'programs',
       download: 'download',
       privacy: 'privacy',
       terms: 'terms',
@@ -54,6 +57,7 @@ function App() {
       home: '/',
       checkout: '/checkout',
       assessment: '/assessment',
+      programs: '/programs',
       download: '/download',
       privacy: '/privacy',
       terms: '/terms',
@@ -76,6 +80,7 @@ function App() {
       <main className="flex-1">
         {page === 'home' && <LandingPage onNavigate={navigate} />}
         {page === 'assessment' && <AssessmentPage onNavigate={navigate} />}
+        {page === 'programs' && <ProgramsPage onNavigate={navigate} />}
         {page === 'checkout' && <CheckoutPage onNavigate={navigate} />}
         {page === 'download' && <DownloadPage onNavigate={navigate} token={downloadToken} sessionId={sessionId} />}
         {page === 'privacy' && <PrivacyPage />}
