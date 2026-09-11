@@ -1,4 +1,4 @@
-import { HardHat, Mail } from 'lucide-react';
+import { Mail, Zap } from 'lucide-react';
 
 interface FooterProps {
   onNavigate: (page: string) => void;
@@ -11,44 +11,28 @@ export default function Footer({ onNavigate }: FooterProps) {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center">
-              <HardHat className="w-4 h-4 text-white" strokeWidth={2.5} />
+              <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
             </div>
             <div className="leading-tight">
-              <div className="font-bold text-white text-sm">
-                A.I. Automation for Contractors
-              </div>
-              <div className="text-stone-500 text-xs">
-                Built by a contractor, for contractors
-              </div>
+              <div className="font-bold text-white text-sm">Solid Edge AI</div>
+              <div className="text-stone-500 text-xs">AI that earns its place</div>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 text-sm">
-            <button
-              onClick={() => onNavigate('home')}
-              className="hover:text-white transition-colors"
-            >
-              Course Details
-            </button>
-            <button
-              onClick={() => onNavigate('checkout')}
-              className="hover:text-white transition-colors"
-            >
-              Get the Course
-            </button>
-            <a
-              href="mailto:support@aiautomationforcontractors.com"
-              className="flex items-center gap-1.5 hover:text-white transition-colors"
-            >
-              <Mail className="w-4 h-4" />
-              Support
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm">
+            <button onClick={() => onNavigate('home')} className="hover:text-white transition-colors">Home</button>
+            <button onClick={() => onNavigate('assessment')} className="hover:text-white transition-colors">Free AI Assessment</button>
+            <button onClick={() => onNavigate('checkout')} className="hover:text-white transition-colors">Contractor Program</button>
+            <button onClick={() => onNavigate('privacy')} className="hover:text-white transition-colors">Privacy</button>
+            <button onClick={() => onNavigate('terms')} className="hover:text-white transition-colors">Terms</button>
+            <a href="mailto:support@aiautomationforcontractors.com" className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <Mail className="w-4 h-4" /> Support
             </a>
           </div>
         </div>
 
         <div className="mt-8 pt-8 border-t border-stone-800 text-xs text-stone-500 text-center">
-          © {new Date().getFullYear()} A.I. Automation for Contractors. All
-          rights reserved.
+          © {new Date().getFullYear()} Solid Edge AI. All rights reserved.
         </div>
       </div>
     </footer>
