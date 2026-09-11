@@ -1,36 +1,50 @@
-import { useState, useEffect } from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import LandingPage from '@/pages/LandingPage';
-import CheckoutPage from '@/pages/CheckoutPage';
-import DownloadPage from '@/pages/DownloadPage';
-import AssessmentPage from '@/pages/AssessmentPage';
-import ProgramsPage from '@/pages/ProgramsPage';
-import PrivacyPage from '@/pages/PrivacyPage';
-import TermsPage from '@/pages/TermsPage';
+import { useState, useEffect } from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import LandingPage from "@/pages/LandingPage";
+import CheckoutPage from "@/pages/CheckoutPage";
+import DownloadPage from "@/pages/DownloadPage";
+import AssessmentPage from "@/pages/AssessmentPage";
+import ProgramsPage from "@/pages/ProgramsPage";
+import AcademyPage from "@/pages/AcademyPage";
+import PrivacyPage from "@/pages/PrivacyPage";
+import TermsPage from "@/pages/TermsPage";
 
-type Page = 'home' | 'checkout' | 'download' | 'assessment' | 'programs' | 'privacy' | 'terms';
+type Page =
+  | "home"
+  | "academy"
+  | "checkout"
+  | "download"
+  | "assessment"
+  | "programs"
+  | "privacy"
+  | "terms";
 
 function getRouteInfo(): { page: Page; token?: string; sessionId?: string } {
   const params = new URLSearchParams(window.location.search);
-  const token = params.get('token') || undefined;
-  const sessionId = params.get('session_id') || undefined;
+  const token = params.get("token") || undefined;
+  const sessionId = params.get("session_id") || undefined;
   const path = window.location.pathname;
 
-  if (path === '/download') return { page: 'download', token, sessionId };
-  if (path === '/checkout') return { page: 'checkout' };
-  if (path === '/assessment') return { page: 'assessment' };
-  if (path === '/programs') return { page: 'programs' };
-  if (path === '/privacy') return { page: 'privacy' };
-  if (path === '/terms') return { page: 'terms' };
-  return { page: 'home' };
+  if (path === "/download") return { page: "download", token, sessionId };
+  if (path === "/checkout") return { page: "checkout" };
+  if (path === "/assessment") return { page: "assessment" };
+  if (path === "/academy") return { page: "academy" };
+  if (path === "/programs") return { page: "programs" };
+  if (path === "/privacy") return { page: "privacy" };
+  if (path === "/terms") return { page: "terms" };
+  return { page: "home" };
 }
 
 function App() {
   const initial = getRouteInfo();
   const [page, setPage] = useState<Page>(initial.page);
-  const [downloadToken, setDownloadToken] = useState<string | undefined>(initial.token);
-  const [sessionId, setSessionId] = useState<string | undefined>(initial.sessionId);
+  const [downloadToken, setDownloadToken] = useState<string | undefined>(
+    initial.token,
+  );
+  const [sessionId, setSessionId] = useState<string | undefined>(
+    initial.sessionId,
+  );
 
   useEffect(() => {
     const handlePopState = () => {
@@ -39,52 +53,61 @@ function App() {
       setDownloadToken(info.token);
       setSessionId(info.sessionId);
     };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   const navigate = (target: string) => {
     const routes: Record<string, Page> = {
-      home: 'home',
-      checkout: 'checkout',
-      assessment: 'assessment',
-      programs: 'programs',
-      download: 'download',
-      privacy: 'privacy',
-      terms: 'terms',
+      home: "home",
+      checkout: "checkout",
+      assessment: "assessment",
+      academy: "academy",
+      programs: "programs",
+      download: "download",
+      privacy: "privacy",
+      terms: "terms",
     };
     const paths: Record<Page, string> = {
-      home: '/',
-      checkout: '/checkout',
-      assessment: '/assessment',
-      programs: '/programs',
-      download: '/download',
-      privacy: '/privacy',
-      terms: '/terms',
+      home: "/",
+      checkout: "/checkout",
+      assessment: "/assessment",
+      academy: "/academy",
+      programs: "/programs",
+      download: "/download",
+      privacy: "/privacy",
+      terms: "/terms",
     };
     const nextPage = routes[target];
     if (!nextPage) return;
 
-    window.history.pushState({}, '', paths[nextPage]);
+    window.history.pushState({}, "", paths[nextPage]);
     setPage(nextPage);
-    if (nextPage === 'download') {
+    if (nextPage === "download") {
       setDownloadToken(undefined);
       setSessionId(undefined);
     }
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0, behavior: "instant" });
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-stone-50 font-sans">
       <Header onNavigate={navigate} currentPage={page} />
       <main className="flex-1">
-        {page === 'home' && <LandingPage onNavigate={navigate} />}
-        {page === 'assessment' && <AssessmentPage onNavigate={navigate} />}
-        {page === 'programs' && <ProgramsPage onNavigate={navigate} />}
-        {page === 'checkout' && <CheckoutPage onNavigate={navigate} />}
-        {page === 'download' && <DownloadPage onNavigate={navigate} token={downloadToken} sessionId={sessionId} />}
-        {page === 'privacy' && <PrivacyPage />}
-        {page === 'terms' && <TermsPage />}
+        {page === "home" && <LandingPage onNavigate={navigate} />}
+        {page === "assessment" && <AssessmentPage onNavigate={navigate} />}
+        {page === "academy" && <AcademyPage onNavigate={navigate} />}
+        {page === "programs" && <ProgramsPage onNavigate={navigate} />}
+        {page === "checkout" && <CheckoutPage onNavigate={navigate} />}
+        {page === "download" && (
+          <DownloadPage
+            onNavigate={navigate}
+            token={downloadToken}
+            sessionId={sessionId}
+          />
+        )}
+        {page === "privacy" && <PrivacyPage />}
+        {page === "terms" && <TermsPage />}
       </main>
       <Footer onNavigate={navigate} />
     </div>

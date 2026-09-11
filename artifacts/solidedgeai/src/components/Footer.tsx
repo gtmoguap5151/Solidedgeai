@@ -1,4 +1,4 @@
-import { Mail, Zap } from 'lucide-react';
+import { Mail, Zap } from "lucide-react";
 
 interface FooterProps {
   onNavigate: (page: string) => void;
@@ -15,17 +15,53 @@ export default function Footer({ onNavigate }: FooterProps) {
             </div>
             <div className="leading-tight">
               <div className="font-bold text-white text-sm">Solid Edge AI</div>
-              <div className="text-stone-500 text-xs">AI that earns its place</div>
+              <div className="text-stone-500 text-xs">
+                AI that earns its place
+              </div>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm">
-            <button onClick={() => onNavigate('home')} className="hover:text-white transition-colors">Home</button>
-            <button onClick={() => onNavigate('assessment')} className="hover:text-white transition-colors">Free AI Assessment</button>
-            <button onClick={() => onNavigate('checkout')} className="hover:text-white transition-colors">Contractor Program</button>
-            <button onClick={() => onNavigate('privacy')} className="hover:text-white transition-colors">Privacy</button>
-            <button onClick={() => onNavigate('terms')} className="hover:text-white transition-colors">Terms</button>
-            <a href="mailto:support@aiautomationforcontractors.com" className="flex items-center gap-1.5 hover:text-white transition-colors">
+            <button
+              onClick={() => onNavigate("home")}
+              className="hover:text-white transition-colors"
+            >
+              Home
+            </button>
+            <button
+              onClick={() => onNavigate("academy")}
+              className="hover:text-white transition-colors"
+            >
+              AI Academy
+            </button>
+            <button
+              onClick={() => onNavigate("assessment")}
+              className="hover:text-white transition-colors"
+            >
+              Free AI Assessment
+            </button>
+            <button
+              onClick={() => onNavigate("checkout")}
+              className="hover:text-white transition-colors"
+            >
+              Contractor Program
+            </button>
+            <button
+              onClick={() => onNavigate("privacy")}
+              className="hover:text-white transition-colors"
+            >
+              Privacy
+            </button>
+            <button
+              onClick={() => onNavigate("terms")}
+              className="hover:text-white transition-colors"
+            >
+              Terms
+            </button>
+            <a
+              href="mailto:support@aiautomationforcontractors.com"
+              className="flex items-center gap-1.5 hover:text-white transition-colors"
+            >
               <Mail className="w-4 h-4" /> Support
             </a>
           </div>
