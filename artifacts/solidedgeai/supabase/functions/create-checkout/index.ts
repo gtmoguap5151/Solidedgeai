@@ -4,14 +4,25 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const COURSE_PRICE_ID = "price_1U9F8GCZRLLet9afZQqbWxgo";
+const OFFERS: Record<string, { priceId: string; name: string }> = {
+  starter_playbook: { priceId: "price_1UEYyvCZRLLet9afNBgLWEZw", name: "Solid Edge AI Starter Playbook" },
+  sales_marketing: { priceId: "price_1UEYyzCZRLLet9afcx0rw6GQ", name: "AI Sales & Marketing Playbook" },
+  operations_automation: { priceId: "price_1UEYz3CZRLLet9af03CP1zQQ", name: "AI Operations & Automation Playbook" },
+  contractor_course: { priceId: "price_1U9F8GCZRLLet9afZQqbWxgo", name: "AI Automation for Contractors" },
+};
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
 
   try {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) return new Response(JSON.stringify({ error: "Payment system is not yet configured. Please contact the site owner." }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!stripeKey) return new Response(JSON.stringify({ error: "Payment system is not configured." }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+    let body: Record<string, unknown> = {};
+    try { body = await req.json(); } catch { /* empty body is fine */ }
+    const productKey = typeof body.product_key === "string" ? body.product_key : "contractor_course";
+    const offer = OFFERS[productKey];
+    if (!offer) return new Response(JSON.stringify({ error: "Unknown product." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     const configuredSite = (Deno.env.get("SITE_URL") || "").replace(/\/$/, "");
     const isAllowedOrigin = (candidate: string): boolean => {
@@ -35,29 +46,30 @@ Deno.serve(async (req: Request) => {
       try { const refOrigin = new URL(rawReferer).origin; if (isAllowedOrigin(refOrigin)) baseUrl = refOrigin; } catch { /* ignore */ }
     }
     if (!baseUrl && configuredSite) baseUrl = configuredSite;
-    if (!baseUrl) return new Response(JSON.stringify({ error: "Could not determine site URL. Please try again." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!baseUrl) return new Response(JSON.stringify({ error: "Could not determine site URL." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+    const params = new URLSearchParams({
+      "mode": "payment",
+      "line_items[0][price]": offer.priceId,
+      "line_items[0][quantity]": "1",
+      "success_url": `${baseUrl}/download?session_id={CHECKOUT_SESSION_ID}`,
+      "cancel_url": productKey === "contractor_course" ? `${baseUrl}/checkout` : `${baseUrl}/programs`,
+      "billing_address_collection": "auto",
+      "metadata[product_key]": productKey,
+      "metadata[product_name]": offer.name,
+    });
 
     const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
       headers: { "Authorization": `Bearer ${stripeKey}`, "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        "mode": "payment",
-        "line_items[0][price]": COURSE_PRICE_ID,
-        "line_items[0][quantity]": "1",
-        "success_url": `${baseUrl}/download?session_id={CHECKOUT_SESSION_ID}`,
-        "cancel_url": `${baseUrl}/checkout`,
-        "billing_address_collection": "auto",
-      }).toString(),
+      body: params.toString(),
     });
 
     if (!response.ok) {
       const errText = await response.text();
       console.error("Stripe checkout creation failed:", errText);
       let safeMessage = "Could not start checkout. Please try again.";
-      try {
-        const parsed = JSON.parse(errText);
-        if (parsed?.error?.message) safeMessage = parsed.error.message;
-      } catch { /* keep generic fallback */ }
+      try { const parsed = JSON.parse(errText); if (parsed?.error?.message) safeMessage = parsed.error.message; } catch { /* ignore */ }
       return new Response(JSON.stringify({ error: safeMessage }), { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
