@@ -9,3 +9,6 @@ verify_jwt = false
 
 [functions.download-pdfs]
 verify_jwt = false
+
+[functions.download-product]
+verify_jwt = false
