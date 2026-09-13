@@ -1,4 +1,4 @@
-import { Sparkles, Zap } from "lucide-react";
+import { Library, Sparkles, Zap } from "lucide-react";
 
 interface HeaderProps {
   onNavigate: (page: string) => void;
@@ -43,15 +43,22 @@ export default function Header({ onNavigate, currentPage }: HeaderProps) {
           <nav className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => scrollTo("explore")}
-              className="hidden sm:inline text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
+              className="hidden lg:inline text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
             >
               Explore
             </button>
             <button
               onClick={() => onNavigate("programs")}
-              className={`hidden sm:inline text-sm font-medium transition-colors ${currentPage === "programs" ? "text-amber-700" : "text-stone-600 hover:text-stone-900"}`}
+              className={`hidden md:inline text-sm font-medium transition-colors ${currentPage === "programs" ? "text-amber-700" : "text-stone-600 hover:text-stone-900"}`}
             >
               Programs
+            </button>
+            <button
+              onClick={() => onNavigate("resources")}
+              className={`inline-flex items-center gap-1.5 text-sm font-semibold transition-colors ${currentPage === "resources" ? "text-amber-700" : "text-stone-700 hover:text-stone-900"}`}
+            >
+              <Library className="w-4 h-4" />
+              <span className="hidden sm:inline">Resources</span>
             </button>
             <button
               onClick={() => onNavigate("academy")}
