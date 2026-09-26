@@ -151,3 +151,15 @@ select { display:block; margin-top:4px; border:1px solid var(--line); border-rad
 }
 .request-form textarea { resize:vertical; line-height:1.45; }
 .support-panel { margin-top:28px; }
+
+.check-row {
+  display:flex !important;
+  align-items:flex-start;
+  gap:9px;
+  margin:11px 0;
+  color:var(--ink) !important;
+  line-height:1.45;
+}
+.check-row input { width:auto !important; min-height:auto !important; margin:3px 0 0 !important; }
+.consent-card .disclosure { margin-bottom:5px; }
+.legal-text { white-space:pre-line; color:var(--muted); font-size:12px; line-height:1.55; padding:10px 0; }
