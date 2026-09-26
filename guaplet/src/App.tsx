@@ -3,6 +3,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
 import SupportPanel from "./SupportPanel";
 import PrivacyRequestPanel from "./PrivacyRequestPanel";
+import ConsentGate from "./ConsentGate";
 import type {
   Disclosure,
   Lesson,
@@ -91,9 +92,14 @@ function AuthGate({
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [signupAccepted, setSignupAccepted] = useState(false);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
+    if (mode === "signup" && !signupAccepted) {
+      setMessage("Confirm the age and terms statement before creating an account.");
+      return;
+    }
     setBusy(true);
     setMessage("");
     const result = mode === "signin"
@@ -127,8 +133,14 @@ function AuthGate({
           </div>
           <form onSubmit={submit}>
             <label>Email<input required type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-            <label>Password<input required minLength={6} type="password" autoComplete={mode === "signin" ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} /></label>
-            <button className="primary full" disabled={busy} type="submit">
+            <label>Password<input required minLength={10} type="password" autoComplete={mode === "signin" ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} /></label>
+            {mode === "signup" && (
+              <label className="check-row">
+                <input type="checkbox" checked={signupAccepted} onChange={(e) => setSignupAccepted(e.target.checked)} />
+                <span>I am at least 18 and agree to review and accept Guaplet Terms and Privacy before using account features.</span>
+              </label>
+            )}
+            <button className="primary full" disabled={busy || (mode === "signup" && !signupAccepted)} type="submit">
               {busy ? "Working…" : mode === "signin" ? "Sign in" : "Create account"}
             </button>
           </form>
@@ -512,6 +524,7 @@ export default function App() {
   const [premiumStatus, setPremiumStatus] = useState("inactive");
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [toast, setToast] = useState("");
+  const [hasConsent, setHasConsent] = useState<boolean | null>(null);
 
   function notify(message: string) {
     setToast(message);
@@ -539,18 +552,20 @@ export default function App() {
     const userId = activeSession.user.id;
     await supabase.from("guaplet_profiles").upsert({ user_id: userId }, { onConflict: "user_id", ignoreDuplicates: true });
 
-    const [profileRes, progressRes, savedRes, appRes, premiumRes] = await Promise.all([
+    const [profileRes, progressRes, savedRes, appRes, premiumRes, consentRes] = await Promise.all([
       supabase.from("guaplet_profiles").select("user_id,display_name").eq("user_id", userId).maybeSingle(),
       supabase.from("lesson_progress").select("lesson_id,status,started_at,completed_at").eq("user_id", userId),
       supabase.from("saved_opportunities").select("opportunity_id").eq("user_id", userId),
       supabase.from("opportunity_applications").select("opportunity_id,status").eq("user_id", userId),
       supabase.from("premium_entitlements").select("status").eq("user_id", userId).maybeSingle(),
+      supabase.from("user_consents").select("user_id").eq("user_id", userId).maybeSingle(),
     ]);
     setProfile((profileRes.data || null) as Profile | null);
     setProgress((progressRes.data || []) as LessonProgress[]);
     setSaved(new Set((savedRes.data || []).map((r) => r.opportunity_id)));
     setApplications(new Map((appRes.data || []).map((r) => [r.opportunity_id, r.status])));
     setPremiumStatus(premiumRes.data?.status || "inactive");
+    setHasConsent(Boolean(consentRes.data));
   }
 
   useEffect(() => {
@@ -574,6 +589,7 @@ export default function App() {
       setSession(next);
       if (next) {
         setGuest(false);
+        setHasConsent(null);
         loadUser(next).catch(console.error);
       } else {
         setProfile(null);
@@ -581,6 +597,7 @@ export default function App() {
         setSaved(new Set());
         setApplications(new Map());
         setPremiumStatus("inactive");
+        setHasConsent(null);
       }
     });
     return () => {
@@ -691,6 +708,22 @@ export default function App() {
 
   if (!session && !guest) {
     return <AuthGate onExplore={(nextTab) => { setGuest(true); setTab(nextTab); }} />;
+  }
+
+  if (session && hasConsent === null) {
+    return <div className="loading"><Brand /><span>Checking account setup…</span></div>;
+  }
+
+  if (session && hasConsent === false) {
+    return (
+      <ConsentGate
+        userId={session.user.id}
+        terms={disclosures.find((d) => d.key === "terms_of_use")?.body_markdown}
+        privacy={disclosures.find((d) => d.key === "privacy_notice")?.body_markdown}
+        onAccepted={() => setHasConsent(true)}
+        onSignOut={signOut}
+      />
+    );
   }
 
   return (
