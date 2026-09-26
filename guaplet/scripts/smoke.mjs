@@ -15,11 +15,13 @@ const checks = [
   ["money_university_modules", 10],
   ["money_university_lessons", 10],
   ["earning_opportunities", 3],
-  ["app_disclosures", 3],
+  ["app_disclosures", 6],
   ["guaplet_profiles", 0],
   ["lesson_progress", 0],
   ["saved_opportunities", 0],
-  ["premium_entitlements", 0]
+  ["premium_entitlements", 0],
+  ["support_requests", 0],
+  ["guaplet_privacy_requests", 0]
 ];
 
 for (const [table, expected] of checks) {
