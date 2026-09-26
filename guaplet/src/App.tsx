@@ -1,6 +1,8 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
+import SupportPanel from "./SupportPanel";
+import PrivacyRequestPanel from "./PrivacyRequestPanel";
 import type {
   Disclosure,
   Lesson,
@@ -486,6 +488,8 @@ function ProfilePage({
           <p>Guaplet does not currently expose a wallet, bank balance, transfer, debit card, direct deposit, or cash-out feature. Those functions stay absent until a real regulated production program is approved and connected.</p>
         </section>
 
+        {session && <SupportPanel userId={session.user.id} />}
+        {session && <PrivacyRequestPanel userId={session.user.id} />}
         {session && <button className="danger-text" onClick={signOut}>Sign out</button>}
       </main>
     </>
