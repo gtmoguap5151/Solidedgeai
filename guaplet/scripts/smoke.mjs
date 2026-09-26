@@ -21,7 +21,8 @@ const checks = [
   ["saved_opportunities", 0],
   ["premium_entitlements", 0],
   ["support_requests", 0],
-  ["guaplet_privacy_requests", 0]
+  ["guaplet_privacy_requests", 0],
+  ["user_consents", 0]
 ];
 
 for (const [table, expected] of checks) {
