@@ -137,3 +137,17 @@ select { display:block; margin-top:4px; border:1px solid var(--line); border-rad
   .page-head, .page-body { padding-left:30px; padding-right:30px; }
   .two-grid { gap:16px; }
 }
+
+.request-form { display:grid; gap:12px; margin-top:14px; }
+.request-form label { display:block; color:var(--muted); font-size:12px; font-weight:650; }
+.request-form select, .request-form textarea {
+  width:100%;
+  margin-top:6px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:10px 11px;
+  background:#fff;
+  color:var(--ink);
+}
+.request-form textarea { resize:vertical; line-height:1.45; }
+.support-panel { margin-top:28px; }
