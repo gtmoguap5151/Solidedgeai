@@ -32,3 +32,6 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Production data and RLS smoke test
+        run: node scripts/smoke.mjs
