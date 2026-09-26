@@ -1,12 +1,6 @@
 name: Guaplet Pages
 
 on:
-  push:
-    branches:
-      - guaplet-bootstrap
-    paths:
-      - "guaplet/**"
-      - ".github/workflows/guaplet-pages.yml"
   workflow_dispatch:
 
 permissions:
