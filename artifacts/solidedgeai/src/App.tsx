@@ -24,11 +24,16 @@ type Page =
   | "privacy"
   | "terms";
 
+const BASE_PATH = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 function getRouteInfo(): { page: Page; token?: string; sessionId?: string } {
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token") || undefined;
   const sessionId = params.get("session_id") || undefined;
-  const path = window.location.pathname;
+  const fullPath = window.location.pathname;
+  const path = BASE_PATH && (fullPath === BASE_PATH || fullPath.startsWith(BASE_PATH + "/"))
+    ? (fullPath.slice(BASE_PATH.length) || "/")
+    : fullPath;
 
   if (path === "/download") return { page: "download", token, sessionId };
   if (path === "/checkout") return { page: "checkout" };
@@ -91,7 +96,7 @@ function App() {
     const nextPage = routes[target];
     if (!nextPage) return;
 
-    window.history.pushState({}, "", paths[nextPage]);
+    window.history.pushState({}, "", BASE_PATH + paths[nextPage]);
     setPage(nextPage);
     if (nextPage === "download") {
       setDownloadToken(undefined);
