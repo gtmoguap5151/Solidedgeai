@@ -131,10 +131,10 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <button
-                onClick={() => onNavigate("academy")}
+                onClick={() => onNavigate("lab")}
                 className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-lg px-7 py-4 rounded-xl transition-colors"
               >
-                Enter the AI Academy <ArrowRight className="w-5 h-5" />
+                Start practicing free <ArrowRight className="w-5 h-5" />
               </button>
               <button
                 onClick={() => onNavigate("resources")}
@@ -149,8 +149,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
                 through advanced
               </span>
               <span className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-400" /> Practical
-                exercises
+                <CheckCircle2 className="w-4 h-4 text-amber-400" /> Seven hands-on practice challenges
               </span>
               <span className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-amber-400" /> Professional
