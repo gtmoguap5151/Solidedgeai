@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, BookOpen, CheckCircle2, ClipboardCheck, Copy, Download, FileText, Lightbulb, RotateCcw, ShieldCheck, Sparkles, Target, Trophy } from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle2, ClipboardCheck, Copy, FileText, Lightbulb, ShieldCheck, Sparkles, Target, Trophy } from "lucide-react";
 
 type Exercise = {
   id: string;
