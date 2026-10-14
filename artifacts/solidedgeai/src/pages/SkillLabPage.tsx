@@ -112,6 +112,7 @@ export default function SkillLabPage({ onNavigate }: { onNavigate: (page: string
   const [selection, setSelection] = useState(exercises[0].id);
   const [entries, setEntries] = useState<Entries>(loadEntries);
   const [copied, setCopied] = useState(false);
+  const [reviewCopied, setReviewCopied] = useState(false);
   const [storageWarning, setStorageWarning] = useState(false);
   const exercise = exercises.find((item) => item.id === selection) ?? exercises[0];
   const entry = entries[exercise.id] ?? { notes: "", checks: [] };
@@ -134,6 +135,7 @@ export default function SkillLabPage({ onNavigate }: { onNavigate: (page: string
       [exercise.id]: { ...(current[exercise.id] ?? { notes: "", checks: [] }), ...next, completedAt: undefined },
     }));
     setCopied(false);
+    setReviewCopied(false);
   }
 
   function markDone() {
@@ -166,6 +168,36 @@ export default function SkillLabPage({ onNavigate }: { onNavigate: (page: string
       setCopied(true);
     } catch {
       setCopied(false);
+    }
+  }
+
+  async function copyCritiquePrompt() {
+    const prompt = [
+      "Act as a rigorous, constructive reviewer of the work below.",
+      "Review ONLY what is actually present in my submitted text. Do not invent missing facts, sources, test results, or proof of competence.",
+      "This is feedback for learning, NOT independent certification or fact verification.",
+      "Challenge: " + exercise.title,
+      "Objective: " + exercise.outcome,
+      "Instructions: " + exercise.instructions,
+      "",
+      "Work submitted:",
+      entry.notes.trim() || "[No work submitted yet]",
+      "",
+      "Evaluate against these criteria:",
+      ...exercise.rubric.map((item, index) => (index + 1) + ". " + item),
+      "",
+      "Return this structured feedback:",
+      "A. For each criterion: Sufficient evidence / Partially supported / Not shown, quoting short specific evidence from my submitted work when available.",
+      "B. Identify two concrete weaknesses or missed assumptions.",
+      "C. Provide a specific revision exercise and one way I could test the result.",
+      "D. List the facts or claims I still need to verify independently.",
+      "E. Make no certification claims and do not assign a verified skill level.",
+    ].join("\n");
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setReviewCopied(true);
+    } catch {
+      setReviewCopied(false);
     }
   }
 
@@ -237,6 +269,7 @@ export default function SkillLabPage({ onNavigate }: { onNavigate: (page: string
           <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
             <h3 className="flex items-center gap-2 text-xl font-bold text-stone-900"><ClipboardCheck className="h-5 w-5 text-amber-700" /> Check your work</h3>
             <p className="mt-2 text-sm leading-relaxed text-stone-600">Mark each criterion only if you actually checked your result. This is a self-review, not independent grading or certification.</p>
+            <p className="mt-2 text-sm leading-relaxed text-stone-600">Use the AI critique prompt with any assistant you trust. Read the text before sharing: external tools may store what you submit, and their feedback still needs your judgment.</p>
             <div className="mt-5 space-y-3">
               {exercise.rubric.map((criterion, i) => (
                 <label key={criterion} className="flex cursor-pointer items-start gap-3 rounded-xl border border-stone-200 p-4 hover:bg-stone-50">
@@ -249,6 +282,7 @@ export default function SkillLabPage({ onNavigate }: { onNavigate: (page: string
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <button type="button" onClick={markDone} disabled={!isReady} className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-amber-500 px-5 py-3 font-bold text-stone-950 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-40"><CheckCircle2 className="h-5 w-5" /> {entry.completedAt ? "Reviewed · Saved" : "Mark practice reviewed"}</button>
               <button type="button" onClick={() => void copyWorksheet()} className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-stone-300 bg-white px-5 py-3 font-bold text-stone-700 hover:bg-stone-50"><Copy className="h-5 w-5" /> {copied ? "Copied" : "Copy my work"}</button>
+              <button type="button" onClick={() => void copyCritiquePrompt()} className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-amber-400 bg-amber-50 px-5 py-3 font-bold text-amber-950 hover:bg-amber-100"><Copy className="h-5 w-5" /> {reviewCopied ? "Critique prompt copied" : "Copy AI critique prompt"}</button>
             </div>
             {entry.completedAt ? <p className="mt-4 text-sm font-semibold text-emerald-800">Self-review saved on this device. This is not a formal credential.</p> : null}
           </div>
