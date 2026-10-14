@@ -1,4 +1,4 @@
-name: Galinyx Preview
+name: Galinyx Site Validation
 
 on:
   push:
@@ -10,31 +10,15 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: galinyx-pages
-  cancel-in-progress: true
 
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Verify site files
+      - name: Validate static site
         run: |
           test -s galinyx-site/index.html
           grep -q 'GALINYX' galinyx-site/index.html
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-      - name: Upload site
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: galinyx-site
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+          grep -q 'name="viewport"' galinyx-site/index.html
+          ! grep -Ei 'sk-[a-zA-Z0-9]{16,}|SUPABASE_SERVICE_ROLE_KEY' galinyx-site/index.html
