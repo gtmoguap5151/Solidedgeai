@@ -48,6 +48,20 @@ jobs:
           path: artifacts/solidedgeai/dist/public
           retention-days: 30
           if-no-files-found: error
+      - name: Build root-hosting edition
+        env:
+          BASE_PATH: /
+          VITE_CHECKOUT_ENABLED: "false"
+        run: pnpm --filter @workspace/solidedgeai run build
+      - name: Static fallback for single-page routes
+        run: cp artifacts/solidedgeai/dist/public/index.html artifacts/solidedgeai/dist/public/404.html
+      - name: Save root-hosting edition
+        uses: actions/upload-artifact@v4
+        with:
+          name: solid-edge-ai-root-hosting
+          path: artifacts/solidedgeai/dist/public
+          retention-days: 30
+          if-no-files-found: error
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
