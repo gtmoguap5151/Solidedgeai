@@ -32,12 +32,12 @@ const paths = [
     onClick: (onNavigate: (page: string) => void) => onNavigate("assessment"),
   },
   {
-    icon: HardHat,
-    eyebrow: "Flagship program",
-    title: "AI Automation for Contractors",
-    text: "Practical systems for follow-up, scheduling, hiring, paperwork, estimates, and other repetitive contractor work.",
-    action: "Explore the contractor program",
-    onClick: (onNavigate: (page: string) => void) => onNavigate("checkout"),
+    icon: Sparkles,
+    eyebrow: "Free practical tools",
+    title: "Tools for Real Life and Work",
+    text: "Ready-to-use systems for creators, job seekers, entrepreneurs, online sellers, teams, and everyday life.",
+    action: "Explore the tool library",
+    onClick: (onNavigate: (page: string) => void) => onNavigate("resources"),
   },
   {
     icon: Workflow,
@@ -121,13 +121,13 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
               ahead
             </div>
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.03]">
-              Learn AI from the beginning.{" "}
-              <span className="text-amber-400">Build what comes next.</span>
+              Learn AI. Put it to work.{" "}
+              <span className="text-amber-400">Build what matters.</span>
             </h1>
             <p className="mt-7 text-xl sm:text-2xl text-stone-300 max-w-3xl leading-relaxed">
-              Solid Edge AI takes students from clear beginner lessons to
-              advanced automation, agents, and professional AI systems—without
-              the hype or mystery.
+              Learn applied AI skills and put them to work—whether you're
+              creating, earning, studying, growing a business, or organizing
+              everyday life. Real tools. Practical exercises. Skills you can demonstrate.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <button
@@ -137,10 +137,10 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
                 Enter the AI Academy <ArrowRight className="w-5 h-5" />
               </button>
               <button
-                onClick={() => onNavigate("assessment")}
+                onClick={() => onNavigate("resources")}
                 className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-lg px-7 py-4 rounded-xl transition-colors"
               >
-                Take the free AI assessment
+                Explore 10 free toolkits
               </button>
             </div>
             <div className="mt-9 flex flex-wrap gap-x-7 gap-y-3 text-sm text-stone-400">
@@ -272,7 +272,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
               Programs & resources
             </div>
             <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-stone-900">
-              Start free. Go deeper when you see the value.
+              Learn a useful skill. Take something practical with you.
             </h2>
             <p className="mt-4 text-lg text-stone-600">
               Find the right fit first. Pricing comes later, after people
@@ -301,22 +301,22 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
               <div className="absolute -top-3 left-5 bg-stone-900 text-white text-xs font-bold px-3 py-1 rounded-full">
                 AVAILABLE NOW
               </div>
-              <HardHat className="w-7 h-7 text-amber-700" />
+              <Sparkles className="w-7 h-7 text-amber-700" />
               <div className="mt-4 text-sm font-bold text-amber-800">
-                FLAGSHIP
+                10 FREE TOOLKITS
               </div>
               <h3 className="mt-1 text-xl font-bold text-stone-900">
-                AI Automation for Contractors
+                Practical AI Tools for Everyone
               </h3>
               <p className="mt-3 text-stone-600">
-                Four focused guides built around the repetitive work contractors
-                deal with every week.
+                Hands-on templates, prompts, checklists, and exercises for work, careers,
+                creativity, sales, research, learning, and daily life.
               </p>
               <button
-                onClick={() => onNavigate("checkout")}
+                onClick={() => onNavigate("resources")}
                 className="mt-5 font-bold text-stone-900 inline-flex items-center gap-2"
               >
-                See program details <ArrowRight className="w-4 h-4" />
+                Explore free tools <ArrowRight className="w-4 h-4" />
               </button>
             </div>
             <div className="border border-stone-200 rounded-2xl p-6">
