@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, BookOpen, CheckCircle2, ClipboardCheck, Copy, FileText, Lightbulb, ShieldCheck, Sparkles, Target, Trophy } from "lucide-react";
+import EvidenceStudio from "@/components/EvidenceStudio";
 
 type Exercise = {
   id: string;
@@ -174,7 +175,7 @@ export default function SkillLabPage({ onNavigate }: { onNavigate: (page: string
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-amber-300"><Sparkles className="h-5 w-5" /> Solid Edge AI · Free Practice Lab</div>
           <h1 className="mt-5 max-w-4xl text-4xl font-bold tracking-tight sm:text-6xl">Don't just learn about AI. <span className="text-amber-400">Practice something real.</span></h1>
-          <p className="mt-5 max-w-3xl text-lg leading-relaxed text-stone-300">Seven practical challenges across careers, creativity, business, research, teams, online sales and everyday life. Produce a work sample, check it against a clear rubric, and keep your progress on this device.</p>
+          <p className="mt-5 max-w-3xl text-lg leading-relaxed text-stone-300">Seven practical challenges across careers, creativity, business, research, teams, online sales and everyday life. Produce a work sample, check it against a clear rubric, document what you tested, and export the evidence for your portfolio. No account required.</p>
           <div className="mt-7 flex flex-wrap gap-3 text-sm font-semibold text-stone-200">
             <span className="rounded-full border border-white/20 px-4 py-2"><BookOpen className="mr-2 inline h-4 w-4" /> 7 real-world exercises</span>
             <span className="rounded-full border border-white/20 px-4 py-2"><ShieldCheck className="mr-2 inline h-4 w-4" /> No account needed</span>
@@ -251,6 +252,7 @@ export default function SkillLabPage({ onNavigate }: { onNavigate: (page: string
             </div>
             {entry.completedAt ? <p className="mt-4 text-sm font-semibold text-emerald-800">Self-review saved on this device. This is not a formal credential.</p> : null}
           </div>
+          <EvidenceStudio projectId={exercise.id} projectTitle={exercise.title} brief={exercise.instructions} work={entry.notes} rubric={exercise.rubric} selfChecks={entry.checks} selfReviewedAt={entry.completedAt} />
           <p className="px-2 text-sm leading-relaxed text-stone-500">Privacy note: your work stays in this browser unless you choose to copy or share it. Clearing browser data may erase progress. Avoid entering secrets or sensitive personal records. Always independently check important real-world claims.</p>
         </section>
       </div>
