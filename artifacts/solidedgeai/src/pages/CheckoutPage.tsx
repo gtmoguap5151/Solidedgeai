@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { COURSE, MODULES } from '@/lib/courseData';
 
+const SALES_ENABLED = import.meta.env.VITE_CHECKOUT_ENABLED === "true";
+
 interface CheckoutPageProps {
   onNavigate: (page: string) => void;
 }
@@ -19,6 +21,10 @@ export default function CheckoutPage({ onNavigate }: CheckoutPageProps) {
   const [error, setError] = useState('');
 
   const handleCheckout = async () => {
+    if (!SALES_ENABLED) {
+      setError("Checkout is paused until delivery is tested. No payment was taken.");
+      return;
+    }
     setRedirecting(true);
     setError('');
 
@@ -185,11 +191,12 @@ export default function CheckoutPage({ onNavigate }: CheckoutPageProps) {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl border border-stone-200 p-6 sm:p-8 lg:sticky lg:top-24">
               <h2 className="font-bold text-stone-900 text-lg mb-1">
-                Secure checkout
+                {SALES_ENABLED ? "Secure checkout" : "Program preview"}
               </h2>
               <p className="text-stone-500 text-sm mb-6">
-                Payment is processed securely by Stripe. You'll get your
-                download links immediately after purchase.
+                {SALES_ENABLED
+                  ? "Payment is processed securely by Stripe, with digital delivery after purchase."
+                  : "Paid enrollment is currently unavailable while course fulfillment is verified. Free lessons, toolkits, and the Practice Lab remain accessible."}
               </p>
 
               {error && (
@@ -200,10 +207,12 @@ export default function CheckoutPage({ onNavigate }: CheckoutPageProps) {
 
               <button
                 onClick={handleCheckout}
-                disabled={redirecting}
+                disabled={redirecting || !SALES_ENABLED}
                 className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold text-lg py-4 rounded-xl transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-60"
               >
-                {redirecting ? (
+                {!SALES_ENABLED ? (
+                  <>Enrollment temporarily unavailable</>
+                ) : redirecting ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
                     Redirecting to secure checkout...
