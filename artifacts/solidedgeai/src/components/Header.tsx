@@ -42,6 +42,12 @@ export default function Header({ onNavigate, currentPage }: HeaderProps) {
 
           <nav className="flex items-center gap-2 sm:gap-4">
             <button
+              onClick={() => onNavigate("lab")}
+              className={`inline-flex min-h-10 items-center rounded-lg px-2 text-sm font-bold ${currentPage === "lab" ? "bg-amber-100 text-amber-900" : "text-stone-900 hover:bg-amber-50"}`}
+            >
+              Practice Lab
+            </button>
+            <button
               onClick={() => scrollTo("explore")}
               className="hidden lg:inline text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
             >
