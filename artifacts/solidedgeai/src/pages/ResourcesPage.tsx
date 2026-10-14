@@ -12,6 +12,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
+import { builtInResources } from "@/lib/builtInResources";
 
 type Resource = {
   id: string;
@@ -48,12 +49,13 @@ const levelLabels: Record<string, string> = {
 };
 
 export default function ResourcesPage() {
-  const [resources, setResources] = useState<Resource[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [resources, setResources] = useState<Resource[]>(builtInResources);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [level, setLevel] = useState("all");
   const [selected, setSelected] = useState<Resource | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -61,7 +63,7 @@ export default function ResourcesPage() {
     const load = async () => {
       if (!isSupabaseConfigured) {
         if (mounted) {
-          setError("The resource library is temporarily unavailable.");
+          setResources(builtInResources);
           setLoading(false);
         }
         return;
@@ -79,9 +81,10 @@ export default function ResourcesPage() {
 
       if (!mounted) return;
       if (loadError) {
-        setError("We could not load the resource library right now.");
+        setResources(builtInResources);
       } else {
-        setResources((data ?? []) as Resource[]);
+        const remote = (data ?? []) as Resource[];
+        setResources([...builtInResources, ...remote.filter((item) => !builtInResources.some((local) => local.resource_key === item.resource_key))]);
       }
       setLoading(false);
     };
@@ -149,7 +152,7 @@ export default function ResourcesPage() {
 
         <div className="mt-5 flex flex-wrap gap-2 text-sm text-stone-600">
           <span className="rounded-full bg-white px-3 py-1.5 shadow-sm">
-            {resources.length} published resources
+            {resources.length} ready-to-use resources
           </span>
           <span className="rounded-full bg-white px-3 py-1.5 shadow-sm">
             Mobile-friendly
@@ -192,7 +195,7 @@ export default function ResourcesPage() {
                     {resource.description}
                   </p>
                   <button
-                    onClick={() => setSelected(resource)}
+                    onClick={() => { setCopied(false); setSelected(resource); }}
                     className="mt-5 min-h-11 rounded-xl bg-stone-900 px-4 py-2.5 font-bold text-white hover:bg-stone-800"
                   >
                     Open resource
@@ -231,6 +234,22 @@ export default function ResourcesPage() {
             <div className="mt-6 whitespace-pre-line rounded-2xl border border-stone-200 bg-stone-50 p-5 leading-relaxed text-stone-800">
               {selected.content_text || "This resource is being prepared for release."}
             </div>
+            {selected.content_text ? (
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(selected.content_text ?? "");
+                    setCopied(true);
+                  } catch {
+                    setCopied(false);
+                  }
+                }}
+                className="mt-4 min-h-11 rounded-xl bg-stone-900 px-5 py-2 font-bold text-white hover:bg-stone-800"
+              >
+                {copied ? "Copied to clipboard" : "Copy tool or prompt"}
+              </button>
+            ) : null}
             <div className="mt-5 text-xs text-stone-500">
               Version {selected.version}
               {selected.last_reviewed_at
