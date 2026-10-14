@@ -5,6 +5,9 @@ interface ProgramsPageProps {
   onNavigate: (page: string) => void;
 }
 
+const SALES_ENABLED = import.meta.env.VITE_CHECKOUT_ENABLED === "true";
+
+// Never take payment until the paid deliverables and recovery flow have been verified.
 const offers = [
   {
     key: 'starter_playbook',
@@ -45,6 +48,10 @@ export default function ProgramsPage({ onNavigate }: ProgramsPageProps) {
   const [error, setError] = useState('');
 
   const buy = async (productKey: string) => {
+    if (!SALES_ENABLED) {
+      setError("Paid checkout is temporarily unavailable while delivery is being verified. The Academy and free toolkits remain open.");
+      return;
+    }
     if (productKey === 'contractor_course') {
       onNavigate('checkout');
       return;
@@ -106,16 +113,18 @@ export default function ProgramsPage({ onNavigate }: ProgramsPageProps) {
                 </div>
                 <button
                   onClick={() => buy(offer.key)}
-                  disabled={loadingKey !== null}
+                  disabled={loadingKey !== null || !SALES_ENABLED}
                   className="mt-7 w-full inline-flex items-center justify-center gap-2 bg-stone-900 hover:bg-stone-800 text-white font-bold px-6 py-4 rounded-xl transition-colors disabled:opacity-60"
                 >
-                  {loadingKey === offer.key ? <><Loader2 className="w-5 h-5 animate-spin" /> Opening secure checkout...</> : <>{offer.key === 'contractor_course' ? 'See contractor program' : `Buy for ${offer.price}`}<ArrowRight className="w-5 h-5" /></>}
+                  {!SALES_ENABLED ? "Purchase currently unavailable" : loadingKey === offer.key ? <><Loader2 className="w-5 h-5 animate-spin" /> Opening secure checkout...</> : <>{offer.key === 'contractor_course' ? 'See contractor program' : `Buy for ${offer.price}`}<ArrowRight className="w-5 h-5" /></>}
                 </button>
               </div>
             ))}
           </div>
           <div className="mt-10 text-center text-sm text-stone-500">
-            Payments are processed securely by Stripe. Paid digital access is issued after successful payment.
+            {SALES_ENABLED
+              ? "Payments are processed securely by Stripe. Paid digital access is issued after successful payment."
+              : "Programs are shown for reference. Paid checkout remains disabled until course delivery is verified. Free resources and the Practice Lab are accessible without payment."}
           </div>
         </div>
       </section>
