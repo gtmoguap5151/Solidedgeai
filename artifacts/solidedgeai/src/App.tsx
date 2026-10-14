@@ -8,6 +8,7 @@ import AssessmentPage from "@/pages/AssessmentPage";
 import ProgramsPage from "@/pages/ProgramsPage";
 import AcademyPage from "@/pages/AcademyPage";
 import ResourcesPage from "@/pages/ResourcesPage";
+import SkillLabPage from "@/pages/SkillLabPage";
 import PrivacyPage from "@/pages/PrivacyPage";
 import TermsPage from "@/pages/TermsPage";
 
@@ -15,6 +16,7 @@ type Page =
   | "home"
   | "academy"
   | "resources"
+  | "lab"
   | "checkout"
   | "download"
   | "assessment"
@@ -33,6 +35,7 @@ function getRouteInfo(): { page: Page; token?: string; sessionId?: string } {
   if (path === "/assessment") return { page: "assessment" };
   if (path === "/academy") return { page: "academy" };
   if (path === "/resources") return { page: "resources" };
+  if (path === "/lab") return { page: "lab" };
   if (path === "/programs") return { page: "programs" };
   if (path === "/privacy") return { page: "privacy" };
   if (path === "/terms") return { page: "terms" };
@@ -67,6 +70,7 @@ function App() {
       assessment: "assessment",
       academy: "academy",
       resources: "resources",
+      lab: "lab",
       programs: "programs",
       download: "download",
       privacy: "privacy",
@@ -78,6 +82,7 @@ function App() {
       assessment: "/assessment",
       academy: "/academy",
       resources: "/resources",
+      lab: "/lab",
       programs: "/programs",
       download: "/download",
       privacy: "/privacy",
@@ -103,6 +108,7 @@ function App() {
         {page === "assessment" && <AssessmentPage onNavigate={navigate} />}
         {page === "academy" && <AcademyPage onNavigate={navigate} />}
         {page === "resources" && <ResourcesPage />}
+        {page === "lab" && <SkillLabPage onNavigate={navigate} />}
         {page === "programs" && <ProgramsPage onNavigate={navigate} />}
         {page === "checkout" && <CheckoutPage onNavigate={navigate} />}
         {page === "download" && (
