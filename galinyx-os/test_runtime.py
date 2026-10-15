@@ -50,7 +50,9 @@ class RuntimeTests(unittest.TestCase):
         aid=draft["asset_id"]
         with self.assertRaises(ValueError):
             self.r.execute(reviewer,"creator.review",{"asset_id":aid,"decision":"approve"})
-        self.r.execute(reviewer,"creator.rights",{"asset_id":aid,"status":"cleared"})
+        with self.assertRaises(ValueError):
+            self.r.execute(reviewer,"creator.rights",{"asset_id":aid,"status":"cleared"})
+        self.r.execute(reviewer,"creator.rights",{"asset_id":aid,"status":"cleared","evidence":"internal-license-register:asset-001"})
         self.r.execute(reviewer,"creator.review",{"asset_id":aid,"decision":"approve"})
         self.assertEqual(self.r.asset(reviewer,aid)["approval_status"],"approved")
         self.assertFalse(self.r.asset(reviewer,aid)["published"])
