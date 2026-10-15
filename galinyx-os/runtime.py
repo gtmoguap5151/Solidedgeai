@@ -98,7 +98,36 @@ class Runtime:
                                 "ON CONFLICT(entity_id,asset_id) DO NOTHING",
                                 (entity_id,draft["asset_id"],json.dumps(draft,sort_keys=True)))
                 result["asset_id"]=draft["asset_id"]
-            elif permitted and action not in ("memory.write","story.plan","creator.draft"):
+            elif permitted and action == "creator.review":
+                asset_id=payload.get("asset_id")
+                decision=payload.get("decision")
+                if decision not in ("approve","reject"):
+                    raise ValueError("Review decision must be approve or reject")
+                draft=self.asset(entity_id,asset_id)
+                if draft is None:
+                    raise ValueError("Unknown asset")
+                if draft["approval_status"] != "pending":
+                    raise ValueError("Asset already reviewed")
+                if decision == "approve" and draft["rights_status"] != "cleared":
+                    raise ValueError("Rights must be cleared before approval")
+                draft["approval_status"]="approved" if decision=="approve" else "rejected"
+                self.db.execute("UPDATE assets SET data=? WHERE entity_id=? AND asset_id=?",
+                                (json.dumps(draft,sort_keys=True),entity_id,asset_id))
+                result["asset_id"]=asset_id
+            elif permitted and action == "creator.rights":
+                asset_id=payload.get("asset_id")
+                draft=self.asset(entity_id,asset_id)
+                if draft is None:
+                    raise ValueError("Unknown asset")
+                if draft["approval_status"] != "pending":
+                    raise ValueError("Cannot change rights after review")
+                if payload.get("status") not in ("cleared","blocked"):
+                    raise ValueError("Rights status must be cleared or blocked")
+                draft["rights_status"]=payload["status"]
+                self.db.execute("UPDATE assets SET data=? WHERE entity_id=? AND asset_id=?",
+                                (json.dumps(draft,sort_keys=True),entity_id,asset_id))
+                result["asset_id"]=asset_id
+            elif permitted and action not in ("memory.write","story.plan","creator.draft","creator.review","creator.rights"):
                 # No adapters yet: allowed capabilities alone do not authorize side effects.
                 result["status"] = "not_implemented"
             self._event(entity_id,"task."+result["status"],{"action":action,"request_id":request_id})
