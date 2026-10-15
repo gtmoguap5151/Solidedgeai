@@ -2,7 +2,6 @@
 import hashlib, json, sqlite3, uuid
 from creator import draft_scene
 from datetime import datetime, timezone
-from pathlib import Path
 
 def now():
     return datetime.now(timezone.utc).isoformat()
@@ -37,17 +36,24 @@ class Runtime:
             FOREIGN KEY(entity_id) REFERENCES entities(id));
         """)
         self.db.commit()
+        columns = {row[1] for row in self.db.execute("PRAGMA table_info(tasks)")}
+        if "payload_hash" not in columns:
+            self.db.close()
+            raise RuntimeError("Unsupported database schema: migration required; existing data preserved")
 
     def create(self, name, kind, capabilities=()):
-        if not name or not kind:
-            raise ValueError("name and kind required")
-        entity_id = str(uuid.uuid4())
         if not isinstance(name,str) or not isinstance(kind,str):
             raise ValueError("name and kind must be strings")
+        if not name.strip() or not kind.strip():
+            raise ValueError("name and kind required")
+        entity_id = str(uuid.uuid4())
         if kind not in ("creator","researcher"):
             raise ValueError("unsupported entity kind")
         if not isinstance(capabilities,(list,tuple,set)) or any(not isinstance(x,str) for x in capabilities):
             raise ValueError("capabilities must be strings")
+        valid = {"memory.write","story.plan","creator.draft","creator.rights","creator.review"}
+        if not set(capabilities).issubset(valid):
+            raise ValueError("unsupported capability")
         allowed = sorted(set(capabilities))
         with self.db:
             self.db.execute("INSERT INTO entities VALUES (?,?,?,?,?)",
