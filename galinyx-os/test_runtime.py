@@ -27,7 +27,9 @@ class RuntimeTests(unittest.TestCase):
 
     def test_idempotency(self):
         first=self.r.execute(self.a,"memory.write",{"key":"x","value":1},"same-request")
-        second=self.r.execute(self.a,"memory.write",{"key":"x","value":2},"same-request")
+        second=self.r.execute(self.a,"memory.write",{"key":"x","value":1},"same-request")
+        with self.assertRaises(ValueError):
+            self.r.execute(self.a,"memory.write",{"key":"x","value":2},"same-request")
         self.assertEqual(first,second)
         self.assertEqual(self.r.remember(self.a,"x"),1)
         self.assertEqual(sum(e["type"]=="task.completed" for e in self.r.events(self.a)),1)
