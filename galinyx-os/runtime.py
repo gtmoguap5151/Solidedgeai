@@ -132,7 +132,11 @@ class Runtime:
                     raise ValueError("Cannot change rights after review")
                 if payload.get("status") not in ("cleared","blocked"):
                     raise ValueError("Rights status must be cleared or blocked")
+                evidence = payload.get("evidence")
+                if payload["status"] == "cleared" and (not isinstance(evidence,str) or not evidence.strip()):
+                    raise ValueError("Rights clearance requires an evidence reference")
                 draft["rights_status"]=payload["status"]
+                draft["rights_evidence_reference"]=evidence.strip() if isinstance(evidence,str) else None
                 self.db.execute("UPDATE assets SET data=? WHERE entity_id=? AND asset_id=?",
                                 (json.dumps(draft,sort_keys=True),entity_id,asset_id))
                 result["asset_id"]=asset_id
