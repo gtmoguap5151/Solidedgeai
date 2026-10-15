@@ -10,7 +10,7 @@ Implemented:
 - Idempotent task request IDs
 - Creator and researcher entities sharing one runtime
 
-No AI model calls, media generation, autonomous publishing, payment execution, real user authentication, or network endpoints. `story.plan` currently records a successful task but **does not generate a story**. A permitted but unsupported action returns `not_implemented`.
+No AI model calls, media generation, autonomous publishing, payment execution, real user authentication, or network endpoints. Review actions currently depend on entity capabilities and do not verify that a human reviewer is acting; this is a prototype workflow, not a production security boundary. `story.plan` currently records a successful task but **does not generate a story**. A permitted but unsupported action returns `not_implemented`.
 
 ## Run
 ```bash
