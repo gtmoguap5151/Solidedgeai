@@ -42,6 +42,12 @@ class Runtime:
         if not name or not kind:
             raise ValueError("name and kind required")
         entity_id = str(uuid.uuid4())
+        if not isinstance(name,str) or not isinstance(kind,str):
+            raise ValueError("name and kind must be strings")
+        if kind not in ("creator","researcher"):
+            raise ValueError("unsupported entity kind")
+        if not isinstance(capabilities,(list,tuple,set)) or any(not isinstance(x,str) for x in capabilities):
+            raise ValueError("capabilities must be strings")
         allowed = sorted(set(capabilities))
         with self.db:
             self.db.execute("INSERT INTO entities VALUES (?,?,?,?,?)",
