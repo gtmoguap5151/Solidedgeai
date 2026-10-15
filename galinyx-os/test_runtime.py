@@ -6,7 +6,7 @@ from runtime import Runtime
 class RuntimeTests(unittest.TestCase):
     def setUp(self):
         self.r=Runtime()
-        self.a=self.r.create("Creator","creator",["memory.write","story.plan"])
+        self.a=self.r.create("Creator","creator",["memory.write","story.plan","creator.draft"])
         self.b=self.r.create("Researcher","researcher",["memory.write"])
 
     def tearDown(self):
@@ -31,6 +31,15 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(first,second)
         self.assertEqual(self.r.remember(self.a,"x"),1)
         self.assertEqual(sum(e["type"]=="task.completed" for e in self.r.events(self.a)),1)
+
+    def test_creator_draft_pending_and_isolated(self):
+        self.r.execute(self.a,"story.plan",{"world_key":"w","canon":{"setting":"Observatory"}})
+        result=self.r.execute(self.a,"creator.draft",{"world_key":"w","prompt":"A signal"})
+        asset=self.r.asset(self.a,result["asset_id"])
+        self.assertEqual(asset["approval_status"],"pending")
+        self.assertFalse(asset["published"])
+        self.assertIsNone(self.r.asset(self.b,result["asset_id"]))
+        self.assertEqual(self.r.execute(self.b,"creator.draft")["status"],"denied")
 
     def test_durable_state(self):
         with tempfile.TemporaryDirectory() as d:
