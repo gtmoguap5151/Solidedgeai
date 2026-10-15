@@ -22,7 +22,7 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(self.r.execute(self.a,"payments.transfer")["status"],"denied")
 
     def test_capabilities(self):
-        self.assertEqual(self.r.execute(self.a,"story.plan")["status"],"completed")
+        self.assertEqual(self.r.execute(self.a,"story.plan",{"world_key":"world","canon":{"chapter":1}})["status"],"completed")
         self.assertEqual(self.r.execute(self.b,"story.plan")["status"],"denied")
 
     def test_idempotency(self):
