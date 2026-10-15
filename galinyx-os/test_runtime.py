@@ -41,6 +41,18 @@ class RuntimeTests(unittest.TestCase):
         self.assertIsNone(self.r.asset(self.b,result["asset_id"]))
         self.assertEqual(self.r.execute(self.b,"creator.draft")["status"],"denied")
 
+    def test_rights_gate(self):
+        reviewer=self.r.create("Reviewer","creator",["story.plan","creator.draft","creator.rights","creator.review"])
+        self.r.execute(reviewer,"story.plan",{"world_key":"w","canon":{"setting":"Observatory"}})
+        draft=self.r.execute(reviewer,"creator.draft",{"world_key":"w","prompt":"Signal"})
+        aid=draft["asset_id"]
+        with self.assertRaises(ValueError):
+            self.r.execute(reviewer,"creator.review",{"asset_id":aid,"decision":"approve"})
+        self.r.execute(reviewer,"creator.rights",{"asset_id":aid,"status":"cleared"})
+        self.r.execute(reviewer,"creator.review",{"asset_id":aid,"decision":"approve"})
+        self.assertEqual(self.r.asset(reviewer,aid)["approval_status"],"approved")
+        self.assertFalse(self.r.asset(reviewer,aid)["published"])
+
     def test_durable_state(self):
         with tempfile.TemporaryDirectory() as d:
             path=Path(d)/"runtime.db"
