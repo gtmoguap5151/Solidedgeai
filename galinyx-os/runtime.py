@@ -1,5 +1,5 @@
 """Galinyx OS prototype: stdlib-only durable entity runtime. No external AI or payments."""
-import json, sqlite3, uuid
+import hashlib, json, sqlite3, uuid
 from creator import draft_scene
 from datetime import datetime, timezone
 from pathlib import Path
@@ -33,7 +33,7 @@ class Runtime:
             FOREIGN KEY(entity_id) REFERENCES entities(id));
         CREATE TABLE IF NOT EXISTS tasks(
             request_id TEXT PRIMARY KEY, entity_id TEXT NOT NULL, action TEXT NOT NULL,
-            result TEXT NOT NULL, created_at TEXT NOT NULL,
+            payload_hash TEXT NOT NULL, result TEXT NOT NULL, created_at TEXT NOT NULL,
             FOREIGN KEY(entity_id) REFERENCES entities(id));
         """)
         self.db.commit()
@@ -64,11 +64,12 @@ class Runtime:
         info = self.entity(entity_id)
         payload = payload or {}
         request_id = request_id or str(uuid.uuid4())
-        previous = self.db.execute("SELECT entity_id,action,result FROM tasks WHERE request_id=?",(request_id,)).fetchone()
+        payload_hash = hashlib.sha256(json.dumps(payload,sort_keys=True,allow_nan=False).encode()).hexdigest()
+        previous = self.db.execute("SELECT entity_id,action,payload_hash,result FROM tasks WHERE request_id=?",(request_id,)).fetchone()
         if previous:
-            if previous[0] != entity_id or previous[1] != action:
+            if previous[0] != entity_id or previous[1] != action or previous[2] != payload_hash:
                 raise ValueError("Request ID reused for different task")
-            return json.loads(previous[2])
+            return json.loads(previous[3])
         permitted = action in info["capabilities"]
         result = {"request_id":request_id,"entity_id":entity_id,"action":action,
                   "status":"completed" if permitted else "denied"}
@@ -131,8 +132,8 @@ class Runtime:
                 # No adapters yet: allowed capabilities alone do not authorize side effects.
                 result["status"] = "not_implemented"
             self._event(entity_id,"task."+result["status"],{"action":action,"request_id":request_id})
-            self.db.execute("INSERT INTO tasks VALUES (?,?,?,?,?)",
-                            (request_id,entity_id,action,json.dumps(result),now()))
+            self.db.execute("INSERT INTO tasks VALUES (?,?,?,?,?,?)",
+                            (request_id,entity_id,action,payload_hash,json.dumps(result),now()))
         return result
 
     def asset(self, entity_id, asset_id):
