@@ -97,6 +97,13 @@ class Runtime:
         result = {"request_id":request_id,"entity_id":entity_id,"action":action,
                   "status":"completed" if permitted else "denied"}
         with self.db:
+            # Recheck under a write transaction to prevent stale idempotency reads.
+            self.db.execute("UPDATE entities SET name=name WHERE id=?", (entity_id,))
+            previous = self.db.execute("SELECT entity_id,action,payload_hash,result FROM tasks WHERE request_id=?", (request_id,)).fetchone()
+            if previous:
+                if previous[0] != entity_id or previous[1] != action or previous[2] != payload_hash:
+                    raise ValueError("Request ID reused for different task")
+                return json.loads(previous[3])
             if permitted and action == "memory.write":
                 key = payload.get("key")
                 if not isinstance(key,str) or not key:
