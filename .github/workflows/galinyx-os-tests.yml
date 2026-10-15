@@ -1,0 +1,29 @@
+name: Galinyx OS Tests
+
+on:
+  push:
+    branches: [galinyx-launch]
+    paths:
+      - "galinyx-os/**"
+      - ".github/workflows/galinyx-os-tests.yml"
+  pull_request:
+    paths:
+      - "galinyx-os/**"
+      - ".github/workflows/galinyx-os-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit tests
+        run: python -m unittest discover -s galinyx-os -p 'test_*.py' -v
+      - name: Demo smoke test
+        run: python galinyx-os/demo.py
