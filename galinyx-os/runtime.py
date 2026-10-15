@@ -62,8 +62,16 @@ class Runtime:
     def execute(self, entity_id, action, payload=None, request_id=None):
         """Idempotent task execution; denied actions are recorded, never performed."""
         info = self.entity(entity_id)
-        payload = payload or {}
-        request_id = request_id or str(uuid.uuid4())
+        if not isinstance(action,str) or not action:
+            raise ValueError("action must be a nonempty string")
+        if payload is None:
+            payload = {}
+        if not isinstance(payload,dict):
+            raise ValueError("payload must be an object")
+        if request_id is None:
+            request_id = str(uuid.uuid4())
+        if not isinstance(request_id,str) or not request_id:
+            raise ValueError("request_id must be a nonempty string")
         payload_hash = hashlib.sha256(json.dumps(payload,sort_keys=True,allow_nan=False).encode()).hexdigest()
         previous = self.db.execute("SELECT entity_id,action,payload_hash,result FROM tasks WHERE request_id=?",(request_id,)).fetchone()
         if previous:
