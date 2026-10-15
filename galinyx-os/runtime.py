@@ -44,7 +44,7 @@ class Runtime:
     def create(self, name, kind, capabilities=()):
         if not isinstance(name,str) or not isinstance(kind,str):
             raise ValueError("name and kind must be strings")
-        if not name.strip() or not kind.strip():
+        if not name.strip() or not kind.strip() or len(name)>128:
             raise ValueError("name and kind required")
         entity_id = str(uuid.uuid4())
         if kind not in ("creator","researcher"):
@@ -74,7 +74,7 @@ class Runtime:
     def execute(self, entity_id, action, payload=None, request_id=None):
         """Idempotent task execution; denied actions are recorded, never performed."""
         info = self.entity(entity_id)
-        if not isinstance(action,str) or not action:
+        if not isinstance(action,str) or not action or len(action)>128:
             raise ValueError("action must be a nonempty string")
         if payload is None:
             payload = {}
@@ -82,9 +82,12 @@ class Runtime:
             raise ValueError("payload must be an object")
         if request_id is None:
             request_id = str(uuid.uuid4())
-        if not isinstance(request_id,str) or not request_id:
-            raise ValueError("request_id must be a nonempty string")
-        payload_hash = hashlib.sha256(json.dumps(payload,sort_keys=True,allow_nan=False).encode()).hexdigest()
+        if not isinstance(request_id,str) or not request_id or len(request_id)>128:
+            raise ValueError("request_id must be 1-128 characters")
+        serialized = json.dumps(payload,sort_keys=True,allow_nan=False,ensure_ascii=False)
+        if len(serialized.encode("utf-8")) > 65536:
+            raise ValueError("payload exceeds 64 KiB limit")
+        payload_hash = hashlib.sha256(serialized.encode("utf-8")).hexdigest()
         previous = self.db.execute("SELECT entity_id,action,payload_hash,result FROM tasks WHERE request_id=?",(request_id,)).fetchone()
         if previous:
             if previous[0] != entity_id or previous[1] != action or previous[2] != payload_hash:
