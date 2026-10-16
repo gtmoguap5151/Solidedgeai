@@ -66,6 +66,8 @@ class Runtime:
                         (entity_id,event_type,json.dumps(payload,sort_keys=True),now()))
 
     def entity(self, entity_id):
+        if not isinstance(entity_id,str) or not entity_id or len(entity_id)>64:
+            raise ValueError("entity_id must be a valid identifier string")
         row = self.db.execute("SELECT id,kind,name,capabilities FROM entities WHERE id=?",(entity_id,)).fetchone()
         if row is None:
             raise KeyError("Unknown entity")
@@ -106,21 +108,26 @@ class Runtime:
                 return json.loads(previous[3])
             if permitted and action == "memory.write":
                 key = payload.get("key")
-                if not isinstance(key,str) or not key:
-                    raise ValueError("memory key required")
+                if not isinstance(key,str) or not key.strip() or len(key)>256:
+                    raise ValueError("memory key must be 1-256 non-whitespace characters")
                 self.db.execute("INSERT INTO memories(entity_id,key,value) VALUES (?,?,?) "
                                 "ON CONFLICT(entity_id,key) DO UPDATE SET value=excluded.value",
                                 (entity_id,key,json.dumps(payload.get("value"))))
             elif permitted and action == "story.plan":
                 world_key = payload.get("world_key")
                 canon = payload.get("canon")
-                if info["kind"] != "creator" or not isinstance(world_key,str) or not world_key or not isinstance(canon,dict):
-                    raise ValueError("Creator story.plan requires world_key and canon object")
+                if info["kind"] != "creator" or not isinstance(world_key,str) or not world_key.strip() or len(world_key)>128 or not isinstance(canon,dict):
+                    raise ValueError("Creator story.plan requires a valid world_key and canon object")
+                canon_json=json.dumps(canon,sort_keys=True,allow_nan=False,ensure_ascii=False)
+                if len(canon_json.encode("utf-8"))>32768:
+                    raise ValueError("story canon exceeds 32 KiB limit")
                 self.db.execute("INSERT INTO storyworlds(entity_id,world_key,canon) VALUES (?,?,?) "
                                 "ON CONFLICT(entity_id,world_key) DO UPDATE SET canon=excluded.canon",
-                                (entity_id,world_key,json.dumps(canon,sort_keys=True)))
+                                (entity_id,world_key,canon_json))
             elif permitted and action == "creator.draft":
                 world_key=payload.get("world_key")
+                if not isinstance(world_key,str) or not world_key.strip() or len(world_key)>128:
+                    raise ValueError("valid world_key required")
                 canon=self.storyworld(entity_id,world_key)
                 if canon is None:
                     raise ValueError("Unknown storyworld")
