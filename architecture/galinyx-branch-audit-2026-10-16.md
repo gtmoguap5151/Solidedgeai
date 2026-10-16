@@ -32,11 +32,13 @@ Public positioning should distinguish:
 
 Do not imply that the public academy currently exposes runtime APIs, authenticated entity management, secure multi-tenant execution, model adapters, or production-grade orchestration unless those capabilities are demonstrated by the deployed build.
 
-### 3. CI root cause remains unconfirmed
+### 3. CI failure identified; fix committed, verification pending
 
-The connected GitHub tool returned no workflow runs for the inspected roadmap commit and did not expose a list of failed run IDs. The workflow definition can be inspected, but a red check cannot be diagnosed from its YAML alone. No successful build or test result is claimed here.
+GitHub Actions run [38941561644](https://github.com/gtmoguap5151/Solidedgeai/actions/runs/38941561644) failed in the unit-test step: `test_creator_prompt_limit_and_setting_type`. The failing assertion supplied `canon.setting = 42` to `story.plan`; the runtime accepted and persisted it because validation only happened later in the creator draft path.
 
-To identify the exact failure, inspect the failed run's summary and job logs in the repository Actions tab. GitHub documents the workflow log path here: https://docs.github.com/en/actions/how-tos/monitor-workflows/use-workflow-run-logs
+Fix committed on `galinyx-launch` as `2f11fc993b8802c321c11af0cdba3639fb9a6a5e`: `story.plan` now rejects a missing, non-string, whitespace-only, or over-256-character setting before persisting canon.
+
+The change has not yet been verified by a successful post-fix CI run. No passing test or production build is claimed.
 
 ### 4. Safe order of remediation
 
