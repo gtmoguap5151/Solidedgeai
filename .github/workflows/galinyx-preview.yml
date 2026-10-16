@@ -1,0 +1,24 @@
+name: Galinyx Site Validation
+
+on:
+  push:
+    branches: [galinyx-launch]
+    paths:
+      - "galinyx-site/**"
+      - ".github/workflows/galinyx-preview.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate static site
+        run: |
+          test -s galinyx-site/index.html
+          grep -q 'GALINYX' galinyx-site/index.html
+          grep -q 'name="viewport"' galinyx-site/index.html
+          ! grep -Ei 'sk-[a-zA-Z0-9]{16,}|SUPABASE_SERVICE_ROLE_KEY' galinyx-site/index.html

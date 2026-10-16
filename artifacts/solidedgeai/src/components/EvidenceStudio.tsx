@@ -72,7 +72,7 @@ export default function EvidenceStudio({ projectId, projectTitle, brief, work, r
   }
   function download() {
     const sections = [
-      "# Solid Edge AI — Work Evidence",
+      "# GALINYX — Work Evidence",
       "",
       "**Project:** " + projectTitle,
       "**Date:** " + new Date().toISOString().slice(0, 10),
@@ -94,7 +94,7 @@ export default function EvidenceStudio({ projectId, projectTitle, brief, work, r
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = "solid-edge-work-evidence-" + projectId.replace(/[^a-z0-9-]/gi, "") + ".md";
+    anchor.download = "galinyx-work-evidence-" + projectId.replace(/[^a-z0-9-]/gi, "") + ".md";
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();

@@ -148,7 +148,7 @@ export default function SkillLabPage({ onNavigate }: { onNavigate: (page: string
 
   async function copyWorksheet() {
     const text = [
-      "SOLID EDGE AI — SKILL LAB",
+      "GALINYX — SKILL LAB",
       exercise.title,
       "Goal: " + exercise.outcome,
       "",
@@ -205,7 +205,7 @@ export default function SkillLabPage({ onNavigate }: { onNavigate: (page: string
     <div className="min-h-[80vh] bg-stone-100">
       <section className="bg-stone-950 text-white">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-amber-300"><Sparkles className="h-5 w-5" /> Solid Edge AI · Free Practice Lab</div>
+          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-amber-300"><Sparkles className="h-5 w-5" /> GALINYX · Free Practice Lab</div>
           <h1 className="mt-5 max-w-4xl text-4xl font-bold tracking-tight sm:text-6xl">Don't just learn about AI. <span className="text-amber-400">Practice something real.</span></h1>
           <p className="mt-5 max-w-3xl text-lg leading-relaxed text-stone-300">Seven practical challenges across careers, creativity, business, research, teams, online sales and everyday life. Produce a work sample, check it against a clear rubric, document what you tested, and export the evidence for your portfolio. No account required.</p>
           <div className="mt-7 flex flex-wrap gap-3 text-sm font-semibold text-stone-200">
@@ -259,7 +259,7 @@ export default function SkillLabPage({ onNavigate }: { onNavigate: (page: string
               value={entry.notes}
               onChange={(event) => updateEntry({ notes: event.target.value })}
               className="mt-4 min-h-48 w-full resize-y rounded-2xl border border-stone-300 bg-stone-50 p-4 leading-relaxed text-stone-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
-              placeholder="Write your response or paste the work sample you created. This is not sent to Solid Edge AI."
+              placeholder="Write your response or paste the work sample you created. This stays in your browser unless you choose to share it."
               maxLength={12000}
             />
             <div className="mt-2 flex items-center justify-between text-xs text-stone-500"><span>Stored locally on this device only</span><span>{entry.notes.length} / 12000</span></div>

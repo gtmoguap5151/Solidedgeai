@@ -32,10 +32,10 @@ export default function Header({ onNavigate, currentPage }: HeaderProps) {
             </div>
             <div className="text-left leading-tight">
               <div className="font-bold text-stone-900 text-sm sm:text-base">
-                Solid Edge AI
+                GALINYX OS™
               </div>
               <div className="text-stone-500 text-xs hidden sm:block">
-                AI that earns its place
+                Application-layer AI platform
               </div>
             </div>
           </button>

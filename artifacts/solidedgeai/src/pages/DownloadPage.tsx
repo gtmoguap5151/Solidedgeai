@@ -19,10 +19,10 @@ interface DownloadLinkData {
 
 const products: Record<string, { name: string; detail: string; button: string; filename: string }> = {
   starter_playbook: {
-    name: 'Solid Edge AI Starter Playbook',
+    name: 'GALINYX Starter Playbook',
     detail: 'Your practical AI starting system in a downloadable offline playbook.',
     button: 'Download Starter Playbook',
-    filename: 'Solid-Edge-AI-Starter-Playbook.html',
+    filename: 'GALINYX-Starter-Playbook.html',
   },
   sales_marketing: {
     name: 'AI Sales & Marketing Playbook',
@@ -187,7 +187,7 @@ export default function DownloadPage({ onNavigate, token, sessionId }: DownloadP
           <p className="text-stone-500 text-sm mt-1">Your access link is unique to your purchase and remains active for 30 days, up to five downloads.</p>
         </div>
 
-        <div className="mt-8 text-center"><button onClick={() => onNavigate('programs')} className="text-stone-500 hover:text-stone-700 text-sm font-medium">Browse Solid Edge AI programs</button></div>
+        <div className="mt-8 text-center"><button onClick={() => onNavigate('programs')} className="text-stone-500 hover:text-stone-700 text-sm font-medium">Browse GALINYX programs</button></div>
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ const SALES_ENABLED = import.meta.env.VITE_CHECKOUT_ENABLED === "true";
 const offers = [
   {
     key: 'starter_playbook',
-    name: 'Solid Edge AI Starter Playbook',
+    name: 'GALINYX Starter Playbook',
     price: '$49',
     tag: 'START HERE',
     description: 'A practical system for choosing the right AI use cases, building reusable prompts, and measuring whether the work actually pays off.',
@@ -82,11 +82,11 @@ export default function ProgramsPage({ onNavigate }: ProgramsPageProps) {
       <section className="bg-stone-950 text-white py-16 sm:py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 text-amber-300 font-semibold text-sm mb-4">
-            <Sparkles className="w-4 h-4" /> Solid Edge AI Programs
+            <Sparkles className="w-4 h-4" /> GALINYX Learning Resources
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">Buy the level of leverage you need.</h1>
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">Practical learning resources while the platform is built.</h1>
           <p className="mt-5 text-lg text-stone-300 max-w-3xl mx-auto">
-            Start small or go straight to the flagship program. Every paid offer is built around one rule: AI should save time, make money, or make the business easier to run.
+            These existing guides and courses remain supporting resources. They are separate from the GALINYX OS runtime, and paid checkout remains disabled until delivery and fulfillment are verified.
           </p>
         </div>
       </section>
