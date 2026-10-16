@@ -118,6 +118,9 @@ class Runtime:
                 canon = payload.get("canon")
                 if info["kind"] != "creator" or not isinstance(world_key,str) or not world_key.strip() or len(world_key)>128 or not isinstance(canon,dict):
                     raise ValueError("Creator story.plan requires a valid world_key and canon object")
+                setting = canon.get("setting")
+                if not isinstance(setting, str) or not setting.strip() or len(setting) > 256:
+                    raise ValueError("Storyworld canon requires a nonempty string setting of at most 256 characters")
                 canon_json=json.dumps(canon,sort_keys=True,allow_nan=False,ensure_ascii=False)
                 if len(canon_json.encode("utf-8"))>32768:
                     raise ValueError("story canon exceeds 32 KiB limit")
