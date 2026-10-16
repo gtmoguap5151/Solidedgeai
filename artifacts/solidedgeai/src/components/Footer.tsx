@@ -14,7 +14,7 @@ export default function Footer({ onNavigate }: FooterProps) {
               <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
             </div>
             <div className="leading-tight">
-              <div className="font-bold text-white text-sm">GALINYX OS</div>
+              <div className="font-bold text-white text-sm">GALINYX OS™</div>
               <div className="text-stone-500 text-xs">
                 Application-layer AI platform
               </div>
