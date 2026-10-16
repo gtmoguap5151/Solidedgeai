@@ -9,7 +9,7 @@ Status: **experimental, not production-ready**. This is an engineering risk regi
 4. **Data protection:** SQLite records are unencrypted at the application layer, no retention/deletion controls, secrets manager, backup or incident response plan.
 5. **Concurrency:** Shared SQLite connection and check-then-insert idempotency are not safe under arbitrary concurrent access. Use transactional locking, unique constraints and tested worker isolation before parallel processing.
 6. **Audit integrity:** Events are append-only by convention, not cryptographically tamper-evident or access-controlled.
-7. **Resource abuse:** No input length limits, quotas, rate limits, sandboxing or cost ceilings.
+7. **Resource abuse:** Basic request (64 KiB), story canon (32 KiB), prompt (4,000 characters), memory key (256 characters), and identifier limits are now enforced. Quotas, rate limits, sandboxing, and cost ceilings remain absent.
 8. **Provenance:** A `rights_status=cleared` field is not evidence of ownership, licenses, releases, or permission. No documentary chain of title.
 9. **AI risk:** Current deterministic outlines are not model-generated. Before integrating models, assess prompt injection, untrusted tool outputs, content moderation, privacy, impersonation, and model provider terms.
 10. **Publishing/payments:** No platform integrations, financial transfers or live publishing. Do not enable without verified account ownership, delegated authority, platform API rules, fraud controls and regulatory review.
