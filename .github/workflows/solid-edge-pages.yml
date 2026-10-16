@@ -1,13 +1,10 @@
-name: Publish Solid Edge AI free learning site
+name: Publish GALINYX OS official landing site
 
 on:
   push:
     branches: [main]
     paths:
-      - "artifacts/solidedgeai/**"
-      - "lib/**"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
+      - "galinyx-site/**"
       - ".github/workflows/solid-edge-pages.yml"
   workflow_dispatch:
 
@@ -26,50 +23,20 @@ jobs:
     steps:
       - name: Checkout the source
         uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - name: Install pnpm
-        run: npm install --global pnpm@10.19.0
-      - name: Install locked dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Build public, static version
-        env:
-          BASE_PATH: /Solidedgeai/
-          VITE_CHECKOUT_ENABLED: "false"
-        run: pnpm --filter @workspace/solidedgeai run build
-      - name: Allow refresh on deep-linked app routes
-        run: cp artifacts/solidedgeai/dist/public/index.html artifacts/solidedgeai/dist/public/404.html
-      - name: Save downloadable built site
-        uses: actions/upload-artifact@v4
-        with:
-          name: solid-edge-ai-static-site
-          path: artifacts/solidedgeai/dist/public
-          retention-days: 30
-          if-no-files-found: error
-      - name: Build root-hosting edition
-        env:
-          BASE_PATH: /
-          VITE_CHECKOUT_ENABLED: "false"
-        run: pnpm --filter @workspace/solidedgeai run build
-      - name: Static fallback for single-page routes
-        run: cp artifacts/solidedgeai/dist/public/index.html artifacts/solidedgeai/dist/public/404.html
-      - name: Save root-hosting edition
-        uses: actions/upload-artifact@v4
-        with:
-          name: solid-edge-ai-root-hosting
-          path: artifacts/solidedgeai/dist/public
-          retention-days: 30
-          if-no-files-found: error
+      - name: Validate official landing page
+        run: |
+          test -s galinyx-site/index.html
+          grep -q 'GALINYX OS' galinyx-site/index.html
+          grep -q 'name="viewport"' galinyx-site/index.html
+          ! grep -Ei 'sk-[a-zA-Z0-9]{16,}|SUPABASE_SERVICE_ROLE_KEY' galinyx-site/index.html
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Upload the site
+      - name: Upload GALINYX OS site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: artifacts/solidedgeai/dist/public
+          path: galinyx-site
 
   deploy:
     environment:
@@ -78,6 +45,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Deploy GitHub Pages
+      - name: Deploy GALINYX OS to GitHub Pages
         id: pages
         uses: actions/deploy-pages@v4
