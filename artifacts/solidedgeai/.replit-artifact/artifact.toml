@@ -1,7 +1,7 @@
 kind = "web"
 previewPath = "/"
 title = "GALINYX OS"
-description = "A course storefront for construction business owners, offering practical AI automation guides with email signup, secure checkout, and protected digital downloads."
+description = "GALINYX OS application-layer AI platform preview with a local runtime prototype and supporting learning resources. In development; not production-ready."
 version = "1.0.0"
 id = "artifacts/solidedgeai"
 router = "path"
