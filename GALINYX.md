@@ -15,12 +15,13 @@ Build useful, ambitious technologies that expand human capability. Test bold hyp
 5. Think globally, execute deliberately.
 
 ## Brand architecture
-- **Galinyx** — proposed parent brand, subject to full trademark and domain clearance.
-- **Galinyx Labs** — proposed R&D identity, not a separate legal entity.
-- **Solid Edge AI** — existing product and codebase; preserve until a controlled migration is approved.
+- **GALINYX** — project and product brand, subject to trademark and domain clearance before commercial launch.
+- **GALINYX OS** — the application-layer AI platform in development.
+- **Creator** — one planned/native reference subsystem, not the whole platform.
+- **Legacy academy/storefront source** — the existing React application is being adapted as a public-facing starting point; its previous product identity is being retired from visible copy while internal package paths and commerce identifiers remain unchanged until their dependencies are verified.
 
 ## First release scope
-A responsive, accessible corporate landing page describing the mission and showcasing research/products truthfully. No invented product launches, testimonials, customers, investment claims, or promises.
+A responsive public-facing GALINYX OS introduction linked to the actual prototype and engineering roadmap. Describe only verified capabilities; the current Python runtime is local/offline and is not a hosted, production-ready OS. No invented launches, testimonials, customers, investment claims, or promises.
 
 ## Launch safeguards
 - Complete confusingly similar trademark searches and domain purchase availability checks.
