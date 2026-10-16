@@ -68,7 +68,7 @@ export default function Footer({ onNavigate }: FooterProps) {
         </div>
 
         <div className="mt-8 pt-8 border-t border-stone-800 text-xs text-stone-500 text-center">
-          © {new Date().getFullYear()} Solid Edge AI. All rights reserved.
+          © {new Date().getFullYear()} GALINYX. All rights reserved.
         </div>
       </div>
     </footer>
