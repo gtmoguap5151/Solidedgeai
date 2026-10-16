@@ -56,3 +56,15 @@ The change has not yet been verified by a successful post-fix CI run. No passing
 - CI diagnosis: blocked on access to the actual failed run and logs.
 - Deployment parity: not verified.
 - Production readiness: not established.
+
+
+## Follow-up work — 2026-10-16
+
+The following source changes were committed on `galinyx-launch` after the initial inspection:
+
+- `artifacts/solidedgeai/src/pages/LandingPage.tsx` now presents GALINYX OS as an application-layer AI platform in development, identifies Creator as one native reference application, links to the platform roadmap and prototype, and explicitly discloses prototype limitations.
+- `artifacts/solidedgeai/src/components/Header.tsx` and `Footer.tsx` now display GALINYX OS and the application-layer platform descriptor. The existing support email was deliberately preserved because a GALINYX-domain support address has not been verified.
+- `artifacts/solidedgeai/index.html` title and social metadata now use GALINYX OS positioning.
+- `.github/workflows/galinyx-app-checks.yml` was added to run a locked pnpm install, app typecheck, and app build for relevant changes on `galinyx-launch`.
+
+These are source changes only. No successful CI result was returned at the time of this update; a missing status is not a pass. The live Surge deployment has not been updated or verified. The academy, program, privacy/terms, and digital-download pages still require a coordinated identity/content review before the entire site can be called fully rebranded. Existing Stripe/Supabase metadata and product delivery paths were not changed in this pass to avoid breaking the current checkout-disabled setup or product identifiers.
