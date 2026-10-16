@@ -9,17 +9,17 @@ export default function PrivacyPage() {
           <div className="mt-8 space-y-7 text-stone-700 leading-relaxed">
             <section>
               <h2 className="text-xl font-bold text-stone-900">Information we collect</h2>
-              <p className="mt-2">Solid Edge AI may collect information you choose to provide, such as your email address when you join our list or information needed to complete a purchase. Our free assessment currently processes the answers you enter in your browser to generate your report.</p>
+              <p className="mt-2">GALINYX may collect information you choose to provide, such as your email address when you join our list or information needed to complete a purchase. Our free assessment currently processes the answers you enter in your browser to generate your report.</p>
             </section>
 
             <section>
               <h2 className="text-xl font-bold text-stone-900">Payments</h2>
-              <p className="mt-2">Payments are processed by Stripe. Solid Edge AI does not store full payment-card numbers. Stripe may collect payment and billing information under its own privacy practices.</p>
+              <p className="mt-2">Payments are processed by Stripe. GALINYX does not store full payment-card numbers. Stripe may collect payment and billing information under its own privacy practices.</p>
             </section>
 
             <section>
               <h2 className="text-xl font-bold text-stone-900">How we use information</h2>
-              <p className="mt-2">We use information to provide purchased products, operate and improve Solid Edge AI, respond to support requests, prevent fraud or abuse, and send updates when you have chosen to join our list.</p>
+              <p className="mt-2">We use information to provide purchased products, operate and improve GALINYX, respond to support requests, prevent fraud or abuse, and send updates when you have chosen to join our list.</p>
             </section>
 
             <section>
