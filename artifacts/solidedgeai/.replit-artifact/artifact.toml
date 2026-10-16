@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "SolidEdgeAI"
+title = "GALINYX OS"
 description = "A course storefront for construction business owners, offering practical AI automation guides with email signup, secure checkout, and protected digital downloads."
 version = "1.0.0"
 id = "artifacts/solidedgeai"
