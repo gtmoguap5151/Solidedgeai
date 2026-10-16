@@ -14,9 +14,9 @@ export default function Footer({ onNavigate }: FooterProps) {
               <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
             </div>
             <div className="leading-tight">
-              <div className="font-bold text-white text-sm">Solid Edge AI</div>
+              <div className="font-bold text-white text-sm">GALINYX OS</div>
               <div className="text-stone-500 text-xs">
-                AI that earns its place
+                Application-layer AI platform
               </div>
             </div>
           </div>
@@ -59,7 +59,7 @@ export default function Footer({ onNavigate }: FooterProps) {
               Terms
             </button>
             <a
-              href="mailto:support@aiautomationforcontractors.com"
+              href="mailto:support@galinyx.com"
               className="flex items-center gap-1.5 hover:text-white transition-colors"
             >
               <Mail className="w-4 h-4" /> Support
