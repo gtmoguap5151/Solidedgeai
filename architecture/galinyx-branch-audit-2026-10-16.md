@@ -68,3 +68,11 @@ The following source changes were committed on `galinyx-launch` after the initia
 - `.github/workflows/galinyx-app-checks.yml` was added to run a locked pnpm install, app typecheck, and app build for relevant changes on `galinyx-launch`.
 
 These are source changes only. No successful CI result was returned at the time of this update; a missing status is not a pass. The live Surge deployment has not been updated or verified. The academy, program, privacy/terms, and digital-download pages still require a coordinated identity/content review before the entire site can be called fully rebranded. Existing Stripe/Supabase metadata and product delivery paths were not changed in this pass to avoid breaking the current checkout-disabled setup or product identifiers.
+
+
+Additional source identity work in this pass:
+- Privacy and Terms pages now use the GALINYX name; the existing support email remains unchanged pending verification of a replacement contact address.
+- Practice Lab headings and exported work-evidence title/filename now use GALINYX.
+- Browser storage keys and the old commerce/product identifiers were left intact to avoid silently discarding local progress or breaking existing digital-delivery records.
+
+Remaining identity work includes the legacy product names in Programs/Download and payment metadata, package/workflow naming, and a full legal/contact review. The new app-check workflow was committed, but no completed workflow run or passing typecheck/build has been verified. The public Surge site has not been deployed from these commits.
