@@ -13,10 +13,10 @@ export default function TermsPage() {
           <div className="mt-8 space-y-7 text-stone-700 leading-relaxed">
             <section>
               <h2 className="text-xl font-bold text-stone-900">
-                Use of Solid Edge AI
+                Use of GALINYX
               </h2>
               <p className="mt-2">
-                Solid Edge AI provides educational information, digital
+                GALINYX provides educational information, digital
                 products, assessments, and practical business resources. You
                 agree to use the service lawfully and not interfere with its
                 operation or security.
@@ -38,7 +38,7 @@ export default function TermsPage() {
                 Certificates and credentials
               </h2>
               <p className="mt-2">
-                A Solid Edge AI certificate may document completion of stated
+                A GALINYX certificate may document completion of stated
                 course requirements. Unless a program expressly says otherwise,
                 it is not a college degree, professional license, government
                 certification, or accredited academic credential.
@@ -72,7 +72,7 @@ export default function TermsPage() {
                 Intellectual property
               </h2>
               <p className="mt-2">
-                Solid Edge AI content, branding, guides, and original materials
+                GALINYX content, branding, guides, and original materials
                 are protected by applicable intellectual-property laws.
                 Purchasing access gives you a personal or internal-business-use
                 license unless a product states otherwise. You may not resell,
@@ -84,7 +84,7 @@ export default function TermsPage() {
                 Limitation of liability
               </h2>
               <p className="mt-2">
-                To the fullest extent permitted by law, Solid Edge AI is not
+                To the fullest extent permitted by law, GALINYX is not
                 responsible for indirect, incidental, or consequential losses
                 resulting from use of educational materials, third-party
                 services, or business decisions made using the service.
@@ -93,7 +93,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-bold text-stone-900">Changes</h2>
               <p className="mt-2">
-                We may update these terms as Solid Edge AI changes. The
+                We may update these terms as GALINYX changes. The
                 effective date above identifies the current version.
               </p>
             </section>
