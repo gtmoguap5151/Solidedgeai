@@ -1,0 +1,45 @@
+name: GALINYX App Checks
+
+on:
+  push:
+    branches: [galinyx-launch]
+    paths:
+      - "artifacts/solidedgeai/**"
+      - "lib/**"
+      - "scripts/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/galinyx-app-checks.yml"
+  pull_request:
+    paths:
+      - "artifacts/solidedgeai/**"
+      - "lib/**"
+      - "scripts/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/galinyx-app-checks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  app-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck application
+        run: pnpm --filter @workspace/solidedgeai run typecheck
+      - name: Build application
+        run: pnpm --filter @workspace/solidedgeai run build
