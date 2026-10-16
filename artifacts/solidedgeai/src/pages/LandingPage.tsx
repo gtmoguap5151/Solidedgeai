@@ -43,7 +43,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             <span className="text-indigo-300">understand and control.</span>
           </h1>
           <p className="mt-7 max-w-3xl text-lg leading-relaxed text-stone-300 sm:text-xl">
-            GALINYX OS is being developed as a shared application layer for AI-powered entities and applications—with explicit capabilities, persistent state, inspectable tasks, and human control built into the design.
+            GALINYX OS™ is being developed as a shared application layer for AI-powered entities and applications—with explicit capabilities, persistent state, inspectable tasks, and human control built into the design.
           </p>
           <div className="mt-9 flex flex-col gap-4 sm:flex-row">
             <a
