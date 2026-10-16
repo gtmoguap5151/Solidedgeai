@@ -20,8 +20,14 @@ class InputLimitsTests(unittest.TestCase):
         self.runtime.execute(self.creator,"story.plan",{"world_key":"w","canon":{"setting":"Station"}})
         with self.assertRaises(ValueError):
             self.runtime.execute(self.creator,"creator.draft",{"world_key":"w","prompt":"x"*4001})
-        with self.assertRaises(ValueError):
-            self.runtime.execute(self.creator,"story.plan",{"world_key":"bad","canon":{"setting":42}})
+        for invalid_setting in (42, "", "   ", "s" * 257):
+            with self.subTest(setting_type=type(invalid_setting).__name__, length=len(invalid_setting) if isinstance(invalid_setting, str) else None):
+                with self.assertRaises(ValueError):
+                    self.runtime.execute(
+                        self.creator,
+                        "story.plan",
+                        {"world_key": "bad", "canon": {"setting": invalid_setting}},
+                    )
 
 if __name__=="__main__":
     unittest.main()
