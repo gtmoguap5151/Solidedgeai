@@ -59,7 +59,7 @@ export default function Footer({ onNavigate }: FooterProps) {
               Terms
             </button>
             <a
-              href="mailto:support@galinyx.com"
+              href="mailto:support@aiautomationforcontractors.com"
               className="flex items-center gap-1.5 hover:text-white transition-colors"
             >
               <Mail className="w-4 h-4" /> Support
