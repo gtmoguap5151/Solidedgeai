@@ -1,89 +1,50 @@
-import { Library, Sparkles, Zap } from "lucide-react";
+import { Zap } from "lucide-react";
 
-interface HeaderProps {
-  onNavigate: (page: string) => void;
-  currentPage: string;
+function scrollTo(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 }
 
-export default function Header({ onNavigate, currentPage }: HeaderProps) {
-  const scrollTo = (id: string) => {
-    if (currentPage !== "home") {
-      onNavigate("home");
-      window.setTimeout(
-        () =>
-          document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }),
-        100,
-      );
-      return;
-    }
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
-
+export default function Header() {
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-stone-200 shadow-sm">
+    <header className="sticky top-0 z-50 bg-stone-950/85 backdrop-blur-md border-b border-white/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <button
-            onClick={() => onNavigate("home")}
-            className="flex items-center gap-2 group"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="flex items-center gap-2.5 group"
           >
-            <div className="w-9 h-9 bg-stone-900 rounded-lg flex items-center justify-center group-hover:bg-amber-600 transition-colors">
-              <Zap className="w-5 h-5 text-white" strokeWidth={2.5} />
+            <div className="w-9 h-9 bg-amber-500 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+              <Zap className="w-5 h-5 text-stone-950" strokeWidth={2.5} />
             </div>
-            <div className="text-left leading-tight">
-              <div className="font-bold text-stone-900 text-sm sm:text-base">
-                Solid Edge AI
-              </div>
-              <div className="text-stone-500 text-xs hidden sm:block">
-                AI that earns its place
-              </div>
-            </div>
+            <span className="font-serif font-bold text-white text-sm sm:text-base tracking-tight">
+              SolidEdge AI Academy
+            </span>
           </button>
 
-          <nav className="flex items-center gap-2 sm:gap-4">
+          <nav className="flex items-center gap-1 sm:gap-5">
             <button
-              onClick={() => onNavigate("lab")}
-              className={`inline-flex min-h-10 items-center rounded-lg px-2 text-sm font-bold ${currentPage === "lab" ? "bg-amber-100 text-amber-900" : "text-stone-900 hover:bg-amber-50"}`}
+              onClick={() => scrollTo("levels")}
+              className="hidden sm:inline text-sm font-medium text-stone-300 hover:text-white transition-colors"
             >
-              Practice Lab
+              The Levels
             </button>
             <button
-              onClick={() => scrollTo("explore")}
-              className="hidden lg:inline text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
+              onClick={() => scrollTo("core-course")}
+              className="hidden sm:inline text-sm font-medium text-stone-300 hover:text-white transition-colors"
             >
-              Explore
+              Core Course
             </button>
             <button
-              onClick={() => onNavigate("programs")}
-              className={`hidden md:inline text-sm font-medium transition-colors ${currentPage === "programs" ? "text-amber-700" : "text-stone-600 hover:text-stone-900"}`}
+              onClick={() => scrollTo("faq")}
+              className="hidden sm:inline text-sm font-medium text-stone-300 hover:text-white transition-colors"
             >
-              Programs
+              FAQ
             </button>
             <button
-              onClick={() => onNavigate("resources")}
-              className={`inline-flex items-center gap-1.5 text-sm font-semibold transition-colors ${currentPage === "resources" ? "text-amber-700" : "text-stone-700 hover:text-stone-900"}`}
+              onClick={() => scrollTo("free")}
+              className="inline-flex items-center justify-center bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-sm px-4 py-2 rounded-lg transition-colors"
             >
-              <Library className="w-4 h-4" />
-              <span className="hidden sm:inline">Resources</span>
-            </button>
-            <button
-              onClick={() => onNavigate("academy")}
-              className={`text-sm font-semibold transition-colors ${currentPage === "academy" ? "text-amber-700" : "text-stone-700 hover:text-stone-900"}`}
-            >
-              Academy
-            </button>
-            <button
-              onClick={() => onNavigate("assessment")}
-              className={`inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-lg transition-colors ${
-                currentPage === "assessment"
-                  ? "bg-amber-100 text-amber-800"
-                  : "text-stone-700 hover:bg-stone-100"
-              }`}
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>
-                <span className="hidden sm:inline">Free AI </span>Assessment
-              </span>
+              Start Free
             </button>
           </nav>
         </div>
