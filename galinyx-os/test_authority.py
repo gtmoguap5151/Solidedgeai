@@ -20,7 +20,7 @@ class AuthorityPolicyTests(unittest.TestCase):
             budget="100",
             max_transaction="500",
             transaction_actions={"purchase.request"},
-            delegable_actions={"catalog.read", "quote.compare"},
+            delegable_actions={"catalog.read", "quote.compare", "purchase.request"},
             delegation_depth=2,
             approval_required={"purchase.request"},
         )
@@ -102,6 +102,25 @@ class AuthorityPolicyTests(unittest.TestCase):
                 expires_at=self.now + timedelta(hours=1), budget="10",
                 approval_required=set(),
             )
+
+    def test_delegation_cannot_remove_transaction_limit_or_approval(self):
+        with self.assertRaises(PermissionError):
+            self.policy.delegate(
+                self.root.grant_id, "manager", "specialist",
+                actions={"purchase.request"}, resources={"project-7"},
+                expires_at=self.now + timedelta(hours=1), budget="10",
+                approval_required={"purchase.request"},
+            )
+        child = self.policy.delegate(
+            self.root.grant_id, "manager", "specialist",
+            actions={"purchase.request"}, resources={"project-7"},
+            expires_at=self.now + timedelta(hours=1), budget="10",
+            max_transaction="100",
+            transaction_actions={"purchase.request"},
+            approval_required={"purchase.request"},
+        )
+        self.assertEqual(child.transaction_actions, frozenset({"purchase.request"}))
+        self.assertEqual(child.max_transaction, Decimal("100"))
 
     def test_delegation_depth_is_enforced(self):
         child = self.policy.delegate(
