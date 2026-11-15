@@ -203,3 +203,86 @@ A viable contribution may ultimately be:
 - or no standalone product at all, if the need is already covered.
 
 The next decision must be based on evidence of adoption, implementation gaps, and buyer demand—not on the fact that the technology is new.
+
+
+## 10. Direct inspection of the AIP reference implementation
+
+**Repository inspected:** https://github.com/sunilp/aip  
+**Repository default branch:** `master`  
+**Repository state returned by GitHub API during this review:** public Apache-2.0 repository; 138 commits shown by the public repository page; Python and Rust implementations; tests under `tests/conformance`; repository last pushed 2026-10-10. These are repository metadata observations, not an independent quality assessment.
+
+### What exists already
+
+The reference project is materially more developed than a paper-only proposal:
+- Python and Rust implementations.
+- MCP middleware/proxy and A2A verification components described in the project README and IETF draft.
+- Cross-language conformance tests for token interoperability and policy encoding.
+- A dedicated test corpus under `tests/conformance`.
+- A published Python package; PyPI records version 0.6.0 uploaded 2026-10-10.
+
+Relevant source locations:
+- https://github.com/sunilp/aip/tree/master/tests/conformance
+- https://github.com/sunilp/aip/blob/master/tests/conformance/test_chained_interop.py
+- https://github.com/sunilp/aip/blob/master/tests/conformance/test_interop.py
+- https://github.com/sunilp/aip/blob/master/tests/conformance/test_policy_encoding.py
+- https://pypi.org/project/agent-identity-protocol/0.6.0/
+
+### What the existing tests demonstrate—and do not demonstrate
+
+The conformance tests currently visible in the repository test:
+- Rust-to-Python and Python-to-Rust token interoperability.
+- Delegation blocks are present in chained-token tests.
+- Scope dropped by a delegation is rejected in both languages.
+- Python and Rust emit identical canonical Datalog for selected policy vectors.
+- Certain forbidden policy encodings are not emitted.
+
+These are useful tests. They are not an independent certification, and the test code is part of the same project as the implementations being tested.
+
+The IETF draft itself makes a particularly important disclosure: during draft-01 development, Python and Rust passed cross-language tests while both failed requirements in the specification. It says implementers must test normative MUST requirements, including negative cases, rather than relying only on two implementations agreeing. This is direct evidence that interoperability tests alone can produce false confidence.
+
+### Documented implementation gaps in draft -02
+
+The current draft's implementation-status section reports:
+- Neither known implementation provides the defined V7 revocation behavior.
+- No independent implementation of the current revision was known to the author.
+- The Rust implementation lacks the JWT chain encoding and domain support, and does not reject certain repeated single-valued facts or max-depth cases.
+- Proof-of-possession support is partial in JWT mode and absent in the Biscuit encoding.
+- The MCP middleware/proxy do not verify proof of possession.
+- The draft's dual-axis authorization requirement is not met by AIP itself; combining agent authority with the principal's own entitlements remains the relying party's responsibility.
+- The draft reports partial audit guarantees, including a JWT-chain truncation limitation without proof of possession.
+- Earlier Python implementation versions had Datalog-injection authorization bypasses; the draft now requires strict rejection/parameter binding of unsafe values.
+
+These are disclosures in a working Internet-Draft and must be treated as implementation-status claims by the draft author, not as findings from an independent penetration test of the current code. The draft also states that its implementation inventory may be incomplete.
+
+### More precise opportunity
+
+The broad conformance-harness concept is not empty: AIP already has conformance tests, and its draft explicitly discusses the difference between agreement and normative conformance.
+
+A potentially useful research contribution would have to be more precise than "test AIP":
+1. Independent, implementation-neutral test vectors derived directly from each normative MUST/SHOULD and security invariant.
+2. Differential tests across independent implementations and encodings, not only the two implementations maintained in one repository.
+3. Negative/adversarial tests for malformed Datalog inputs, chain truncation, missing holder proof, domain omission, principal substitution, depth/budget/expiry widening, revocation staleness, and unknown/unsupported fields.
+4. Protocol-binding tests proving that the actual MCP and A2A enforcement paths bind the presented token to the exact request, tool, resource, audience, and actor.
+5. Tests for fail-closed behavior when required security semantics are unsupported or unavailable.
+6. Reproducible CI outputs that separate spec conformance, cross-implementation interoperability, security testing, and performance. Passing one category must never be presented as passing the others.
+
+### Revised go/no-go
+
+**Still no-go:** building a competing delegation protocol, generic agent security gateway, or generic conformance product based only on the current evidence.
+
+**Proceed with bounded research only:** determine whether independent, implementation-neutral conformance artifacts for the emerging agent identity/delegation profiles are missing, desired by implementers, and technically distinct from existing project tests.
+
+A suitable first deliverable, if the gap survives research, is a small public test-vector corpus and a runner that checks normative requirements against more than one implementation. It should be protocol/profile-specific and vendor-neutral, not branded as a universal agent-security certification.
+
+No code has been copied from the AIP repository. No third-party tests have been executed in this review. No vulnerability has been independently reproduced. The current work is source/specification inspection only.
+
+## 11. Immediate next research sequence
+
+1. Map every normative requirement in AIP -02 to the existing Python/Rust test files and mark each as covered, partially covered, or uncovered.
+2. Verify whether the test cases actually exercise the current -02 branch and encodings; distinguish tests for draft-01 from tests for draft-02.
+3. Check whether independent implementations, adapters, or forks exist beyond the author's own Python/Rust code.
+4. Inspect the relevant A2A and MCP binding code for request-to-token binding and fail-closed behavior.
+5. Build a test corpus only for demonstrable coverage gaps. Do not duplicate existing tests.
+6. Seek feedback from protocol implementers before describing this as a product or funding opportunity.
+
+**Current conclusion:** The most credible lead is not a new protocol. It is the quality and independence of conformance evidence for a fast-moving protocol ecosystem. Even that lead remains unvalidated until the requirement-to-test map and user demand are established.
