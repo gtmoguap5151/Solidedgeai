@@ -57,6 +57,123 @@ class AuthorityStoreTests(unittest.TestCase):
                 unowned, "tenant-1", "owner-1", "kms://unowned"
             )
 
+    def _create_delegate(self, name="Delegate"):
+        agent_id = self.runtime.create_owned_entity(
+            "owner-1", "tenant-1", name, "agent", []
+        )
+        self.store.bind_agent(
+            agent_id, "tenant-1", "owner-1", f"kms://galinyx/{name.lower()}"
+        )
+        return agent_id
+
+    def test_delegation_attenuates_scope_and_parent_budget_counts_child_spend(self):
+        delegate_id = self._create_delegate()
+        child = self.store.delegate_grant(
+            self.grant_id, self.agent_id, delegate_id,
+            actions={"research.read"}, resources={"project-1"},
+            expires_at=datetime.now(timezone.utc) + timedelta(minutes=30),
+            budget_limit_units=400,
+        )
+        self.assertTrue(self.store.grant_is_active(child))
+        reservation = self.store.reserve_budget(child, "child-request", 350, "USD_CENT")
+        self.assertEqual(reservation["status"], "reserved")
+        self.assertEqual(self.store.budget_summary(child)["consumed_units"], 350)
+        self.assertEqual(self.store.budget_summary(self.grant_id)["consumed_units"], 350)
+        with self.assertRaises(PermissionError):
+            self.store.reserve_budget(self.grant_id, "parent-overrun", 700, "USD_CENT")
+
+    def test_delegation_rejects_scope_expiry_and_budget_escalation(self):
+        delegate_id = self._create_delegate()
+        with self.assertRaises(PermissionError):
+            self.store.delegate_grant(
+                self.grant_id, self.agent_id, delegate_id,
+                actions={"purchase.request"}, resources={"project-1"},
+                expires_at=datetime.now(timezone.utc) + timedelta(minutes=20),
+                budget_limit_units=10,
+            )
+        with self.assertRaises(PermissionError):
+            self.store.delegate_grant(
+                self.grant_id, self.agent_id, delegate_id,
+                actions={"research.read"}, resources={"project-1", "project-2"},
+                expires_at=datetime.now(timezone.utc) + timedelta(minutes=20),
+                budget_limit_units=10,
+            )
+        with self.assertRaises(PermissionError):
+            self.store.delegate_grant(
+                self.grant_id, self.agent_id, delegate_id,
+                actions={"research.read"}, resources={"project-1"},
+                expires_at=datetime.now(timezone.utc) + timedelta(hours=2),
+                budget_limit_units=10,
+            )
+        with self.assertRaises(PermissionError):
+            self.store.delegate_grant(
+                self.grant_id, self.agent_id, delegate_id,
+                actions={"research.read"}, resources={"project-1"},
+                expires_at=datetime.now(timezone.utc) + timedelta(minutes=20),
+                budget_limit_units=1001,
+            )
+
+    def test_delegated_transaction_ceiling_and_approval_are_inherited(self):
+        delegate_id = self._create_delegate("PurchaseDelegate")
+        parent = self.store.issue_root_grant(
+            "owner-1", self.agent_id, actions={"purchase.request"},
+            resources={"project-1"},
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+            budget_limit_units=1000, budget_unit="USD_CENT",
+            max_transaction_units=500, transaction_unit="USD_CENT",
+            transaction_actions={"purchase.request"},
+            approval_required={"purchase.request"},
+            delegable_actions={"purchase.request"}, delegation_depth=1,
+        )
+        child = self.store.delegate_grant(
+            parent, self.agent_id, delegate_id,
+            actions={"purchase.request"}, resources={"project-1"},
+            expires_at=datetime.now(timezone.utc) + timedelta(minutes=30),
+            budget_limit_units=100,
+            transaction_actions={"purchase.request"},
+            approval_required={"purchase.request"},
+        )
+        row = self.runtime.db.execute(
+            "SELECT max_transaction_units,transaction_unit,transaction_actions_json,"
+            "approval_required_json,delegation_depth FROM ahaf_authority_grants WHERE grant_id=?",
+            (child,),
+        ).fetchone()
+        self.assertEqual(row[0], 500)
+        self.assertEqual(row[1], "USD_CENT")
+        self.assertEqual(row[2], '["purchase.request"]')
+        self.assertEqual(row[3], '["purchase.request"]')
+        self.assertEqual(row[4], 0)
+        with self.assertRaises(PermissionError):
+            self.store.delegate_grant(
+                parent, self.agent_id, delegate_id,
+                actions={"purchase.request"}, resources={"project-1"},
+                expires_at=datetime.now(timezone.utc) + timedelta(minutes=20),
+                budget_limit_units=50, transaction_actions=set(),
+                approval_required={"purchase.request"},
+            )
+        with self.assertRaises(PermissionError):
+            self.store.delegate_grant(
+                parent, self.agent_id, delegate_id,
+                actions={"purchase.request"}, resources={"project-1"},
+                expires_at=datetime.now(timezone.utc) + timedelta(minutes=20),
+                budget_limit_units=50, transaction_actions={"purchase.request"},
+                approval_required=set(),
+            )
+
+    def test_parent_revocation_invalidates_persisted_descendant(self):
+        delegate_id = self._create_delegate()
+        child = self.store.delegate_grant(
+            self.grant_id, self.agent_id, delegate_id,
+            actions={"research.read"}, resources={"project-1"},
+            expires_at=datetime.now(timezone.utc) + timedelta(minutes=30),
+            budget_limit_units=100,
+        )
+        self.assertTrue(self.store.grant_is_active(child))
+        self.store.revoke_grant("owner-1", self.grant_id, "revoke delegation tree")
+        self.assertFalse(self.store.grant_is_active(child))
+        with self.assertRaises(PermissionError):
+            self.store.reserve_budget(child, "revoked-child", 1, "USD_CENT")
+
     def test_root_grant_requires_owner_governance(self):
         with self.assertRaises(PermissionError):
             self.store.issue_root_grant(
