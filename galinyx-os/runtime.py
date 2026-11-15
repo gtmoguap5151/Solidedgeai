@@ -219,10 +219,16 @@ class Runtime:
                 "SELECT 1 FROM principals WHERE principal_id=? AND active=1 AND principal_type='human'",
                 (principal_id,)
             ).fetchone()
+            tenant_owner = self.db.execute(
+                "SELECT owner_principal_id FROM tenants WHERE tenant_id=? AND active=1",
+                (tenant_id,)
+            ).fetchone()
             if owner is None:
                 raise PermissionError("active workspace owner required to manage membership")
             if target is None:
                 raise PermissionError("active registered human required")
+            if tenant_owner is not None and principal_id == tenant_owner[0]:
+                raise PermissionError("workspace owner role cannot be changed")
             self.db.execute(
                 "INSERT INTO tenant_memberships(tenant_id,principal_id,role,active,created_at) "
                 "VALUES (?,?,?,?,?) ON CONFLICT(tenant_id,principal_id) DO UPDATE SET "
@@ -246,6 +252,12 @@ class Runtime:
             ).fetchone()
             if owner is None:
                 raise PermissionError("active workspace owner required to manage membership")
+            tenant_owner = self.db.execute(
+                "SELECT owner_principal_id FROM tenants WHERE tenant_id=? AND active=1",
+                (tenant_id,)
+            ).fetchone()
+            if tenant_owner is not None and principal_id == tenant_owner[0]:
+                raise PermissionError("workspace owner cannot be removed; use an explicit ownership-transfer process")
             cursor = self.db.execute(
                 "UPDATE tenant_memberships SET active=0 WHERE tenant_id=? AND principal_id=? AND active=1",
                 (tenant_id, principal_id)
