@@ -29,7 +29,7 @@ This is a local proof of concept, **not production-secure**. The caller supplies
 `contracts.py` validates version-1 entity manifests, task envelopes, and event records. Contract validation checks shape and size; it does not authenticate callers or prove ownership. The runtime currently records schema version `3` through the ordered migration runner. Legacy task rows are preserved during migration, but their missing payload digest cannot be reconstructed; reusing those old request IDs is rejected rather than replayed.
 
 ## Next
-Typed entity manifests, authenticated user ownership, storyworld persistence, approval queues, resource metering, and creator subsystem adapters.
+Delegated AHAF grant persistence, authenticated agent workload identity, independently authenticated human approvals, and safe authorization-to-execution integration remain future work.
 
 ## Database compatibility
 The prototype schema is under active development. Existing SQLite databases created before the payload-hash schema change are **not automatically migrated**. Use a fresh local test database for this experimental version; never delete production data to work around migration failures. The versioned migration runner is wired into runtime startup. Supported upgrades are covered by integration tests; back up existing databases before upgrading, and do not treat this prototype migration path as a substitute for production backup and recovery procedures.
@@ -148,12 +148,12 @@ for scope and required validation gates.
 `database_migrations.py` provides ordered migration versions, `BEGIN IMMEDIATE`
 serialization, rollback on failure, and fail-closed handling of databases newer
 than the supported migration set. `runtime_migrations.py` defines the current
-core-runtime migration (version 1) and workspace-identity migration (version 2).
+core-runtime migration (version 1), workspace-identity migration (version 2), and AHAF persistence migration (version 3).
 `Runtime.__init__` now applies these migrations before exposing the runtime.
 
 Tests cover fresh upgrades, idempotent reopen, failed-migration rollback,
 legacy task-table conversion, valid-row preservation, orphan-row archival,
-version-1-to-version-2 upgrades, and future schema rejection.
+version-1-to-version-3 upgrades, and future schema rejection.
 
 **Important:** this is still a prototype persistence layer. The version-3 schema reserves persistent records for agent bindings, immutable
 grants, revocations, budget reservations/ledger entries, approval records, and
