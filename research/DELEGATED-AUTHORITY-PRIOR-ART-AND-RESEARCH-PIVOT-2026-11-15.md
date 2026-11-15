@@ -276,13 +276,120 @@ A suitable first deliverable, if the gap survives research, is a small public te
 
 No code has been copied from the AIP repository. No third-party tests have been executed in this review. No vulnerability has been independently reproduced. The current work is source/specification inspection only.
 
-## 11. Immediate next research sequence
+## 11. AIP -02 requirements-to-test coverage matrix
 
-1. Map every normative requirement in AIP -02 to the existing Python/Rust test files and mark each as covered, partially covered, or uncovered.
-2. Verify whether the test cases actually exercise the current -02 branch and encodings; distinguish tests for draft-01 from tests for draft-02.
-3. Check whether independent implementations, adapters, or forks exist beyond the author's own Python/Rust code.
-4. Inspect the relevant A2A and MCP binding code for request-to-token binding and fail-closed behavior.
-5. Build a test corpus only for demonstrable coverage gaps. Do not duplicate existing tests.
-6. Seek feedback from protocol implementers before describing this as a product or funding opportunity.
+**Review date:** 2026-11-15  
+**Reference specification:** [draft-prakash-aip-02](https://datatracker.ietf.org/doc/html/draft-prakash-aip-02), published 2026-10-10.  
+**Reference implementation inspected:** default branch of [sunilp/aip](https://github.com/sunilp/aip), including the Python test files and the three files under `tests/conformance`.  
+**Method:** source inspection only. The tests were not executed. “Not located” means not found in the files inspected; it is not a claim that no such test exists anywhere in the repository.
 
-**Current conclusion:** The most credible lead is not a new protocol. It is the quality and independence of conformance evidence for a fast-moving protocol ecosystem. Even that lead remains unvalidated until the requirement-to-test map and user demand are established.
+### Coverage legend
+
+- **Observed:** a test directly exercises the stated behavior in an inspected file.
+- **Partial:** some relevant cases exist, but important requirements, encodings, bindings, or negative cases are not covered by the inspected tests.
+- **Not implemented / no test:** the specification or implementation-status disclosure says the behavior is not implemented.
+- **Not established:** available source inspection does not support a reliable coverage conclusion.
+
+### Normative verification algorithm
+
+| Requirement | Evidence in inspected tests | Assessment |
+|---|---|---|
+| **V1 — chain integrity**: verify every signature from the root, verify serialized bytes, reject unverified fields | `python/tests/test_jwt_chain.py` tests wrong root key, tampered signature, `alg=none`, wrong `typ`, non-holder signing, parent-digest mismatch, and issuer continuity. `tests/conformance/test_chained_interop.py` exchanges delegated Biscuit tokens across Python/Rust. | **Partial.** Good JWT negative cases in Python; no JWT-chain cross-language test. The inspected Biscuit interop tests prove selected exchange cases, not the entire V1 requirement set. |
+| **V2 — root binding**: bind root key to issuer identity and require relying-party trust policy | JWT tests reject a wrong supplied root key. The implementation-status section says the library takes a caller-supplied key and does not resolve identity documents over HTTPS; issuer-to-key comparison is limited to one proxy configuration mode. | **Partial.** Signature/key mismatch is tested; identity resolution and consistent issuer-to-key binding across all relying-party paths are not established. |
+| **V3 — depth**: require root max_depth and reject a chain deeper than that bound | `python/tests/test_chain_model.py` tests depth exceeded and missing root max_depth. `python/tests/test_jwt_chain.py` tests depth exceeded and rejects max_depth on a delegation link. | **Observed in Python core tests; partial across implementations.** The draft says the Rust implementation does not reject max_depth in delegation blocks. |
+| **V4 — structural attenuation**: tools, domains, budget, expiry, principal, and malformed/empty constraints | `python/tests/test_chain_model.py` tests wildcard semantics, tool/domain widening, budget increase/negative budget, expiry widening/expiry, principal substitution, empty allowlists, and required root fields. `python/tests/test_jwt_chain.py` includes forged JWT widening cases for tools, domains, budget, expiry, principal, and max_depth. | **Strong Python unit coverage; partial overall.** The cross-language conformance suite does not cover JWT chains or domains. The draft says Rust lacks domains and has additional malformed-chain gaps. |
+| **V5 — delegation context**: every delegation context must be non-empty and not whitespace-only | `python/tests/test_chain_model.py` rejects empty and null context; `python/tests/test_jwt_chain.py` rejects empty context. | **Partial.** A whitespace-only context case was not located in the inspected files, although the draft explicitly requires rejection of whitespace-only values. |
+| **V6 — request authorization**: authorize the requested tool/domain and evaluate Biscuit checks with only the permitted ambient facts | `python/tests/test_chain_model.py` tests tool and domain authorization. `python/tests/test_jwt_chain.py` tests permitted and denied tools. `python/tests/test_policy.py` and `tests/conformance/test_policy_encoding.py` test canonical Datalog output and that budget/depth are not emitted as checks. | **Partial.** Core checks are represented, but the draft says no binding supplies a request domain, so domain constraints are not enforced against actual requests. The inspected conformance suite does not test all binding-to-request semantics or every prohibited ambient-fact case end-to-end. |
+| **V7 — revocation with bounded staleness**: verify signed revocation data and fail closed when cached data is too old | The draft explicitly says V7 is not implemented and its response format/freshness representation is unspecified. | **Not implemented; no conformance test possible yet.** This is a specification interoperability gap as well as an implementation gap. |
+
+### Additional mandatory security properties and bindings
+
+| Property | Evidence and status |
+|---|---|
+| **JWT holder-key / subject binding** (Section 4.8) | The draft and project changelog identify that the JWT verifier does not check whether each `cnf` key is bound to its `sub` identifier. The JWT tests validate `cnf` syntax and issuer continuity, but the specific key-to-identifier binding is not tested. **Not implemented / no test located.** |
+| **Proof of possession (Section 8)** | `python/tests/test_jwt_chain.py` tests extraction of the leaf holder key and demonstrates that a prefix of a chain verifies as a shorter chain. That is a test of the truncation condition, not proof that the presenter possesses the leaf key. The draft says MCP middleware, proxy, and A2A verifier do not verify proof of possession. **Not implemented in the inspected enforcement paths.** |
+| **JWT required claims** (`iat`, `jti`) | The JWT test checks that the minting function emits these claims. The draft says the verifier does not check that links carry them. **Mint-side presence is observed; verifier-side enforcement is not implemented.** |
+| **Identity documents and key resolution** | `python/tests/test_identity.py` tests identifier parsing and resolution-URL construction. The draft says the library does not resolve identity documents over HTTPS; it also records limitations in JCS handling, unknown/null members, and key selection. **Partial parser coverage; resolution/signature semantics remain incomplete.** |
+| **MCP request binding** | `python/tests/test_mcp_middleware.py` tests header extraction, token-mode detection, simple compact-token success/failure, missing tokens, and error formatting. The draft says the current proxy/middleware do not perform proof of possession and no binding supplies a request domain. **Partial; not end-to-end conformance for JWT chains, PoP, or domains.** |
+| **A2A binding** | The draft describes an A2A verifier and records that it accepts both encodings, but the files inspected here did not include the complete A2A binding test suite. The draft also says the A2A verifier does not perform proof of possession. **Not established for full test coverage; PoP gap is documented.** |
+| **Generic HTTP binding and token-by-reference** | The draft's implementation-status section says the HTTP Authorization binding and token-by-reference header are not implemented. **Not implemented.** |
+| **Workload-attested anchor mode** | The draft says the mode is not implemented and that `aip_anchor` is carried but not checked. `test_jwt_chain.py` checks only that the anchor claim is serialized. **Claim transport observed; anchor validation not implemented.** |
+| **Datalog injection resistance** | `CHANGELOG.md` describes earlier authorization bypasses and says string validation/parameter binding was added. The exact injection regression-test files were not located in this inspection. **Fix is documented by the project; independent reproduction and complete regression-test review remain outstanding.** |
+| **Transport and SSRF requirements** | The draft requires HTTPS for identity resolution/token references and recommends URL-domain validation and timeouts. The relevant resolution and token-reference paths are not implemented according to the draft. **Not implemented / not testable in the current binding set.** |
+
+### What the existing cross-language suite actually covers
+
+The three inspected files under `tests/conformance` are:
+
+- `test_chained_interop.py`: Python/Rust Biscuit delegation-token exchange and a selected scope-narrowing denial.
+- `test_interop.py`: legacy draft-01 compact-token exchange.
+- `test_policy_encoding.py`: selected Python/Rust Datalog-rendering vectors and checks against forbidden budget/depth check forms.
+
+The first two files explicitly describe draft-01 behavior. The policy-encoding file also cites draft-01. The draft's own implementation-status section says the 26 cross-language tests do **not** cover the JWT chain encoding or domains. The current Python branch separately contains draft-02 unit tests in `python/tests/test_jwt_chain.py` and `python/tests/test_chain_model.py`, but those are not cross-language conformance tests.
+
+**Conclusion:** the reference project has meaningful draft-02 Python unit tests. It would be inaccurate to say that AIP -02 has no tests. The narrower finding is that its inspected cross-language conformance suite remains centered on earlier formats and does not demonstrate cross-language conformance for the new JWT chain or domain semantics.
+
+### Documentation/version discrepancy to resolve
+
+The -02 draft's implementation-status text says the latest Python release is 0.5.0 and describes -02 code as being on a development branch. However:
+- PyPI lists version 0.6.0, uploaded 2026-10-10, with provenance pointing to the `sunilp/aip` repository.
+- The repository `CHANGELOG.md` labels 0.6.0 “Unreleased” while saying it accompanies draft -02.
+- The same repository's README advertises 0.6.0 and reports 391 tests (311 Python and 80 Rust).
+
+This may be a documentation/release synchronization issue rather than a code defect. Before making any conformance claim, the exact source commit, package artifact, test count, and draft revision need to be pinned together. The PyPI provenance is useful evidence of package origin, not evidence that the package conforms to the current draft.
+
+## 12. Independent implementation and ecosystem check
+
+### What was found
+
+- The IETF draft explicitly states: “Two implementations are known, both by the author,” and that the author is not aware of independent implementations of this revision.
+- The Python and Rust implementations are identified in the draft as the author's reference implementations.
+- The linked TypeScript SDK is in the same `sunilp` GitHub account and describes itself as the AIP TypeScript SDK. It is another project implementation, not evidence of an independent implementer.
+- The linked AIP gateway is also in the same `sunilp` account. It is an integration product built around the same protocol project, not an independent protocol implementation.
+- PyPI provenance for `agent-identity-protocol` points to `github.com/sunilp/aip`.
+- A separate repository named `unibaseio/aip-ts-sdk` describes the Unibase Agent Internet Protocol, a different protocol using the same acronym. It must not be counted as an implementation of draft-prakash-aip.
+
+### Result
+
+**No independently maintained implementation of draft-prakash-aip-02 was identified in this bounded search.** This agrees with the draft author's own implementation-status statement. The search does not prove that none exists; it means no qualifying independent implementation was verified.
+
+A fork, SDK, gateway, or framework adapter maintained within the same project/account does not provide the independent implementation diversity needed for a meaningful differential conformance claim.
+
+## 13. Engineering decision and next move
+
+### What is now established
+
+1. AIP -02 is an active individual Internet-Draft, not an IETF-approved standard.
+2. The Python reference implementation contains meaningful -02 tests for the encoding-neutral chain model and JWT chain.
+3. The three inspected cross-language conformance files do not cover the new JWT chain or domains.
+4. The draft itself documents major unfinished controls: V7 revocation, proof of possession in enforcement paths, JWT key-to-identifier binding, and missing HTTP/token-reference/workload-attestation implementations.
+5. No independent -02 implementation was verified.
+6. The absence of independent implementations makes a differential conformance product difficult to validate commercially today.
+
+### Go/no-go
+
+**No-go for a commercial AIP conformance product at this stage.** There is no verified independent implementation base, no demonstrated buyer demand, and no evidence yet that the gaps are being paid to solve.
+
+**Go for one bounded, open research artifact:** a specification-derived negative test-vector pack for the security-critical requirements that are not already adequately represented in the current tests. Initial candidate groups:
+- JWT chain key-to-identifier binding and proof-of-possession/truncation behavior;
+- V7 revocation semantics once the draft defines an interoperable response format;
+- binding-level tests that prove the actual MCP/A2A request, tool, domain, and audience are the ones being authorized;
+- Datalog injection and malformed-input regression vectors, after confirming they do not duplicate existing tests.
+
+Do not claim these are vulnerabilities. They are test-coverage or implementation gaps until independently reproduced against a specific build.
+
+### Immediate engineering sequence
+
+1. Pin the exact AIP source commit and package artifact that correspond to draft -02.
+2. Review the remaining Python security/regression tests and the complete MCP/A2A binding test suites, not just the files inspected in this pass.
+3. Inspect the Rust source and tests at the same commit; determine whether the current -02 Python behavior has any Rust equivalent.
+4. Build an independent test-vector pack only for requirements not already covered, with each vector linked to the exact normative paragraph and expected failure result.
+5. Run the vectors against the reference implementation in an isolated, reproducible environment. Record every pass, failure, skip, and unsupported behavior.
+6. Do not publish a vulnerability claim unless a failure is reproduced and responsibly disclosed.
+7. Revisit commercial value only after an independent implementation or prospective buyer confirms the need.
+
+### Funding impact
+
+This is not yet a strong funding application. The best defensible description is a narrowly scoped research effort to produce independently reproducible conformance evidence for emerging agent-delegation profiles. It needs a sharper technical uncertainty, a pinned baseline, reproducible results, and prospective-user validation before it can support a serious R&D funding pitch.
+
+**Bottom line:** we found a real distinction between unit coverage, cross-language interoperability, and independent conformance. The current AIP project has the first two in limited forms; independent implementation diversity is still missing. GALINYX should contribute evidence that can be independently checked—not another protocol, another gateway, or a certification badge without a validated test basis.
