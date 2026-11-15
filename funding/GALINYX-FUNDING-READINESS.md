@@ -42,9 +42,29 @@ The Creator drafting behavior is deterministic/offline, not AI-generated. A stor
 
 No claim is made here that a deployed product, security audit, penetration test, or production release has been completed.
 
-## 3. Candidate R&D problem — not yet validated as novel
+## 3. Preliminary prior-art scan — material overlap identified
 
-**Working research question:** Can a platform provide portable, versioned task and authority contracts that allow independently developed applications and agents to delegate bounded work while preserving owner-scoped authorization, explicit human approval for sensitive actions, revocation, idempotency, and auditable event provenance?
+This is a focused initial scan, not a patent search, exhaustive literature review, or freedom-to-operate opinion.
+
+- **Open Policy Agent (OPA):** a mature general-purpose policy engine that separates policy decisions from enforcement and can govern microservices, gateways, and other systems. GALINYX must not claim to have invented policy-as-code or centralized policy evaluation. Source: https://www.openpolicyagent.org/docs
+- **SPIFFE/SPIRE:** established workload identity standards and infrastructure for cryptographically verifiable identities for services and processes. GALINYX must not claim to have invented workload identity. Source: https://github.com/spiffe/spiffe/blob/main/standards/SPIFFE_Workload_API.md
+- **MCP authorization:** the Model Context Protocol already specifies OAuth-based authorization for HTTP transports, including protected-resource metadata and authorization-server discovery. GALINYX must not claim to have invented agent-to-tool authorization. Source: https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/basic/authorization/index.mdx
+- **A2A:** the Agent2Agent protocol already supports agent discovery, asynchronous tasks, authentication/authorization integration, and an `AUTH_REQUIRED` task state for additional authorization, including human approval scenarios. Importantly, the current specification says the protocol itself does not define the scope, representation, validity, or revocation semantics of the authorization decision/credential obtained in response. This is a concrete boundary worth investigating, not proof that no other system solves it. Source: https://a2a-protocol.org/latest/specification/
+- **OAuth token exchange and delegation chaining:** RFC 8693 and emerging IETF work address token exchange and delegated identity/authority. Any proposed GALINYX layer must interoperate with these mechanisms rather than invent a competing credential system. References: https://www.rfc-editor.org/rfc/rfc8693 and https://datatracker.ietf.org/doc/draft-liu-oauth-delegation-chaining/
+
+### Revised candidate research gap
+
+The potentially defensible question is narrower:
+
+**Can a protocol-neutral governance layer preserve and verify end-to-end delegated authority constraints across multi-hop agent tasks that cross existing protocols such as A2A and MCP—especially exact action/resource scope, originating user authority, approval binding, expiry, revocation, and auditable provenance—without replacing the underlying identity and authorization standards?**
+
+This is only a hypothesis. A2A's specification leaves some of these semantics to implementations, but that does not establish that enterprise products, extensions, or other standards lack them. The next step is a systematic comparison and a small test harness demonstrating a concrete failure or interoperability gap in current combinations.
+
+**Positioning rule:** GALINYX should be an interoperability/governance layer that composes established standards if the evidence supports that architecture—not a replacement for OAuth, SPIFFE, OPA, MCP, or A2A.
+
+## 4. Candidate R&D problem — not yet validated as novel
+
+**Working research question:** Can a protocol-neutral governance layer preserve and verify end-to-end delegated authority constraints across multi-hop agent tasks that cross existing protocols such as A2A and MCP—especially exact action/resource scope, originating user authority, approval binding, expiry, revocation, and auditable provenance—without replacing the underlying identity and authorization standards?
 
 This is a candidate research direction, not a proven invention or established differentiator. Existing identity, authorization, workflow, agent-interoperability, and audit technologies must be compared before claiming novelty. The project must identify a specific technical gap that existing approaches do not adequately solve.
 
@@ -65,7 +85,7 @@ The R&D plan should define and test:
 
 Numerical performance targets, baselines, sample sizes, and acceptance thresholds must be set before submission; they are intentionally not invented in this draft.
 
-## 4. Proposed staged use of funds
+## 5. Proposed staged use of funds
 
 Funding would support a defined R&D work package, subject to the selected program's rules and an approved budget:
 
@@ -77,7 +97,7 @@ Funding would support a defined R&D work package, subject to the selected progra
 
 No budget allocation is proposed until the exact research scope, eligible personnel, indirect-cost rules, and program requirements are confirmed.
 
-## 5. Funding routes under consideration
+## 6. Funding routes under consideration
 
 ### NSF America's Seed Fund / SBIR
 Potential route for a genuinely novel, high-risk technical R&D project. NSF requires a Project Pitch invitation before a full Phase I proposal. The NSF page currently lists **March 4, 2027** as the next full-proposal deadline. The technical problem must fit NSF's deep-technology remit; a broad platform vision or ordinary product-development plan is not enough.
@@ -90,7 +110,7 @@ KSTC currently describes a $20,000 pre-seed investment with no matching requirem
 ### Kentucky SBIR/STTR matching
 This is a possible follow-on only after winning a qualifying federal SBIR/STTR award. The state describes it as a competitive, reimbursable match, not upfront startup capital.
 
-## 6. Immediate no-cost readiness sequence
+## 7. Immediate no-cost readiness sequence
 
 1. Preserve the current working branch and review PR #4 in detail; do not merge blindly.
 2. Establish a reproducible baseline on the exact candidate commit.
@@ -100,13 +120,13 @@ This is a possible follow-on only after winning a qualifying federal SBIR/STTR a
 6. Draft the NSF Project Pitch only if the technical gap and eligibility withstand review.
 7. Keep the KSTC investment route on the later-stage list until legal formation and Kentucky-presence requirements can be met.
 
-## 7. Claims discipline
+## 8. Claims discipline
 
 Until supported by evidence, do not claim that GALINYX OS is production-ready, autonomous, AI-integrated, secure for multi-tenant use, certified, patented, trademark-cleared, or already interoperable with the named ecosystem projects.
 
 Do not describe planned integrations as completed. Do not promise commercial outcomes, revenue, investor returns, or award selection.
 
-## 8. Open diligence items
+## 9. Open diligence items
 
 - Confirm the intended applicant's legal form and ownership before any application.
 - Confirm where the applicant's principal place of business and funded work will be located.
