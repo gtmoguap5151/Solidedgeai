@@ -158,6 +158,13 @@ class IdentityDirectory:
 
     def authorize(self, principal_id, tenant_id, resource_id, action):
         """Evaluate policy for a principal already authenticated by a trusted caller."""
+        # Treat malformed request context as a denial, never as an uncaught lookup
+        # error or an opportunity to bypass policy with unexpected input types.
+        for value in (principal_id, tenant_id, resource_id):
+            if not isinstance(value, str) or not value.strip() or len(value) > 128:
+                return AuthorizationDecision(False, "invalid_request_context")
+        if not isinstance(action, str) or not action.strip() or len(action) > 128:
+            return AuthorizationDecision(False, "unknown_action_denied")
         principal = self._principals.get(principal_id)
         if principal is None or not principal.active or principal.principal_type != "human":
             return AuthorizationDecision(False, "unknown_or_inactive_human")
