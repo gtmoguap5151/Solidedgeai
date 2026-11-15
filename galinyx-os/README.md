@@ -49,3 +49,21 @@ python galinyx-os/cli.py events ENTITY_ID --database galinyx.db
 
 The CLI is for trusted local development. It is not a login system, network API, or multi-user security boundary. Do not expose it to untrusted users or connect privileged external tools.
 
+## Identity and ownership policy foundation
+
+`identity.py` contains a provider-neutral, in-memory policy model for human principals,
+personal workspaces, membership roles, resource ownership, and fail-closed authorization
+decisions. Its unit tests are in `test_identity.py`.
+
+This is **not authentication** and is not a production security boundary. Principal IDs
+must eventually be derived from validated credentials by a trusted service adapter.
+The directory is in-memory only; its setup methods are trusted local hooks and must not
+be exposed to untrusted callers. Passing these tests proves policy behavior for trusted
+inputs, not credential validation, persistence, tenant isolation in a deployed service,
+or production security.
+
+Run the full suite, including identity policy tests, with:
+
+```bash
+python -m unittest discover -s galinyx-os -p 'test_*.py' -v
+```
