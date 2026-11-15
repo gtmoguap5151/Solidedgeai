@@ -351,6 +351,8 @@ class AuthorityStore:
             parent_transaction_actions = set(json.loads(parent_transaction_actions_json))
             parent_approval = set(json.loads(parent_approval_json))
             parent_delegable = set(json.loads(parent_delegable_json))
+            if not parent_delegable.issubset(parent_actions):
+                raise RuntimeError("parent grant has invalid delegable-action metadata")
             if not set(actions).issubset(parent_delegable):
                 raise PermissionError("delegation cannot add actions or exceed delegable actions")
             if not set(resources).issubset(parent_resources):
