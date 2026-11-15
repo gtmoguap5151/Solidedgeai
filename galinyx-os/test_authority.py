@@ -143,6 +143,28 @@ class AuthorityPolicyTests(unittest.TestCase):
             "manager", "catalog.read", "project-7", self.now, cost="101"
         ).allowed)
 
+    def test_budget_is_cumulative_and_delegated_spend_counts_against_parent(self):
+        child = self.policy.delegate(
+            self.root.grant_id, "manager", "specialist",
+            actions={"quote.compare"}, resources={"project-7"},
+            expires_at=self.now + timedelta(hours=1), budget="25",
+        )
+        self.assertTrue(self.policy.authorize(
+            "specialist", "quote.compare", "project-7", self.now, cost="20"
+        ).allowed)
+        # The child has only five units left, even though each request is small.
+        self.assertFalse(self.policy.authorize(
+            "specialist", "quote.compare", "project-7", self.now, cost="6"
+        ).allowed)
+        # Parent has 80 units left after the delegated spend; a direct request
+        # cannot exceed the remaining parent balance.
+        self.assertTrue(self.policy.authorize(
+            "manager", "catalog.read", "project-7", self.now, cost="80"
+        ).allowed)
+        self.assertFalse(self.policy.authorize(
+            "manager", "catalog.read", "project-7", self.now, cost="1"
+        ).allowed)
+
     def test_required_approval_cannot_be_self_approved(self):
         self.assertFalse(self.policy.authorize(
             "manager", "purchase.request", "project-7", self.now,
