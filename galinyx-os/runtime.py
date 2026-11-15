@@ -49,8 +49,22 @@ class Runtime:
                     "FOREIGN KEY(entity_id) REFERENCES entities(id))"
                 )
                 self.db.execute(
+                    "CREATE TABLE IF NOT EXISTS legacy_tasks_archive("
+                    "request_id TEXT PRIMARY KEY, entity_id TEXT NOT NULL, action TEXT NOT NULL, "
+                    "payload_hash TEXT, result TEXT NOT NULL, created_at TEXT NOT NULL, "
+                    "archive_reason TEXT NOT NULL)"
+                )
+                self.db.execute(
                     "INSERT INTO tasks(request_id,entity_id,action,payload_hash,result,created_at) "
-                    "SELECT request_id,entity_id,action,NULL,result,created_at FROM tasks_legacy_migration"
+                    "SELECT request_id,entity_id,action,NULL,result,created_at "
+                    "FROM tasks_legacy_migration WHERE EXISTS "
+                    "(SELECT 1 FROM entities WHERE entities.id=tasks_legacy_migration.entity_id)"
+                )
+                self.db.execute(
+                    "INSERT INTO legacy_tasks_archive(request_id,entity_id,action,payload_hash,result,created_at,archive_reason) "
+                    "SELECT request_id,entity_id,action,NULL,result,created_at,'missing_entity_reference' "
+                    "FROM tasks_legacy_migration WHERE NOT EXISTS "
+                    "(SELECT 1 FROM entities WHERE entities.id=tasks_legacy_migration.entity_id)"
                 )
                 self.db.execute("DROP TABLE tasks_legacy_migration")
         with self.db:
@@ -69,8 +83,10 @@ class Runtime:
         if not name.strip() or not kind.strip() or len(name)>128:
             raise ValueError("name and kind required")
         entity_id = str(uuid.uuid4())
-        if not kind.strip() or len(kind) > 64:
-            raise ValueError("kind must be 1-64 non-whitespace characters")
+        valid_kinds = {"creator", "researcher", "application", "service", "agent",
+                       "organization", "avatar", "world", "project"}
+        if kind not in valid_kinds:
+            raise ValueError("unsupported entity kind")
         if not isinstance(capabilities,(list,tuple,set)) or any(not isinstance(x,str) for x in capabilities):
             raise ValueError("capabilities must be strings")
         valid = {"memory.write","story.plan","creator.draft","creator.rights","creator.review"}
