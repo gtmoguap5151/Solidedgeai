@@ -157,9 +157,11 @@ class AuthorityStore:
             owner = self.db.execute(
                 "SELECT 1 FROM principals p JOIN tenants t ON t.owner_principal_id=p.principal_id "
                 "JOIN tenant_memberships m ON m.tenant_id=t.tenant_id AND m.principal_id=p.principal_id "
+                "JOIN resource_ownership o ON o.tenant_id=t.tenant_id "
+                "AND o.owner_principal_id=p.principal_id AND o.resource_id=? "
                 "WHERE p.principal_id=? AND p.active=1 AND t.tenant_id=? AND t.active=1 "
                 "AND m.active=1 AND m.role='owner'",
-                (owner_principal_id, tenant_id),
+                (agent_id, owner_principal_id, tenant_id),
             ).fetchone()
             if entity is None or entity[0] != "agent":
                 raise ValueError("an existing agent entity is required")
@@ -258,8 +260,13 @@ class AuthorityStore:
         try:
             binding = self.db.execute(
                 "SELECT b.tenant_id,b.owner_principal_id "
-                "FROM ahaf_agent_bindings b LEFT JOIN ahaf_agent_binding_revocations r "
-                "ON r.agent_id=b.agent_id WHERE b.agent_id=? AND r.agent_id IS NULL",
+                "FROM ahaf_agent_bindings b "
+                "JOIN principals p ON p.principal_id=b.owner_principal_id "
+                "JOIN tenants t ON t.tenant_id=b.tenant_id AND t.owner_principal_id=p.principal_id "
+                "JOIN tenant_memberships m ON m.tenant_id=t.tenant_id AND m.principal_id=p.principal_id "
+                "LEFT JOIN ahaf_agent_binding_revocations r ON r.agent_id=b.agent_id "
+                "WHERE b.agent_id=? AND r.agent_id IS NULL AND p.active=1 AND t.active=1 "
+                "AND m.active=1 AND m.role='owner'",
                 (subject_agent_id,),
             ).fetchone()
             if binding is None:
@@ -301,7 +308,11 @@ class AuthorityStore:
             row = self.db.execute(
                 "SELECT g.subject_agent_id,b.tenant_id,b.owner_principal_id "
                 "FROM ahaf_authority_grants g JOIN ahaf_agent_bindings b "
-                "ON b.agent_id=g.subject_agent_id WHERE g.grant_id=?",
+                "ON b.agent_id=g.subject_agent_id "
+                "JOIN principals p ON p.principal_id=b.owner_principal_id "
+                "JOIN tenants t ON t.tenant_id=b.tenant_id "
+                "JOIN tenant_memberships m ON m.tenant_id=t.tenant_id AND m.principal_id=p.principal_id "
+                "WHERE g.grant_id=? AND p.active=1 AND t.active=1 AND m.active=1 AND m.role='owner'",
                 (grant_id,),
             ).fetchone()
             if row is None:
