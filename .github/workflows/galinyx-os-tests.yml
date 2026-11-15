@@ -2,7 +2,7 @@ name: Galinyx OS Tests
 
 on:
   push:
-    branches: [galinyx-launch]
+    branches: [galinyx-launch, galinyx-core-contracts]
     paths:
       - "galinyx-os/**"
       - ".github/workflows/galinyx-os-tests.yml"
