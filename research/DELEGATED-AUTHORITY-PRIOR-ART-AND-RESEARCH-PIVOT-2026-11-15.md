@@ -170,3 +170,36 @@ No grant application, patent claim, certification claim, or customer promise sho
 5. Update the funding brief only after the candidate pivot passes the go/no-go gates.
 
 **Bottom line:** GALINYX should not compete by reinventing delegation tokens. The next defensible question is whether it can make existing agent authorization mechanisms work together consistently—and prove that they did.
+
+
+## 9. Preliminary commercial landscape scan
+
+A second search found that the proposed conformance/governance pivot also sits in an active product category. Public product descriptions are vendor claims and are not independent validation of efficacy, but they are sufficient to reject a claim that the category is empty.
+
+- **Google Cloud Agent Gateway:** describes agent identity, ingress/egress governance, policy enforcement, and end-to-end observability across agent-to-agent and agent-to-MCP interactions. https://docs.cloud.google.com/gemini-enterprise-agent-platform/govern/gateways/agent-gateway-overview
+- **Pomerium Agentic Access Management:** describes per-action authorization, contextual policy, MCP egress controls, credential handling, and end-to-end auditability. https://www.pomerium.com/agentic-access-management
+- **Ory Agent Security:** describes agent identity, fine-grained authorization through Ory Keto, per-action decisions, revocation, and observability. https://www.ory.com/agent-security
+- **Invaris Labs AgentSec / AgentAuth:** describes adversarial agent workflow testing, identity and delegated authority, scoped grants, and evidence dashboards. Its public material also points to open-source repositories. https://www.invarislabs.com/
+- **Endram:** describes a gateway for MCP/HTTP/tool calls with identity, request-scoped policy, human approvals, one-use grants, and signed evidence. https://app.endram.com/
+- **Themis Agent Intelligence:** describes runtime evaluation of consequential agent actions against delegated authority, provenance, and context. https://themislabs.ai/ai
+- **Noma Agent Access Control:** describes discovery, governance, and enforcement for agents and MCP servers. https://noma.security/blog/noma-launches-agentic-access-control-to-govern-ai-agents-and-mcp-servers-across-the-enterprise
+- **AWS sample agentic governance platform:** describes an open-source AWS-native control plane using Entra identities, Cedar policies, multi-MCP access, governance graph, and observability. https://github.com/aws-samples/sample-agentic-governance-platform
+
+### Competitive conclusion
+
+A generic "agent governance layer," "agent authorization gateway," "multi-agent audit trail," or "agent security testing platform" is not a defensible positioning statement by itself. Several products and projects already describe overlapping combinations of those capabilities.
+
+The conformance-harness concept is also not automatically differentiated: Invaris AgentSec describes adversarial workflow tests and evidence, while major cloud and access vendors describe runtime enforcement and observability. A more specific unmet need must be evidenced.
+
+### Revised decision
+
+**No-go for building a generic agent governance gateway or proprietary delegation-token system as GALINYX's claimed differentiator.**
+
+**Research-only continuation:** investigate whether there is a narrow, independently verifiable gap in cross-vendor conformance for the emerging IETF agent-delegation profiles—especially deterministic interoperability tests that vendors can run in CI against independent implementations. Do not assume this is novel. Search for existing conformance suites, implementations, reference test vectors, and vendor support first.
+
+A viable contribution may ultimately be:
+- an open test corpus/reference harness for a named, stable profile;
+- an interoperability adapter with a demonstrated failure mode not solved by native products;
+- or no standalone product at all, if the need is already covered.
+
+The next decision must be based on evidence of adoption, implementation gaps, and buyer demand—not on the fact that the technology is new.
