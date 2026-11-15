@@ -2,7 +2,7 @@
 
 **Version:** 0.1  
 **Date:** 2026-11-15  
-**Status:** Initial source-inspection baseline; not a test report, security audit, or claim of production readiness  
+**Status:** Updated engineering traceability baseline; not a security audit or claim of production readiness  
 **Architecture baseline:** `architecture/GALINYX-MASTER-SYSTEM-ARCHITECTURE-v1.0.md`  
 **Implementation baseline:** `galinyx-core-contracts` branch, `galinyx-os/`  
 **Purpose:** Connect the ecosystem architecture to existing code, observable behavior, missing implementation, and proof required before release.
@@ -43,6 +43,20 @@ The existing GitHub Actions workflow was inspected and its completed run was ret
 
 This is real CI evidence for the PR merge commit at that point in time. It is not a fresh rerun initiated during this review, does not prove the current `galinyx-launch` branch contains the same code, and does not establish production security. The demo output also confirms that `story.plan` returns a completed task record while the creator implementation remains a deterministic offline template—not an AI story-generation system.
 
+
+### 2.2 Identity/runtime prototype evidence (verified)
+
+A separate draft PR #5 was created from `galinyx-core-contracts` on branch `galinyx-identity-boundary`. It adds a local SQLite-backed principal, personal workspace, membership and entity-ownership model, plus an `execute_as()` runtime entry path that checks workspace authorization before the existing entity capability check.
+
+- **PR:** https://github.com/gtmoguap5151/Solidedgeai/pull/5
+- **Head commit:** `964b1a72f6974c29e7b900fc413da752c9d16d0f`
+- **CI run:** #117 / `43754213439`
+- **Unit tests:** 59 run; 59 passed
+- **Demo smoke test:** passed
+- **Workflow conclusion:** success
+
+This is evidence for a local policy prototype only. Principal IDs are supplied as trusted local context; no credential is validated. Legacy local methods such as `create()` and `execute()` remain callable and can bypass the wrapper. The PR is still draft and unmerged. This does not establish a production multi-user security boundary or complete P1.
+
 ## 3. Traceability matrix
 
 | Architecture capability | Current evidence | Status | Gap / risk | Proof required |
@@ -55,8 +69,8 @@ This is real CI evidence for the PR merge commit at that point in time. It is no
 | Task execution | `Runtime.execute` | Partial | Local deterministic action dispatcher; no general scheduler, worker pool, or model execution | State-machine tests, failure/retry behavior, cancellation, concurrency and timeout tests |
 | Capability checks | Deny-by-default action capability mapping in runtime | Present, narrow | Capabilities can be assigned at entity creation; no authenticated policy administrator or contextual policy engine | Negative tests for privilege escalation, unknown actions, policy changes and ownership |
 | Agent identity | Entity IDs represent local runtime entities | Partial | IDs are not authenticated agent credentials; caller-supplied IDs are not identity proof | Cryptographic/workload identity design and spoofing/replay tests |
-| Human identity and accounts | None established in inspected prototype | Not present | No login, account verification, session or identity provider | Select identity model; implement authentication and account lifecycle before multi-user access |
-| Organization / tenant boundaries | Entity kind includes organization | Not present as a security boundary | No tenant ownership model or cross-tenant authorization | Tenant isolation threat model and adversarial cross-tenant tests |
+| Human identity and accounts | SQLite local principal records on draft PR #5; no credential validation | Partial prototype | No login, account verification, session or identity provider; caller-supplied principal IDs are trusted context | Select identity model; implement authentication and account lifecycle before multi-user access |
+| Organization / tenant boundaries | Personal workspace, membership and resource-ownership policy on draft PR #5; 10 runtime boundary tests | Partial prototype, unmerged | No organization tenants, cross-tenant sharing, authenticated principal context, or protection against direct legacy API bypass | Review PR #5; then design trusted service ingress and test every protected read/write path |
 | Rank, role and hierarchy | AHAF document on `galinyx-launch` | Proposed | Rank/role/permission/budget/delegation not implemented in runtime | Convert AHAF invariants into requirement IDs and executable tests |
 | Delegation and approval | Creator review workflow; AHAF concept; prior-art research document | Partial / proposed | Reviewer identity is not authenticated; no general delegation chain, revocation or approval authority service | Authenticated approver tests, delegation attenuation/revocation tests, expiry and replay tests |
 | Resource budgets | Task contract accepts optional budget fields | Partial | Contract shape only; no metering, enforcement, quotas, rate limits or cost ceilings | Demonstrate hard enforcement for steps, tokens, duration, and cost; test bypass attempts |
@@ -109,8 +123,9 @@ The order below is a proposed dependency order, not a promise that every future 
 2. Define who owns each entity and how ownership is verified.
 3. Define tenant isolation and cross-tenant access rules.
 4. Define authenticated actor attribution for every protected action.
+5. A local SQLite-backed policy prototype and `execute_as()` wrapper now exist on draft PR #5; its 59-test CI run passed.
 
-**Exit condition:** Threat model and negative tests show that a caller cannot impersonate an entity, owner, tenant or reviewer by supplying an identifier.
+**Exit condition:** Partially evidenced only. Review and merge the prototype only after code review; then design trusted authentication/service ingress and prove that all protected read/write paths cannot bypass policy. Current tests do not prove credential authenticity or production tenant isolation.
 
 ### P2 — Make authority enforceable
 1. Convert AHAF into stable requirement IDs.
