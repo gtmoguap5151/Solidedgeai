@@ -132,6 +132,8 @@ class AuthorityPolicy:
             raise ValueError("approval_required must be a subset of granted actions")
         if transaction_actions and max_transaction is None:
             raise ValueError("transaction_actions require a max_transaction ceiling")
+        if max_transaction is not None and not transaction_actions:
+            raise ValueError("max_transaction requires at least one transaction-limited action")
         if not isinstance(delegation_depth, int) or isinstance(delegation_depth, bool) or delegation_depth < 0:
             raise ValueError("delegation_depth must be a nonnegative integer")
         expiry = _utc(expires_at, "expires_at")
@@ -189,6 +191,8 @@ class AuthorityPolicy:
             raise ValueError("approval_required must be a subset of delegated actions")
         if requested_transaction_actions and max_transaction is None and parent.max_transaction is None:
             raise PermissionError("transaction-limited actions require a transaction ceiling")
+        if max_transaction is not None and not requested_transaction_actions:
+            raise ValueError("max_transaction requires at least one delegated transaction-limited action")
         if not requested_resources or not requested_resources.issubset(parent.resources):
             raise PermissionError("delegation cannot broaden resource scope")
         expiry = _utc(expires_at, "expires_at")
