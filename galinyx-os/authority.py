@@ -58,6 +58,7 @@ class AuthorityGrant:
     resources: frozenset
     expires_at: datetime
     max_transaction: Decimal | None
+    transaction_actions: frozenset
     budget: Decimal
     delegable_actions: frozenset
     delegation_depth: int
@@ -110,8 +111,8 @@ class AuthorityPolicy:
         return self._agents[target_id]
 
     def issue_grant(self, issuer_id, subject_id, actions, resources, expires_at,
-                    budget, max_transaction=None, delegable_actions=(),
-                    delegation_depth=0, approval_required=()):
+                    budget, max_transaction=None, transaction_actions=(),
+                    delegable_actions=(), delegation_depth=0, approval_required=()):
         issuer_id = _id(issuer_id, "issuer_id")
         subject_id = _id(subject_id, "subject_id")
         if issuer_id not in self._governance:
@@ -122,8 +123,13 @@ class AuthorityPolicy:
         resources = self._string_set(resources, "resources")
         delegable_actions = self._string_set(delegable_actions, "delegable_actions")
         approval_required = self._string_set(approval_required, "approval_required")
+        transaction_actions = self._string_set(transaction_actions, "transaction_actions")
         if not actions or not resources or not delegable_actions.issubset(actions):
             raise ValueError("grant needs actions/resources; delegable actions must be granted actions")
+        if not transaction_actions.issubset(actions):
+            raise ValueError("transaction_actions must be a subset of granted actions")
+        if transaction_actions and max_transaction is None:
+            raise ValueError("transaction_actions require a max_transaction ceiling")
         if not isinstance(delegation_depth, int) or isinstance(delegation_depth, bool) or delegation_depth < 0:
             raise ValueError("delegation_depth must be a nonnegative integer")
         expiry = _utc(expires_at, "expires_at")
@@ -131,7 +137,7 @@ class AuthorityPolicy:
         transaction = None if max_transaction is None else _money(max_transaction, "max_transaction")
         grant = AuthorityGrant(
             str(uuid4()), subject_id, issuer_id, actions, resources, expiry,
-            transaction, budget_value, delegable_actions, delegation_depth,
+            transaction, transaction_actions, budget_value, delegable_actions, delegation_depth,
             approval_required, None
         )
         self._grants[grant.grant_id] = grant
@@ -140,7 +146,7 @@ class AuthorityPolicy:
         return grant
 
     def delegate(self, parent_grant_id, delegator_id, delegate_id, actions, resources,
-                 expires_at, budget, max_transaction=None, approval_required=()):
+                 expires_at, budget, max_transaction=None, transaction_actions=(),\n                 delegable_actions=(), approval_required=()):
         parent = self._grants.get(parent_grant_id)
         delegator_id = _id(delegator_id, "delegator_id")
         delegate_id = _id(delegate_id, "delegate_id")
@@ -155,8 +161,18 @@ class AuthorityPolicy:
         requested_actions = self._string_set(actions, "actions")
         requested_resources = self._string_set(resources, "resources")
         requested_approval = self._string_set(approval_required, "approval_required")
+        requested_transaction_actions = self._string_set(transaction_actions, "transaction_actions")
+        requested_delegable_actions = self._string_set(delegable_actions, "delegable_actions")
+        if delegate_id == delegator_id:
+            raise PermissionError("an agent cannot delegate authority to itself")
         if not requested_actions or not requested_actions.issubset(parent.delegable_actions):
             raise PermissionError("delegation cannot add actions or exceed delegable actions")
+        if not requested_delegable_actions.issubset(requested_actions.intersection(parent.delegable_actions)):
+            raise PermissionError("delegated authority cannot add further delegable actions")
+        if not requested_transaction_actions.issubset(requested_actions.intersection(parent.transaction_actions)):
+            raise PermissionError("delegation cannot add transaction-limited actions")
+        if requested_transaction_actions and max_transaction is None and parent.max_transaction is None:
+            raise PermissionError("transaction-limited actions require a transaction ceiling")
         if not requested_resources or not requested_resources.issubset(parent.resources):
             raise PermissionError("delegation cannot broaden resource scope")
         expiry = _utc(expires_at, "expires_at")
@@ -219,10 +235,14 @@ class AuthorityPolicy:
                 chain = self._active_chain(grant.grant_id)
                 if chain is None or instant >= grant.expires_at:
                     continue
-                if transaction_amount is not None:
-                    amount = _money(transaction_amount, "transaction_amount")
-                    if grant.max_transaction is not None and amount > grant.max_transaction:
+                if action in grant.transaction_actions:
+                    if transaction_amount is None:
                         continue
+                    amount = _money(transaction_amount, "transaction_amount")
+                    if grant.max_transaction is None or amount > grant.max_transaction:
+                        continue
+                elif transaction_amount is not None:
+                    continue
                 if action in grant.approval_required:
                     if approved_by not in self._governance or approved_by == agent_id:
                         continue
