@@ -55,8 +55,9 @@ class TrustedServiceBoundaryTests(unittest.TestCase):
     def test_caller_cannot_supply_principal_id_as_an_argument(self):
         with self.assertRaises(TypeError):
             self.service.execute_agent(
-                "viewer-secret", "owner-id", "workspace", self.agent,
-                "memory.write", {"key": "bad", "value": True}
+                credential="viewer-secret", tenant_id="workspace",
+                entity_id=self.agent, action="memory.write",
+                payload={"key": "bad", "value": True}, principal_id="owner-id"
             )
 
     def test_viewer_can_read_but_cannot_mutate(self):
