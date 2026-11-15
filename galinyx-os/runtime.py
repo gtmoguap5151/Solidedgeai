@@ -119,6 +119,17 @@ class Runtime:
         self.db.execute("INSERT INTO events(entity_id,event_type,payload,created_at) VALUES (?,?,?,?)",
                         (entity_id,event_type,json.dumps(payload,sort_keys=True),now()))
 
+    def list_entities(self):
+        """Return entity summaries for the trusted local developer interface."""
+        rows = self.db.execute(
+            "SELECT id,kind,name,capabilities,created_at FROM entities ORDER BY created_at,id"
+        ).fetchall()
+        return [
+            {"id": row[0], "kind": row[1], "name": row[2],
+             "capabilities": json.loads(row[3]), "created_at": row[4]}
+            for row in rows
+        ]
+
     def entity(self, entity_id):
         if not isinstance(entity_id,str) or not entity_id or len(entity_id)>64:
             raise ValueError("entity_id must be a valid identifier string")
