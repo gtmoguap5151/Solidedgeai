@@ -224,7 +224,7 @@ class AuthorityPolicy:
                     if grant.max_transaction is not None and amount > grant.max_transaction:
                         continue
                 if action in grant.approval_required:
-                    if not approved_by or approved_by == agent_id:
+                    if approved_by not in self._governance or approved_by == agent_id:
                         continue
                 # A grant budget is cumulative, not a per-request allowance.
                 # Charge the selected grant and every ancestor so delegated
