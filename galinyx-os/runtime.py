@@ -10,110 +10,13 @@ class Runtime:
     def __init__(self, database=":memory:"):
         self.db = sqlite3.connect(str(database))
         self.db.execute("PRAGMA foreign_keys=ON")
-        self.db.executescript("""
-        CREATE TABLE IF NOT EXISTS entities(
-            id TEXT PRIMARY KEY, kind TEXT NOT NULL, name TEXT NOT NULL,
-            capabilities TEXT NOT NULL, created_at TEXT NOT NULL);
-        CREATE TABLE IF NOT EXISTS memories(
-            entity_id TEXT NOT NULL, key TEXT NOT NULL, value TEXT NOT NULL,
-            PRIMARY KEY(entity_id,key),
-            FOREIGN KEY(entity_id) REFERENCES entities(id));
-        CREATE TABLE IF NOT EXISTS events(
-            id INTEGER PRIMARY KEY AUTOINCREMENT, entity_id TEXT NOT NULL,
-            event_type TEXT NOT NULL, payload TEXT NOT NULL, created_at TEXT NOT NULL,
-            FOREIGN KEY(entity_id) REFERENCES entities(id));
-        CREATE TABLE IF NOT EXISTS storyworlds(
-            entity_id TEXT NOT NULL, world_key TEXT NOT NULL, canon TEXT NOT NULL,
-            PRIMARY KEY(entity_id,world_key),
-            FOREIGN KEY(entity_id) REFERENCES entities(id));
-        CREATE TABLE IF NOT EXISTS assets(
-            entity_id TEXT NOT NULL, asset_id TEXT NOT NULL, data TEXT NOT NULL,
-            PRIMARY KEY(entity_id,asset_id),
-            FOREIGN KEY(entity_id) REFERENCES entities(id));
-        CREATE TABLE IF NOT EXISTS tasks(
-            request_id TEXT PRIMARY KEY, entity_id TEXT NOT NULL, action TEXT NOT NULL,
-            payload_hash TEXT NOT NULL, result TEXT NOT NULL, created_at TEXT NOT NULL,
-            FOREIGN KEY(entity_id) REFERENCES entities(id));
-        """)
-        self.db.execute("CREATE TABLE IF NOT EXISTS schema_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
-        columns = {row[1] for row in self.db.execute("PRAGMA table_info(tasks)")}
-        if "payload_hash" not in columns:
-            # Rebuild the legacy task table into a stable column order. Existing
-            # rows are retained with a NULL digest; they cannot be replayed safely.
-            with self.db:
-                self.db.execute("ALTER TABLE tasks RENAME TO tasks_legacy_migration")
-                self.db.execute(
-                    "CREATE TABLE tasks("
-                    "request_id TEXT PRIMARY KEY, entity_id TEXT NOT NULL, action TEXT NOT NULL, "
-                    "payload_hash TEXT, result TEXT NOT NULL, created_at TEXT NOT NULL, "
-                    "FOREIGN KEY(entity_id) REFERENCES entities(id))"
-                )
-                self.db.execute(
-                    "CREATE TABLE IF NOT EXISTS legacy_tasks_archive("
-                    "request_id TEXT PRIMARY KEY, entity_id TEXT NOT NULL, action TEXT NOT NULL, "
-                    "payload_hash TEXT, result TEXT NOT NULL, created_at TEXT NOT NULL, "
-                    "archive_reason TEXT NOT NULL)"
-                )
-                self.db.execute(
-                    "INSERT INTO tasks(request_id,entity_id,action,payload_hash,result,created_at) "
-                    "SELECT request_id,entity_id,action,NULL,result,created_at "
-                    "FROM tasks_legacy_migration WHERE EXISTS "
-                    "(SELECT 1 FROM entities WHERE entities.id=tasks_legacy_migration.entity_id)"
-                )
-                self.db.execute(
-                    "INSERT INTO legacy_tasks_archive(request_id,entity_id,action,payload_hash,result,created_at,archive_reason) "
-                    "SELECT request_id,entity_id,action,NULL,result,created_at,'missing_entity_reference' "
-                    "FROM tasks_legacy_migration WHERE NOT EXISTS "
-                    "(SELECT 1 FROM entities WHERE entities.id=tasks_legacy_migration.entity_id)"
-                )
-                self.db.execute("DROP TABLE tasks_legacy_migration")
-        with self.db:
-            self.db.execute(
-                "INSERT INTO schema_meta(key,value) VALUES ('schema_version','1') "
-                "ON CONFLICT(key) DO UPDATE SET value=excluded.value"
-            )
-        # Persistent identity/ownership records. These tables support the local
-        # policy boundary; they do not authenticate the principal_id supplied
-        # by a caller. A future service must derive that ID from validated credentials.
-        self.db.executescript("""
-        CREATE TABLE IF NOT EXISTS principals(
-            principal_id TEXT PRIMARY KEY,
-            principal_type TEXT NOT NULL CHECK(principal_type='human'),
-            active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)),
-            created_at TEXT NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS tenants(
-            tenant_id TEXT PRIMARY KEY,
-            tenant_type TEXT NOT NULL CHECK(tenant_type='personal'),
-            owner_principal_id TEXT NOT NULL,
-            active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)),
-            created_at TEXT NOT NULL,
-            FOREIGN KEY(owner_principal_id) REFERENCES principals(principal_id)
-        );
-        CREATE TABLE IF NOT EXISTS tenant_memberships(
-            tenant_id TEXT NOT NULL,
-            principal_id TEXT NOT NULL,
-            role TEXT NOT NULL CHECK(role IN ('owner','editor','viewer')),
-            active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)),
-            created_at TEXT NOT NULL,
-            PRIMARY KEY(tenant_id,principal_id),
-            FOREIGN KEY(tenant_id) REFERENCES tenants(tenant_id),
-            FOREIGN KEY(principal_id) REFERENCES principals(principal_id)
-        );
-        CREATE TABLE IF NOT EXISTS resource_ownership(
-            resource_id TEXT PRIMARY KEY,
-            tenant_id TEXT NOT NULL,
-            owner_principal_id TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            FOREIGN KEY(resource_id) REFERENCES entities(id),
-            FOREIGN KEY(tenant_id) REFERENCES tenants(tenant_id),
-            FOREIGN KEY(owner_principal_id) REFERENCES principals(principal_id)
-        );
-        """)
-        self.db.execute(
-            "CREATE INDEX IF NOT EXISTS idx_events_entity_id_id ON events(entity_id,id)"
-        )
-        self.db.commit()
+        from database_migrations import MigrationRunner
+        from runtime_migrations import GALINYX_MIGRATIONS
+        try:
+            MigrationRunner(self.db, GALINYX_MIGRATIONS).migrate()
+        except Exception:
+            self.db.close()
+            raise
 
     def create(self, name, kind, capabilities=()):
         if not isinstance(name,str) or not isinstance(kind,str):
