@@ -38,10 +38,21 @@ class Runtime:
         self.db.execute("CREATE TABLE IF NOT EXISTS schema_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
         columns = {row[1] for row in self.db.execute("PRAGMA table_info(tasks)")}
         if "payload_hash" not in columns:
-            # Preserve legacy task rows. Their original payload digest cannot be
-            # reconstructed, so replaying those request IDs fails closed.
+            # Rebuild the legacy task table into a stable column order. Existing
+            # rows are retained with a NULL digest; they cannot be replayed safely.
             with self.db:
-                self.db.execute("ALTER TABLE tasks ADD COLUMN payload_hash TEXT")
+                self.db.execute("ALTER TABLE tasks RENAME TO tasks_legacy_migration")
+                self.db.execute(
+                    "CREATE TABLE tasks("
+                    "request_id TEXT PRIMARY KEY, entity_id TEXT NOT NULL, action TEXT NOT NULL, "
+                    "payload_hash TEXT, result TEXT NOT NULL, created_at TEXT NOT NULL, "
+                    "FOREIGN KEY(entity_id) REFERENCES entities(id))"
+                )
+                self.db.execute(
+                    "INSERT INTO tasks(request_id,entity_id,action,payload_hash,result,created_at) "
+                    "SELECT request_id,entity_id,action,NULL,result,created_at FROM tasks_legacy_migration"
+                )
+                self.db.execute("DROP TABLE tasks_legacy_migration")
         with self.db:
             self.db.execute(
                 "INSERT INTO schema_meta(key,value) VALUES ('schema_version','1') "
@@ -203,8 +214,11 @@ class Runtime:
                 # No adapters yet: allowed capabilities alone do not authorize side effects.
                 result["status"] = "not_implemented"
             self._event(entity_id,"task."+result["status"],{"action":action,"request_id":request_id})
-            self.db.execute("INSERT INTO tasks VALUES (?,?,?,?,?,?)",
-                            (request_id,entity_id,action,payload_hash,json.dumps(result),now()))
+            self.db.execute(
+                "INSERT INTO tasks(request_id,entity_id,action,payload_hash,result,created_at) "
+                "VALUES (?,?,?,?,?,?)",
+                (request_id,entity_id,action,payload_hash,json.dumps(result),now())
+            )
         return result
 
     def asset(self, entity_id, asset_id):
