@@ -1,4 +1,5 @@
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
@@ -227,6 +228,21 @@ class AuthorityPolicyTests(unittest.TestCase):
         self.assertFalse(self.policy.authorize(
             "manager", "catalog.read", "project-7", self.now, cost="1"
         ).allowed)
+
+    def test_concurrent_requests_cannot_overspend_one_grant(self):
+        grant = self.policy.issue_grant(
+            "human-owner", "assistant", actions={"task.run"},
+            resources={"project-7"}, expires_at=self.now + timedelta(hours=1),
+            budget="10",
+        )
+        def spend():
+            return self.policy.authorize(
+                "assistant", "task.run", "project-7", self.now, cost="7"
+            ).allowed
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            decisions = list(pool.map(lambda _: spend(), range(2)))
+        self.assertEqual(sum(decisions), 1)
+        self.assertEqual(self.policy._spent[grant.grant_id], Decimal("7"))
 
     def test_required_approval_cannot_be_self_approved(self):
         self.assertFalse(self.policy.authorize(
