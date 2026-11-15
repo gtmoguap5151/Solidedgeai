@@ -26,13 +26,13 @@ This is a local proof of concept, **not production-secure**. The caller supplies
 
 ## Contract and migration notes
 
-`contracts.py` validates version-1 entity manifests, task envelopes, and event records. Contract validation checks shape and size; it does not authenticate callers or prove ownership. The runtime records schema version `1`. Legacy task rows are preserved during migration, but their missing payload digest cannot be reconstructed; reusing those old request IDs is rejected rather than replayed.
+`contracts.py` validates version-1 entity manifests, task envelopes, and event records. Contract validation checks shape and size; it does not authenticate callers or prove ownership. The runtime currently records schema version `2` through the ordered migration runner. Legacy task rows are preserved during migration, but their missing payload digest cannot be reconstructed; reusing those old request IDs is rejected rather than replayed.
 
 ## Next
 Typed entity manifests, authenticated user ownership, storyworld persistence, approval queues, resource metering, and creator subsystem adapters.
 
 ## Database compatibility
-The prototype schema is under active development. Existing SQLite databases created before the payload-hash schema change are **not automatically migrated**. Use a fresh local test database for this experimental version; never delete production data to work around migration failures. A versioned migration framework is a release blocker.
+The prototype schema is under active development. Existing SQLite databases created before the payload-hash schema change are **not automatically migrated**. Use a fresh local test database for this experimental version; never delete production data to work around migration failures. The versioned migration runner is now wired into runtime startup. Supported upgrades are covered by integration tests; back up existing databases before upgrading, and do not treat this prototype migration path as a substitute for production backup and recovery procedures.
 
 ## Local developer CLI
 
@@ -143,16 +143,19 @@ and does not persist policy or audit state. It is not a production security
 boundary. See `architecture/GALINYX-AHAF-EXECUTABLE-AUTHORITY-MODEL-0001.md`
 for scope and required validation gates.
 
-## Standalone SQLite migration runner (experimental)
+## Versioned SQLite runtime migrations
 
-`database_migrations.py` introduces a small, explicit migration runner with
-ordered version numbers, `BEGIN IMMEDIATE` serialization, rollback on failure,
-and fail-closed handling of databases newer than the supported migration set.
-Its tests cover fresh upgrades, idempotent reopen, rollback, preservation of
-pre-existing tables, invalid metadata, and future schema versions.
+`database_migrations.py` provides ordered migration versions, `BEGIN IMMEDIATE`
+serialization, rollback on failure, and fail-closed handling of databases newer
+than the supported migration set. `runtime_migrations.py` defines the current
+core-runtime migration (version 1) and workspace-identity migration (version 2).
+`Runtime.__init__` now applies these migrations before exposing the runtime.
 
-**Important:** this runner is currently isolated and is not yet wired into
-`Runtime.__init__`. The runtime's existing schema initialization remains
-unchanged. This work is a tested foundation, not a completed runtime migration
-or permission to add persistent AHAF state. Runtime integration requires a
-separate preservation-focused migration plan and legacy database fixtures.
+Tests cover fresh upgrades, idempotent reopen, failed-migration rollback,
+legacy task-table conversion, valid-row preservation, orphan-row archival,
+version-1-to-version-2 upgrades, and future schema rejection.
+
+**Important:** this is still a prototype persistence layer. It does not yet
+migrate persistent AHAF grants, agent credentials, approvals, budgets, or audit
+records. Back up databases before upgrading and retain independent recovery
+copies.
