@@ -33,3 +33,19 @@ Typed entity manifests, authenticated user ownership, storyworld persistence, ap
 
 ## Database compatibility
 The prototype schema is under active development. Existing SQLite databases created before the payload-hash schema change are **not automatically migrated**. Use a fresh local test database for this experimental version; never delete production data to work around migration failures. A versioned migration framework is a release blocker.
+
+## Local developer CLI
+
+The standard-library CLI provides a small local workflow:
+
+```bash
+python galinyx-os/cli.py init --database galinyx.db
+python galinyx-os/cli.py validate-manifest examples/application.json
+python galinyx-os/cli.py create-entity examples/application.json --database galinyx.db
+python galinyx-os/cli.py list-entities --database galinyx.db
+python galinyx-os/cli.py inspect-entity ENTITY_ID --database galinyx.db
+python galinyx-os/cli.py events ENTITY_ID --database galinyx.db
+```
+
+The CLI is for trusted local development. It is not a login system, network API, or multi-user security boundary. Do not expose it to untrusted users or connect privileged external tools.
+
