@@ -144,7 +144,15 @@ class AuthorityPolicy:
         )
         self._grants[grant.grant_id] = grant
         self._record("grant.issued", grant_id=grant.grant_id, issuer_id=issuer_id,
-                     subject_id=subject_id, policy_version=grant.policy_version)
+                     subject_id=subject_id, actions=sorted(grant.actions),
+                     resources=sorted(grant.resources), expires_at=grant.expires_at.isoformat(),
+                     budget=str(grant.budget),
+                     max_transaction=None if grant.max_transaction is None else str(grant.max_transaction),
+                     transaction_actions=sorted(grant.transaction_actions),
+                     delegable_actions=sorted(grant.delegable_actions),
+                     delegation_depth=grant.delegation_depth,
+                     approval_required=sorted(grant.approval_required),
+                     policy_version=grant.policy_version)
         return grant
 
     def delegate(self, parent_grant_id, delegator_id, delegate_id, actions, resources,
@@ -210,7 +218,15 @@ class AuthorityPolicy:
         self._grants[grant.grant_id] = grant
         self._record("grant.delegated", grant_id=grant.grant_id,
                      parent_grant_id=parent_grant_id, delegator_id=delegator_id,
-                     delegate_id=delegate_id, policy_version=grant.policy_version)
+                     delegate_id=delegate_id, actions=sorted(grant.actions),
+                     resources=sorted(grant.resources), expires_at=grant.expires_at.isoformat(),
+                     budget=str(grant.budget),
+                     max_transaction=None if grant.max_transaction is None else str(grant.max_transaction),
+                     transaction_actions=sorted(grant.transaction_actions),
+                     delegable_actions=sorted(grant.delegable_actions),
+                     delegation_depth=grant.delegation_depth,
+                     approval_required=sorted(grant.approval_required),
+                     policy_version=grant.policy_version)
         return grant
 
     def revoke(self, actor_id, grant_id):
@@ -268,6 +284,7 @@ class AuthorityPolicy:
                 self._record("authorization.allowed", agent_id=agent_id,
                              action=action, resource_id=resource_id,
                              grant_id=grant.grant_id, cost=str(cost_value),
+                             approved_by=approved_by if action in grant.approval_required else None,
                              policy_version=grant.policy_version)
                 return Decision(True, "authorized", grant.grant_id)
         return self._deny("no_valid_grant_or_constraint_failed",
