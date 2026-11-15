@@ -26,13 +26,13 @@ This is a local proof of concept, **not production-secure**. The caller supplies
 
 ## Contract and migration notes
 
-`contracts.py` validates version-1 entity manifests, task envelopes, and event records. Contract validation checks shape and size; it does not authenticate callers or prove ownership. The runtime currently records schema version `2` through the ordered migration runner. Legacy task rows are preserved during migration, but their missing payload digest cannot be reconstructed; reusing those old request IDs is rejected rather than replayed.
+`contracts.py` validates version-1 entity manifests, task envelopes, and event records. Contract validation checks shape and size; it does not authenticate callers or prove ownership. The runtime currently records schema version `3` through the ordered migration runner. Legacy task rows are preserved during migration, but their missing payload digest cannot be reconstructed; reusing those old request IDs is rejected rather than replayed.
 
 ## Next
 Typed entity manifests, authenticated user ownership, storyworld persistence, approval queues, resource metering, and creator subsystem adapters.
 
 ## Database compatibility
-The prototype schema is under active development. Existing SQLite databases created before the payload-hash schema change are **not automatically migrated**. Use a fresh local test database for this experimental version; never delete production data to work around migration failures. The versioned migration runner is now wired into runtime startup. Supported upgrades are covered by integration tests; back up existing databases before upgrading, and do not treat this prototype migration path as a substitute for production backup and recovery procedures.
+The prototype schema is under active development. Existing SQLite databases created before the payload-hash schema change are **not automatically migrated**. Use a fresh local test database for this experimental version; never delete production data to work around migration failures. The versioned migration runner is wired into runtime startup. Supported upgrades are covered by integration tests; back up existing databases before upgrading, and do not treat this prototype migration path as a substitute for production backup and recovery procedures.
 
 ## Local developer CLI
 
@@ -155,7 +155,11 @@ Tests cover fresh upgrades, idempotent reopen, failed-migration rollback,
 legacy task-table conversion, valid-row preservation, orphan-row archival,
 version-1-to-version-2 upgrades, and future schema rejection.
 
-**Important:** this is still a prototype persistence layer. It does not yet
-migrate persistent AHAF grants, agent credentials, approvals, budgets, or audit
-records. Back up databases before upgrading and retain independent recovery
-copies.
+**Important:** this is still a prototype persistence layer. The version-3 schema reserves persistent records for agent bindings, immutable
+grants, revocations, budget reservations/ledger entries, approval records, and
+hash-chained audit events. `authority_store.py` implements a narrow local store
+for binding, root-grant issuance/revocation, atomic budget reservation/settlement,
+and audit-chain verification. It does not authenticate the caller, enforce
+agent actions, implement delegated grant issuance, or validate authenticated
+human approvals. Back up databases before upgrading and retain independent
+recovery copies.
