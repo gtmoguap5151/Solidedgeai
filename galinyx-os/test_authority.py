@@ -175,6 +175,12 @@ class AuthorityPolicyTests(unittest.TestCase):
             transaction_amount="100", approved_by="human-owner"
         ).allowed)
 
+    def test_untrusted_agent_cannot_supply_human_approval(self):
+        self.assertFalse(self.policy.authorize(
+            "manager", "purchase.request", "project-7", self.now,
+            transaction_amount="100", approved_by="specialist"
+        ).allowed)
+
     def test_transaction_ceiling_is_enforced(self):
         self.assertFalse(self.policy.authorize(
             "manager", "purchase.request", "project-7", self.now,
