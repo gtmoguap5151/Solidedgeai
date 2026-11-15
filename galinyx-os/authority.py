@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from uuid import uuid4
 from threading import RLock
+from functools import wraps
 
 
 RANKS = {
@@ -17,6 +18,15 @@ RANKS = {
     "manager": 4,
     "executive": 5,
 }
+
+
+def _synchronized(method):
+    """Serialize policy state transitions within one AuthorityPolicy instance."""
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        with self._lock:
+            return method(self, *args, **kwargs)
+    return wrapper
 
 
 def _id(value, label):
@@ -86,6 +96,7 @@ class AuthorityPolicy:
         self._spent = {}
         self._lock = RLock()
 
+    @_synchronized
     def register_agent(self, agent_id, rank, role):
         agent_id = _id(agent_id, "agent_id")
         if rank not in RANKS:
@@ -97,6 +108,7 @@ class AuthorityPolicy:
         self._record("agent.registered", agent_id=agent_id, rank=rank, role=role)
         return self._agents[agent_id]
 
+    @_synchronized
     def set_rank(self, actor_id, target_id, rank):
         actor_id = _id(actor_id, "actor_id")
         target_id = _id(target_id, "target_id")
@@ -110,6 +122,7 @@ class AuthorityPolicy:
                      old_rank=old.rank, new_rank=rank)
         return self._agents[target_id]
 
+    @_synchronized
     def issue_grant(self, issuer_id, subject_id, actions, resources, expires_at,
                     budget, max_transaction=None, transaction_actions=(),
                     delegable_actions=(), delegation_depth=0, approval_required=()):
@@ -157,6 +170,7 @@ class AuthorityPolicy:
                      policy_version=grant.policy_version)
         return grant
 
+    @_synchronized
     def delegate(self, parent_grant_id, delegator_id, delegate_id, actions, resources,
                  expires_at, budget, max_transaction=None, transaction_actions=(),
                  delegable_actions=(), approval_required=()):
@@ -233,6 +247,7 @@ class AuthorityPolicy:
                      policy_version=grant.policy_version)
         return grant
 
+    @_synchronized
     def revoke(self, actor_id, grant_id):
         actor_id = _id(actor_id, "actor_id")
         grant = self._grants.get(grant_id)
@@ -244,6 +259,7 @@ class AuthorityPolicy:
         self._record("grant.revoked", actor_id=actor_id, grant_id=grant_id)
         return True
 
+    @_synchronized
     def authorize(self, agent_id, action, resource_id, now, cost=0,
                   transaction_amount=None, approved_by=None):
         agent_id = _id(agent_id, "agent_id")
@@ -329,5 +345,6 @@ class AuthorityPolicy:
         self._record("authorization.denied", reason=reason, **details)
         return Decision(False, reason)
 
+    @_synchronized
     def _record(self, event, **details):
         self.audit.append({"event": event, **details})
