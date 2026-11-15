@@ -180,7 +180,10 @@ def _ahaf_persistence_schema(db):
         "request_id TEXT NOT NULL, action TEXT NOT NULL, resource_id TEXT NOT NULL, "
         "amount_units INTEGER, unit_code TEXT, decision TEXT NOT NULL "
         "CHECK(decision IN ('approved','denied')), issued_at TEXT NOT NULL, expires_at TEXT NOT NULL, "
-        "nonce TEXT NOT NULL UNIQUE, FOREIGN KEY(grant_id) REFERENCES ahaf_authority_grants(grant_id), "
+        "nonce TEXT NOT NULL UNIQUE, "
+        "CHECK((amount_units IS NULL AND unit_code IS NULL) OR "
+        "(amount_units IS NOT NULL AND amount_units>=0 AND unit_code IS NOT NULL)), "
+        "FOREIGN KEY(grant_id) REFERENCES ahaf_authority_grants(grant_id), "
         "FOREIGN KEY(approver_principal_id) REFERENCES principals(principal_id))"
     )
     db.execute(
