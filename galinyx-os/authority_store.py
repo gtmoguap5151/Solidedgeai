@@ -127,16 +127,20 @@ class AuthorityStore:
             if stored_previous != previous_hash:
                 return False, event_id
             try:
-                payload = json.loads(payload_json)
+                stored_event = json.loads(payload_json)
             except (TypeError, ValueError):
+                return False, event_id
+            if not isinstance(stored_event, dict):
                 return False, event_id
             event = {
                 "occurred_at": occurred_at, "actor_type": actor_type, "actor_id": actor_id,
                 "agent_id": agent_id, "tenant_id": tenant_id, "grant_id": grant_id,
                 "request_id": request_id, "action": action, "resource_id": resource_id,
                 "decision": decision, "policy_version": policy_version,
-                "payload": payload,
+                "payload": stored_event.get("payload"),
             }
+            if stored_event != event:
+                return False, event_id
             calculated, canonical = self._event_hash(previous_hash, event)
             if canonical != payload_json or calculated != stored_hash:
                 return False, event_id
