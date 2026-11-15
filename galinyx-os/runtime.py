@@ -72,6 +72,44 @@ class Runtime:
                 "INSERT INTO schema_meta(key,value) VALUES ('schema_version','1') "
                 "ON CONFLICT(key) DO UPDATE SET value=excluded.value"
             )
+        # Persistent identity/ownership records. These tables support the local
+        # policy boundary; they do not authenticate the principal_id supplied
+        # by a caller. A future service must derive that ID from validated credentials.
+        self.db.executescript("""
+        CREATE TABLE IF NOT EXISTS principals(
+            principal_id TEXT PRIMARY KEY,
+            principal_type TEXT NOT NULL CHECK(principal_type='human'),
+            active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)),
+            created_at TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS tenants(
+            tenant_id TEXT PRIMARY KEY,
+            tenant_type TEXT NOT NULL CHECK(tenant_type='personal'),
+            owner_principal_id TEXT NOT NULL,
+            active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)),
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(owner_principal_id) REFERENCES principals(principal_id)
+        );
+        CREATE TABLE IF NOT EXISTS tenant_memberships(
+            tenant_id TEXT NOT NULL,
+            principal_id TEXT NOT NULL,
+            role TEXT NOT NULL CHECK(role IN ('owner','editor','viewer')),
+            active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)),
+            created_at TEXT NOT NULL,
+            PRIMARY KEY(tenant_id,principal_id),
+            FOREIGN KEY(tenant_id) REFERENCES tenants(tenant_id),
+            FOREIGN KEY(principal_id) REFERENCES principals(principal_id)
+        );
+        CREATE TABLE IF NOT EXISTS resource_ownership(
+            resource_id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            owner_principal_id TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(resource_id) REFERENCES entities(id),
+            FOREIGN KEY(tenant_id) REFERENCES tenants(tenant_id),
+            FOREIGN KEY(owner_principal_id) REFERENCES principals(principal_id)
+        );
+        """)
         self.db.execute(
             "CREATE INDEX IF NOT EXISTS idx_events_entity_id_id ON events(entity_id,id)"
         )
@@ -98,6 +136,144 @@ class Runtime:
                             (entity_id,kind,name,json.dumps(allowed),now()))
             self._event(entity_id,"entity.created",{"kind":kind,"name":name})
         return entity_id
+
+    @staticmethod
+    def _identity_id(value, label):
+        if not isinstance(value, str) or not value.strip() or len(value) > 128:
+            raise ValueError(f"{label} must be a nonempty string of at most 128 characters")
+        return value
+
+    def register_human(self, principal_id):
+        """Register a local principal record; this does NOT verify a real person's identity."""
+        principal_id = self._identity_id(principal_id, "principal_id")
+        with self.db:
+            self.db.execute(
+                "INSERT INTO principals(principal_id,principal_type,active,created_at) VALUES (?,?,1,?)",
+                (principal_id, "human", now())
+            )
+        return principal_id
+
+    def create_personal_workspace(self, tenant_id, owner_principal_id):
+        """Create a personal workspace through a trusted local setup operation."""
+        tenant_id = self._identity_id(tenant_id, "tenant_id")
+        owner_principal_id = self._identity_id(owner_principal_id, "owner_principal_id")
+        with self.db:
+            principal = self.db.execute(
+                "SELECT active,principal_type FROM principals WHERE principal_id=?",
+                (owner_principal_id,)
+            ).fetchone()
+            if principal is None or principal[0] != 1 or principal[1] != "human":
+                raise PermissionError("active registered human required")
+            self.db.execute(
+                "INSERT INTO tenants(tenant_id,tenant_type,owner_principal_id,active,created_at) VALUES (?,?,?,?,?)",
+                (tenant_id, "personal", owner_principal_id, 1, now())
+            )
+            self.db.execute(
+                "INSERT INTO tenant_memberships(tenant_id,principal_id,role,active,created_at) VALUES (?,?,?,?,?)",
+                (tenant_id, owner_principal_id, "owner", 1, now())
+            )
+        return tenant_id
+
+    def grant_workspace_membership(self, tenant_id, principal_id, role):
+        """Trusted local administration hook; never expose without authorizing the grantor."""
+        tenant_id = self._identity_id(tenant_id, "tenant_id")
+        principal_id = self._identity_id(principal_id, "principal_id")
+        if role not in ("editor", "viewer"):
+            raise ValueError("role must be editor or viewer")
+        with self.db:
+            tenant = self.db.execute(
+                "SELECT active FROM tenants WHERE tenant_id=?", (tenant_id,)
+            ).fetchone()
+            principal = self.db.execute(
+                "SELECT active,principal_type FROM principals WHERE principal_id=?",
+                (principal_id,)
+            ).fetchone()
+            if tenant is None or tenant[0] != 1:
+                raise PermissionError("active tenant required")
+            if principal is None or principal[0] != 1 or principal[1] != "human":
+                raise PermissionError("active registered human required")
+            self.db.execute(
+                "INSERT INTO tenant_memberships(tenant_id,principal_id,role,active,created_at) "
+                "VALUES (?,?,?,?,?) ON CONFLICT(tenant_id,principal_id) DO UPDATE SET "
+                "role=excluded.role,active=1,created_at=excluded.created_at",
+                (tenant_id, principal_id, role, 1, now())
+            )
+        return True
+
+    def revoke_workspace_membership(self, tenant_id, principal_id):
+        with self.db:
+            cursor = self.db.execute(
+                "UPDATE tenant_memberships SET active=0 WHERE tenant_id=? AND principal_id=? AND active=1",
+                (tenant_id, principal_id)
+            )
+        return cursor.rowcount == 1
+
+    def create_owned_entity(self, principal_id, tenant_id, name, kind, capabilities=()):
+        """Create an entity owned by the caller's personal workspace.
+
+        principal_id is trusted local context, NOT a credential. Network services
+        must authenticate first and derive this value server-side.
+        """
+        principal_id = self._identity_id(principal_id, "principal_id")
+        tenant_id = self._identity_id(tenant_id, "tenant_id")
+        with self.db:
+            allowed = self.db.execute(
+                "SELECT 1 FROM principals p JOIN tenants t ON t.owner_principal_id=p.principal_id "
+                "JOIN tenant_memberships m ON m.tenant_id=t.tenant_id AND m.principal_id=p.principal_id "
+                "WHERE p.principal_id=? AND p.active=1 AND t.tenant_id=? AND t.active=1 "
+                "AND m.active=1 AND m.role='owner'",
+                (principal_id, tenant_id)
+            ).fetchone()
+            if allowed is None:
+                raise PermissionError("active workspace owner required to create owned entity")
+            entity_id = self.create(name, kind, capabilities)
+            self.db.execute(
+                "INSERT INTO resource_ownership(resource_id,tenant_id,owner_principal_id,created_at) VALUES (?,?,?,?)",
+                (entity_id, tenant_id, principal_id, now())
+            )
+        return entity_id
+
+    def authorize_resource(self, principal_id, tenant_id, resource_id, action):
+        """Authorize a trusted principal context against persisted tenant ownership."""
+        for value, label in ((principal_id, "principal_id"), (tenant_id, "tenant_id"),
+                             (resource_id, "resource_id")):
+            if not isinstance(value, str) or not value.strip() or len(value) > 128:
+                return False, "invalid_request_context"
+        permissions = {
+            "resource.read": {"owner", "editor", "viewer"},
+            "resource.write": {"owner", "editor"},
+            "resource.delete": {"owner"},
+        }
+        if action not in permissions:
+            return False, "unknown_action_denied"
+        row = self.db.execute(
+            "SELECT p.active,t.active,m.active,m.role,o.tenant_id "
+            "FROM principals p JOIN tenant_memberships m ON m.principal_id=p.principal_id "
+            "JOIN tenants t ON t.tenant_id=m.tenant_id "
+            "JOIN resource_ownership o ON o.tenant_id=t.tenant_id "
+            "WHERE p.principal_id=? AND t.tenant_id=? AND o.resource_id=?",
+            (principal_id, tenant_id, resource_id)
+        ).fetchone()
+        if row is None:
+            return False, "membership_or_ownership_required"
+        if row[0] != 1 or row[1] != 1 or row[2] != 1:
+            return False, "inactive_principal_tenant_or_membership"
+        if row[3] not in permissions[action]:
+            return False, "role_permission_denied"
+        return True, "authorized"
+
+    def execute_as(self, principal_id, tenant_id, entity_id, action, payload=None, request_id=None):
+        """Execute an entity task only after workspace ownership/role authorization.
+
+        This is a local policy enforcement seam, not a network authentication
+        boundary. The principal_id must come from a trusted authentication adapter.
+        """
+        allowed, reason = self.authorize_resource(
+            principal_id, tenant_id, entity_id, "resource.write"
+        )
+        if not allowed:
+            raise PermissionError(reason)
+        return self.execute(entity_id, action, payload, request_id)
 
     def create_from_manifest(self, manifest):
         """Create an entity from a validated, versioned manifest.
