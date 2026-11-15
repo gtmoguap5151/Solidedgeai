@@ -200,6 +200,58 @@ class Runtime:
             )
         return True
 
+    def grant_workspace_membership_as(self, grantor_principal_id, tenant_id, principal_id, role):
+        """Grant membership only when the trusted actor is the active workspace owner."""
+        grantor_principal_id = self._identity_id(grantor_principal_id, "grantor_principal_id")
+        tenant_id = self._identity_id(tenant_id, "tenant_id")
+        principal_id = self._identity_id(principal_id, "principal_id")
+        if role not in ("editor", "viewer"):
+            raise ValueError("role must be editor or viewer")
+        with self.db:
+            owner = self.db.execute(
+                "SELECT 1 FROM tenants t JOIN principals p ON p.principal_id=t.owner_principal_id "
+                "JOIN tenant_memberships m ON m.tenant_id=t.tenant_id AND m.principal_id=p.principal_id "
+                "WHERE t.tenant_id=? AND t.active=1 AND t.owner_principal_id=? "
+                "AND p.active=1 AND m.active=1 AND m.role='owner'",
+                (tenant_id, grantor_principal_id)
+            ).fetchone()
+            target = self.db.execute(
+                "SELECT 1 FROM principals WHERE principal_id=? AND active=1 AND principal_type='human'",
+                (principal_id,)
+            ).fetchone()
+            if owner is None:
+                raise PermissionError("active workspace owner required to manage membership")
+            if target is None:
+                raise PermissionError("active registered human required")
+            self.db.execute(
+                "INSERT INTO tenant_memberships(tenant_id,principal_id,role,active,created_at) "
+                "VALUES (?,?,?,?,?) ON CONFLICT(tenant_id,principal_id) DO UPDATE SET "
+                "role=excluded.role,active=1,created_at=excluded.created_at",
+                (tenant_id, principal_id, role, 1, now())
+            )
+        return True
+
+    def revoke_workspace_membership_as(self, grantor_principal_id, tenant_id, principal_id):
+        """Revoke membership only when the trusted actor is the active workspace owner."""
+        grantor_principal_id = self._identity_id(grantor_principal_id, "grantor_principal_id")
+        tenant_id = self._identity_id(tenant_id, "tenant_id")
+        principal_id = self._identity_id(principal_id, "principal_id")
+        with self.db:
+            owner = self.db.execute(
+                "SELECT 1 FROM tenants t JOIN principals p ON p.principal_id=t.owner_principal_id "
+                "JOIN tenant_memberships m ON m.tenant_id=t.tenant_id AND m.principal_id=p.principal_id "
+                "WHERE t.tenant_id=? AND t.active=1 AND t.owner_principal_id=? "
+                "AND p.active=1 AND m.active=1 AND m.role='owner'",
+                (tenant_id, grantor_principal_id)
+            ).fetchone()
+            if owner is None:
+                raise PermissionError("active workspace owner required to manage membership")
+            cursor = self.db.execute(
+                "UPDATE tenant_memberships SET active=0 WHERE tenant_id=? AND principal_id=? AND active=1",
+                (tenant_id, principal_id)
+            )
+        return cursor.rowcount == 1
+
     def revoke_workspace_membership(self, tenant_id, principal_id):
         with self.db:
             cursor = self.db.execute(
