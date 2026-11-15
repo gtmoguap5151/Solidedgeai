@@ -59,6 +59,18 @@ class GalinyxService:
             raise PermissionError(reason)
         return self.__runtime.remember(entity_id, key)
 
+    def add_workspace_member(self, credential, tenant_id, member_principal_id, role):
+        grantor_principal_id = self._principal(credential)
+        return self.__runtime.grant_workspace_membership_as(
+            grantor_principal_id, tenant_id, member_principal_id, role
+        )
+
+    def remove_workspace_member(self, credential, tenant_id, member_principal_id):
+        grantor_principal_id = self._principal(credential)
+        return self.__runtime.revoke_workspace_membership_as(
+            grantor_principal_id, tenant_id, member_principal_id
+        )
+
     def inspect_agent(self, credential, tenant_id, entity_id):
         principal_id = self._principal(credential)
         allowed, reason = self.__runtime.authorize_resource(
