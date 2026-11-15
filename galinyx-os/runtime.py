@@ -35,11 +35,22 @@ class Runtime:
             payload_hash TEXT NOT NULL, result TEXT NOT NULL, created_at TEXT NOT NULL,
             FOREIGN KEY(entity_id) REFERENCES entities(id));
         """)
-        self.db.commit()
+        self.db.execute("CREATE TABLE IF NOT EXISTS schema_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
         columns = {row[1] for row in self.db.execute("PRAGMA table_info(tasks)")}
         if "payload_hash" not in columns:
-            self.db.close()
-            raise RuntimeError("Unsupported database schema: migration required; existing data preserved")
+            # Preserve legacy task rows. Their original payload digest cannot be
+            # reconstructed, so replaying those request IDs fails closed.
+            with self.db:
+                self.db.execute("ALTER TABLE tasks ADD COLUMN payload_hash TEXT")
+        with self.db:
+            self.db.execute(
+                "INSERT INTO schema_meta(key,value) VALUES ('schema_version','1') "
+                "ON CONFLICT(key) DO UPDATE SET value=excluded.value"
+            )
+        self.db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_events_entity_id_id ON events(entity_id,id)"
+        )
+        self.db.commit()
 
     def create(self, name, kind, capabilities=()):
         if not isinstance(name,str) or not isinstance(kind,str):
@@ -47,8 +58,8 @@ class Runtime:
         if not name.strip() or not kind.strip() or len(name)>128:
             raise ValueError("name and kind required")
         entity_id = str(uuid.uuid4())
-        if kind not in ("creator","researcher"):
-            raise ValueError("unsupported entity kind")
+        if not kind.strip() or len(kind) > 64:
+            raise ValueError("kind must be 1-64 non-whitespace characters")
         if not isinstance(capabilities,(list,tuple,set)) or any(not isinstance(x,str) for x in capabilities):
             raise ValueError("capabilities must be strings")
         valid = {"memory.write","story.plan","creator.draft","creator.rights","creator.review"}
@@ -60,6 +71,22 @@ class Runtime:
                             (entity_id,kind,name,json.dumps(allowed),now()))
             self._event(entity_id,"entity.created",{"kind":kind,"name":name})
         return entity_id
+
+    def create_from_manifest(self, manifest):
+        """Create an entity from a validated, versioned manifest.
+
+        The manifest is a declaration, not proof of caller identity or ownership.
+        Authentication and owner binding must be supplied by a future trusted API.
+        """
+        from contracts import validate_entity_manifest
+        data = validate_entity_manifest(manifest)
+        return self.create(data["name"], data["kind"], data["capabilities"])
+
+    def schema_version(self):
+        row = self.db.execute(
+            "SELECT value FROM schema_meta WHERE key='schema_version'"
+        ).fetchone()
+        return int(row[0]) if row else 0
 
     def _event(self, entity_id, event_type, payload):
         self.db.execute("INSERT INTO events(entity_id,event_type,payload,created_at) VALUES (?,?,?,?)",
