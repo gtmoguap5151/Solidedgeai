@@ -87,6 +87,58 @@ class TrustedServiceBoundaryTests(unittest.TestCase):
         with self.assertRaises(PermissionError):
             other_service.inspect_agent("other-secret", "other-workspace", self.agent)
 
+    def test_owner_can_add_and_revoke_workspace_member(self):
+        self.runtime.register_human("new-member")
+        self.auth.credentials["new-member-secret"] = "new-member"
+        self.assertTrue(self.service.add_workspace_member(
+            "owner-secret", "workspace", "new-member", "editor"
+        ))
+        self.assertEqual(
+            self.runtime.authorize_resource(
+                "new-member", "workspace", self.agent, "resource.write"
+            ),
+            (True, "authorized")
+        )
+        self.assertTrue(self.service.remove_workspace_member(
+            "owner-secret", "workspace", "new-member"
+        ))
+        self.assertFalse(
+            self.runtime.authorize_resource(
+                "new-member", "workspace", self.agent, "resource.write"
+            )[0]
+        )
+
+    def test_viewer_cannot_manage_workspace_members(self):
+        self.runtime.register_human("new-member")
+        self.auth.credentials["new-member-secret"] = "new-member"
+        with self.assertRaises(PermissionError):
+            self.service.add_workspace_member(
+                "viewer-secret", "workspace", "new-member", "editor"
+            )
+        self.assertEqual(
+            self.runtime.authorize_resource(
+                "new-member", "workspace", self.agent, "resource.read"
+            ),
+            (False, "membership_or_ownership_required")
+        )
+
+    def test_owner_cannot_manage_membership_in_another_workspace(self):
+        self.runtime.register_human("other-owner")
+        self.runtime.create_personal_workspace("other-workspace", "other-owner")
+        self.auth.credentials["other-owner-secret"] = "other-owner"
+        with self.assertRaises(PermissionError):
+            self.service.add_workspace_member(
+                "owner-secret", "other-workspace", "viewer-id", "viewer"
+            )
+
+    def test_service_rejects_escalating_member_role(self):
+        self.runtime.register_human("new-member")
+        self.auth.credentials["new-member-secret"] = "new-member"
+        with self.assertRaises(ValueError):
+            self.service.add_workspace_member(
+                "owner-secret", "workspace", "new-member", "owner"
+            )
+
     def test_authenticator_must_be_supplied(self):
         with self.assertRaises(ValueError):
             GalinyxService(self.runtime, None)
