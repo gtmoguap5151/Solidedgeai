@@ -19,6 +19,7 @@ class AuthorityPolicyTests(unittest.TestCase):
             expires_at=self.now + timedelta(hours=2),
             budget="100",
             max_transaction="500",
+            transaction_actions={"purchase.request"},
             delegable_actions={"catalog.read", "quote.compare"},
             delegation_depth=2,
             approval_required={"purchase.request"},
@@ -107,12 +108,19 @@ class AuthorityPolicyTests(unittest.TestCase):
             self.root.grant_id, "manager", "specialist",
             actions={"quote.compare"}, resources={"project-7"},
             expires_at=self.now + timedelta(hours=1), budget="10",
+            delegable_actions={"quote.compare"},
         )
+        grandchild = self.policy.delegate(
+            child.grant_id, "specialist", "assistant",
+            actions={"quote.compare"}, resources={"project-7"},
+            expires_at=self.now + timedelta(minutes=30), budget="5",
+        )
+        self.assertEqual(grandchild.delegation_depth, 0)
         with self.assertRaises(PermissionError):
             self.policy.delegate(
-                child.grant_id, "specialist", "assistant",
+                grandchild.grant_id, "assistant", "manager",
                 actions={"quote.compare"}, resources={"project-7"},
-                expires_at=self.now + timedelta(minutes=30), budget="5",
+                expires_at=self.now + timedelta(minutes=15), budget="1",
             )
 
     def test_revoking_parent_invalidates_descendant(self):
@@ -179,6 +187,20 @@ class AuthorityPolicyTests(unittest.TestCase):
         self.assertFalse(self.policy.authorize(
             "manager", "purchase.request", "project-7", self.now,
             transaction_amount="100", approved_by="specialist"
+        ).allowed)
+
+    def test_transaction_action_requires_amount_and_enforces_ceiling(self):
+        self.assertFalse(self.policy.authorize(
+            "manager", "purchase.request", "project-7", self.now,
+            approved_by="human-owner"
+        ).allowed)
+        self.assertFalse(self.policy.authorize(
+            "manager", "purchase.request", "project-7", self.now,
+            transaction_amount="501", approved_by="human-owner"
+        ).allowed)
+        self.assertTrue(self.policy.authorize(
+            "manager", "purchase.request", "project-7", self.now,
+            transaction_amount="500", approved_by="human-owner"
         ).allowed)
 
     def test_transaction_ceiling_is_enforced(self):
