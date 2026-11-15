@@ -21,13 +21,13 @@ Convert a bounded subset of AHAF's written invariants into executable, repeatabl
 - Revoking a parent grant invalidates its descendants when they are next evaluated.
 - Required approval must be attributed to someone other than the requesting agent.
 - Transaction amounts are mandatory for explicitly transaction-limited actions.
-- Budget consumption is cumulative within the in-memory process and is charged to the selected grant and each ancestor under a process-local lock.
+- Budget consumption is cumulative within the in-memory process and is charged to the selected grant and each ancestor under a process-local reentrant lock that serializes policy state transitions.
 - Required approvals are accepted only from the configured trusted governance identities in this test harness.
 - Authorization decisions append an in-memory audit event with the policy version.
 
 ## Deliberate limits
 
-This is not yet integrated into `Runtime` or `GalinyxService`. It uses in-memory Python objects and trusted governance actor IDs supplied by the test harness. It does not authenticate agents or humans, sign grants, persist policy, provide cross-process or crash-safe budget accounting, validate approval credentials beyond trusted in-memory IDs, or isolate code execution. The process-local lock protects only calls through this in-memory instance. Audit events are mutable in-memory records, not tamper-evident logs.
+This is not yet integrated into `Runtime` or `GalinyxService`. It uses in-memory Python objects and trusted governance actor IDs supplied by the test harness. It does not authenticate agents or humans, sign grants, persist policy, provide cross-process or crash-safe budget accounting, validate approval credentials beyond trusted in-memory IDs, or isolate code execution. The process-local lock protects only calls through this in-memory instance; it does not coordinate separate processes or hosts. Audit events are mutable in-memory records, not tamper-evident logs.
 
 A passing unit test proves only the behavior of this synthetic model under the tested inputs. It does not prove security of the full GALINYX system or any deployed agent.
 
