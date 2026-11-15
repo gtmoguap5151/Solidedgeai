@@ -66,11 +66,11 @@ A second draft PR #6 builds on PR #5 and adds `GalinyxService`, a narrow facade 
 - **PR:** https://github.com/gtmoguap5151/Solidedgeai/pull/6
 - **Head commit:** `12ee3aaac8029a6ae85faebb450ea9da58a4c11e`
 - **CI run:** #130 / `43754842261`
-- **Unit tests:** 71 run; 71 passed
+- **Unit tests:** 73 run; 73 passed
 - **Demo smoke test:** passed
 - **Workflow conclusion:** success
 
-The authenticator in tests is a deterministic test double. No production identity provider, password/session/token validation, credential lifecycle, or deployment isolation exists. Python private attributes are not a security boundary, and trusted local Runtime/CLI methods remain callable. This is a service integration seam, not proof of authentication. PR #6 is draft and unmerged; PR #5 remains its base.
+The latest runtime/test source commit includes 73 passing tests, including protection against demoting or removing the sole personal-workspace owner. The authenticator in tests is a deterministic test double. No production identity provider, password/session/token validation, credential lifecycle, or deployment isolation exists. Python private attributes are not a security boundary, and trusted local Runtime/CLI methods remain callable. This is a service integration seam, not proof of authentication. PR #6 is draft and unmerged; PR #5 remains its base.
 
 ## 3. Traceability matrix
 
@@ -85,7 +85,7 @@ The authenticator in tests is a deterministic test double. No production identit
 | Capability checks | Deny-by-default action capability mapping in runtime | Present, narrow | Capabilities can be assigned at entity creation; no authenticated policy administrator or contextual policy engine | Negative tests for privilege escalation, unknown actions, policy changes and ownership |
 | Agent identity | Entity IDs represent local runtime entities | Partial | IDs are not authenticated agent credentials; caller-supplied IDs are not identity proof | Cryptographic/workload identity design and spoofing/replay tests |
 | Human identity and accounts | SQLite principal records plus credential-resolving facade on draft PRs #5/#6; tests use fake authenticator | Partial prototype | No production login, account verification, session or identity provider; test credentials are not real authentication | Select and integrate a real identity provider; test credential lifecycle and server-side identity mapping |
-| Organization / tenant boundaries | Personal workspace, ownership, credential-derived service facade and owner-only membership management on draft PRs #5/#6; CI now 71 tests | Partial prototype, unmerged | No organization tenants, cross-tenant sharing, production authentication, or deployment isolation; direct local APIs remain trusted | Review PRs #5/#6; choose identity provider; then harden service deployment and close all ingress bypasses |
+| Organization / tenant boundaries | Personal workspace, ownership, credential-derived service facade and owner-only membership management on draft PRs #5/#6; CI now 73 tests | Partial prototype, unmerged | No organization tenants, cross-tenant sharing, production authentication, or deployment isolation; direct local APIs remain trusted | Review PRs #5/#6; choose identity provider; then harden service deployment and close all ingress bypasses |
 | Rank, role and hierarchy | AHAF document on `galinyx-launch` | Proposed | Rank/role/permission/budget/delegation not implemented in runtime | Convert AHAF invariants into requirement IDs and executable tests |
 | Delegation and approval | Creator review workflow; AHAF concept; prior-art research document | Partial / proposed | Reviewer identity is not authenticated; no general delegation chain, revocation or approval authority service | Authenticated approver tests, delegation attenuation/revocation tests, expiry and replay tests |
 | Resource budgets | Task contract accepts optional budget fields | Partial | Contract shape only; no metering, enforcement, quotas, rate limits or cost ceilings | Demonstrate hard enforcement for steps, tokens, duration, and cost; test bypass attempts |
