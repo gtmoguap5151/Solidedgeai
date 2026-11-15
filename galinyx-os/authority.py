@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from uuid import uuid4
+from threading import RLock
 
 
 RANKS = {
@@ -81,6 +82,8 @@ class AuthorityPolicy:
         self._grants = {}
         self._revoked = set()
         self.audit = []
+        self._spent = {}
+        self._lock = RLock()
 
     def register_agent(self, agent_id, rank, role):
         agent_id = _id(agent_id, "agent_id")
@@ -211,39 +214,54 @@ class AuthorityPolicy:
         candidates = [g for g in self._grants.values()
                       if g.subject_id == agent_id and action in g.actions
                       and resource_id in g.resources]
-        for grant in reversed(candidates):
-            if not self._grant_chain_active(grant.grant_id):
-                continue
-            if instant >= grant.expires_at:
-                continue
-            if transaction_amount is not None:
-                amount = _money(transaction_amount, "transaction_amount")
-                if grant.max_transaction is not None and amount > grant.max_transaction:
+        with self._lock:
+            for grant in reversed(candidates):
+                chain = self._active_chain(grant.grant_id)
+                if chain is None or instant >= grant.expires_at:
                     continue
-            if action in grant.approval_required:
-                if not approved_by or approved_by == agent_id:
+                if transaction_amount is not None:
+                    amount = _money(transaction_amount, "transaction_amount")
+                    if grant.max_transaction is not None and amount > grant.max_transaction:
+                        continue
+                if action in grant.approval_required:
+                    if not approved_by or approved_by == agent_id:
+                        continue
+                # A grant budget is cumulative, not a per-request allowance.
+                # Charge the selected grant and every ancestor so delegated
+                # spending is included in the delegator's aggregate ceiling.
+                if any(self._spent.get(item.grant_id, Decimal("0")) + cost_value > item.budget
+                       for item in chain):
                     continue
-            if cost_value > grant.budget:
-                continue
-            self._record("authorization.allowed", agent_id=agent_id,
-                         action=action, resource_id=resource_id,
-                         grant_id=grant.grant_id, policy_version=grant.policy_version)
-            return Decision(True, "authorized", grant.grant_id)
+                for item in chain:
+                    self._spent[item.grant_id] = (
+                        self._spent.get(item.grant_id, Decimal("0")) + cost_value
+                    )
+                self._record("authorization.allowed", agent_id=agent_id,
+                             action=action, resource_id=resource_id,
+                             grant_id=grant.grant_id, cost=str(cost_value),
+                             policy_version=grant.policy_version)
+                return Decision(True, "authorized", grant.grant_id)
         return self._deny("no_valid_grant_or_constraint_failed",
                           agent_id=agent_id, action=action, resource_id=resource_id)
 
-    def _grant_chain_active(self, grant_id):
+    def _active_chain(self, grant_id):
+        """Return leaf-to-root grants, or None if any link is missing/revoked."""
         seen = set()
+        chain = []
         current_id = grant_id
         while current_id is not None:
             if current_id in seen or current_id in self._revoked:
-                return False
+                return None
             seen.add(current_id)
             current = self._grants.get(current_id)
             if current is None:
-                return False
+                return None
+            chain.append(current)
             current_id = current.parent_grant_id
-        return True
+        return chain
+
+    def _grant_chain_active(self, grant_id):
+        return self._active_chain(grant_id) is not None
 
     @staticmethod
     def _string_set(values, label):
