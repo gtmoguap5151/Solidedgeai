@@ -49,6 +49,26 @@ python galinyx-os/cli.py events ENTITY_ID --database galinyx.db
 
 The CLI is for trusted local development. It is not a login system, network API, or multi-user security boundary. Do not expose it to untrusted users or connect privileged external tools.
 
+## Credential-derived service facade (prototype seam)
+
+`service.py` adds a narrow `GalinyxService` facade for creating agents,
+executing agent tasks, reading memory, and inspecting an agent. Each operation
+accepts a credential and asks an injected authenticator to resolve it to a
+principal ID; callers do not pass principal IDs as operation arguments. The
+facade then applies the persisted workspace authorization checks.
+
+The repository includes only a deterministic test authenticator. It is a test
+double, **not** a login system, password verifier, token validator, or production
+identity provider. No real credentials are issued or validated. The service
+facade is an architectural seam showing where authentication must connect.
+
+This does not make the Python process a security sandbox: trusted code in the
+same process can still access the underlying runtime or database. A deployed
+service must keep those internals private to the service process, authenticate
+credentials with a reviewed provider, protect secrets, enforce transport and
+session security, and expose only the facade's authorized operations. The local
+CLI and direct Runtime methods remain trusted developer interfaces.
+
 ## Runtime-enforced workspace ownership (prototype)
 
 The runtime now persists local human-principal records, personal workspaces,
