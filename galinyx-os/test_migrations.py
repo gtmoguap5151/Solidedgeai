@@ -10,9 +10,19 @@ class MigrationTests(unittest.TestCase):
             database = Path(directory) / "legacy.db"
             connection = sqlite3.connect(database)
             connection.execute(
+                "CREATE TABLE entities("
+                "id TEXT PRIMARY KEY, kind TEXT NOT NULL, name TEXT NOT NULL, "
+                "capabilities TEXT NOT NULL, created_at TEXT NOT NULL)"
+            )
+            connection.execute(
+                "INSERT INTO entities VALUES (?,?,?,?,?)",
+                ("old-entity", "creator", "Legacy", '["memory.write"]', "2026-01-01T00:00:00+00:00")
+            )
+            connection.execute(
                 "CREATE TABLE tasks("
                 "request_id TEXT PRIMARY KEY, entity_id TEXT NOT NULL, action TEXT NOT NULL, "
-                "result TEXT NOT NULL, created_at TEXT NOT NULL)"
+                "result TEXT NOT NULL, created_at TEXT NOT NULL, "
+                "FOREIGN KEY(entity_id) REFERENCES entities(id))"
             )
             connection.execute(
                 "INSERT INTO tasks VALUES (?,?,?,?,?)",
