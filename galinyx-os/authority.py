@@ -148,7 +148,8 @@ class AuthorityPolicy:
         return grant
 
     def delegate(self, parent_grant_id, delegator_id, delegate_id, actions, resources,
-                 expires_at, budget, max_transaction=None, transaction_actions=(),\n                 delegable_actions=(), approval_required=()):
+                 expires_at, budget, max_transaction=None, transaction_actions=(),
+                 delegable_actions=(), approval_required=()):
         parent = self._grants.get(parent_grant_id)
         delegator_id = _id(delegator_id, "delegator_id")
         delegate_id = _id(delegate_id, "delegate_id")
