@@ -8,7 +8,7 @@
 
 ## Decision
 
-Introduce a persistent record layer for a limited subset of AHAF without connecting it to task execution. This layer stores agent-to-workspace bindings, immutable root grants, revocations, budget reservations and settlement ledger entries, approval-record slots, and a hash-chained audit stream.
+Introduce a persistent record layer for a limited subset of AHAF without connecting it to task execution. This layer stores agent-to-workspace bindings, immutable root and delegated grants, revocations, budget reservations and settlement ledger entries, approval-record slots, and a hash-chained audit stream.
 
 The store is a trusted local component. It is not exposed as a network API and does not establish identity merely because a caller supplies an ID.
 
@@ -43,7 +43,7 @@ A reservation consumes available budget immediately. Commit converts reserved un
 
 - Production human or workload authentication.
 - Cryptographic signing or verification of grants.
-- Delegated grant issuance and attenuation.
+- Cryptographic signing or verification of grants.
 - Authenticated human approval creation, verification, expiry, or replay protection.
 - Action/resource authorization or execution integration.
 - A complete crash-recovery workflow for external side effects.
