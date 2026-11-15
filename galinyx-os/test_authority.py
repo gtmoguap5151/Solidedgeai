@@ -111,6 +111,15 @@ class AuthorityPolicyTests(unittest.TestCase):
                 expires_at=self.now + timedelta(hours=1), budget="10",
                 approval_required={"purchase.request"},
             )
+        with self.assertRaises(PermissionError):
+            self.policy.delegate(
+                self.root.grant_id, "manager", "specialist",
+                actions={"purchase.request"}, resources={"project-7"},
+                expires_at=self.now + timedelta(hours=1), budget="10",
+                max_transaction="100",
+                transaction_actions={"purchase.request"},
+                approval_required=set(),
+            )
         child = self.policy.delegate(
             self.root.grant_id, "manager", "specialist",
             actions={"purchase.request"}, resources={"project-7"},
