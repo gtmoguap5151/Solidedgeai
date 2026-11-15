@@ -80,6 +80,20 @@ class IdentityPolicyTests(unittest.TestCase):
             with self.subTest(args=args):
                 self.assertFalse(self.directory.authorize(*args).allowed)
 
+    def test_malformed_request_context_fails_closed(self):
+        malformed_cases = [
+            ([], "tenant-a", "resource-a", "resource.read"),
+            ("human-a", {}, "resource-a", "resource.read"),
+            ("human-a", "tenant-a", None, "resource.read"),
+            ("human-a", "tenant-a", "resource-a", []),
+            ("", "tenant-a", "resource-a", "resource.read"),
+        ]
+        for args in malformed_cases:
+            with self.subTest(args=args):
+                decision = self.directory.authorize(*args)
+                self.assertFalse(decision.allowed)
+                self.assertIn(decision.reason, ("invalid_request_context", "unknown_action_denied"))
+
     def test_personal_workspace_requires_registered_active_human(self):
         with self.assertRaises(IdentityPolicyError):
             self.directory.create_personal_workspace("tenant-x", "unregistered")
