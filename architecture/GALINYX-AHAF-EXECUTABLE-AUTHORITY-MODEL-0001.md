@@ -16,15 +16,18 @@ Convert a bounded subset of AHAF's written invariants into executable, repeatabl
 - Rank is not consulted by the authorization decision and cannot create permissions.
 - Root grants are explicitly issued by trusted governance.
 - Grants are scoped to a subject, action set, resource set, expiry, operating budget, optional transaction ceiling, approval requirements, and delegation depth.
-- Delegation can only narrow actions, resources, expiry, budget, transaction ceiling, and approval requirements.
-- A child grant cannot delegate further unless the parent explicitly allows remaining depth; this first prototype consumes one depth level and does not automatically make child actions delegable.
+- Delegation can only narrow actions, resources, expiry, cumulative budget, transaction ceiling, and approval requirements; transaction-limited actions cannot lose their ceiling during delegation.
+- Further delegation is possible only when the parent explicitly marks a subset of actions as delegable and remaining depth is positive; the child receives only the expressly delegated subset.
 - Revoking a parent grant invalidates its descendants when they are next evaluated.
 - Required approval must be attributed to someone other than the requesting agent.
+- Transaction amounts are mandatory for explicitly transaction-limited actions.
+- Budget consumption is cumulative within the in-memory process and is charged to the selected grant and each ancestor under a process-local lock.
+- Required approvals are accepted only from the configured trusted governance identities in this test harness.
 - Authorization decisions append an in-memory audit event with the policy version.
 
 ## Deliberate limits
 
-This is not yet integrated into `Runtime` or `GalinyxService`. It uses in-memory Python objects and trusted governance actor IDs supplied by the test harness. It does not authenticate agents or humans, sign grants, persist policy, atomically meter/debit budgets, prevent concurrent overspend, validate approval credentials, or isolate code execution. Audit events are mutable in-memory records, not tamper-evident logs.
+This is not yet integrated into `Runtime` or `GalinyxService`. It uses in-memory Python objects and trusted governance actor IDs supplied by the test harness. It does not authenticate agents or humans, sign grants, persist policy, provide cross-process or crash-safe budget accounting, validate approval credentials beyond trusted in-memory IDs, or isolate code execution. The process-local lock protects only calls through this in-memory instance. Audit events are mutable in-memory records, not tamper-evident logs.
 
 A passing unit test proves only the behavior of this synthetic model under the tested inputs. It does not prove security of the full GALINYX system or any deployed agent.
 
