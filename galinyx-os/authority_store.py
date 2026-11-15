@@ -126,12 +126,16 @@ class AuthorityStore:
              stored_previous, stored_hash) = row
             if stored_previous != previous_hash:
                 return False, event_id
+            try:
+                payload = json.loads(payload_json)
+            except (TypeError, ValueError):
+                return False, event_id
             event = {
                 "occurred_at": occurred_at, "actor_type": actor_type, "actor_id": actor_id,
                 "agent_id": agent_id, "tenant_id": tenant_id, "grant_id": grant_id,
                 "request_id": request_id, "action": action, "resource_id": resource_id,
                 "decision": decision, "policy_version": policy_version,
-                "payload": json.loads(payload_json),
+                "payload": payload,
             }
             calculated, canonical = self._event_hash(previous_hash, event)
             if canonical != payload_json or calculated != stored_hash:
@@ -387,6 +391,8 @@ class AuthorityStore:
                 if old_amount != amount_units or old_unit != unit_code:
                     raise ValueError("request id was already used with different budget parameters")
                 status = self._reservation_status(reservation_id)
+                if status == "reserved":
+                    self._grant_chain(grant_id, require_active=True)
                 self._finish()
                 return {"reservation_id": reservation_id, "status": status, "created": False}
             chain = self._grant_chain(grant_id, require_active=True)
