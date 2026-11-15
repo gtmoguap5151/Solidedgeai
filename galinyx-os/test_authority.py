@@ -210,6 +210,12 @@ class AuthorityPolicyTests(unittest.TestCase):
             "manager", "purchase.request", "project-7", self.now,
             transaction_amount="100", approved_by="human-owner"
         ).allowed)
+        allowed_event = next(
+            event for event in reversed(self.policy.audit)
+            if event["event"] == "authorization.allowed"
+            and event["action"] == "purchase.request"
+        )
+        self.assertEqual(allowed_event["approved_by"], "human-owner")
 
     def test_untrusted_agent_cannot_supply_human_approval(self):
         self.assertFalse(self.policy.authorize(
@@ -245,6 +251,9 @@ class AuthorityPolicyTests(unittest.TestCase):
             and event["policy_version"] == "ahaf-0.1"
             for event in self.policy.audit
         ))
+        issued = next(event for event in self.policy.audit if event["event"] == "grant.issued")
+        self.assertEqual(issued["actions"], ["catalog.read", "purchase.request", "quote.compare"])
+        self.assertEqual(issued["budget"], "100")
         self.assertTrue(any(
             event["event"] == "authorization.denied"
             for event in self.policy.audit
