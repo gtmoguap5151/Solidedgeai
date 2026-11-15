@@ -27,6 +27,22 @@ It is **not** yet the shared operating infrastructure described by the master ar
 
 The next engineering priority is not adding more ecosystem features. It is to make the existing core's boundaries explicit, testable, and trustworthy before exposing it to untrusted users or external systems.
 
+## 2.1 CI baseline evidence (verified)
+
+The existing GitHub Actions workflow was inspected and its completed run was retrieved for the exact pull-request merge commit associated with PR #4.
+
+- **Workflow:** Galinyx OS Tests
+- **Run number:** 106
+- **Run ID:** `43682157436`
+- **Checked-out merge commit:** `44e86b04dd8339836be80631acc5a9634d647704`
+- **PR head commit:** `091821605ebd1f1eb9e825dd3b7fdbcef3829cb1`
+- **Environment:** GitHub-hosted Ubuntu 24.04; CPython 3.12.16
+- **Unit tests:** 34 run; 34 passed; 0 failed
+- **Demo smoke test:** completed successfully
+- **Workflow conclusion:** success
+
+This is real CI evidence for the PR merge commit at that point in time. It is not a fresh rerun initiated during this review, does not prove the current `galinyx-launch` branch contains the same code, and does not establish production security. The demo output also confirms that `story.plan` returns a completed task record while the creator implementation remains a deterministic offline template—not an AI story-generation system.
+
 ## 3. Traceability matrix
 
 | Architecture capability | Current evidence | Status | Gap / risk | Proof required |
