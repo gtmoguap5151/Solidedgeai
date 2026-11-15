@@ -303,6 +303,142 @@ class AuthorityStore:
             self._finish(exc)
             raise
 
+    def delegate_grant(self, parent_grant_id, delegator_agent_id, delegate_agent_id, *,
+                       actions, resources, expires_at, budget_limit_units,
+                       transaction_actions=(), max_transaction_units=None,
+                       transaction_unit=None, approval_required=(), delegable_actions=()):
+        """Persist an attenuated child grant; no agent credential is authenticated here."""
+        parent_grant_id = _identifier(parent_grant_id, "parent_grant_id")
+        delegator_agent_id = _identifier(delegator_agent_id, "delegator_agent_id")
+        delegate_agent_id = _identifier(delegate_agent_id, "delegate_agent_id")
+        if delegator_agent_id == delegate_agent_id:
+            raise PermissionError("an agent cannot delegate authority to itself")
+        actions = _string_set(actions, "actions")
+        resources = _string_set(resources, "resources")
+        transaction_actions = _string_set(transaction_actions, "transaction_actions")
+        approval_required = _string_set(approval_required, "approval_required")
+        delegable_actions = _string_set(delegable_actions, "delegable_actions")
+        if not actions or not resources:
+            raise ValueError("delegated grant requires actions and resources")
+        budget_limit_units = _integer(budget_limit_units, "budget_limit_units")
+        expiry = _timestamp(expires_at, "expires_at")
+        if expiry <= datetime.now(timezone.utc).isoformat():
+            raise ValueError("expires_at must be in the future")
+        grant_id = str(uuid4())
+        created = datetime.now(timezone.utc).isoformat()
+        self._begin()
+        try:
+            self._grant_chain(parent_grant_id, require_active=True)
+            parent = self.db.execute(
+                "SELECT subject_agent_id,actions_json,resources_json,expires_at,budget_limit_units,"
+                "budget_unit,max_transaction_units,transaction_unit,transaction_actions_json,"
+                "approval_required_json,delegable_actions_json,delegation_depth,policy_version "
+                "FROM ahaf_authority_grants WHERE grant_id=?",
+                (parent_grant_id,),
+            ).fetchone()
+            if parent is None:
+                raise PermissionError("active parent grant required")
+            (parent_subject, parent_actions_json, parent_resources_json, parent_expiry,
+             parent_budget, parent_unit, parent_max_transaction, parent_transaction_unit,
+             parent_transaction_actions_json, parent_approval_json,
+             parent_delegable_json, parent_depth, policy_version) = parent
+            if parent_subject != delegator_agent_id:
+                raise PermissionError("delegator is not the parent grant subject")
+            if parent_depth <= 0:
+                raise PermissionError("delegation depth exhausted")
+            parent_actions = set(json.loads(parent_actions_json))
+            parent_resources = set(json.loads(parent_resources_json))
+            parent_transaction_actions = set(json.loads(parent_transaction_actions_json))
+            parent_approval = set(json.loads(parent_approval_json))
+            parent_delegable = set(json.loads(parent_delegable_json))
+            if not set(actions).issubset(parent_delegable):
+                raise PermissionError("delegation cannot add actions or exceed delegable actions")
+            if not set(resources).issubset(parent_resources):
+                raise PermissionError("delegation cannot broaden resource scope")
+            if expiry > parent_expiry:
+                raise PermissionError("delegation cannot outlive parent grant")
+            if budget_limit_units > parent_budget:
+                raise PermissionError("delegation cannot increase budget")
+            if not set(transaction_actions) == set(actions).intersection(parent_transaction_actions):
+                raise PermissionError("delegation cannot add or remove transaction-limited actions")
+            if not set(approval_required).issubset(actions):
+                raise ValueError("approval_required must be a subset of delegated actions")
+            if not set(approval_required).issuperset(parent_approval.intersection(actions)):
+                raise PermissionError("delegation cannot remove required approval")
+            if not set(delegable_actions).issubset(set(actions).intersection(parent_delegable)):
+                raise PermissionError("delegated grant cannot broaden further delegation")
+            if parent_transaction_actions.intersection(actions):
+                if parent_max_transaction is None or parent_transaction_unit is None:
+                    raise RuntimeError("parent transaction ceiling is inconsistent")
+                if max_transaction_units is None:
+                    child_max_transaction = parent_max_transaction
+                else:
+                    child_max_transaction = _integer(max_transaction_units, "max_transaction_units")
+                    if child_max_transaction > parent_max_transaction:
+                        raise PermissionError("delegation cannot increase transaction ceiling")
+                if transaction_unit is not None and _unit(transaction_unit, "transaction_unit") != parent_transaction_unit:
+                    raise PermissionError("delegation cannot change transaction unit")
+                child_transaction_unit = parent_transaction_unit
+            else:
+                if max_transaction_units is not None or transaction_unit is not None:
+                    raise ValueError("transaction ceiling requires transaction-limited actions")
+                child_max_transaction = None
+                child_transaction_unit = None
+
+            delegate = self.db.execute(
+                "SELECT b.tenant_id,b.owner_principal_id FROM ahaf_agent_bindings b "
+                "JOIN principals p ON p.principal_id=b.owner_principal_id "
+                "JOIN tenants t ON t.tenant_id=b.tenant_id AND t.owner_principal_id=p.principal_id "
+                "JOIN tenant_memberships m ON m.tenant_id=t.tenant_id AND m.principal_id=p.principal_id "
+                "LEFT JOIN ahaf_agent_binding_revocations r ON r.agent_id=b.agent_id "
+                "WHERE b.agent_id=? AND r.agent_id IS NULL AND p.active=1 AND t.active=1 "
+                "AND m.active=1 AND m.role='owner'",
+                (delegate_agent_id,),
+            ).fetchone()
+            delegator = self.db.execute(
+                "SELECT b.tenant_id,b.owner_principal_id FROM ahaf_agent_bindings b "
+                "JOIN principals p ON p.principal_id=b.owner_principal_id "
+                "JOIN tenants t ON t.tenant_id=b.tenant_id AND t.owner_principal_id=p.principal_id "
+                "JOIN tenant_memberships m ON m.tenant_id=t.tenant_id AND m.principal_id=p.principal_id "
+                "LEFT JOIN ahaf_agent_binding_revocations r ON r.agent_id=b.agent_id "
+                "WHERE b.agent_id=? AND r.agent_id IS NULL AND p.active=1 AND t.active=1 "
+                "AND m.active=1 AND m.role='owner'",
+                (delegator_agent_id,),
+            ).fetchone()
+            if delegate is None or delegator is None:
+                raise PermissionError("active bound delegator and delegate agents required")
+            if delegate != delegator:
+                raise PermissionError("delegated agents must share the same tenant owner")
+            tenant_id, owner_id = delegate
+            self.db.execute(
+                "INSERT INTO ahaf_authority_grants "
+                "(grant_id,subject_agent_id,issuer_type,issuer_id,parent_grant_id,policy_version,"
+                "actions_json,resources_json,expires_at,budget_limit_units,budget_unit,"
+                "max_transaction_units,transaction_unit,transaction_actions_json,"
+                "approval_required_json,delegable_actions_json,delegation_depth,created_at) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (grant_id, delegate_agent_id, "agent", delegator_agent_id, parent_grant_id,
+                 policy_version, json.dumps(actions), json.dumps(resources), expiry,
+                 budget_limit_units, parent_unit, child_max_transaction, child_transaction_unit,
+                 json.dumps(transaction_actions), json.dumps(approval_required),
+                 json.dumps(delegable_actions), parent_depth - 1, created),
+            )
+            self._append_audit(
+                actor_type="agent", actor_id=delegator_agent_id,
+                agent_id=delegate_agent_id, tenant_id=tenant_id,
+                grant_id=grant_id, policy_version=policy_version,
+                decision="grant_delegated",
+                payload={"parent_grant_id": parent_grant_id, "issuer_owner": owner_id,
+                         "actions": actions, "resources": resources,
+                         "budget_limit_units": budget_limit_units, "budget_unit": parent_unit,
+                         "delegation_depth": parent_depth - 1},
+            )
+            self._finish()
+            return grant_id
+        except Exception as exc:
+            self._finish(exc)
+            raise
+
     def revoke_grant(self, actor_principal_id, grant_id, reason):
         actor_principal_id = _identifier(actor_principal_id, "actor_principal_id")
         grant_id = _identifier(grant_id, "grant_id")
