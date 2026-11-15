@@ -51,6 +51,11 @@ class AuthorityStoreTests(unittest.TestCase):
             self.store.bind_agent(
                 "missing-agent", "tenant-1", "owner-1", "kms://missing"
             )
+        unowned = self.runtime.create("Unowned Agent", "agent", [])
+        with self.assertRaises(PermissionError):
+            self.store.bind_agent(
+                unowned, "tenant-1", "owner-1", "kms://unowned"
+            )
 
     def test_root_grant_requires_owner_governance(self):
         with self.assertRaises(PermissionError):
