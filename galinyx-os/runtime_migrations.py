@@ -117,6 +117,7 @@ def _workspace_schema(db):
         "FOREIGN KEY(tenant_id) REFERENCES tenants(tenant_id), "
         "FOREIGN KEY(owner_principal_id) REFERENCES principals(principal_id))"
     )
+    db.execute("CREATE INDEX IF NOT EXISTS idx_events_entity_id_id ON events(entity_id,id)")
 
 
 GALINYX_MIGRATIONS = (
