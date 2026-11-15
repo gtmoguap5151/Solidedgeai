@@ -49,6 +49,41 @@ python galinyx-os/cli.py events ENTITY_ID --database galinyx.db
 
 The CLI is for trusted local development. It is not a login system, network API, or multi-user security boundary. Do not expose it to untrusted users or connect privileged external tools.
 
+## Runtime-enforced workspace ownership (prototype)
+
+The runtime now persists local human-principal records, personal workspaces,
+workspace memberships, and entity ownership in SQLite. Use
+`register_human()`, `create_personal_workspace()`, and
+`create_owned_entity()` to create the local test fixture. Use
+`execute_as(principal_id, tenant_id, entity_id, ...)` as the protected
+task-execution entry point; it checks active membership, resource ownership
+within the selected tenant, and the caller's workspace role before invoking
+the existing entity capability check.
+
+**Important limitations:** these methods accept a principal ID as trusted local
+context. They do not validate a password, session, token, or external identity
+provider. The existing `execute()`, `create()`, and local inspection methods
+remain trusted developer APIs and can bypass this workspace boundary if called
+directly. Do not expose those methods through a network service. A future service
+must authenticate the request, derive the principal ID server-side, and expose
+only appropriately authorized operations. Organization tenants, cross-tenant
+sharing, agent-to-agent delegation, and production concurrency guarantees are
+not implemented.
+
+Example local-only setup:
+
+```python
+runtime.register_human("human-001")
+runtime.create_personal_workspace("personal-001", "human-001")
+agent_id = runtime.create_owned_entity(
+    "human-001", "personal-001", "Research Agent", "agent", ["memory.write"]
+)
+runtime.execute_as(
+    "human-001", "personal-001", agent_id,
+    "memory.write", {"key": "topic", "value": "renewable energy"}
+)
+```
+
 ## Identity and ownership policy foundation
 
 `identity.py` contains a provider-neutral, in-memory policy model for human principals,
