@@ -158,7 +158,7 @@ version-1-to-version-3 upgrades, and future schema rejection.
 **Important:** this is still a prototype persistence layer. The version-3 schema reserves persistent records for agent bindings, immutable
 grants, revocations, budget reservations/ledger entries, approval records, and
 hash-chained audit events. `authority_store.py` implements a narrow local store
-for binding, root-grant issuance/revocation, atomic budget reservation/settlement,
+for binding, root-grant issuance, attenuated delegation, revocation, atomic budget reservation/settlement,
 and audit-chain verification. It does not authenticate the caller, enforce
 agent actions, implement delegated grant issuance, or validate authenticated
 human approvals. Back up databases before upgrading and retain independent
