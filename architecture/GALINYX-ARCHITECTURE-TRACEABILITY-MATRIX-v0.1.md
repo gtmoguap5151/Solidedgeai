@@ -96,12 +96,13 @@ Other test files exist in the prototype directory, but this first pass did not i
 The order below is a proposed dependency order, not a promise that every future ecosystem feature must be built.
 
 ### P0 — Establish a reproducible baseline
-1. Record the exact source commit for `galinyx-core-contracts` and `galinyx-launch`.
-2. Run the documented unit-test command in a clean environment and record the full result.
-3. Record Python version, database setup, test count, failures, and warnings.
-4. Confirm CI runs the same tests and that the result is reproducible.
+<badge>Evidence obtained for PR #4 revision</badge>
+1. The PR head and merge-checkout commits were identified.
+2. The existing GitHub Actions run #106 was inspected, including its job steps and full test log.
+3. Environment and result were recorded: Ubuntu 24.04, CPython 3.12.16, 34 tests passed, demo smoke test passed.
+4. The workflow is configured to run the same unit-test discovery command and demo smoke test on relevant pushes and pull requests.
 
-**Exit condition:** A known source revision has a reproducible, recorded test result. No security claim is inferred from a green unit-test suite.
+**Exit condition:** Met for the inspected PR #4 merge revision only. This is not a fresh rerun of the current branch and does not establish production security. Future code changes require new CI evidence.
 
 ### P1 — Define identity, ownership and tenant boundaries
 1. Define principal types: human, organization, agent, application and service.
