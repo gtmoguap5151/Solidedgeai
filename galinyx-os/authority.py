@@ -128,6 +128,8 @@ class AuthorityPolicy:
             raise ValueError("grant needs actions/resources; delegable actions must be granted actions")
         if not transaction_actions.issubset(actions):
             raise ValueError("transaction_actions must be a subset of granted actions")
+        if not approval_required.issubset(actions):
+            raise ValueError("approval_required must be a subset of granted actions")
         if transaction_actions and max_transaction is None:
             raise ValueError("transaction_actions require a max_transaction ceiling")
         if not isinstance(delegation_depth, int) or isinstance(delegation_depth, bool) or delegation_depth < 0:
@@ -169,8 +171,13 @@ class AuthorityPolicy:
             raise PermissionError("delegation cannot add actions or exceed delegable actions")
         if not requested_delegable_actions.issubset(requested_actions.intersection(parent.delegable_actions)):
             raise PermissionError("delegated authority cannot add further delegable actions")
+        required_transaction_actions = requested_actions.intersection(parent.transaction_actions)
+        if not required_transaction_actions.issubset(requested_transaction_actions):
+            raise PermissionError("delegation cannot remove transaction limits")
         if not requested_transaction_actions.issubset(requested_actions.intersection(parent.transaction_actions)):
             raise PermissionError("delegation cannot add transaction-limited actions")
+        if not requested_approval.issubset(requested_actions):
+            raise ValueError("approval_required must be a subset of delegated actions")
         if requested_transaction_actions and max_transaction is None and parent.max_transaction is None:
             raise PermissionError("transaction-limited actions require a transaction ceiling")
         if not requested_resources or not requested_resources.issubset(parent.resources):
@@ -194,8 +201,9 @@ class AuthorityPolicy:
             raise PermissionError("delegation cannot remove required human approval")
         grant = AuthorityGrant(
             str(uuid4()), delegate_id, delegator_id, requested_actions,
-            requested_resources, expiry, child_transaction, child_budget,
-            frozenset(), parent.delegation_depth - 1, requested_approval,
+            requested_resources, expiry, child_transaction, requested_transaction_actions,
+            child_budget, requested_delegable_actions, parent.delegation_depth - 1,
+            requested_approval,
             parent_grant_id, parent.policy_version
         )
         self._grants[grant.grant_id] = grant
