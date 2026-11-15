@@ -48,7 +48,7 @@ class AuthorityPolicyTests(unittest.TestCase):
             self.root.grant_id, "manager", "specialist",
             actions={"quote.compare"}, resources={"project-7"},
             expires_at=self.now + timedelta(hours=1),
-            budget="25", max_transaction="100",
+            budget="25",
         )
         decision = self.policy.authorize(
             "specialist", "quote.compare", "project-7", self.now, cost="20"
@@ -83,10 +83,37 @@ class AuthorityPolicyTests(unittest.TestCase):
         with self.assertRaises(PermissionError):
             self.policy.delegate(
                 self.root.grant_id, "manager", "specialist",
-                actions={"quote.compare"}, resources={"project-7"},
+                actions={"purchase.request"}, resources={"project-7"},
                 expires_at=self.now + timedelta(hours=1), budget="10",
                 max_transaction="501",
+                transaction_actions={"purchase.request"},
+                approval_required={"purchase.request"},
             )
+
+    def test_transaction_ceiling_cannot_exist_without_limited_actions(self):
+        with self.assertRaises(ValueError):
+            self.policy.issue_grant(
+                "human-owner", "assistant", actions={"catalog.read"},
+                resources={"project-7"}, expires_at=self.now + timedelta(hours=1),
+                budget="10", max_transaction="50",
+            )
+        with self.assertRaises(ValueError):
+            self.policy.delegate(
+                self.root.grant_id, "manager", "specialist",
+                actions={"quote.compare"}, resources={"project-7"},
+                expires_at=self.now + timedelta(hours=1), budget="10",
+                max_transaction="50",
+            )
+
+    def test_delegated_transaction_action_inherits_parent_ceiling(self):
+        child = self.policy.delegate(
+            self.root.grant_id, "manager", "specialist",
+            actions={"purchase.request"}, resources={"project-7"},
+            expires_at=self.now + timedelta(hours=1), budget="10",
+            transaction_actions={"purchase.request"},
+            approval_required={"purchase.request"},
+        )
+        self.assertEqual(child.max_transaction, Decimal("500"))
 
     def test_delegation_cannot_outlive_parent_or_remove_approval(self):
         with self.assertRaises(PermissionError):
