@@ -131,6 +131,30 @@ class TrustedServiceBoundaryTests(unittest.TestCase):
                 "owner-secret", "other-workspace", "viewer-id", "viewer"
             )
 
+    def test_workspace_owner_cannot_demote_themselves(self):
+        with self.assertRaises(PermissionError):
+            self.service.add_workspace_member(
+                "owner-secret", "workspace", "owner-id", "viewer"
+            )
+        self.assertEqual(
+            self.runtime.authorize_resource(
+                "owner-id", "workspace", self.agent, "resource.write"
+            ),
+            (True, "authorized")
+        )
+
+    def test_workspace_owner_cannot_remove_themselves(self):
+        with self.assertRaises(PermissionError):
+            self.service.remove_workspace_member(
+                "owner-secret", "workspace", "owner-id"
+            )
+        self.assertEqual(
+            self.runtime.authorize_resource(
+                "owner-id", "workspace", self.agent, "resource.write"
+            ),
+            (True, "authorized")
+        )
+
     def test_service_rejects_escalating_member_role(self):
         self.runtime.register_human("new-member")
         self.auth.credentials["new-member-secret"] = "new-member"
