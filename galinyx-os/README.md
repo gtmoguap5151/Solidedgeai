@@ -122,3 +122,23 @@ Run the full suite, including identity policy tests, with:
 ```bash
 python -m unittest discover -s galinyx-os -p 'test_*.py' -v
 ```
+
+## Synthetic AHAF authority policy prototype
+
+`authority.py` provides an isolated, standard-library policy harness for a
+subset of the Agent Hierarchy & Authority Framework. It models ranks as
+organizational metadata (not permissions), explicit grants, scoped delegation,
+expiry, cumulative operating budgets, transaction ceilings, separate human
+approval identity, revocation through a grant chain, and in-memory audit events.
+
+Run its tests with the full suite:
+
+```bash
+python -m unittest discover -s galinyx-os -p 'test_*.py' -v
+```
+
+This is a synthetic policy model only. It is not integrated with the runtime,
+does not authenticate humans or agents, does not cryptographically sign grants,
+and does not persist policy or audit state. It is not a production security
+boundary. See `architecture/GALINYX-AHAF-EXECUTABLE-AUTHORITY-MODEL-0001.md`
+for scope and required validation gates.
