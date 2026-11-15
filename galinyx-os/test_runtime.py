@@ -12,6 +12,15 @@ class RuntimeTests(unittest.TestCase):
     def tearDown(self):
         self.r.close()
 
+    def test_versioned_manifest_creates_extensible_entity(self):
+        manifest = {
+            "schema_version": 1, "name": "Rivet Reach", "kind": "application",
+            "capabilities": ["memory.write"], "metadata": {"region": "KY"}
+        }
+        entity_id = self.r.create_from_manifest(manifest)
+        self.assertEqual(self.r.entity(entity_id)["kind"], "application")
+        self.assertEqual(self.r.schema_version(), 1)
+
     def test_isolation(self):
         self.r.execute(self.a,"memory.write",{"key":"secret","value":"creator only"})
         self.assertEqual(self.r.remember(self.a,"secret"),"creator only")
