@@ -142,3 +142,17 @@ does not authenticate humans or agents, does not cryptographically sign grants,
 and does not persist policy or audit state. It is not a production security
 boundary. See `architecture/GALINYX-AHAF-EXECUTABLE-AUTHORITY-MODEL-0001.md`
 for scope and required validation gates.
+
+## Standalone SQLite migration runner (experimental)
+
+`database_migrations.py` introduces a small, explicit migration runner with
+ordered version numbers, `BEGIN IMMEDIATE` serialization, rollback on failure,
+and fail-closed handling of databases newer than the supported migration set.
+Its tests cover fresh upgrades, idempotent reopen, rollback, preservation of
+pre-existing tables, invalid metadata, and future schema versions.
+
+**Important:** this runner is currently isolated and is not yet wired into
+`Runtime.__init__`. The runtime's existing schema initialization remains
+unchanged. This work is a tested foundation, not a completed runtime migration
+or permission to add persistent AHAF state. Runtime integration requires a
+separate preservation-focused migration plan and legacy database fixtures.
