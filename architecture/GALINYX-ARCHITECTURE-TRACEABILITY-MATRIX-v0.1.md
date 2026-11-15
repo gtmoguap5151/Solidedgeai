@@ -57,6 +57,21 @@ A separate draft PR #5 was created from `galinyx-core-contracts` on branch `gali
 
 This is evidence for a local policy prototype only. Principal IDs are supplied as trusted local context; no credential is validated. Legacy local methods such as `create()` and `execute()` remain callable and can bypass the wrapper. The PR is still draft and unmerged. This does not establish a production multi-user security boundary or complete P1.
 
+
+
+### 2.3 Credential-derived service facade evidence (verified)
+
+A second draft PR #6 builds on PR #5 and adds `GalinyxService`, a narrow facade for agent creation, task execution, memory reads, agent inspection, and owner-authorized membership management. The facade accepts credentials and resolves principal IDs through an injected authenticator; callers do not provide principal IDs as ordinary operation arguments.
+
+- **PR:** https://github.com/gtmoguap5151/Solidedgeai/pull/6
+- **Head commit:** `12ee3aaac8029a6ae85faebb450ea9da58a4c11e`
+- **CI run:** #130 / `43754842261`
+- **Unit tests:** 71 run; 71 passed
+- **Demo smoke test:** passed
+- **Workflow conclusion:** success
+
+The authenticator in tests is a deterministic test double. No production identity provider, password/session/token validation, credential lifecycle, or deployment isolation exists. Python private attributes are not a security boundary, and trusted local Runtime/CLI methods remain callable. This is a service integration seam, not proof of authentication. PR #6 is draft and unmerged; PR #5 remains its base.
+
 ## 3. Traceability matrix
 
 | Architecture capability | Current evidence | Status | Gap / risk | Proof required |
@@ -69,8 +84,8 @@ This is evidence for a local policy prototype only. Principal IDs are supplied a
 | Task execution | `Runtime.execute` | Partial | Local deterministic action dispatcher; no general scheduler, worker pool, or model execution | State-machine tests, failure/retry behavior, cancellation, concurrency and timeout tests |
 | Capability checks | Deny-by-default action capability mapping in runtime | Present, narrow | Capabilities can be assigned at entity creation; no authenticated policy administrator or contextual policy engine | Negative tests for privilege escalation, unknown actions, policy changes and ownership |
 | Agent identity | Entity IDs represent local runtime entities | Partial | IDs are not authenticated agent credentials; caller-supplied IDs are not identity proof | Cryptographic/workload identity design and spoofing/replay tests |
-| Human identity and accounts | SQLite local principal records on draft PR #5; no credential validation | Partial prototype | No login, account verification, session or identity provider; caller-supplied principal IDs are trusted context | Select identity model; implement authentication and account lifecycle before multi-user access |
-| Organization / tenant boundaries | Personal workspace, membership and resource-ownership policy on draft PR #5; 10 runtime boundary tests | Partial prototype, unmerged | No organization tenants, cross-tenant sharing, authenticated principal context, or protection against direct legacy API bypass | Review PR #5; then design trusted service ingress and test every protected read/write path |
+| Human identity and accounts | SQLite principal records plus credential-resolving facade on draft PRs #5/#6; tests use fake authenticator | Partial prototype | No production login, account verification, session or identity provider; test credentials are not real authentication | Select and integrate a real identity provider; test credential lifecycle and server-side identity mapping |
+| Organization / tenant boundaries | Personal workspace, ownership, credential-derived service facade and owner-only membership management on draft PRs #5/#6; CI now 71 tests | Partial prototype, unmerged | No organization tenants, cross-tenant sharing, production authentication, or deployment isolation; direct local APIs remain trusted | Review PRs #5/#6; choose identity provider; then harden service deployment and close all ingress bypasses |
 | Rank, role and hierarchy | AHAF document on `galinyx-launch` | Proposed | Rank/role/permission/budget/delegation not implemented in runtime | Convert AHAF invariants into requirement IDs and executable tests |
 | Delegation and approval | Creator review workflow; AHAF concept; prior-art research document | Partial / proposed | Reviewer identity is not authenticated; no general delegation chain, revocation or approval authority service | Authenticated approver tests, delegation attenuation/revocation tests, expiry and replay tests |
 | Resource budgets | Task contract accepts optional budget fields | Partial | Contract shape only; no metering, enforcement, quotas, rate limits or cost ceilings | Demonstrate hard enforcement for steps, tokens, duration, and cost; test bypass attempts |
