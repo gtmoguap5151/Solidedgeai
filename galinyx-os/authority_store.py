@@ -194,6 +194,11 @@ class AuthorityStore:
             tenant_id, owner_id = row
             if owner_id != actor_principal_id:
                 raise PermissionError("bound workspace owner required to revoke agent binding")
+            if self.db.execute(
+                "SELECT 1 FROM ahaf_agent_binding_revocations WHERE agent_id=?", (agent_id,)
+            ).fetchone():
+                self._finish()
+                return False
             self.db.execute(
                 "INSERT INTO ahaf_agent_binding_revocations(agent_id,actor_principal_id,revoked_at,reason) "
                 "VALUES (?,?,?,?)",
@@ -233,6 +238,8 @@ class AuthorityStore:
         budget_unit = _unit(budget_unit)
         delegation_depth = _integer(delegation_depth, "delegation_depth")
         expiry = _timestamp(expires_at, "expires_at")
+        if expiry <= datetime.now(timezone.utc).isoformat():
+            raise ValueError("expires_at must be in the future")
         policy_version = _identifier(policy_version, "policy_version", 64)
         if transaction_actions:
             if max_transaction_units is None or transaction_unit is None:
@@ -453,7 +460,9 @@ class AuthorityStore:
                 raise ValueError("unknown budget reservation")
             leaf_grant_id, request_id, amount_units, unit_code = reservation
             status = self._reservation_status(reservation_id)
-            if status == outcome + "ted" if outcome == "commit" else status == "released":
+            if (outcome == "commit" and status == "committed") or (
+                outcome == "release" and status == "released"
+            ):
                 self._finish()
                 return False
             if status != "reserved":
