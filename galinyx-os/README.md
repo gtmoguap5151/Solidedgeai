@@ -3,6 +3,9 @@
 A **standard-library-only Python runtime**, not a Linux replacement or finished commercial product.
 
 Implemented:
+- Versioned, dependency-free entity/task/event contract validators
+- Manifest-based entity registration for extensible entity types
+- Schema version tracking and a preservation-first legacy task-table migration
 - Durable SQLite entity registry
 - Per-entity memories
 - Deny-by-default capability checks
@@ -20,6 +23,10 @@ python -m unittest discover -s galinyx-os -p 'test_*.py' -v
 
 ## Security boundaries
 This is a local proof of concept, **not production-secure**. The caller supplies entity IDs directly, so it is not a multi-tenant authentication boundary. Do not connect payment, posting, or privileged APIs until authentication, authorization, approval policies, secrets handling, and threat modeling are implemented.
+
+## Contract and migration notes
+
+`contracts.py` validates version-1 entity manifests, task envelopes, and event records. Contract validation checks shape and size; it does not authenticate callers or prove ownership. The runtime records schema version `1`. Legacy task rows are preserved during migration, but their missing payload digest cannot be reconstructed; reusing those old request IDs is rejected rather than replayed.
 
 ## Next
 Typed entity manifests, authenticated user ownership, storyworld persistence, approval queues, resource metering, and creator subsystem adapters.
