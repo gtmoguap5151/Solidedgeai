@@ -24,7 +24,8 @@ class GovernedMockExecutor:
         self.store = authority_store
         self.db = authority_store.db
         self.authenticator = authenticator
-        self.resources = dict(resources or {})
+        # Preserve the supplied mock mapping so tests and the executor observe the same resource state.
+        self.resources = resources if resources is not None else {}
 
     def _human_principal(self, credential):
         try:
