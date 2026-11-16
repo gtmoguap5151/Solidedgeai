@@ -197,7 +197,7 @@ class GovernedOrganizationSimulationTests(unittest.TestCase):
             forged, "policy.activate", "policy-set", "role-escalation-001", grant
         )
         self.assertEqual(result["status"], "denied")
-        self.assertEqual(result["decision"], "human_root_required")
+        self.assertEqual(result["decision"], "cross_division_denied")
 
     def test_unknown_actor_has_no_workload_binding(self):
         grant = self.grant(actions={"product.plan"})
