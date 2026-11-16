@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 const TERMINAL = new Set(["approved", "rejected", "overridden"]);
 
@@ -15,6 +15,23 @@ function isHuman(actor) {
 
 function hasPermission(actor, permission) {
   return Array.isArray(actor?.permissions) && actor.permissions.includes(permission);
+}
+
+const NEVER_DELEGABLE = new Set([
+  "governance:delegate",
+  "governance:override",
+  "governance:authority:grant",
+  "governance:delegation:revoke",
+  "blackpine:owner:approve",
+]);
+
+function hasEffectivePermission(actor, permission, { registry, scope, now } = {}) {
+  if (hasPermission(actor, permission)) return { allowed: true, source: "direct" };
+  if (!registry || !scope) return { allowed: false, source: "none" };
+  const grant = registry.findActive({ delegateId: actor?.id, permission, scope, now });
+  return grant
+    ? { allowed: true, source: "delegated", delegationId: grant.id }
+    : { allowed: false, source: "none" };
 }
 
 function eventDigest(event) {
@@ -39,14 +56,15 @@ export class AuditLedger {
 
   append(input) {
     const previousHash = this.#events.at(-1)?.hash ?? "GENESIS";
+    const snapshot = structuredClone(input);
     const body = {
-      ...input,
+      ...snapshot,
       sequence: this.#events.length + 1,
       previousHash,
-      occurredAt: input.occurredAt ?? new Date().toISOString(),
+      occurredAt: snapshot.occurredAt ?? new Date().toISOString(),
     };
     const hash = eventDigest(body);
-    const event = Object.freeze({ ...body, hash });
+    const event = deepFreeze({ ...body, hash });
     this.#events.push(event);
     return event;
   }
@@ -77,7 +95,7 @@ export class AuditLedger {
  *   prohibitedConflicts?: string[]
  * }
  */
-export function evaluateDecision({ request, requester, policy }) {
+export function evaluateDecision({ request, requester, policy, delegationRegistry, now = new Date() }) {
   const reasons = [];
   if (!request || !policy) throw new TypeError("request and policy are required");
   if (!isHuman(requester)) reasons.push("REQUESTER_MUST_BE_ACTIVE_HUMAN");
@@ -86,7 +104,10 @@ export function evaluateDecision({ request, requester, policy }) {
   if (!Number.isInteger(policy.minimumLevel) || policy.minimumLevel < 0) reasons.push("POLICY_MINIMUM_LEVEL_INVALID");
   if (!Number.isInteger(policy.requiredApprovals) || policy.requiredApprovals < 1) reasons.push("POLICY_REQUIRED_APPROVALS_INVALID");
 
-  if (isHuman(requester) && policy.permission && !hasPermission(requester, policy.permission)) {
+  const requesterPermission = isHuman(requester) && policy.permission
+    ? hasEffectivePermission(requester, policy.permission, { registry: delegationRegistry, scope: request.scope, now })
+    : { allowed: false, source: "none" };
+  if (isHuman(requester) && policy.permission && !requesterPermission.allowed) {
     reasons.push("REQUESTER_LACKS_PERMISSION");
   }
   if (isHuman(requester) && (!Number.isInteger(requester.level) || requester.level < 0)) {
@@ -116,12 +137,15 @@ export function evaluateDecision({ request, requester, policy }) {
     reasons,
     status: reasons.length === 0 ? "pending_approval" : "blocked",
     requiredApprovals: policy.requiredApprovals,
+    scope: request.scope ?? null,
+    permissionSource: requesterPermission.source,
+    delegationId: requesterPermission.delegationId ?? null,
   });
 }
 
-export function createDecision({ request, requester, policy, ledger }) {
+export function createDecision({ request, requester, policy, ledger, delegationRegistry, now = new Date() }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
-  const evaluation = evaluateDecision({ request, requester, policy });
+  const evaluation = evaluateDecision({ request, requester, policy, delegationRegistry, now });
   const decision = {
     ...evaluation,
     title: request.title,
@@ -141,15 +165,17 @@ export function createDecision({ request, requester, policy, ledger }) {
   return decision;
 }
 
-export function recordApproval({ decision, approver, policy, ledger }) {
+export function recordApproval({ decision, approver, policy, ledger, delegationRegistry, now = new Date() }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   if (TERMINAL.has(decision.status)) throw new Error("TERMINAL_DECISION_CANNOT_BE_CHANGED");
   if (decision.status !== "pending_approval") throw new Error("DECISION_NOT_ELIGIBLE_FOR_APPROVAL");
   if (!isHuman(approver)) throw new Error("APPROVER_MUST_BE_ACTIVE_HUMAN");
   if (approver.id === decision.requesterId) throw new Error("SELF_APPROVAL_PROHIBITED");
-  if (!hasPermission(approver, policy.approverPermission ?? policy.permission)) {
-    throw new Error("APPROVER_LACKS_PERMISSION");
-  }
+  const approvalPermission = policy.approverPermission ?? policy.permission;
+  const approverPermission = hasEffectivePermission(approver, approvalPermission, {
+    registry: delegationRegistry, scope: decision.scope, now,
+  });
+  if (!approverPermission.allowed) throw new Error("APPROVER_LACKS_PERMISSION");
   if (!Number.isInteger(approver.level) || approver.level < 0) throw new Error("APPROVER_LEVEL_INVALID");
   if (!Number.isInteger(policy.minimumLevel) || approver.level < policy.minimumLevel) throw new Error("APPROVER_LEVEL_INSUFFICIENT");
   if (decision.approvals.some((approval) => approval.approverId === approver.id)) {
@@ -164,6 +190,8 @@ export function recordApproval({ decision, approver, policy, ledger }) {
     approverId: approver.id,
     rank: approver.rank ?? null,
     level: approver.level,
+    permissionSource: approverPermission.source,
+    delegationId: approverPermission.delegationId ?? null,
     approvedAt: new Date().toISOString(),
   });
   if (decision.approvals.length >= decision.requiredApprovals) decision.status = "approved";
