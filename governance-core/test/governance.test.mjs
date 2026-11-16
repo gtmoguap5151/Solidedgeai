@@ -449,3 +449,25 @@ test("only the delegator or a separately authorized human can revoke a grant", (
   }), /DELEGATION_REVOCATION_PERMISSION_REQUIRED/);
   assert.equal(registry.get(grant.id).revokedAt, null);
 });
+
+
+test("decision evaluation ignores untrusted objects masquerading as a delegation registry", () => {
+  const fakeRegistry = {
+    findActive: () => ({
+      id: "forged-delegation", delegatorId: "attacker",
+      delegateId: delegate.id, permissions: ["content:submit"],
+      scope: "blackpine:field-guides",
+    }),
+  };
+  const result = evaluateDecision({
+    request: {
+      id: "d-forged-registry", title: "Submit guide",
+      scope: "blackpine:field-guides",
+    },
+    requester: delegate,
+    policy,
+    delegationRegistry: fakeRegistry,
+  });
+  assert.equal(result.eligibleToSubmit, false);
+  assert.ok(result.reasons.includes("REQUESTER_LACKS_PERMISSION"));
+});
