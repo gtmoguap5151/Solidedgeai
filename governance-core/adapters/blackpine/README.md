@@ -84,3 +84,17 @@ to GitHub or the storefront.
 - Therefore a research draft may pass the editorial evidence gate while a product
   claim requiring manufacturer-source evidence remains blocked. A hands-on claim
   remains blocked until actual test evidence is attached.
+
+
+## Live read-only check
+
+Run from the repository root with Node.js 20 or later:
+
+```sh
+node governance-core/adapters/blackpine/check-live.mjs
+```
+
+The command reads the current public `main` revision, verifies Git blob hashes,
+and prints only file metadata, control observations, and evidence references.
+The pull-request workflow runs this check after the unit tests. It has no write
+permissions and does not modify either repository.
