@@ -28,3 +28,18 @@ jobs:
           node-version: 20
       - name: Run governance tests
         run: node --test governance-core/test/governance.test.mjs
+
+  blackpine-read-only-integration:
+    needs: governance-core
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Read and verify Blackpine public repository
+        run: node governance-core/adapters/blackpine/check-live.mjs
