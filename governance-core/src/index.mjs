@@ -354,7 +354,7 @@ export function createDecision({ request, requester, policy, ledger, delegationR
   return decision;
 }
 
-export function recordApproval({ decision, approver, policy, ledger, delegationRegistry, reviewedEvidenceDigest, now = new Date() }) {
+export function recordApproval({ decision, approver, policy, ledger, delegationRegistry, authorityRegistry, reviewedEvidenceDigest, now = new Date() }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   const state = getDecisionState(decision);
   if (TERMINAL.has(state.status)) throw new Error("TERMINAL_DECISION_CANNOT_BE_CHANGED");
@@ -431,6 +431,7 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
         requester: original.requester,
         policy,
         delegationRegistry,
+        authorityRegistry,
         now,
       });
       const freshnessFailures = currentEvaluation.reasons.filter((reason) =>
