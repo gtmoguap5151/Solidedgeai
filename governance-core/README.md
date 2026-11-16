@@ -7,11 +7,11 @@ This directory contains the first executable, dependency-free governance domain 
 The core evaluates proposed decisions against explicit policy. It separates:
 
 - **Rank / office:** the organizational role held (for example, Secretary).
-- **Level:** the demonstrated scope or complexity level an actor is authorized to handle.
+- **Level:** the demonstrated scope or complexity an actor is authorized to handle within a named competency domain (for example, editorial, product evidence, release management, or financial controls).
 - **Permission:** the specific action an actor may perform.
 - **Authority:** the human-granted mandate that permits a decision or approval.
 
-A title does not automatically confer every permission. A higher level does not silently override policy. Rank and level are separate fields and are evaluated separately.
+A title does not automatically confer every permission. A higher level does not silently override policy. Rank and level are separate fields and are evaluated separately. Where a policy declares a `levelDomain`, the actor must hold that domain's level in `levels[domain]`; a high general level cannot substitute for a low or missing domain-specific level. A legacy `level` is accepted only by policies that do not declare a domain.
 
 ## Non-negotiable design constraints
 
@@ -21,7 +21,7 @@ A title does not automatically confer every permission. A higher level does not 
 4. Required approvals must come from distinct, eligible human actors.
 5. A human override requires an explicit reason and is recorded as a separate event; it does not erase the original evaluation.
 6. Delegation is single-hop, permission-bounded, exact-scope, time-limited, revocable, and auditable. Delegators cannot grant permissions they do not hold. Reserved authority such as governance override, further delegation, and Blackpine owner approval is non-delegable.
-7. Delegated permissions do not transfer the delegator's identity, rank, level, or accountability. The delegate remains the acting human and must independently satisfy the policy's level, conflict, evidence, and separation-of-duties checks.
+7. Delegated permissions do not transfer the delegator's identity, rank, level, or accountability. The delegate remains the acting human and must independently satisfy the policy's domain-specific level, conflict, evidence, and separation-of-duties checks.
 8. Audit events are hash-linked to make accidental or unauthorized alteration detectable when the chain is retained. This is **not** immutable storage or a security guarantee. Production requires protected persistence, access controls, backups, and independent verification.
 9. The core does not connect to Blackpine Field, external APIs, or production data in this milestone.
 
