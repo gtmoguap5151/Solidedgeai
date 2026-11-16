@@ -53,7 +53,15 @@ function createBlackpineTestAuthority() {
       "governance:permission:grant",
       "governance:competency:certify",
       "governance:authority:revoke",
+      "governance:delegate",
+      "governance:override",
+      "content:submit",
+      "content:approve",
     ],
+    initialCompetencies: [{
+      domain: "general", level: 5,
+      evidence: [{ type: "bootstrap-assessment", reference: "test://root/general-level-5" }],
+    }],
     reason: "Controlled test bootstrap",
     ledger,
   });
@@ -317,16 +325,13 @@ test("Blackpine hands-on claims require possession, date, conditions, and load e
 });
 
 
-const delegationIssuer = {
-  id: "human-delegator", principalType: "human", active: true,
-  rank: "Owner", level: 5,
-  permissions: ["governance:delegate", "content:submit", "content:approve"],
-  conflicts: [],
-};
-const delegate = {
-  id: "human-delegate", principalType: "human", active: true,
-  rank: "Assistant Secretary", level: 3, permissions: [], conflicts: [],
-};
+const delegationAuthorityFixture = createBlackpineTestAuthority();
+const delegationIssuer = delegationAuthorityFixture.root;
+const delegate = delegationAuthorityFixture.principal({
+  id: "human-delegate",
+  rank: "Assistant Secretary",
+  levels: { general: 3 },
+});
 
 test("delegation grants only held permissions for an exact scope and expires", () => {
   const registry = new DelegationRegistry();
@@ -389,7 +394,11 @@ test("delegated approval is recorded as delegated and remains subject to all oth
   const registry = new DelegationRegistry();
   const ledger = new AuditLedger();
   const now = new Date("2026-11-16T12:00:00.000Z");
-  const approvalDelegate = { ...delegate, id: "human-approval-delegate" };
+  const approvalDelegate = delegationAuthorityFixture.principal({
+    id: "human-approval-delegate",
+    rank: "Assistant Secretary",
+    levels: { general: 3 },
+  });
   grantDelegation({
     delegator: delegationIssuer, delegate: approvalDelegate,
     permissions: ["content:approve"],
