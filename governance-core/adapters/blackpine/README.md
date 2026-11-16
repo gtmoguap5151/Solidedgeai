@@ -98,3 +98,16 @@ The command reads the current public `main` revision, verifies Git blob hashes,
 and prints only file metadata, control observations, and evidence references.
 The pull-request workflow runs this check after the unit tests. It has no write
 permissions and does not modify either repository.
+
+
+## Competency domains
+
+Blackpine policies deliberately use separate level domains:
+- Editorial drafts: `editorial`
+- Product claims: `product-evidence`
+- Affiliate relationships: `commercial`
+- Production publication: `release-management`
+- Financial account changes: `financial-controls`
+
+A person's level in one domain does not qualify them in another. Rank remains
+organizational office metadata; explicit permissions remain action-specific.
