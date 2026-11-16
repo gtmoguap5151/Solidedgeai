@@ -76,6 +76,7 @@ const editorialDecision = evaluateDecision({
     evidence: snapshot.evidence,
   },
   requester: editor,
+  authorityRegistry,
   policy: blackpinePolicies.contentDraft,
 });
 
@@ -87,6 +88,7 @@ const productClaimDecision = evaluateDecision({
     evidence: snapshot.evidence,
   },
   requester: researcher,
+  authorityRegistry,
   policy: blackpinePolicies.productClaim,
 });
 
@@ -99,6 +101,7 @@ const handsOnClaimDecision = evaluateDecision({
     evidence: snapshot.evidence,
   },
   requester: researcher,
+  authorityRegistry,
   policy: blackpinePolicies.productClaim,
 });
 
@@ -110,6 +113,7 @@ const affiliateDecision = evaluateDecision({
     evidence: snapshot.evidence,
   },
   requester: commercial,
+  authorityRegistry,
   policy: blackpinePolicies.affiliateRelationship,
 });
 
@@ -121,6 +125,7 @@ const priceClaimDecision = evaluateDecision({
     evidence: snapshot.evidence,
   },
   requester: priceEditor,
+  authorityRegistry,
   policy: blackpinePolicies.priceClaim,
 });
 
@@ -132,6 +137,7 @@ const productionDecision = evaluateDecision({
     evidence: snapshot.evidence,
   },
   requester: releaseManager,
+  authorityRegistry,
   policy: blackpinePolicies.productionPublish,
 });
 
@@ -143,6 +149,7 @@ const financialDecision = evaluateDecision({
     evidence: snapshot.evidence,
   },
   requester: financialController,
+  authorityRegistry,
   policy: blackpinePolicies.financialAccountChange,
 });
 
@@ -163,9 +170,10 @@ const editorialLifecycle = createDecision({
     evidence: snapshot.evidence,
   },
   requester: editor,
+  authorityRegistry,
   policy: blackpinePolicies.contentDraft,
   ledger: lifecycleLedger,
-  reviewedEvidenceDigest: editorialLifecycle.evidenceDigest,
+  authorityRegistry,
 });
 
 recordApproval({
@@ -173,6 +181,8 @@ recordApproval({
   approver: editorialApprover,
   policy: blackpinePolicies.contentDraft,
   ledger: lifecycleLedger,
+  authorityRegistry,
+  reviewedEvidenceDigest: editorialLifecycle.evidenceDigest,
 });
 
 const blockedProductClaim = createDecision({
@@ -183,8 +193,10 @@ const blockedProductClaim = createDecision({
     evidence: snapshot.evidence,
   },
   requester: researcher,
+  authorityRegistry,
   policy: blackpinePolicies.productClaim,
   ledger: lifecycleLedger,
+  authorityRegistry,
 });
 
 if (editorialLifecycle.status !== "approved") throw new Error("BLACKPINE_EDITORIAL_LIFECYCLE_FAILED");
