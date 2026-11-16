@@ -77,7 +77,7 @@ test("BP-REV-002: repository content alone cannot support a revenue or performan
 
 test("BP-REV-003: a revenue audit approval does not authorize public publishing", () => {
   const { registry, principal } = setup();
-  const requester = principal("bp-revenue-publisher", "Release Manager", "blackpine:publish:request", 4, "release-management");
+  const requester = principal("bp-revenue-analyst-only", "Secretary", "blackpine:revenue:audit:submit", 2);
   const result = evaluateDecision({
     request: { id: "BP-REV-003", title: "Publish an unreviewed revenue claim", scope: "blackpine:production", evidence: repositoryEvidence },
     requester, policy: blackpinePolicies.productionPublish,
@@ -85,6 +85,8 @@ test("BP-REV-003: a revenue audit approval does not authorize public publishing"
   });
   assert.equal(result.eligibleToSubmit, false);
   assert.equal(result.status, "blocked");
+  assert.ok(result.reasons.includes("REQUESTER_LACKS_PERMISSION"));
+  assert.ok(result.reasons.includes("REQUESTER_DOMAIN_LEVEL_INVALID"));
   assert.ok(result.reasons.includes("REQUIRED_EVIDENCE_MISSING:staging-validation"));
   assert.ok(result.reasons.includes("REQUIRED_EVIDENCE_MISSING:rollback-plan"));
   assert.ok(result.reasons.includes("REQUIRED_EVIDENCE_MISSING:human-release-approval"));
