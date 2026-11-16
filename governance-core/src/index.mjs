@@ -348,6 +348,7 @@ export function createDecision({ request, requester, policy, ledger, delegationR
     scope: state.scope,
     permissionSource: state.permissionSource,
     delegationId: state.delegationId,
+    authorityGrantId: state.authorityGrantId,
     reasons: [...state.reasons],
   });
   return decision;
