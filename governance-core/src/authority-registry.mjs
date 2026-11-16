@@ -163,7 +163,9 @@ export class AuthorityRegistry {
 
   issuePermission({ issuer, subjectId, permission, scope, expiresAt, reason, ledger, now = new Date() }) {
     if (!isVerifiedPrincipal(issuer)) throw new Error("PERMISSION_ISSUER_NOT_VERIFIED");
-    if (!issuer.permissions.includes("governance:permission:grant")) {
+    if (!this.findActivePermissionGrant({
+      subjectId: issuer.id, permission: "governance:permission:grant", scope: "*", now,
+    })) {
       throw new Error("PERMISSION_GRANT_AUTHORITY_REQUIRED");
     }
     const targetId = requireString(subjectId, "subjectId");
@@ -205,7 +207,9 @@ export class AuthorityRegistry {
 
   certifyCompetency({ issuer, subjectId, domain, level, evidence, expiresAt, reason, ledger, now = new Date() }) {
     if (!isVerifiedPrincipal(issuer)) throw new Error("COMPETENCY_ISSUER_NOT_VERIFIED");
-    if (!issuer.permissions.includes("governance:competency:certify")) {
+    if (!this.findActivePermissionGrant({
+      subjectId: issuer.id, permission: "governance:competency:certify", scope: "*", now,
+    })) {
       throw new Error("COMPETENCY_CERTIFICATION_AUTHORITY_REQUIRED");
     }
     const targetId = requireString(subjectId, "subjectId");
@@ -242,13 +246,15 @@ export class AuthorityRegistry {
     return structuredClone(credential);
   }
 
-  revoke({ recordId, actor, reason, ledger }) {
+  revoke({ recordId, actor, reason, ledger, now = new Date() }) {
     if (!isVerifiedPrincipal(actor)) throw new Error("AUTHORITY_REVOCATION_ACTOR_NOT_VERIFIED");
     const detail = requireString(reason, "reason");
     const record = this.#permissionGrants.get(recordId) ?? this.#competencyCredentials.get(recordId);
     if (!record) throw new Error("AUTHORITY_RECORD_NOT_FOUND");
     if (record.revokedAt) throw new Error("AUTHORITY_RECORD_ALREADY_REVOKED");
-    if (actor.id !== record.issuedBy && !actor.permissions.includes("governance:authority:revoke")) {
+    if (actor.id !== record.issuedBy && !this.findActivePermissionGrant({
+      subjectId: actor.id, permission: "governance:authority:revoke", scope: "*", now,
+    })) {
       throw new Error("AUTHORITY_REVOCATION_PERMISSION_REQUIRED");
     }
     const updated = deepFreeze({
