@@ -760,3 +760,39 @@ test("decision handles cannot be externally mutated or forged", () => {
   assert.equal(decision.status, "approved");
   assert.equal(decision.approvals.length, 1);
 });
+
+
+test("policy digest prevents same-version policy substitution", () => {
+  const ledger = new AuditLedger();
+  const decision = createDecision({
+    request: { id: "d-policy-digest", title: "Submit guide" },
+    requester, policy, ledger,
+  });
+  const substitutedPolicy = { ...policy, minimumLevel: 3 };
+  assert.equal(substitutedPolicy.id, policy.id);
+  assert.equal(substitutedPolicy.version, policy.version);
+  assert.throws(
+    () => recordApproval({ decision, approver, policy: substitutedPolicy, ledger }),
+    /DECISION_POLICY_MISMATCH/,
+  );
+});
+
+test("malformed policy evidence definitions fail closed", () => {
+  const result = evaluateDecision({
+    request: { id: "d-malformed-policy", title: "Submit guide" },
+    requester,
+    policy: { ...policy, requiredEvidence: "source-check" },
+  });
+  assert.equal(result.status, "blocked");
+  assert.ok(result.reasons.includes("POLICY_REQUIRED_EVIDENCE_INVALID"));
+});
+
+test("malformed request evidence fails closed", () => {
+  const result = evaluateDecision({
+    request: { id: "d-malformed-evidence", title: "Submit guide", evidence: "not-an-array" },
+    requester,
+    policy,
+  });
+  assert.equal(result.status, "blocked");
+  assert.ok(result.reasons.includes("REQUEST_EVIDENCE_INVALID"));
+});
