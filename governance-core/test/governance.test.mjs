@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
+import { AuthorityRegistry } from "../src/authority-registry.mjs";
 import { BLACKPINE_READ_PATHS, loadBlackpineSnapshot } from "../adapters/blackpine/repository-reader.mjs";
 import { blackpinePolicies } from "../adapters/blackpine/policies.mjs";
 import {
@@ -35,6 +36,54 @@ const approver = {
   id: "human-2", principalType: "human", active: true,
   rank: "Director", level: 3, permissions: ["content:approve"], conflicts: [],
 };
+
+function createBlackpineTestAuthority() {
+  const registry = new AuthorityRegistry();
+  const ledger = new AuditLedger();
+  const root = registry.bootstrap({
+    identity: {
+      id: "test-root-authority",
+      principalType: "human",
+      active: true,
+      verified: true,
+      rank: "Root Authority",
+      issuer: "test-auth-adapter",
+    },
+    initialPermissions: [
+      "governance:permission:grant",
+      "governance:competency:certify",
+      "governance:authority:revoke",
+    ],
+    reason: "Controlled test bootstrap",
+    ledger,
+  });
+
+  function principal({ id, rank = "Staff", permissions = [], levels = {}, conflicts = [] }) {
+    for (const permission of permissions) {
+      registry.issuePermission({
+        issuer: root, subjectId: id, permission, scope: "*",
+        expiresAt: "2035-01-01T00:00:00.000Z",
+        reason: "Synthetic test permission", ledger,
+      });
+    }
+    for (const [domain, level] of Object.entries(levels)) {
+      registry.certifyCompetency({
+        issuer: root, subjectId: id, domain, level,
+        evidence: [{ type: "test-assessment", reference: `test://${id}/${domain}` }],
+        expiresAt: "2035-01-01T00:00:00.000Z",
+        reason: "Synthetic test competency", ledger,
+      });
+    }
+    return registry.resolve({
+      identity: {
+        id, principalType: "human", active: true, verified: true,
+        rank, conflicts, issuer: "test-auth-adapter",
+      },
+    });
+  }
+
+  return { registry, ledger, principal };
+}
 
 test("rank and level remain separate policy attributes", () => {
   const result = evaluateDecision({
