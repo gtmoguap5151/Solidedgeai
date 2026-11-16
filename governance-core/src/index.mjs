@@ -215,6 +215,20 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
       }
     }
   }
+  if (policy.evidenceRules !== undefined) {
+    if (!policy.evidenceRules || typeof policy.evidenceRules !== "object" || Array.isArray(policy.evidenceRules)) {
+      reasons.push("POLICY_EVIDENCE_RULES_INVALID");
+    } else {
+      for (const rule of Object.values(policy.evidenceRules)) {
+        if (!rule || typeof rule !== "object" || Array.isArray(rule) ||
+            ["requireHttps", "requireContentSha256", "requireVerifiedBy", "requireVerifiedAt"]
+              .some((key) => rule[key] !== undefined && typeof rule[key] !== "boolean")) {
+          reasons.push("POLICY_EVIDENCE_RULES_INVALID");
+          break;
+        }
+      }
+    }
+  }
   if (policy.requireEvidenceReview !== undefined && typeof policy.requireEvidenceReview !== "boolean") {
     reasons.push("POLICY_EVIDENCE_REVIEW_INVALID");
   }
@@ -252,8 +266,43 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
     ...(request.claimsHandsOnTesting && Array.isArray(policy.handsOnEvidence) ? policy.handsOnEvidence : []),
   ];
   for (const evidenceType of requiredEvidence) {
-    if (!suppliedEvidence.some((item) => item?.type === evidenceType && typeof item?.reference === "string" && item.reference.trim() !== "")) {
+    const matchingEvidence = suppliedEvidence.filter((item) =>
+      item?.type === evidenceType &&
+      typeof item?.reference === "string" &&
+      item.reference.trim() !== ""
+    );
+    if (matchingEvidence.length === 0) {
       reasons.push("REQUIRED_EVIDENCE_MISSING:" + evidenceType);
+      continue;
+    }
+    const rule = policy.evidenceRules?.[evidenceType] ?? {};
+    for (const item of matchingEvidence) {
+      if (rule.requireHttps === true) {
+        let validHttps = false;
+        try {
+          validHttps = new URL(item.reference).protocol === "https:";
+        } catch {}
+        if (!validHttps) reasons.push("EVIDENCE_REFERENCE_MUST_BE_HTTPS:" + evidenceType);
+      }
+      if (rule.requireContentSha256 === true &&
+          (typeof item.contentSha256 !== "string" || !/^[a-f0-9]{64}$/i.test(item.contentSha256))) {
+        reasons.push("EVIDENCE_CONTENT_HASH_REQUIRED:" + evidenceType);
+      }
+      if (rule.requireVerifiedBy === true &&
+          (typeof item.verifiedBy !== "string" || item.verifiedBy.trim() === "")) {
+        reasons.push("EVIDENCE_VERIFIER_REQUIRED:" + evidenceType);
+      }
+      if (rule.requireVerifiedAt === true) {
+        const verifiedAt = typeof item.verifiedAt === "string" ? Date.parse(item.verifiedAt) : Number.NaN;
+        const evaluationTime = now instanceof Date ? now.getTime() : Number.NaN;
+        if (!Number.isFinite(verifiedAt)) {
+          reasons.push("EVIDENCE_VERIFICATION_TIME_REQUIRED:" + evidenceType);
+        } else if (!Number.isFinite(evaluationTime)) {
+          reasons.push("POLICY_EVALUATION_TIME_INVALID");
+        } else if (verifiedAt > evaluationTime) {
+          reasons.push("EVIDENCE_VERIFICATION_TIME_IN_FUTURE:" + evidenceType);
+        }
+      }
     }
   }
   if (policy.evidenceFreshness && typeof policy.evidenceFreshness === "object" &&
