@@ -148,7 +148,7 @@ for scope and required validation gates.
 `database_migrations.py` provides ordered migration versions, `BEGIN IMMEDIATE`
 serialization, rollback on failure, and fail-closed handling of databases newer
 than the supported migration set. `runtime_migrations.py` defines the current
-core-runtime migration (version 1), workspace-identity migration (version 2), AHAF persistence migration (version 3), durable execution receipt migration (version 4), and persistent GALINYX organization registry migration (version 5).
+core-runtime migration (version 1), workspace-identity migration (version 2), AHAF persistence migration (version 3), durable execution receipt migration (version 4), and persistent GALINYX organization registry migration (version 5), and executive decision workflow migration (version 6).
 `Runtime.__init__` now applies these migrations before exposing the runtime.
 
 Tests cover fresh upgrades, idempotent reopen, failed-migration rollback,
@@ -231,3 +231,11 @@ The version-5 migration adds append-only organization, executive-role, and actor
 Use org_registry.py to register and inspect the structure. GovernedOrganizationSimulator resolves executive workload identities from the persisted registry rather than accepting an injected actor-to-agent map. Registry records are append-only; structural changes require a separately designed versioned change process and human-owner governance.
 
 This remains prototype infrastructure. The underlying workspace is still represented by the existing tenant model, and the registry does not provide production authentication or external execution.
+
+## Executive decision workflow (schema version 6)
+
+decision_workflow.py adds a durable proposal lifecycle for GALINYX Ventures. A registered CEO can submit a scoped proposal using a persisted proposer grant and nominate a registered executive with a separate target grant. The target grant must explicitly require human approval. The human root can approve or reject the exact proposal; execution is refused until approval is persisted and matched to the proposal's request, action, resource, grant, and owner.
+
+Approved execution is delegated to the registered executive and passes through the governed organization simulator, which independently checks the persisted role, resource division, AHAF grant, and single-use approval before creating a durable execution receipt. Proposal identities and decision events are append-only, and transitions are also written to the AHAF hash-chained audit stream.
+
+This is still a trusted local workflow prototype. Owner identity is supplied as trusted local context and must be derived from authenticated credentials by a future service boundary before deployment.
