@@ -1,0 +1,20 @@
+name: Governance Core Tests
+on:
+  push:
+    branches: [governance-core-v1]
+    paths:
+      - "governance-core/**"
+      - ".github/workflows/governance-core.yml"
+  pull_request:
+    paths:
+      - "governance-core/**"
+      - ".github/workflows/governance-core.yml"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test governance-core/test/core.test.mjs
