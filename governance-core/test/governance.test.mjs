@@ -740,3 +740,23 @@ test("a rejector must meet the same domain competency threshold", () => {
     /REJECTOR_LEVEL_INSUFFICIENT/,
   );
 });
+
+
+test("decision handles cannot be externally mutated or forged", () => {
+  const ledger = new AuditLedger();
+  const decision = createDecision({
+    request: { id: "d-immutable-handle", title: "Submit guide" },
+    requester, policy, ledger,
+  });
+  assert.throws(() => { decision.status = "approved"; }, TypeError);
+  const exposedApprovals = decision.approvals;
+  exposedApprovals.push({ approverId: "forged-human" });
+  assert.equal(decision.approvals.length, 0);
+  assert.throws(
+    () => recordApproval({ decision: { ...decision }, approver, policy, ledger }),
+    /UNTRUSTED_DECISION_HANDLE/,
+  );
+  recordApproval({ decision, approver, policy, ledger });
+  assert.equal(decision.status, "approved");
+  assert.equal(decision.approvals.length, 1);
+});
