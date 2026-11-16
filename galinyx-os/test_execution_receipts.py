@@ -159,6 +159,151 @@ class ExecutionReceiptTests(unittest.TestCase):
                 (result["execution_id"],),
             )
 
+
+    def test_unknown_outcome_keeps_budget_held_until_owner_reconciles(self):
+        grant = self.issue_grant()
+        prepared = self.prepare(grant)
+        execution_id = prepared["execution_id"]
+        self.service.mark_dispatching(
+            execution_id, tenant_id="tenant-1",
+            adapter_id="test-adapter", adapter_version="0.1",
+        )
+        self.service.record_outcome(
+            execution_id, tenant_id="tenant-1",
+            outcome="outcome_unknown", reason="adapter response was lost",
+        )
+        self.assertEqual(
+            self.store.budget_summary(grant)["reserved_units"], 1
+        )
+        self.service.begin_reconciliation(
+            execution_id, tenant_id="tenant-1", reconciler_id="reconciler-1"
+        )
+        result = self.service.resolve_reconciliation(
+            execution_id, tenant_id="tenant-1", owner_principal_id="owner-1",
+            resolution="succeeded", evidence_ref="target://operation/123",
+            evidence_digest="sha256:verified-test-evidence",
+        )
+        self.assertEqual(result["state"], "reconciled_succeeded")
+        summary = self.store.budget_summary(grant)
+        self.assertEqual(summary["reserved_units"], 0)
+        self.assertEqual(summary["committed_units"], 1)
+        self.assertEqual(
+            self.service.get(execution_id, tenant_id="tenant-1")["state"],
+            "reconciled_succeeded",
+        )
+        self.assertTrue(self.store.verify_audit_chain()[0])
+
+    def test_confirmed_no_effect_reconciliation_releases_reservation(self):
+        grant = self.issue_grant()
+        prepared = self.prepare(grant)
+        execution_id = prepared["execution_id"]
+        self.service.mark_dispatching(
+            execution_id, tenant_id="tenant-1",
+            adapter_id="test-adapter", adapter_version="0.1",
+        )
+        self.service.record_outcome(
+            execution_id, tenant_id="tenant-1",
+            outcome="outcome_unknown", reason="target lookup timed out",
+        )
+        self.service.begin_reconciliation(
+            execution_id, tenant_id="tenant-1", reconciler_id="reconciler-1"
+        )
+        result = self.service.resolve_reconciliation(
+            execution_id, tenant_id="tenant-1", owner_principal_id="owner-1",
+            resolution="not_executed", evidence_ref="target://lookup/123",
+            evidence_digest="sha256:no-effect-proof",
+        )
+        self.assertEqual(result["state"], "reconciled_not_executed")
+        summary = self.store.budget_summary(grant)
+        self.assertEqual(summary["reserved_units"], 0)
+        self.assertEqual(summary["committed_units"], 0)
+        self.assertEqual(summary["remaining_units"], 10)
+
+    def test_manual_review_keeps_reservation_held(self):
+        grant = self.issue_grant()
+        prepared = self.prepare(grant)
+        execution_id = prepared["execution_id"]
+        self.service.mark_dispatching(
+            execution_id, tenant_id="tenant-1",
+            adapter_id="test-adapter", adapter_version="0.1",
+        )
+        self.service.record_outcome(
+            execution_id, tenant_id="tenant-1",
+            outcome="outcome_unknown", reason="target state is ambiguous",
+        )
+        self.service.begin_reconciliation(
+            execution_id, tenant_id="tenant-1", reconciler_id="reconciler-1"
+        )
+        result = self.service.resolve_reconciliation(
+            execution_id, tenant_id="tenant-1", owner_principal_id="owner-1",
+            resolution="manual_review_required",
+            reason="available target evidence conflicts",
+        )
+        self.assertEqual(result["state"], "manual_review_required")
+        self.assertEqual(
+            self.store.budget_summary(grant)["reserved_units"], 1
+        )
+
+    def test_only_active_workspace_owner_can_resolve_reconciliation(self):
+        grant = self.issue_grant()
+        prepared = self.prepare(grant)
+        execution_id = prepared["execution_id"]
+        self.service.mark_dispatching(
+            execution_id, tenant_id="tenant-1",
+            adapter_id="test-adapter", adapter_version="0.1",
+        )
+        self.service.record_outcome(
+            execution_id, tenant_id="tenant-1",
+            outcome="outcome_unknown", reason="unknown",
+        )
+        self.service.begin_reconciliation(
+            execution_id, tenant_id="tenant-1", reconciler_id="reconciler-1"
+        )
+        with self.assertRaisesRegex(PermissionError, "tenant owner required"):
+            self.service.resolve_reconciliation(
+                execution_id, tenant_id="tenant-1",
+                owner_principal_id="not-the-owner",
+                resolution="not_executed", evidence_ref="target://lookup/123",
+                evidence_digest="sha256:no-effect-proof",
+            )
+        self.assertEqual(
+            self.store.budget_summary(grant)["reserved_units"], 1
+        )
+
+    def test_confirmed_adapter_outcomes_settle_budget(self):
+        committed_grant = self.issue_grant()
+        committed = self.prepare(committed_grant, "success-request")
+        self.service.mark_dispatching(
+            committed["execution_id"], tenant_id="tenant-1",
+            adapter_id="test-adapter", adapter_version="0.1",
+        )
+        self.service.record_outcome(
+            committed["execution_id"], tenant_id="tenant-1",
+            outcome="succeeded", evidence_ref="target://operation/success",
+            evidence_digest="sha256:success-proof",
+        )
+        self.assertEqual(
+            self.store.budget_summary(committed_grant)["committed_units"], 1
+        )
+
+        released_grant = self.issue_grant()
+        failed = self.prepare(released_grant, "failed-request")
+        self.service.mark_dispatching(
+            failed["execution_id"], tenant_id="tenant-1",
+            adapter_id="test-adapter", adapter_version="0.1",
+        )
+        self.service.record_outcome(
+            failed["execution_id"], tenant_id="tenant-1",
+            outcome="failed_known", evidence_ref="target://operation/no-effect",
+            evidence_digest="sha256:no-effect-proof",
+        )
+        self.assertEqual(
+            self.store.budget_summary(released_grant)["reserved_units"], 0
+        )
+        self.assertEqual(
+            self.store.budget_summary(released_grant)["committed_units"], 0
+        )
+
     def test_grant_binding_is_checked_against_server_resolved_context(self):
         grant = self.issue_grant()
         with self.assertRaisesRegex(PermissionError, "must match persisted grant"):
