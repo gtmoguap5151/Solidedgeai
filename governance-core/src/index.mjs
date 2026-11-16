@@ -17,6 +17,11 @@ function hasPermission(actor, permission) {
   return Array.isArray(actor?.permissions) && actor.permissions.includes(permission);
 }
 
+function actorLevel(actor, policy) {
+  if (policy?.levelDomain) return actor?.levels?.[policy.levelDomain];
+  return actor?.level;
+}
+
 const REGISTRY_WRITE_TOKEN = Symbol("GALINYX_REGISTRY_WRITE");
 
 const NEVER_DELEGABLE = new Set([
@@ -104,6 +109,9 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
   if (!request.id || !request.title) reasons.push("REQUEST_ID_AND_TITLE_REQUIRED");
   if (!policy.id || !policy.version || !policy.permission) reasons.push("POLICY_ID_VERSION_AND_PERMISSION_REQUIRED");
   if (!Number.isInteger(policy.minimumLevel) || policy.minimumLevel < 0) reasons.push("POLICY_MINIMUM_LEVEL_INVALID");
+  if (policy.levelDomain !== undefined && (typeof policy.levelDomain !== "string" || policy.levelDomain.trim() === "")) {
+    reasons.push("POLICY_LEVEL_DOMAIN_INVALID");
+  }
   if (!Number.isInteger(policy.requiredApprovals) || policy.requiredApprovals < 1) reasons.push("POLICY_REQUIRED_APPROVALS_INVALID");
 
   const requesterPermission = isHuman(requester) && policy.permission
@@ -112,9 +120,10 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
   if (isHuman(requester) && policy.permission && !requesterPermission.allowed) {
     reasons.push("REQUESTER_LACKS_PERMISSION");
   }
-  if (isHuman(requester) && (!Number.isInteger(requester.level) || requester.level < 0)) {
-    reasons.push("REQUESTER_LEVEL_INVALID");
-  } else if (isHuman(requester) && Number.isInteger(policy.minimumLevel) && requester.level < policy.minimumLevel) {
+  const requesterLevel = actorLevel(requester, policy);
+  if (isHuman(requester) && (!Number.isInteger(requesterLevel) || requesterLevel < 0)) {
+    reasons.push(policy.levelDomain ? "REQUESTER_DOMAIN_LEVEL_INVALID" : "REQUESTER_LEVEL_INVALID");
+  } else if (isHuman(requester) && Number.isInteger(policy.minimumLevel) && requesterLevel < policy.minimumLevel) {
     reasons.push("REQUESTER_LEVEL_INSUFFICIENT");
   }
   if (policy.prohibitedConflicts?.some((conflict) => requester?.conflicts?.includes(conflict))) {
@@ -139,6 +148,8 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
     reasons,
     status: reasons.length === 0 ? "pending_approval" : "blocked",
     requiredApprovals: policy.requiredApprovals,
+    levelDomain: policy.levelDomain ?? "general",
+    requesterLevel: Number.isInteger(requesterLevel) ? requesterLevel : null,
     scope: request.scope ?? null,
     permissionSource: requesterPermission.source,
     delegationId: requesterPermission.delegationId ?? null,
@@ -187,8 +198,11 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
     registry: delegationRegistry, scope: decision.scope, now,
   });
   if (!approverPermission.allowed) throw new Error("APPROVER_LACKS_PERMISSION");
-  if (!Number.isInteger(approver.level) || approver.level < 0) throw new Error("APPROVER_LEVEL_INVALID");
-  if (!Number.isInteger(policy.minimumLevel) || approver.level < policy.minimumLevel) throw new Error("APPROVER_LEVEL_INSUFFICIENT");
+  const approverLevel = actorLevel(approver, policy);
+  if (!Number.isInteger(approverLevel) || approverLevel < 0) {
+    throw new Error(policy.levelDomain ? "APPROVER_DOMAIN_LEVEL_INVALID" : "APPROVER_LEVEL_INVALID");
+  }
+  if (!Number.isInteger(policy.minimumLevel) || approverLevel < policy.minimumLevel) throw new Error("APPROVER_LEVEL_INSUFFICIENT");
   if (decision.approvals.some((approval) => approval.approverId === approver.id)) {
     throw new Error("DUPLICATE_APPROVAL_PROHIBITED");
   }
@@ -200,7 +214,8 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
   decision.approvals.push({
     approverId: approver.id,
     rank: approver.rank ?? null,
-    level: approver.level,
+    level: approverLevel,
+    levelDomain: policy.levelDomain ?? "general",
     permissionSource: approverPermission.source,
     delegationId: approverPermission.delegationId ?? null,
     approvedAt: new Date().toISOString(),
