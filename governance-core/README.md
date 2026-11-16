@@ -22,8 +22,8 @@ A title does not automatically confer every permission. A higher level does not 
 5. A human override requires an explicit reason and is recorded as a separate event; it does not erase the original evaluation.
 6. Delegation is single-hop, permission-bounded, exact-scope, time-limited, revocable, and auditable. Delegators cannot grant permissions they do not hold. Reserved authority such as governance override, further delegation, and Blackpine owner approval is non-delegable.
 7. Delegated permissions do not transfer the delegator's identity, rank, level, or accountability. The delegate remains the acting human and must independently satisfy the policy's level, conflict, evidence, and separation-of-duties checks.
-6. Audit events are hash-linked to make accidental or unauthorized alteration detectable when the chain is retained. This is **not** immutable storage or a security guarantee. Production requires protected persistence, access controls, backups, and independent verification.
-7. The core does not connect to Blackpine Field, external APIs, or production data in this milestone.
+8. Audit events are hash-linked to make accidental or unauthorized alteration detectable when the chain is retained. This is **not** immutable storage or a security guarantee. Production requires protected persistence, access controls, backups, and independent verification.
+9. The core does not connect to Blackpine Field, external APIs, or production data in this milestone.
 
 ## Files
 
