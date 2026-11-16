@@ -17,7 +17,6 @@ const RESERVED_PERMISSIONS = new Set([
   "governance:competency:certify",
   "governance:authority:revoke",
   "governance:delegate",
-  "governance:delegation:revoke",
   "governance:override",
   "governance:authority:grant",
   "blackpine:owner:approve",
