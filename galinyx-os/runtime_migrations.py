@@ -219,8 +219,67 @@ def _ahaf_persistence_schema(db):
     db.execute("CREATE INDEX IF NOT EXISTS idx_ahaf_audit_request ON ahaf_audit_events(request_id,event_id)")
 
 
+def _execution_receipt_schema(db):
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS ahaf_execution_receipts("
+        "execution_id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, agent_id TEXT NOT NULL, "
+        "grant_id TEXT NOT NULL, request_id TEXT NOT NULL, request_digest TEXT NOT NULL, "
+        "action TEXT NOT NULL, resource_id TEXT NOT NULL, policy_version TEXT NOT NULL, "
+        "approval_id TEXT, reservation_id TEXT NOT NULL UNIQUE, created_at TEXT NOT NULL, "
+        "UNIQUE(grant_id,request_id), "
+        "FOREIGN KEY(tenant_id) REFERENCES tenants(tenant_id), "
+        "FOREIGN KEY(agent_id) REFERENCES ahaf_agent_bindings(agent_id), "
+        "FOREIGN KEY(grant_id) REFERENCES ahaf_authority_grants(grant_id), "
+        "FOREIGN KEY(approval_id) REFERENCES ahaf_approvals(approval_id), "
+        "FOREIGN KEY(reservation_id) REFERENCES ahaf_budget_reservations(reservation_id))"
+    )
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS ahaf_approval_consumptions("
+        "approval_id TEXT PRIMARY KEY, execution_id TEXT NOT NULL UNIQUE, "
+        "consumed_at TEXT NOT NULL, "
+        "FOREIGN KEY(approval_id) REFERENCES ahaf_approvals(approval_id), "
+        "FOREIGN KEY(execution_id) REFERENCES ahaf_execution_receipts(execution_id))"
+    )
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS ahaf_execution_receipt_events("
+        "event_id INTEGER PRIMARY KEY AUTOINCREMENT, execution_id TEXT NOT NULL, "
+        "state TEXT NOT NULL CHECK(state IN "
+        "('reserved','dispatching','succeeded','failed_known','outcome_unknown',"
+        "'reconciling','reconciled_succeeded','reconciled_not_executed',"
+        "'manual_review_required')), "
+        "actor_type TEXT NOT NULL, actor_id TEXT NOT NULL, detail_json TEXT NOT NULL, "
+        "occurred_at TEXT NOT NULL, "
+        "FOREIGN KEY(execution_id) REFERENCES ahaf_execution_receipts(execution_id))"
+    )
+    for table in (
+        "ahaf_execution_receipts",
+        "ahaf_approval_consumptions",
+        "ahaf_execution_receipt_events",
+    ):
+        db.execute(
+            f"CREATE TRIGGER IF NOT EXISTS {table}_no_update "
+            f"BEFORE UPDATE ON {table} BEGIN "
+            "SELECT RAISE(ABORT, 'execution receipt records are append-only'); END"
+        )
+        db.execute(
+            f"CREATE TRIGGER IF NOT EXISTS {table}_no_delete "
+            f"BEFORE DELETE ON {table} BEGIN "
+            "SELECT RAISE(ABORT, 'execution receipt records are append-only'); END"
+        )
+    db.execute(
+        "CREATE INDEX IF NOT EXISTS idx_execution_receipts_tenant "
+        "ON ahaf_execution_receipts(tenant_id,created_at)"
+    )
+    db.execute(
+        "CREATE INDEX IF NOT EXISTS idx_execution_receipt_events_execution "
+        "ON ahaf_execution_receipt_events(execution_id,event_id)"
+    )
+
+
+
 GALINYX_MIGRATIONS = (
     Migration(1, "core_runtime_schema", _core_schema),
     Migration(2, "workspace_identity_schema", _workspace_schema),
     Migration(3, "ahaf_persistent_records", _ahaf_persistence_schema),
+    Migration(4, "durable_execution_receipts", _execution_receipt_schema),
 )
