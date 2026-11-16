@@ -140,3 +140,18 @@ require the approver to acknowledge the exact evidence digest attached to the
 decision. The price-claim policy additionally requires a retailer price check
 observed within 24 hours and a future expiry timestamp. Evidence that becomes
 stale or expires while awaiting approval blocks the decision.
+
+
+## Evidence provenance checks
+
+Policies can require HTTPS references, a SHA-256 content hash, a verifier
+identifier, and a verification timestamp. The repository reader attaches the
+Git blob hash, locally computed content hash, adapter identifier, and capture
+time to each repository-derived evidence record. Price claims additionally
+require a retailer observation timestamp and a future expiry.
+
+These fields establish traceability and snapshot integrity, not truth. A
+`verifiedBy` string is not a digital signature, and a hash proves which bytes
+were reviewed—not that a manufacturer claim is accurate. Production requires
+authenticated verifier identities, signed attestations where appropriate, and
+independent source validation.
