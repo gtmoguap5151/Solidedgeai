@@ -419,3 +419,29 @@ test("delegation cannot be self-granted or issued by an agent", () => {
     registry, ledger,
   }), /DELEGATION_REQUIRES_ACTIVE_HUMANS/);
 });
+
+
+test("delegation registry rejects direct writes without the governance capability", () => {
+  const registry = new DelegationRegistry();
+  assert.throws(() => registry.add({
+    id: "forged", delegatorId: "attacker", delegateId: delegate.id,
+    permissions: ["content:submit"], scope: "blackpine:field-guides",
+    expiresAt: "2026-11-17T12:00:00.000Z",
+  }), /REGISTRY_WRITE_NOT_AUTHORIZED/);
+});
+
+test("only the delegator or a separately authorized human can revoke a grant", () => {
+  const registry = new DelegationRegistry();
+  const ledger = new AuditLedger();
+  const grant = grantDelegation({
+    delegator: delegationIssuer, delegate,
+    permissions: ["content:submit"], scope: "blackpine:field-guides",
+    expiresAt: "2026-11-17T12:00:00.000Z",
+    reason: "Temporary editorial coverage", registry, ledger,
+  });
+  assert.throws(() => revokeDelegation({
+    delegationId: grant.id, actor: delegate,
+    reason: "Attempted revocation by recipient", registry, ledger,
+  }), /DELEGATION_REVOCATION_PERMISSION_REQUIRED/);
+  assert.equal(registry.get(grant.id).revokedAt, null);
+});
