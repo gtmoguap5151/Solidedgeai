@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { isVerifiedPrincipal } from "./authority-registry.mjs";
+import { AuthorityRegistry, isVerifiedPrincipal } from "./authority-registry.mjs";
 
 const TERMINAL = new Set(["approved", "rejected", "overridden"]);
 const decisionStates = new WeakMap();
@@ -40,7 +40,14 @@ function hasPermission(actor, permission) {
   return Array.isArray(actor?.permissions) && actor.permissions.includes(permission);
 }
 
-function actorLevel(actor, policy) {
+function actorLevel(actor, policy, authorityRegistry, now = new Date()) {
+  const domain = policy?.levelDomain ?? "general";
+  if (isVerifiedPrincipal(actor)) {
+    if (!(authorityRegistry instanceof AuthorityRegistry)) return null;
+    return authorityRegistry.getActiveCompetencyLevel({
+      subjectId: actor.id, domain, now,
+    });
+  }
   if (policy?.levelDomain) return actor?.levels?.[policy.levelDomain];
   return actor?.level;
 }
@@ -55,16 +62,15 @@ const NEVER_DELEGABLE = new Set([
   "blackpine:owner:approve",
 ]);
 
-function hasEffectivePermission(actor, permission, { registry, scope, now } = {}) {
-  if (hasPermission(actor, permission)) return { allowed: true, source: "direct" };
+function hasEffectivePermission(actor, permission, { registry, authorityRegistry, scope, now } = {}) {
   if (isVerifiedPrincipal(actor)) {
-    const grant = actor.permissionGrants.find((item) =>
-      item.permission === permission &&
-      (item.scope === "*" || item.scope === scope) &&
-      !item.revokedAt &&
-      new Date(item.expiresAt).getTime() > new Date(now ?? Date.now()).getTime()
-    );
+    if (!(authorityRegistry instanceof AuthorityRegistry)) return { allowed: false, source: "none" };
+    const grant = authorityRegistry.findActivePermissionGrant({
+      subjectId: actor.id, permission, scope, now,
+    });
     if (grant) return { allowed: true, source: "authority-grant", authorityGrantId: grant.id };
+  } else if (hasPermission(actor, permission)) {
+    return { allowed: true, source: "direct" };
   }
   if (!(registry instanceof DelegationRegistry) || !scope) return { allowed: false, source: "none" };
   const grant = registry.findActive({ delegateId: actor?.id, permission, scope, now });
