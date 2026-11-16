@@ -28,3 +28,5 @@ jobs:
           node-version: 20
       - name: Run workforce tests
         run: node --test ai-workforce/test/*.test.mjs
+      - name: Run live BLACKPINE read-only evidence and policy check
+        run: node governance-core/adapters/blackpine/check-live.mjs
