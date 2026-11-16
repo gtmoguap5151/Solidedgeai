@@ -325,7 +325,7 @@ def _decision_workflow_schema(db):
         "CREATE TABLE IF NOT EXISTS galinyx_decision_proposals("
         "proposal_id TEXT PRIMARY KEY, org_id TEXT NOT NULL, proposer_actor_id TEXT NOT NULL, "
         "executor_actor_id TEXT NOT NULL, request_id TEXT NOT NULL, action TEXT NOT NULL, "
-        "resource_id TEXT NOT NULL, grant_id TEXT NOT NULL, created_at TEXT NOT NULL, "
+        "resource_id TEXT NOT NULL, proposer_grant_id TEXT NOT NULL, grant_id TEXT NOT NULL, created_at TEXT NOT NULL, "
         "UNIQUE(org_id,request_id), "
         "FOREIGN KEY(org_id) REFERENCES galinyx_organizations(org_id), "
         "FOREIGN KEY(org_id,proposer_actor_id) REFERENCES galinyx_org_roles(org_id,actor_id), "
