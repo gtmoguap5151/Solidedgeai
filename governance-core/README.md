@@ -29,6 +29,7 @@ A title does not automatically confer every permission. A higher level does not 
 
 - `src/index.mjs` — policy evaluation, decision lifecycle, and scoped delegation functions.
 - `adapters/blackpine/policies.mjs` — Blackpine-specific decision and evidence policies.
+- `adapters/blackpine/repository-reader.mjs` — allowlisted, read-only GitHub snapshot reader with Git blob integrity checks; returns evidence references and observations, not raw repository file contents.
 - `adapters/blackpine/README.md` — read-only integration boundary and operating rules.
 - `test/governance.test.mjs` — Node built-in tests for core invariants and Blackpine scenarios.
 
@@ -44,7 +45,7 @@ No dependencies or secrets are required.
 
 ## Current limitations / next gates
 
-This is a foundational domain engine, not a complete enterprise governance product. It has no authentication, database, multi-tenant isolation, UI, network service, key management, durable audit storage, or Blackpine integration. The in-memory audit ledger and delegation registry are suitable for tests only. Do not use it to make live business decisions.
+This is a foundational domain engine, not a complete enterprise governance product. It has no authentication, database, multi-tenant isolation, UI, network service, key management, durable audit storage, or Blackpine integration. The in-memory audit ledger and delegation registry are suitable for tests only. The Blackpine reader is read-only and inspects selected public repository files; it does not inspect external affiliate accounts, authenticate source claims, or change the live storefront. Do not use it to make live business decisions.
 
 Before integration, add:
 - authenticated identity and verified human/agent principals;
