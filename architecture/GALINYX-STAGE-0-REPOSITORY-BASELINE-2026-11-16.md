@@ -42,7 +42,6 @@ The repository currently exposes 17 branches:
 - `galinyx-brand-foundation`
 - `galinyx-pages-migration`
 - `galinyx-pages-migration-main`
-- `galinyx-sqlite-migrations`
 - `finish-solid-edge-migration`
 - `fix/payment-flow`
 - `solid-edge-revenue-funnel`
