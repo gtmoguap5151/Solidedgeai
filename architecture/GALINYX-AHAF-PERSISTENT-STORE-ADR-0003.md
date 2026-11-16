@@ -15,7 +15,7 @@ The store is a trusted local component. It is not exposed as a network API and d
 ## Record model
 
 - **Agent binding:** binds an existing agent entity to a tenant, owner principal, and opaque external credential/key reference. The reference is metadata only; it is not a credential or secret. Binding records are append-only. Revocation is represented by a separate record.
-- **Authority grant:** immutable root grant scoped to a subject agent, action set, resource set, expiry, integer budget limit and unit, optional transaction ceiling and unit, transaction actions, approval-required actions, delegable actions, delegation depth, and policy version.
+- **Authority grant:** immutable root or delegated grant scoped to a subject agent, action set, resource set, expiry, integer budget limit and unit, optional transaction ceiling and unit, transaction actions, approval-required actions, delegable actions, delegation depth, and policy version.
 - **Grant revocation:** separate append-only record. A revoked ancestor makes descendant grants inactive when the chain is evaluated.
 - **Budget reservation:** stable request-scoped reservation with integer units. `BEGIN IMMEDIATE` serializes reservation decisions across SQLite connections. A reserve entry is written against the selected grant and every ancestor, so parent limits include delegated spend across the full grant chain.
 - **Budget ledger:** append-only `reserve`, `commit`, and `release` entries. A committed reservation remains consumed; a released reservation restores available budget. Request IDs make reserve retries idempotent and reject parameter changes.
@@ -32,17 +32,17 @@ A reservation consumes available budget immediately. Commit converts reserved un
 
 - Owner-checked local agent binding and root-grant issuance.
 - Immutable grant and binding rows enforced by SQLite update/delete triggers.
-- Append-only revocation records.
-- Grant-chain expiry and revocation checks for reservation eligibility.
-- Atomic cumulative budget reservation, commit, and release.
+- Delegated grant issuance from a parent grant, with restrictions preventing broader action/resource scope, longer expiry, increased budget, weaker transaction ceilings, removal of inherited approval requirements, broader further-delegation rights, or increased delegation depth.
+- Append-only revocation records; revocation of an ancestor makes descendant grants inactive when the grant chain is checked.
+- Grant-chain expiry and revocation checks for budget reservation eligibility.
+- Atomic cumulative budget reservation, commit, and release using integer units.
 - Idempotent reserve retry behavior and conflict rejection when a request ID is reused with different budget parameters.
-- Cross-connection concurrency test proving two competing reservations cannot overspend a single budget.
+- Cross-connection concurrency tests for competing reservations against shared grant budgets.
 - Hash-chain verification with tamper-detection tests.
 
 ## Explicitly not implemented
 
-- Production human or workload authentication.
-- Cryptographic signing or verification of grants.
+- Production human or agent workload authentication.
 - Cryptographic signing or verification of grants.
 - Authenticated human approval creation, verification, expiry, or replay protection.
 - Action/resource authorization or execution integration.
@@ -53,12 +53,12 @@ A reservation consumes available budget immediately. Commit converts reserved un
 
 ## Required next gates
 
-1. Implement delegated grant issuance with attenuation and ancestry tests.
-2. Specify authenticated agent workload identity and bind it to the opaque key reference.
-3. Implement approvals through an independent authenticated governance flow, scoped to request, action, resource, amount, and expiry.
-4. Define the authorize → reserve → execute → commit/release protocol, including crash and external-side-effect recovery.
-5. Prove all privileged execution paths enforce workspace authorization, AHAF policy, capability checks, and approval checks before side effects.
-6. Add adversarial tests for delegation escalation, replay, revocation races, stale policy versions, and audit-chain recovery.
+1. Specify authenticated agent workload identity and bind it to the opaque key reference; do not treat the reference itself as proof of identity.
+2. Implement approvals through an independent authenticated governance flow, scoped to request, action, resource, amount, and expiry.
+3. Implement a fail-closed authorization decision interface that evaluates the complete grant chain against a server-resolved agent identity and an exact operation/resource context.
+4. Define and test the authorize → reserve → execute → commit/release protocol, including idempotency, revocation races, and crash or external-side-effect recovery.
+5. Prove all privileged execution paths independently enforce human/workspace authorization, AHAF policy, entity capability/input checks, and authenticated approval before side effects.
+6. Add adversarial tests for delegation escalation, approval replay, revocation races, stale policy versions, concurrent reservations, and audit-chain recovery.
 7. Obtain independent security review before exposing any privileged action to untrusted callers.
 
 ## Operational warning
