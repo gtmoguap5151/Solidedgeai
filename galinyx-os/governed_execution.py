@@ -7,9 +7,12 @@ credential adapter rather than trusting a caller-supplied agent ID. The test
 adapter is not production credential issuance, cryptographic verification, or
 an enforcement boundary for external systems.
 """
+import hashlib
 import json
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
+
+from execution_receipts import ExecutionReceiptService
 
 
 class GovernedMockExecutor:
@@ -28,6 +31,7 @@ class GovernedMockExecutor:
         self.db = authority_store.db
         self.authenticator = human_authenticator
         self.workload_authenticator = workload_authenticator
+        self.receipts = ExecutionReceiptService(authority_store)
         # Preserve the supplied mock mapping so tests and the executor observe the same resource state.
         self.resources = resources if resources is not None else {}
 
@@ -174,37 +178,57 @@ class GovernedMockExecutor:
         elif approval_id is not None:
             raise PermissionError("unexpected approval supplied for an action without approval requirement")
 
-        reservation = self.store.reserve_budget(
-            grant_id, request_id, 1, grant["budget_unit"]
+        prepared = self.receipts.prepare(
+            tenant_id=tenant_id, agent_id=agent_id, grant_id=grant_id,
+            request_id=request_id, action=action, resource_id=resource_id,
+            approval_id=approval_id, amount_units=1,
         )
-        if reservation["status"] == "committed":
-            return {"status": "already_executed", "value": self.resources[(tenant_id, resource_id)]}
-        if reservation["status"] != "reserved" or not reservation["created"]:
-            raise PermissionError("existing unsettled request requires reconciliation")
+        if not prepared["created"]:
+            if prepared["state"] in ("succeeded", "reconciled_succeeded"):
+                return {
+                    "status": "already_executed",
+                    "value": self.resources[(tenant_id, resource_id)],
+                    "execution_id": prepared["execution_id"],
+                }
+            raise PermissionError(
+                "existing execution requires reconciliation; automatic redispatch is blocked"
+            )
 
+        execution_id = prepared["execution_id"]
         key = (tenant_id, resource_id)
+        self.receipts.mark_dispatching(
+            execution_id, tenant_id=tenant_id,
+            adapter_id="local-mock-counter", adapter_version="0.2",
+        )
         try:
-            # This is deliberately a local mock side effect, not a real external action.
+            # The mock adapter changes only this process-local test resource.
             self.resources[key] += 1
-            self.store.settle_reservation(reservation["reservation_id"], "commit")
-            self.store._begin()
+            value_after = self.resources[key]
+            evidence_ref = f"mock://{tenant_id}/{resource_id}/{request_id}"
+            evidence_digest = hashlib.sha256(
+                f"{execution_id}:{value_after}".encode("utf-8")
+            ).hexdigest()
+            self.receipts.record_outcome(
+                execution_id, tenant_id=tenant_id, outcome="succeeded",
+                evidence_ref=evidence_ref, evidence_digest=evidence_digest,
+            )
+            return {
+                "status": "completed", "value": value_after,
+                "execution_id": execution_id,
+            }
+        except Exception as exc:
+            # Once dispatch intent is durable, an exception is ambiguous. Do not
+            # release the reservation or retry; record unknown and require review.
             try:
-                self.store._append_audit(
-                    actor_type="agent", actor_id=agent_id, agent_id=agent_id,
-                    tenant_id=tenant_id, grant_id=grant_id, request_id=request_id,
-                    action=action, resource_id=resource_id, decision="mock_execution_completed",
-                    policy_version=grant["policy_version"],
-                    payload={"value_after": self.resources[key]},
+                self.receipts.record_outcome(
+                    execution_id, tenant_id=tenant_id,
+                    outcome="outcome_unknown",
+                    reason=f"mock adapter exception: {type(exc).__name__}",
                 )
-                self.store._finish()
-            except Exception as exc:
-                self.store._finish(exc)
-                raise
-            return {"status": "completed", "value": self.resources[key]}
-        except Exception:
-            # A committed reservation is not released; reconciliation is required
-            # if a failure occurs after the mock side effect or settlement.
-            current = self.store._reservation_status(reservation["reservation_id"])
-            if current == "reserved":
-                self.store.settle_reservation(reservation["reservation_id"], "release")
-            raise
+            except Exception:
+                # If even the unknown receipt cannot be persisted, leave the
+                # dispatching receipt and reserved budget for operator recovery.
+                pass
+            return {
+                "status": "outcome_unknown", "execution_id": execution_id,
+            }
