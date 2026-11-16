@@ -35,6 +35,7 @@ class GalinyxOrganizationRegistry:
                 raise ValueError("each role must be a mapping")
             actor_id = _required(role.get("actor_id"), "role.actor_id")
             normalized_roles[actor_id] = {
+                "role_key": _required(role.get("role"), "role.role"),
                 "title": _required(role.get("title"), "role.title"),
                 "reports_to_actor_id": role.get("reports_to"),
                 "division": role.get("division"),
@@ -95,10 +96,10 @@ class GalinyxOrganizationRegistry:
             for actor_id, role in normalized_roles.items():
                 self.db.execute(
                     "INSERT INTO galinyx_org_roles "
-                    "(org_id,actor_id,title,reports_to_actor_id,division,created_at) "
-                    "VALUES (?,?,?,?,?,?)",
-                    (org_id, actor_id, role["title"], role["reports_to_actor_id"],
-                     role["division"], created_at),
+                    "(org_id,actor_id,role_key,title,reports_to_actor_id,division,created_at) "
+                    "VALUES (?,?,?,?,?,?,?)",
+                    (org_id, actor_id, role["role_key"], role["title"],
+                     role["reports_to_actor_id"], role["division"], created_at),
                 )
             for actor_id, agent_id in bindings.items():
                 self.db.execute(
@@ -142,11 +143,11 @@ class GalinyxOrganizationRegistry:
         result = dict(zip(keys, row))
         result["roles"] = [
             {
-                "actor_id": r[0], "title": r[1],
-                "reports_to": r[2], "division": r[3],
+                "actor_id": r[0], "role": r[1], "title": r[2],
+                "reports_to": r[3], "division": r[4],
             }
             for r in self.db.execute(
-                "SELECT actor_id,title,reports_to_actor_id,division "
+                "SELECT actor_id,role_key,title,reports_to_actor_id,division "
                 "FROM galinyx_org_roles WHERE org_id=? ORDER BY actor_id",
                 (org_id,),
             )
@@ -158,6 +159,16 @@ class GalinyxOrganizationRegistry:
             )
         }
         return result
+
+    def role_for_actor(self, org_id, actor_id):
+        row = self.db.execute(
+            "SELECT role_key,division FROM galinyx_org_roles "
+            "WHERE org_id=? AND actor_id=?",
+            (org_id, actor_id),
+        ).fetchone()
+        if row is None:
+            raise PermissionError("actor has no registered organizational role")
+        return {"role": row[0], "division": row[1]}
 
     def agent_for_actor(self, org_id, actor_id):
         row = self.db.execute(
