@@ -210,6 +210,7 @@ export async function loadBlackpineSnapshot({ fetchImpl = globalThis.fetch, ref 
       noHypeBrandRulePresent,
       timeSensitivePriceClaimsPresent,
       sourceReferenceListCount: sourceReferenceFiles.length,
+      repositoryProductCardCount: (homepage.match(/<article\\s+class=["']product["']/gi) ?? []).length,
       manufacturerSourceRecordsPresent: false,
       handsOnEvidenceRecordsPresent: false,
     }),
