@@ -33,9 +33,10 @@ The governance test passed 73/73 unit tests. The live repository integration pas
 
 ## 3. What is not yet verified
 
+The live revenue check now makes a read-only GET request to the deployed storefront and compares the live product-card count with the repository snapshot when the site responds. It does not yet perform a full deployed-HTML diff or verify every destination link.
+
 The adapter does not access:
 
-- The deployed storefront or compare deployed HTML with repository source.
 - Website analytics or traffic reports.
 - Awin, CJ, Amazon, or other affiliate dashboards.
 - Actual outbound clicks, orders, commissions, payout records, or revenue.
