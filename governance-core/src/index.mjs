@@ -311,6 +311,7 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
     scope: request.scope ?? null,
     permissionSource: requesterPermission.source,
     delegationId: requesterPermission.delegationId ?? null,
+    authorityGrantId: requesterPermission.authorityGrantId ?? null,
   });
 }
 
