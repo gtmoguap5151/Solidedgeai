@@ -94,16 +94,29 @@ class GovernedOrganizationSimulator:
                 "side_effect": "none",
             }
 
-        prepared = self.receipts.prepare(
-            tenant_id=persisted_tenant,
-            agent_id=agent_id,
-            grant_id=grant_id,
-            request_id=request_id,
-            action=action,
-            resource_id=resource_id,
-            approval_id=approval_id,
-            amount_units=amount_units,
-        )
+        try:
+            prepared = self.receipts.prepare(
+                tenant_id=persisted_tenant,
+                agent_id=agent_id,
+                grant_id=grant_id,
+                request_id=request_id,
+                action=action,
+                resource_id=resource_id,
+                approval_id=approval_id,
+                amount_units=amount_units,
+            )
+        except PermissionError as exc:
+            denied = type("DeniedDecision", (), {
+                "code": "persisted_grant_denied",
+                "reason": str(exc),
+            })()
+            self._record_denial(actor, agent_id, action, resource_id, denied)
+            return {
+                "status": "denied",
+                "decision": denied.code,
+                "reason": denied.reason,
+                "side_effect": "none",
+            }
         if not prepared["created"]:
             state = prepared["state"]
             if state in {"succeeded", "reconciled_succeeded"}:
