@@ -713,7 +713,9 @@ export function revokeDelegation({ delegationId, actor, reason, registry, author
 }
 
 export function resolveDelegatedAuthority({ actor, permission, scope, registry, now = new Date() }) {
-  if (!isHuman(actor)) return Object.freeze({ allowed: false, reason: "ACTIVE_HUMAN_REQUIRED" });
+  if (!isHuman(actor) || !isVerifiedPrincipal(actor)) {
+    return Object.freeze({ allowed: false, reason: "VERIFIED_ACTIVE_HUMAN_REQUIRED" });
+  }
   if (hasPermission(actor, permission)) return Object.freeze({ allowed: true, source: "direct", delegationId: null });
   if (!(registry instanceof DelegationRegistry)) {
     return Object.freeze({ allowed: false, reason: "NO_DELEGATION_REGISTRY" });
