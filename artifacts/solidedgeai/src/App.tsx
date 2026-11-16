@@ -6,10 +6,11 @@ import {
   Menu, RadioTower, ShieldCheck, Sparkles, Wallet, X
 } from "lucide-react";
 
-type Section = "Overview" | "BLACKPINE FIELD" | "Revenue" | "Opportunities" | "Governance" | "Evidence" | "Audit Trail" | "Connections";
+type Section = "Overview" | "AI Workforce" | "BLACKPINE FIELD" | "Revenue" | "Opportunities" | "Governance" | "Evidence" | "Audit Trail" | "Connections";
 
 const navigation: { label: Section; icon: typeof LayoutDashboard }[] = [
   { label: "Overview", icon: LayoutDashboard },
+  { label: "AI Workforce", icon: Boxes },
   { label: "BLACKPINE FIELD", icon: Globe2 },
   { label: "Revenue", icon: Wallet },
   { label: "Opportunities", icon: Sparkles },
@@ -17,6 +18,15 @@ const navigation: { label: Section; icon: typeof LayoutDashboard }[] = [
   { label: "Evidence", icon: FileCheck2 },
   { label: "Audit Trail", icon: Activity },
   { label: "Connections", icon: RadioTower },
+];
+
+const workforceRoles = [
+  { name: "Chief of Staff", focus: "Coordinates specialist findings, ranks priorities, and identifies dependencies.", output: "Consolidated operating brief" },
+  { name: "Research & Evidence Analyst", focus: "Checks source quality, evidence gaps, and uncertainty.", output: "Evidence register and confidence notes" },
+  { name: "Content Integrity Editor", focus: "Reviews editorial accuracy, disclosures, and product-claim boundaries.", output: "Content review findings" },
+  { name: "Revenue & Affiliate Operations Analyst", focus: "Maps the path from sessions and outbound clicks to orders and commissions.", output: "Revenue measurement recommendations" },
+  { name: "SEO & Distribution Analyst", focus: "Finds discoverability and distribution opportunities grounded in available evidence.", output: "Search and distribution recommendations" },
+  { name: "Operations & Risk Officer", focus: "Surfaces dependencies, operational controls, and release or rollback risks.", output: "Risk and readiness assessment" },
 ];
 
 const opportunities = [
@@ -45,6 +55,7 @@ export default function App() {
   const [showSourceNotes, setShowSourceNotes] = useState(false);
   const pageDescription = useMemo(() => ({
     "Overview": "A live operating picture of the business and its governance.",
+    "AI Workforce": "Six specialist workers inside GALINYX OS, operating under the Governance Core.",
     "BLACKPINE FIELD": "Storefront operations, deployment health, and content integrity.",
     "Revenue": "The complete path from attention to verified affiliate commission.",
     "Opportunities": "Evidence-backed improvements ranked by business priority.",
@@ -116,6 +127,35 @@ export default function App() {
             <section className="rounded-2xl border border-white/10 bg-[#111b2a] p-5 sm:p-6">
               <div className="flex items-center justify-between"><div><h2 className="font-semibold text-white">Highest-priority opportunities</h2><p className="mt-1 text-xs text-slate-500">Ranked by evidence gap and business mechanism</p></div><button onClick={() => setSection("Opportunities")} className="text-xs font-semibold text-amber-200">View all <ArrowUpRight className="ml-1 inline" size={13}/></button></div>
               <div className="mt-4 divide-y divide-white/10">{opportunities.map(o=><button key={o.id} onClick={() => {setSelectedOpportunity(o.id);setSection("Opportunities");}} className="flex w-full items-center gap-3 py-4 text-left"><div className="rounded-lg bg-white/5 p-2 text-amber-200"><Sparkles size={16}/></div><div className="min-w-0 flex-1"><div className="text-sm font-medium text-slate-200">{o.title}</div><div className="mt-1 text-xs text-slate-500">{o.id}</div></div><Status tone={o.priority === "P1" ? "amber" : "muted"}>{o.priority}</Status><ChevronRight size={16} className="text-slate-600"/></button>)}</div>
+            </section>
+          </>}
+
+          {section === "AI Workforce" && <>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <Metric label="Specialist roles" value="6 configured" note="Definitions in repository" icon={Boxes} tone="blue"/>
+              <Metric label="Live worker reports" value="Not verified" note="No complete valid run yet" icon={Activity} tone="amber"/>
+              <Metric label="Execution authority" value="None" note="Human review only" icon={ShieldCheck} tone="green"/>
+            </div>
+            <section className="rounded-2xl border border-amber-300/20 bg-amber-300/[0.04] p-5 sm:p-6">
+              <div className="flex items-center gap-2 text-amber-200"><CircleAlert size={17}/><h2 className="font-semibold">Current run status</h2></div>
+              <p className="mt-3 text-sm leading-relaxed text-slate-300">The six worker definitions, orchestration, output validation, and human-review handoff are implemented in the repository. A complete, valid live report has not yet been verified. The first Cloudflare model test returned truncated structured output, so those partial responses are not presented as worker findings.</p>
+              <div className="mt-4 flex flex-wrap gap-2"><Status tone="green">Code and tests implemented</Status><Status tone="amber">Live inference unresolved</Status><Status tone="muted">No autonomous actions</Status></div>
+            </section>
+            <div className="grid gap-3 lg:grid-cols-2">
+              {workforceRoles.map((worker, index) => <article key={worker.name} className="rounded-2xl border border-white/10 bg-[#111b2a] p-5">
+                <div className="flex items-start justify-between gap-3"><div><div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-300">Specialist 0{index + 1}</div><h2 className="mt-2 font-semibold text-white">{worker.name}</h2></div><Status tone="blue">Configured</Status></div>
+                <p className="mt-3 text-sm leading-relaxed text-slate-400">{worker.focus}</p>
+                <div className="mt-4 border-t border-white/10 pt-3"><div className="text-[10px] uppercase tracking-wider text-slate-500">Expected deliverable</div><div className="mt-1 text-sm text-slate-200">{worker.output}</div></div>
+                <div className="mt-3"><Status tone="amber">Live completion not verified</Status></div>
+              </article>)}
+            </div>
+            <section className="rounded-2xl border border-white/10 bg-[#111b2a] p-5">
+              <h2 className="font-semibold text-white">How the workforce is governed</h2>
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-xl bg-white/[0.03] p-4"><div className="text-xs font-semibold text-slate-200">1 · Shared evidence</div><p className="mt-2 text-xs leading-relaxed text-slate-500">Workers receive the same bounded, read-only BLACKPINE snapshot.</p></div>
+                <div className="rounded-xl bg-white/[0.03] p-4"><div className="text-xs font-semibold text-slate-200">2 · Validated proposals</div><p className="mt-2 text-xs leading-relaxed text-slate-500">Structured outputs and evidence references are checked before handoff.</p></div>
+                <div className="rounded-xl bg-white/[0.03] p-4"><div className="text-xs font-semibold text-slate-200">3 · Human decision</div><p className="mt-2 text-xs leading-relaxed text-slate-500">Recommendations are not approvals. Publishing, spending, outreach, and deployment remain disabled.</p></div>
+              </div>
             </section>
           </>}
 
