@@ -377,16 +377,16 @@ test("delegated permission can submit a scoped decision but cannot approve itsel
   });
   const decision = createDecision({
     request: { id: "d-delegated-1", title: "Submit guide", scope: "blackpine:field-guides" },
-    requester: delegate, policy, ledger, delegationRegistry: registry, now,
+    requester: delegate, policy, ledger, delegationRegistry: registry, authorityRegistry: delegationAuthorityFixture.registry, now,
   });
   assert.equal(decision.status, "pending_approval");
   assert.equal(decision.permissionSource, "delegated");
   assert.throws(
-    () => recordApproval({ decision, approver: delegate, policy, ledger, delegationRegistry: registry, now }),
+    () => recordApproval({ decision, approver: delegate, policy, ledger, delegationRegistry: registry, authorityRegistry: delegationAuthorityFixture.registry, now }),
     /SELF_APPROVAL_PROHIBITED/,
   );
   assert.throws(
-    () => recordApproval({ decision, approver: delegationIssuer, policy, ledger, delegationRegistry: registry, now }),
+    () => recordApproval({ decision, approver: delegationIssuer, policy, ledger, delegationRegistry: registry, authorityRegistry: delegationAuthorityFixture.registry, now }),
     /DELEGATION_GRANTOR_CANNOT_APPROVE/,
   );
 });
@@ -414,7 +414,7 @@ test("delegated approval is recorded as delegated and remains subject to all oth
   });
   recordApproval({
     decision, approver: approvalDelegate, policy, ledger,
-    delegationRegistry: registry, now,
+    delegationRegistry: registry, authorityRegistry: delegationAuthorityFixture.registry, now,
   });
   assert.equal(decision.status, "approved");
   assert.equal(decision.approvals[0].permissionSource, "delegated");
@@ -643,6 +643,7 @@ test("Blackpine snapshot evidence satisfies editorial controls but not unsupport
       scope: "blackpine:editorial", evidence: snapshot.evidence,
     },
     requester: editor,
+    authorityRegistry: authority.registry,
     policy: blackpinePolicies.contentDraft,
   });
   assert.equal(draft.eligibleToSubmit, true, `reasons: ${draft.reasons.join(", ")}`);
@@ -658,6 +659,7 @@ test("Blackpine snapshot evidence satisfies editorial controls but not unsupport
       scope: "blackpine:product-claims", evidence: snapshot.evidence,
     },
     requester: researcher,
+    authorityRegistry: authority.registry,
     policy: blackpinePolicies.productClaim,
   });
   assert.equal(claim.eligibleToSubmit, false);
@@ -721,14 +723,14 @@ test("a revoked delegation cannot be used to complete a pending decision", () =>
   });
   const decision = createDecision({
     request: { id: "d-revoked-delegation", title: "Submit guide", scope: "blackpine:field-guides" },
-    requester: delegate, policy, ledger, delegationRegistry: registry, now,
+    requester: delegate, policy, ledger, delegationRegistry: registry, authorityRegistry: delegationAuthorityFixture.registry, now,
   });
   revokeDelegation({
     delegationId: grant.id, actor: delegationIssuer,
     reason: "Authority withdrawn", registry, ledger,
   });
   assert.throws(
-    () => recordApproval({ decision, approver, policy, ledger, delegationRegistry: registry, now }),
+    () => recordApproval({ decision, approver, policy, ledger, delegationRegistry: registry, authorityRegistry: delegationAuthorityFixture.registry, now }),
     /DELEGATED_AUTHORITY_NO_LONGER_ACTIVE/,
   );
 });
@@ -761,10 +763,10 @@ test("a delegated decision cannot be approved without its delegation registry", 
   });
   const decision = createDecision({
     request: { id: "d-no-registry", title: "Submit guide", scope: "blackpine:field-guides" },
-    requester: delegate, policy, ledger, delegationRegistry: registry, now,
+    requester: delegate, policy, ledger, delegationRegistry: registry, authorityRegistry: delegationAuthorityFixture.registry, now,
   });
   assert.throws(
-    () => recordApproval({ decision, approver, policy, ledger, now }),
+    () => recordApproval({ decision, approver, policy, ledger, authorityRegistry: delegationAuthorityFixture.registry, now }),
     /DELEGATION_REGISTRY_REQUIRED_FOR_APPROVAL/,
   );
 });
@@ -881,11 +883,13 @@ test("Blackpine live-snapshot evidence completes an editorial decision lifecycle
     requester: editorialRequester,
     policy: blackpinePolicies.contentDraft,
     ledger,
+    authorityRegistry: authority.registry,
   });
   assert.equal(editorial.status, "pending_approval", `reasons: ${editorial.reasons.join(", ")}`);
   recordApproval({
     decision: editorial, approver: editorialApprover,
     policy: blackpinePolicies.contentDraft, ledger,
+    authorityRegistry: authority.registry,
     reviewedEvidenceDigest: editorial.evidenceDigest,
   });
   assert.equal(editorial.status, "approved");
@@ -902,6 +906,7 @@ test("Blackpine live-snapshot evidence completes an editorial decision lifecycle
     }),
     policy: blackpinePolicies.productClaim,
     ledger,
+    authorityRegistry: authority.registry,
   });
   assert.equal(productClaim.status, "blocked");
   assert.throws(
@@ -956,7 +961,7 @@ test("authority registry resolves verified identities with scoped permissions an
       id: "scoped-a", title: "Submit guide A",
       scope: "blackpine:guide-a",
     },
-    requester: principal, policy: scopedPolicy,
+    requester: principal, policy: scopedPolicy, authorityRegistry: registry,
   });
   const denied = evaluateDecision({
     request: {
