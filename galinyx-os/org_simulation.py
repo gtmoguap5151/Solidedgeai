@@ -19,6 +19,10 @@ DIVISIONS = {
 }
 
 HIGH_IMPACT = {"policy.activate", "grant.issue", "grant.revoke", "external.dispatch", "funds.transfer"}
+RESOURCE_DIVISIONS = {
+    "strategy-roadmap": "product-engineering",
+    "policy-set": "governance-risk",
+}
 FORBIDDEN_SIMULATION_ACTIONS = {"external.dispatch", "funds.transfer", "publish.live", "delete.production"}
 
 
