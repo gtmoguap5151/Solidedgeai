@@ -9,7 +9,8 @@ from datetime import datetime, timedelta, timezone
 from authority_store import AuthorityStore
 from governed_execution import GovernedMockExecutor
 from governed_org_simulation import GovernedOrganizationSimulator
-from org_simulation import Actor, CEO, HUMAN_OWNER, ORG_ID
+from org_registry import GalinyxOrganizationRegistry
+from org_simulation import Actor, CEO, HUMAN_OWNER, ORG_ID, galinyx_ventures_org
 from runtime import Runtime
 
 
@@ -59,6 +60,22 @@ def main():
             "exec-governance", {"policy.activate"}, {"policy.activate"}
         )
 
+        org = galinyx_ventures_org()
+        roles = [{
+            "actor_id": HUMAN_OWNER,
+            "title": "Founder / Human Root",
+            "reports_to": None,
+            "division": None,
+        }] + org["executives"]
+        GalinyxOrganizationRegistry(store).register(
+            org_id=ORG_ID,
+            tenant_id=ORG_ID,
+            owner_principal_id=HUMAN_OWNER,
+            name=org["name"],
+            roles=roles,
+            actor_agent_bindings=agents,
+        )
+
         human_auth = DemoAuthenticator({"owner-token": HUMAN_OWNER})
         workload_auth = DemoAuthenticator({
             "ceo-token": agents["exec-ceo"],
@@ -68,7 +85,7 @@ def main():
         approval_issuer = GovernedMockExecutor(
             store, human_auth, workload_auth, {}
         )
-        simulator = GovernedOrganizationSimulator(store, agents)
+        simulator = GovernedOrganizationSimulator(store)
 
         print("GALINYX Ventures — simulation-only governed workflow")
         print("Product planning:", simulator.execute(
