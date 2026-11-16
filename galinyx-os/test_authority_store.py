@@ -39,8 +39,8 @@ class AuthorityStoreTests(unittest.TestCase):
     def tearDown(self):
         self.runtime.close()
 
-    def test_runtime_uses_schema_version_four(self):
-        self.assertEqual(self.runtime.schema_version(), 4)
+    def test_runtime_uses_schema_version_five(self):
+        self.assertEqual(self.runtime.schema_version(), 5)
 
     def test_agent_binding_requires_existing_agent_and_workspace_owner(self):
         with self.assertRaises(PermissionError):
