@@ -167,12 +167,15 @@ export class AuditLedger {
  *   prohibitedConflicts?: string[]
  * }
  */
-export function evaluateDecision({ request, requester, policy, delegationRegistry, now = new Date() }) {
+export function evaluateDecision({ request, requester, policy, delegationRegistry, authorityRegistry, now = new Date() }) {
   const reasons = [];
   if (!request || !policy) throw new TypeError("request and policy are required");
   if (!isHuman(requester)) reasons.push("REQUESTER_MUST_BE_ACTIVE_HUMAN");
   if (policy.requireVerifiedIdentity === true && !isVerifiedPrincipal(requester)) {
     reasons.push("REQUESTER_IDENTITY_NOT_VERIFIED");
+  }
+  if (policy.requireVerifiedIdentity === true && !(authorityRegistry instanceof AuthorityRegistry)) {
+    reasons.push("AUTHORITY_REGISTRY_REQUIRED");
   }
   if (typeof request.id !== "string" || request.id.trim() === "" ||
       typeof request.title !== "string" || request.title.trim() === "") {
@@ -227,12 +230,12 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
   if (!Number.isInteger(policy.requiredApprovals) || policy.requiredApprovals < 1) reasons.push("POLICY_REQUIRED_APPROVALS_INVALID");
 
   const requesterPermission = isHuman(requester) && policy.permission
-    ? hasEffectivePermission(requester, policy.permission, { registry: delegationRegistry, scope: request.scope, now })
+    ? hasEffectivePermission(requester, policy.permission, { registry: delegationRegistry, authorityRegistry, scope: request.scope, now })
     : { allowed: false, source: "none" };
   if (isHuman(requester) && policy.permission && !requesterPermission.allowed) {
     reasons.push("REQUESTER_LACKS_PERMISSION");
   }
-  const requesterLevel = actorLevel(requester, policy);
+  const requesterLevel = actorLevel(requester, policy, authorityRegistry, now);
   if (isHuman(requester) && (!Number.isInteger(requesterLevel) || requesterLevel < 0)) {
     reasons.push(policy.levelDomain ? "REQUESTER_DOMAIN_LEVEL_INVALID" : "REQUESTER_LEVEL_INVALID");
   } else if (isHuman(requester) && Number.isInteger(policy.minimumLevel) && requesterLevel < policy.minimumLevel) {
@@ -311,9 +314,9 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
   });
 }
 
-export function createDecision({ request, requester, policy, ledger, delegationRegistry, now = new Date() }) {
+export function createDecision({ request, requester, policy, ledger, delegationRegistry, authorityRegistry, now = new Date() }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
-  const evaluation = evaluateDecision({ request, requester, policy, delegationRegistry, now });
+  const evaluation = evaluateDecision({ request, requester, policy, delegationRegistry, authorityRegistry, now });
   const evidence = evidenceForReview(request.evidence);
   const evidenceDigest = createHash("sha256").update(stableSerialize(evidence)).digest("hex");
   const state = {
