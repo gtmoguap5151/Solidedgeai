@@ -141,12 +141,12 @@ class OperatingTaskRegistry:
             if status not in _TRANSITIONS[old]:
                 raise ValueError(f"invalid task transition: {old} -> {status}")
             if status == "completed" and approval_required:
-                approved = self.db.execute(
-                    "SELECT 1 FROM operating_task_approvals WHERE task_id=? "
-                    "AND decision='approved' ORDER BY created_at DESC LIMIT 1", (task_id,)
+                latest_decision = self.db.execute(
+                    "SELECT decision FROM operating_task_approvals WHERE task_id=? "
+                    "ORDER BY created_at DESC, rowid DESC LIMIT 1", (task_id,)
                 ).fetchone()
-                if approved is None:
-                    raise PermissionError("human approval is required before completion")
+                if latest_decision is None or latest_decision[0] != "approved":
+                    raise PermissionError("current human approval is required before completion")
             stamp = _now()
             self.db.execute(
                 "UPDATE operating_tasks SET status=?,updated_at=?,version=version+1 WHERE task_id=?",
