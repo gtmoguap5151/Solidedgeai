@@ -90,7 +90,7 @@ function createBlackpineTestAuthority() {
     });
   }
 
-  return { registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger, root, principal };
+  return { registry, ledger, root, principal };
 }
 
 test("rank and level remain separate policy attributes", () => {
@@ -344,7 +344,7 @@ test("delegation grants only held permissions for an exact scope and expires", (
     scope: "blackpine:field-guides",
     expiresAt: "2026-11-17T12:00:00.000Z",
     reason: "Temporary editorial coverage",
-    registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger, now,
+    registry, authorityRegistry: delegationAuthorityFixture.registry, ledger, now,
   });
   assert.equal(grant.subdelegationAllowed, false);
   assert.equal(resolveDelegatedAuthority({
@@ -373,7 +373,7 @@ test("delegated permission can submit a scoped decision but cannot approve itsel
     scope: "blackpine:field-guides",
     expiresAt: "2026-11-17T12:00:00.000Z",
     reason: "Temporary editorial coverage",
-    registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger, now,
+    registry, authorityRegistry: delegationAuthorityFixture.registry, ledger, now,
   });
   const decision = createDecision({
     request: { id: "d-delegated-1", title: "Submit guide", scope: "blackpine:field-guides" },
@@ -406,7 +406,7 @@ test("delegated approval is recorded as delegated and remains subject to all oth
     scope: "blackpine:field-guides",
     expiresAt: "2026-11-17T12:00:00.000Z",
     reason: "Temporary approval coverage",
-    registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger, now,
+    registry, authorityRegistry: delegationAuthorityFixture.registry, ledger, now,
   });
   const decision = createDecision({
     request: { id: "d-delegated-2", title: "Submit guide", scope: "blackpine:field-guides" },
@@ -429,7 +429,7 @@ test("delegation cannot transfer override, delegation, or Blackpine owner approv
       scope: "blackpine:field-guides",
       expiresAt: "2026-11-17T12:00:00.000Z",
       reason: "Attempt to transfer reserved authority",
-      registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
+      registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
     }), /NON_DELEGABLE_PERMISSION_REQUESTED/);
   }
 });
@@ -443,7 +443,7 @@ test("delegation issuer cannot delegate permissions they do not hold", () => {
     scope: "blackpine:financial-accounts",
     expiresAt: "2026-11-17T12:00:00.000Z",
     reason: "Attempt to exceed authority",
-    registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
+    registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
   }), /DELEGATOR_CANNOT_DELEGATE_UNHELD_PERMISSION/);
 });
 
@@ -456,11 +456,11 @@ test("delegator can revoke a grant immediately and revocation is audited", () =>
     scope: "blackpine:field-guides",
     expiresAt: "2026-11-17T12:00:00.000Z",
     reason: "Temporary editorial coverage",
-    registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
+    registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
   });
   revokeDelegation({
     delegationId: grant.id, actor: delegationIssuer,
-    reason: "Coverage ended", registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
+    reason: "Coverage ended", registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
   });
   assert.equal(resolveDelegatedAuthority({
     actor: delegate, permission: "content:submit",
@@ -477,13 +477,13 @@ test("delegation cannot be self-granted or issued by an agent", () => {
     delegator: delegationIssuer, delegate: delegationIssuer,
     permissions: ["content:submit"], scope: "blackpine:field-guides",
     expiresAt: "2026-11-17T12:00:00.000Z", reason: "Self grant",
-    registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
+    registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
   }), /SELF_DELEGATION_PROHIBITED/);
   assert.throws(() => grantDelegation({
     delegator: { ...delegationIssuer, principalType: "agent" }, delegate,
     permissions: ["content:submit"], scope: "blackpine:field-guides",
     expiresAt: "2026-11-17T12:00:00.000Z", reason: "Agent grant",
-    registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
+    registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
   }), /DELEGATION_REQUIRES_ACTIVE_HUMANS/);
 });
 
@@ -504,11 +504,11 @@ test("only the delegator or a separately authorized human can revoke a grant", (
     delegator: delegationIssuer, delegate,
     permissions: ["content:submit"], scope: "blackpine:field-guides",
     expiresAt: "2026-11-17T12:00:00.000Z",
-    reason: "Temporary editorial coverage", registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
+    reason: "Temporary editorial coverage", registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
   });
   assert.throws(() => revokeDelegation({
     delegationId: grant.id, actor: delegate,
-    reason: "Attempted revocation by recipient", registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
+    reason: "Attempted revocation by recipient", registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
   }), /DELEGATION_REVOCATION_PERMISSION_REQUIRED/);
   assert.equal(registry.get(grant.id).revokedAt, null);
 });
@@ -719,7 +719,7 @@ test("a revoked delegation cannot be used to complete a pending decision", () =>
     delegator: delegationIssuer, delegate,
     permissions: ["content:submit"], scope: "blackpine:field-guides",
     expiresAt: "2026-11-17T12:00:00.000Z",
-    reason: "Temporary editorial coverage", registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger, now,
+    reason: "Temporary editorial coverage", registry, authorityRegistry: delegationAuthorityFixture.registry, ledger, now,
   });
   const decision = createDecision({
     request: { id: "d-revoked-delegation", title: "Submit guide", scope: "blackpine:field-guides" },
@@ -727,7 +727,7 @@ test("a revoked delegation cannot be used to complete a pending decision", () =>
   });
   revokeDelegation({
     delegationId: grant.id, actor: delegationIssuer,
-    reason: "Authority withdrawn", registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
+    reason: "Authority withdrawn", registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
   });
   assert.throws(
     () => recordApproval({ decision, approver, policy, ledger, delegationRegistry: registry, authorityRegistry: delegationAuthorityFixture.registry, now }),
@@ -759,7 +759,7 @@ test("a delegated decision cannot be approved without its delegation registry", 
     delegator: delegationIssuer, delegate,
     permissions: ["content:submit"], scope: "blackpine:field-guides",
     expiresAt: "2026-11-17T12:00:00.000Z",
-    reason: "Temporary editorial coverage", registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, authorityRegistry: delegationAuthorityFixture.registry, ledger, now,
+    reason: "Temporary editorial coverage", registry, authorityRegistry: delegationAuthorityFixture.registry, ledger, now,
   });
   const decision = createDecision({
     request: { id: "d-no-registry", title: "Submit guide", scope: "blackpine:field-guides" },
