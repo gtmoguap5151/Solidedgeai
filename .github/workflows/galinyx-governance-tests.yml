@@ -43,3 +43,5 @@ jobs:
           node-version: 20
       - name: Read and verify Blackpine public repository
         run: node governance-core/adapters/blackpine/check-live.mjs
+      - name: Validate evidence-based revenue planning boundary
+        run: node governance-core/adapters/blackpine/revenue-check.mjs
