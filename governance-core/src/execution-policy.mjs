@@ -83,8 +83,10 @@ export class ExecutionAuthorityRegistry {
     const expiry = parseTime(expiresAt, "MANDATE_EXPIRY");
     if (expiry <= new Date(now)) throw new Error("MANDATE_EXPIRY_MUST_BE_FUTURE");
     const detail = requireText(reason, "MANDATE_REASON");
+    const issuerGrant = activeHumanGrant(authorityRegistry, issuer, now);
     const mandate = {
       id: randomUUID(),
+      issuerAuthorityGrantId: issuerGrant.id,
       agentId: id,
       issuerId: issuer.id,
       operations: [...new Set(operations)],
@@ -109,7 +111,7 @@ export class ExecutionAuthorityRegistry {
     return structuredClone(mandate);
   }
 
-  resolveAgent({ agentId, identityAssertion, now = new Date() }) {
+  resolveAgent({ agentId, identityAssertion, authorityRegistry, now = new Date() }) {
     const id = requireText(agentId, "AGENT_ID");
     if (identityAssertion?.verified !== true ||
         identityAssertion?.principalType !== "agent" ||
@@ -118,26 +120,35 @@ export class ExecutionAuthorityRegistry {
         identityAssertion.issuer.trim() === "") {
       throw new Error("AGENT_IDENTITY_ASSERTION_INVALID");
     }
-    const activeMandates = [...this.#mandates.values()].filter((mandate) =>
-      mandate.agentId === id && !mandate.revokedAt &&
-      new Date(mandate.expiresAt).getTime() > new Date(now).getTime()
-    );
+    const activeMandates = [...this.#mandates.values()].filter((mandate) => {
+      if (mandate.agentId !== id || mandate.revokedAt ||
+          new Date(mandate.expiresAt).getTime() <= new Date(now).getTime()) return false;
+      return Boolean(authorityRegistry?.findActivePermissionGrant({
+        subjectId: mandate.issuerId,
+        permission: "governance:permission:grant",
+        scope: "*",
+        grantId: mandate.issuerAuthorityGrantId,
+        now,
+      }));
+    });
     if (activeMandates.length === 0) throw new Error("AGENT_HAS_NO_ACTIVE_EXECUTION_MANDATE");
     const handle = Object.freeze({ id, principalType: "agent" });
     agentHandles.set(handle, { id, issuer: identityAssertion.issuer });
     return handle;
   }
 
-  revokeMandate({ mandateId, actor, reason, ledger, now = new Date() }) {
+  revokeMandate({ mandateId, actor, reason, ledger, authorityRegistry, now = new Date() }) {
     if (!isVerifiedPrincipal(actor)) throw new Error("MANDATE_REVOCATION_REQUIRES_VERIFIED_HUMAN");
     const mandate = this.#mandates.get(mandateId);
     if (!mandate) throw new Error("MANDATE_NOT_FOUND");
     if (mandate.revokedAt) throw new Error("MANDATE_ALREADY_REVOKED");
-    if (actor.id !== mandate.issuerId &&
-        !activeHumanGrant({ findActivePermissionGrant: ({subjectId,permission,scope,now}) =>
-          subjectId === actor.id && permission === "governance:authority:revoke" &&
-          scope === "*" && actor.active === true ? { id: "authorized" } : null
-        }, actor, now)) {
+    const independentlyAuthorized = Boolean(authorityRegistry?.findActivePermissionGrant({
+      subjectId: actor.id,
+      permission: "governance:authority:revoke",
+      scope: "*",
+      now,
+    }));
+    if (actor.id !== mandate.issuerId && !independentlyAuthorized) {
       throw new Error("MANDATE_REVOCATION_AUTHORITY_REQUIRED");
     }
     const updated = {
@@ -167,6 +178,7 @@ export class ExecutionAuthorityRegistry {
     rollbackPlan,
     evidenceFreshUntil,
     ledger,
+    authorityRegistry,
     now = new Date(),
   }) {
     const identity = agentHandles.get(actor);
@@ -186,6 +198,13 @@ export class ExecutionAuthorityRegistry {
     const mandate = [...this.#mandates.values()].find((item) =>
       item.agentId === identity.id && !item.revokedAt &&
       new Date(item.expiresAt).getTime() > new Date(now).getTime() &&
+      Boolean(authorityRegistry?.findActivePermissionGrant({
+        subjectId: item.issuerId,
+        permission: "governance:permission:grant",
+        scope: "*",
+        grantId: item.issuerAuthorityGrantId,
+        now,
+      })) &&
       item.operations.includes(op) && item.resources.includes(target)
     );
     if (!mandate) throw new Error("EXECUTION_OUTSIDE_ACTIVE_MANDATE");
