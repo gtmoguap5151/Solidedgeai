@@ -645,3 +645,64 @@ test("approver must meet the policy's domain level, not merely a high general le
     /APPROVER_LEVEL_INSUFFICIENT/,
   );
 });
+
+
+test("a revoked delegation cannot be used to complete a pending decision", () => {
+  const registry = new DelegationRegistry();
+  const ledger = new AuditLedger();
+  const now = new Date("2026-11-16T12:00:00.000Z");
+  const grant = grantDelegation({
+    delegator: delegationIssuer, delegate,
+    permissions: ["content:submit"], scope: "blackpine:field-guides",
+    expiresAt: "2026-11-17T12:00:00.000Z",
+    reason: "Temporary editorial coverage", registry, ledger, now,
+  });
+  const decision = createDecision({
+    request: { id: "d-revoked-delegation", title: "Submit guide", scope: "blackpine:field-guides" },
+    requester: delegate, policy, ledger, delegationRegistry: registry, now,
+  });
+  revokeDelegation({
+    delegationId: grant.id, actor: delegationIssuer,
+    reason: "Authority withdrawn", registry, ledger,
+  });
+  assert.throws(
+    () => recordApproval({ decision, approver, policy, ledger, delegationRegistry: registry, now }),
+    /DELEGATED_AUTHORITY_NO_LONGER_ACTIVE/,
+  );
+});
+
+test("approval cannot substitute a different policy version after submission", () => {
+  const ledger = new AuditLedger();
+  const decision = createDecision({
+    request: { id: "d-policy-version", title: "Submit guide" },
+    requester, policy, ledger,
+  });
+  assert.throws(
+    () => recordApproval({
+      decision, approver,
+      policy: { ...policy, version: "2.0.0" },
+      ledger,
+    }),
+    /DECISION_POLICY_MISMATCH/,
+  );
+});
+
+test("a delegated decision cannot be approved without its delegation registry", () => {
+  const registry = new DelegationRegistry();
+  const ledger = new AuditLedger();
+  const now = new Date("2026-11-16T12:00:00.000Z");
+  grantDelegation({
+    delegator: delegationIssuer, delegate,
+    permissions: ["content:submit"], scope: "blackpine:field-guides",
+    expiresAt: "2026-11-17T12:00:00.000Z",
+    reason: "Temporary editorial coverage", registry, ledger, now,
+  });
+  const decision = createDecision({
+    request: { id: "d-no-registry", title: "Submit guide", scope: "blackpine:field-guides" },
+    requester: delegate, policy, ledger, delegationRegistry: registry, now,
+  });
+  assert.throws(
+    () => recordApproval({ decision, approver, policy, ledger, now }),
+    /DELEGATION_REGISTRY_REQUIRED_FOR_APPROVAL/,
+  );
+});
