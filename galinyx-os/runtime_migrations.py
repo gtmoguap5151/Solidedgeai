@@ -219,8 +219,62 @@ def _ahaf_persistence_schema(db):
     db.execute("CREATE INDEX IF NOT EXISTS idx_ahaf_audit_request ON ahaf_audit_events(request_id,event_id)")
 
 
+
+def _operating_task_schema(db):
+    """Shared task, evidence, approval, and append-only event records."""
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS operating_tasks("
+        "task_id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, project_id TEXT NOT NULL, "
+        "title TEXT NOT NULL, description TEXT NOT NULL, assigned_role TEXT NOT NULL, "
+        "status TEXT NOT NULL CHECK(status IN "
+        "('open','in_progress','blocked','awaiting_approval','completed','cancelled')), "
+        "priority TEXT NOT NULL CHECK(priority IN ('low','normal','high','critical')), "
+        "approval_required INTEGER NOT NULL CHECK(approval_required IN (0,1)), "
+        "created_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, "
+        "due_at TEXT, version INTEGER NOT NULL DEFAULT 1 CHECK(version>0), "
+        "FOREIGN KEY(tenant_id) REFERENCES tenants(tenant_id))"
+    )
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS operating_task_events("
+        "event_id TEXT PRIMARY KEY, task_id TEXT NOT NULL, actor_id TEXT NOT NULL, "
+        "event_type TEXT NOT NULL, from_status TEXT, to_status TEXT, payload_json TEXT NOT NULL, "
+        "occurred_at TEXT NOT NULL, FOREIGN KEY(task_id) REFERENCES operating_tasks(task_id))"
+    )
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS operating_task_evidence("
+        "evidence_id TEXT PRIMARY KEY, task_id TEXT NOT NULL, submitted_by TEXT NOT NULL, "
+        "evidence_type TEXT NOT NULL, reference TEXT NOT NULL, note TEXT NOT NULL, "
+        "created_at TEXT NOT NULL, FOREIGN KEY(task_id) REFERENCES operating_tasks(task_id))"
+    )
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS operating_task_approvals("
+        "approval_id TEXT PRIMARY KEY, task_id TEXT NOT NULL, approver_id TEXT NOT NULL, "
+        "decision TEXT NOT NULL CHECK(decision IN ('approved','rejected')), "
+        "note TEXT NOT NULL, created_at TEXT NOT NULL, "
+        "FOREIGN KEY(task_id) REFERENCES operating_tasks(task_id))"
+    )
+    for table in ("operating_task_events", "operating_task_evidence", "operating_task_approvals"):
+        db.execute(
+            f"CREATE TRIGGER IF NOT EXISTS {table}_no_update "
+            f"BEFORE UPDATE ON {table} BEGIN "
+            "SELECT RAISE(ABORT, 'operating task records are append-only'); END"
+        )
+        db.execute(
+            f"CREATE TRIGGER IF NOT EXISTS {table}_no_delete "
+            f"BEFORE DELETE ON {table} BEGIN "
+            "SELECT RAISE(ABORT, 'operating task records are append-only'); END"
+        )
+    db.execute("CREATE INDEX IF NOT EXISTS idx_operating_tasks_tenant_status "
+               "ON operating_tasks(tenant_id,status,priority)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_operating_tasks_project "
+               "ON operating_tasks(tenant_id,project_id,created_at)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_operating_task_events_task "
+               "ON operating_task_events(task_id,occurred_at)")
+
+
 GALINYX_MIGRATIONS = (
     Migration(1, "core_runtime_schema", _core_schema),
     Migration(2, "workspace_identity_schema", _workspace_schema),
     Migration(3, "ahaf_persistent_records", _ahaf_persistence_schema),
+    Migration(4, "operating_task_schema", _operating_task_schema),
 )
