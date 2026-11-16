@@ -473,6 +473,7 @@ export function overrideDecision({ decision, human, reason, ledger }) {
   const state = getDecisionState(decision);
   if (!isHuman(human)) throw new Error("OVERRIDE_REQUIRES_ACTIVE_HUMAN");
   if (!hasPermission(human, "governance:override")) throw new Error("OVERRIDE_PERMISSION_REQUIRED");
+  if (!isVerifiedPrincipal(human)) throw new Error("OVERRIDE_IDENTITY_NOT_VERIFIED");
   const detail = requireString(reason, "reason");
   const previousStatus = state.status;
   state.status = "overridden";
@@ -534,6 +535,7 @@ export class DelegationRegistry {
   revoke(id, actor, reason, ledger, token) {
     if (token !== REGISTRY_WRITE_TOKEN) throw new Error("REGISTRY_WRITE_NOT_AUTHORIZED");
     if (!isHuman(actor)) throw new Error("DELEGATION_REVOCATION_REQUIRES_ACTIVE_HUMAN");
+    if (!isVerifiedPrincipal(actor)) throw new Error("DELEGATION_REVOCATION_IDENTITY_NOT_VERIFIED");
     const grant = this.#grants.get(id);
     if (!grant) throw new Error("DELEGATION_NOT_FOUND");
     if (grant.revokedAt) throw new Error("DELEGATION_ALREADY_REVOKED");
@@ -560,6 +562,9 @@ export function grantDelegation({
   if (!(registry instanceof DelegationRegistry)) throw new TypeError("registry must be a DelegationRegistry");
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   if (!isHuman(delegator) || !isHuman(delegate)) throw new Error("DELEGATION_REQUIRES_ACTIVE_HUMANS");
+  if (!isVerifiedPrincipal(delegator) || !isVerifiedPrincipal(delegate)) {
+    throw new Error("DELEGATION_PRINCIPALS_NOT_VERIFIED");
+  }
   if (delegator.id === delegate.id) throw new Error("SELF_DELEGATION_PROHIBITED");
   if (!hasPermission(delegator, "governance:delegate")) throw new Error("DELEGATION_GRANT_PERMISSION_REQUIRED");
   if (!Array.isArray(permissions) || permissions.length === 0) throw new Error("DELEGATION_PERMISSIONS_REQUIRED");
@@ -614,6 +619,7 @@ export function revokeDelegation({ delegationId, actor, reason, registry, ledger
   if (!(registry instanceof DelegationRegistry)) throw new TypeError("registry must be a DelegationRegistry");
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   if (!isHuman(actor)) throw new Error("DELEGATION_REVOCATION_REQUIRES_ACTIVE_HUMAN");
+  if (!isVerifiedPrincipal(actor)) throw new Error("DELEGATION_REVOCATION_IDENTITY_NOT_VERIFIED");
   return registry.revoke(delegationId, actor, reason, ledger, REGISTRY_WRITE_TOKEN);
 }
 
