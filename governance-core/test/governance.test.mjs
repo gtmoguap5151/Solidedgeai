@@ -1274,7 +1274,8 @@ test("revoking a permission grant after submission blocks the pending decision",
     }),
     /REQUESTER_AUTHORITY_GRANT_NO_LONGER_ACTIVE/,
   );
-  assert.equal(decision.status, "pending_approval");
+  assert.equal(decision.status, "blocked");
+  assert.ok(decision.reasons.includes("REQUESTER_AUTHORITY_GRANT_NO_LONGER_ACTIVE"));
 });
 
 test("revoking a competency credential after submission blocks approval", () => {
