@@ -289,7 +289,7 @@ def _organization_registry_schema(db):
     )
     db.execute(
         "CREATE TABLE IF NOT EXISTS galinyx_org_roles("
-        "org_id TEXT NOT NULL, actor_id TEXT NOT NULL, title TEXT NOT NULL, "
+        "org_id TEXT NOT NULL, actor_id TEXT NOT NULL, role_key TEXT NOT NULL, title TEXT NOT NULL, "
         "reports_to_actor_id TEXT, division TEXT, created_at TEXT NOT NULL, "
         "PRIMARY KEY(org_id,actor_id), "
         "FOREIGN KEY(org_id) REFERENCES galinyx_organizations(org_id))"
