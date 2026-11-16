@@ -1,0 +1,30 @@
+name: GALINYX Governance Core Tests
+
+on:
+  pull_request:
+    paths:
+      - "governance-core/**"
+      - ".github/workflows/galinyx-governance-tests.yml"
+  push:
+    branches:
+      - main
+      - galinyx-governance-core-v1
+    paths:
+      - "governance-core/**"
+      - ".github/workflows/galinyx-governance-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  governance-core:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run governance tests
+        run: node --test governance-core/test/governance.test.mjs
