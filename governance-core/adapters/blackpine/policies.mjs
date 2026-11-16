@@ -11,6 +11,7 @@ export const blackpinePolicies = Object.freeze({
     minimumLevel: 2,
     requiredApprovals: 1,
     prohibitedConflicts: ["direct-product-vendor-interest"],
+    requiredEvidence: ["source-check", "affiliate-disclosure-check"],
   }),
   productClaim: Object.freeze({
     id: "blackpine.product.claim",
@@ -20,6 +21,8 @@ export const blackpinePolicies = Object.freeze({
     minimumLevel: 3,
     requiredApprovals: 1,
     prohibitedConflicts: ["direct-product-vendor-interest"],
+    requiredEvidence: ["manufacturer-source", "specification-record"],
+    handsOnEvidence: ["possession-record", "test-date", "test-conditions", "load-record"],
   }),
   affiliateRelationship: Object.freeze({
     id: "blackpine.affiliate.relationship",
@@ -29,6 +32,7 @@ export const blackpinePolicies = Object.freeze({
     minimumLevel: 4,
     requiredApprovals: 1,
     prohibitedConflicts: ["affiliate-network-conflict"],
+    requiredEvidence: ["programme-terms", "merchant-fit-review", "disclosure-plan"],
   }),
   productionPublish: Object.freeze({
     id: "blackpine.production.publish",
@@ -38,6 +42,7 @@ export const blackpinePolicies = Object.freeze({
     minimumLevel: 4,
     requiredApprovals: 1,
     prohibitedConflicts: [],
+    requiredEvidence: ["staging-validation", "rollback-plan", "human-release-approval"],
   }),
   financialAccountChange: Object.freeze({
     id: "blackpine.financial.account.change",
@@ -47,5 +52,6 @@ export const blackpinePolicies = Object.freeze({
     minimumLevel: 4,
     requiredApprovals: 1,
     prohibitedConflicts: ["personal-financial-interest"],
+    requiredEvidence: ["verified-account-owner", "change-confirmation"],
   }),
 });
