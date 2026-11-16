@@ -123,9 +123,9 @@ process.stdout.write(JSON.stringify({
   revenueAuditPlan: { status: auditDecision.status, approvalCount: auditDecision.approvals.length },
   revenuePerformanceClaim: { status: performanceEvaluation.status, reasons: performanceEvaluation.reasons },
   measurementState: {
-    analyticsReportPresent: false,
-    affiliateClickReportPresent: false,
-    commissionReportPresent: false,
+    analyticsReportInRepositorySnapshot: false,
+    affiliateClickReportInRepositorySnapshot: false,
+    commissionReportInRepositorySnapshot: false,
     revenueClaimPermitted: false,
   },
   observations: snapshot.observations,
