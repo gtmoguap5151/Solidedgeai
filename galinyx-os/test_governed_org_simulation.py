@@ -38,6 +38,7 @@ class GovernedOrganizationSimulationTests(unittest.TestCase):
         org = galinyx_ventures_org()
         roles = [{
             "actor_id": HUMAN_OWNER,
+            "role": "human_owner",
             "title": "Founder / Human Root",
             "reports_to": None,
             "division": None,
@@ -67,12 +68,13 @@ class GovernedOrganizationSimulationTests(unittest.TestCase):
     def tearDown(self):
         self.runtime.close()
 
-    def grant(self, *, actions, approval_required=(), actor_id="exec-product"):
+    def grant(self, *, actions, approval_required=(), actor_id="exec-product", resources=None):
+        resources = resources or ({"strategy-roadmap"} if actor_id in {"exec-product", "exec-ceo"} else {"policy-set"})
         return self.store.issue_root_grant(
             HUMAN_OWNER,
             self.agent_ids[actor_id],
             actions=set(actions),
-            resources={"roadmap"},
+            resources=resources,
             expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
             budget_limit_units=20,
             budget_unit="TASK",
@@ -105,7 +107,7 @@ class GovernedOrganizationSimulationTests(unittest.TestCase):
     def test_approved_simulated_action_creates_completed_receipt(self):
         grant = self.grant(actions={"product.plan"})
         result = self.simulator.execute(
-            self.product, "product.plan", "roadmap", "plan-001", grant
+            self.product, "product.plan", "strategy-roadmap", "plan-001", grant
         )
         self.assertEqual(result["status"], "simulated")
         self.assertEqual(result["state"], "succeeded")
@@ -121,7 +123,7 @@ class GovernedOrganizationSimulationTests(unittest.TestCase):
             "SELECT COUNT(*) FROM ahaf_execution_receipts"
         ).fetchone()[0]
         result = self.simulator.execute(
-            self.product, "funds.transfer", "roadmap", "deny-001", grant
+            self.product, "funds.transfer", "strategy-roadmap", "deny-001", grant
         )
         after = self.runtime.db.execute(
             "SELECT COUNT(*) FROM ahaf_execution_receipts"
@@ -141,14 +143,14 @@ class GovernedOrganizationSimulationTests(unittest.TestCase):
             actor_id="exec-governance",
         )
         denied = self.simulator.execute(
-            self.governance, "policy.activate", "roadmap", "policy-001", grant
+            self.governance, "policy.activate", "policy-set", "policy-001", grant
         )
         self.assertEqual(denied["status"], "denied")
         approval = self.executor.approve(
             "owner-token", grant, "policy-002", "policy.activate", "roadmap"
         )
         result = self.simulator.execute(
-            self.governance, "policy.activate", "roadmap", "policy-002", grant,
+            self.governance, "policy.activate", "policy-set", "policy-002", grant,
             approval_id=approval,
         )
         self.assertEqual(result["status"], "simulated")
@@ -162,10 +164,10 @@ class GovernedOrganizationSimulationTests(unittest.TestCase):
     def test_exact_replay_does_not_create_second_simulated_action(self):
         grant = self.grant(actions={"product.plan"})
         first = self.simulator.execute(
-            self.product, "product.plan", "roadmap", "plan-replay", grant
+            self.product, "product.plan", "strategy-roadmap", "plan-replay", grant
         )
         second = self.simulator.execute(
-            self.product, "product.plan", "roadmap", "plan-replay", grant
+            self.product, "product.plan", "strategy-roadmap", "plan-replay", grant
         )
         self.assertEqual(first["execution_id"], second["execution_id"])
         self.assertEqual(second["status"], "already_simulated")
@@ -179,28 +181,37 @@ class GovernedOrganizationSimulationTests(unittest.TestCase):
 
 
     def test_resource_division_mismatch_is_denied_and_audited(self):
-        grant = self.grant(actions={"product.plan"})
+        grant = self.grant(actions={"product.plan"}, resources={"policy-set"})
         result = self.simulator.execute(
-            self.product, "product.plan", "roadmap", "cross-division-001", grant,
-            resource_division="commercial-strategy",
+            self.product, "product.plan", "policy-set", "cross-division-001", grant,
         )
         self.assertEqual(result["status"], "denied")
         self.assertEqual(result["decision"], "cross_division_denied")
         self.assertTrue(self.store.verify_audit_chain()[0])
+
+
+    def test_caller_cannot_escalate_registered_executive_role(self):
+        grant = self.grant(actions={"policy.activate"}, actor_id="exec-product")
+        forged = Actor("exec-product", "division_lead", "governance-risk")
+        result = self.simulator.execute(
+            forged, "policy.activate", "policy-set", "role-escalation-001", grant
+        )
+        self.assertEqual(result["status"], "denied")
+        self.assertEqual(result["decision"], "human_root_required")
 
     def test_unknown_actor_has_no_workload_binding(self):
         grant = self.grant(actions={"product.plan"})
         unknown = Actor("exec-unknown", "division_lead", "product-engineering")
         with self.assertRaisesRegex(PermissionError, "no active persisted organization workload binding"):
             self.simulator.execute(
-                unknown, "product.plan", "roadmap", "unknown-001", grant
+                unknown, "product.plan", "strategy-roadmap", "unknown-001", grant
             )
 
     def test_ceo_proposal_is_denied_if_grant_does_not_authorize_it(self):
         grant = self.grant(actions={"product.plan"})
         ceo = Actor(CEO, "ceo")
         result = self.simulator.execute(
-            ceo, "strategy.propose", "roadmap", "ceo-001", grant
+            ceo, "strategy.propose", "strategy-roadmap", "ceo-001", grant
         )
         self.assertEqual(result["status"], "denied")
         self.assertEqual(result["decision"], "persisted_grant_denied")
