@@ -66,6 +66,19 @@ class OperatingTaskRegistryTests(unittest.TestCase):
         with self.assertRaises(PermissionError):
             self.registry.transition(task_id, actor_id="operator", status="completed")
 
+    def test_latest_rejection_invalidates_earlier_approval(self):
+        task_id = self.make_task(approval_required=True)
+        self.registry.transition(task_id, actor_id="operator", status="in_progress")
+        self.registry.record_approval(
+            task_id, approver_id="owner", decision="approved"
+        )
+        self.registry.record_approval(
+            task_id, approver_id="owner", decision="rejected",
+            note="Approval withdrawn after new evidence"
+        )
+        with self.assertRaises(PermissionError):
+            self.registry.transition(task_id, actor_id="operator", status="completed")
+
     def test_terminal_tasks_cannot_be_reopened(self):
         task_id = self.make_task()
         self.registry.transition(task_id, actor_id="owner", status="cancelled")
