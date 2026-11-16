@@ -1129,10 +1129,10 @@ test("requester permission revoked while pending blocks approval", () => {
       authorityRegistry: authority.registry,
       reviewedEvidenceDigest: decision.evidenceDigest,
     }),
-    /DECISION_AUTHORITY_OR_EVIDENCE_NO_LONGER_VALID/,
+    /REQUESTER_AUTHORITY_GRANT_NO_LONGER_ACTIVE/,
   );
   assert.equal(decision.status, "blocked");
-  assert.ok(decision.reasons.includes("REQUESTER_LACKS_PERMISSION"));
+  assert.ok(decision.reasons.includes("REQUESTER_AUTHORITY_GRANT_NO_LONGER_ACTIVE"));
   assert.equal(authority.ledger.verify(), true);
 });
 
@@ -1192,7 +1192,7 @@ test("requester competency revoked while pending blocks approval", () => {
     /DECISION_AUTHORITY_OR_EVIDENCE_NO_LONGER_VALID/,
   );
   assert.equal(decision.status, "blocked");
-  assert.ok(decision.reasons.includes("REQUESTER_LEVEL_INSUFFICIENT"));
+  assert.ok(decision.reasons.includes("REQUESTER_DOMAIN_LEVEL_INVALID"));
   assert.equal(authority.ledger.verify(), true);
 });
 
