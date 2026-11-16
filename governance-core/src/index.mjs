@@ -614,9 +614,7 @@ export class DelegationRegistry {
     const grant = this.#grants.get(id);
     if (!grant) throw new Error("DELEGATION_NOT_FOUND");
     if (grant.revokedAt) throw new Error("DELEGATION_ALREADY_REVOKED");
-    if (actor.id !== grant.delegatorId && !hasPermission(actor, "governance:delegation:revoke")) {
-      throw new Error("DELEGATION_REVOCATION_PERMISSION_REQUIRED");
-    }
+    if (actor.id !== grant.delegatorId) throw new Error("DELEGATION_REVOCATION_PERMISSION_REQUIRED");
     const detail = requireString(reason, "reason");
     const updated = deepFreeze({
       ...grant,
@@ -632,16 +630,21 @@ export class DelegationRegistry {
 
 export function grantDelegation({
   delegator, delegate, permissions, scope, expiresAt, reason,
-  registry, ledger, policy = {}, now = new Date(),
+  registry, authorityRegistry, ledger, policy = {}, now = new Date(),
 }) {
   if (!(registry instanceof DelegationRegistry)) throw new TypeError("registry must be a DelegationRegistry");
+  if (!(authorityRegistry instanceof AuthorityRegistry)) throw new TypeError("authorityRegistry must be an AuthorityRegistry");
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   if (!isHuman(delegator) || !isHuman(delegate)) throw new Error("DELEGATION_REQUIRES_ACTIVE_HUMANS");
   if (!isVerifiedPrincipal(delegator) || !isVerifiedPrincipal(delegate)) {
     throw new Error("DELEGATION_PRINCIPALS_NOT_VERIFIED");
   }
   if (delegator.id === delegate.id) throw new Error("SELF_DELEGATION_PROHIBITED");
-  if (!hasPermission(delegator, "governance:delegate")) throw new Error("DELEGATION_GRANT_PERMISSION_REQUIRED");
+  const normalizedScope = requireString(scope, "scope");
+  const delegationAuthority = hasEffectivePermission(delegator, "governance:delegate", {
+    authorityRegistry, scope: normalizedScope, now,
+  });
+  if (!delegationAuthority.allowed) throw new Error("DELEGATION_GRANT_PERMISSION_REQUIRED");
   if (!Array.isArray(permissions) || permissions.length === 0) throw new Error("DELEGATION_PERMISSIONS_REQUIRED");
   if (new Set(permissions).size !== permissions.length) throw new Error("DUPLICATE_DELEGATED_PERMISSION");
   if (permissions.some((permission) => typeof permission !== "string" || permission.trim() === "")) {
@@ -651,10 +654,11 @@ export function grantDelegation({
   if (permissions.some((permission) => prohibited.has(permission))) {
     throw new Error("NON_DELEGABLE_PERMISSION_REQUESTED");
   }
-  if (permissions.some((permission) => !hasPermission(delegator, permission))) {
+  if (permissions.some((permission) => !hasEffectivePermission(delegator, permission, {
+    authorityRegistry, scope: normalizedScope, now,
+  }).allowed)) {
     throw new Error("DELEGATOR_CANNOT_DELEGATE_UNHELD_PERMISSION");
   }
-  const normalizedScope = requireString(scope, "scope");
   const detail = requireString(reason, "reason");
   const expiry = new Date(expiresAt);
   const current = new Date(now);
@@ -690,11 +694,19 @@ export function grantDelegation({
   return structuredClone(grant);
 }
 
-export function revokeDelegation({ delegationId, actor, reason, registry, ledger }) {
+export function revokeDelegation({ delegationId, actor, reason, registry, authorityRegistry, ledger, now = new Date() }) {
   if (!(registry instanceof DelegationRegistry)) throw new TypeError("registry must be a DelegationRegistry");
+  if (!(authorityRegistry instanceof AuthorityRegistry)) throw new TypeError("authorityRegistry must be an AuthorityRegistry");
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   if (!isHuman(actor)) throw new Error("DELEGATION_REVOCATION_REQUIRES_ACTIVE_HUMAN");
   if (!isVerifiedPrincipal(actor)) throw new Error("DELEGATION_REVOCATION_IDENTITY_NOT_VERIFIED");
+  const grant = registry.get(delegationId);
+  if (!grant) throw new Error("DELEGATION_NOT_FOUND");
+  if (actor.id !== grant.delegatorId && !hasEffectivePermission(actor, "governance:delegation:revoke", {
+    authorityRegistry, scope: grant.scope, now,
+  }).allowed) {
+    throw new Error("DELEGATION_REVOCATION_PERMISSION_REQUIRED");
+  }
   return registry.revoke(delegationId, actor, reason, ledger, REGISTRY_WRITE_TOKEN);
 }
 
