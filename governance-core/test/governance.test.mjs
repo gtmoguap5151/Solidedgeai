@@ -141,3 +141,40 @@ test("audit ledger verifies its hash-linked event sequence", () => {
   assert.equal(ledger.verify(), true);
   assert.equal(ledger.list()[1].previousHash, ledger.list()[0].hash);
 });
+
+
+test("blocked decisions cannot be approved", () => {
+  const ledger = new AuditLedger();
+  const blocked = createDecision({
+    request: { id: "d-10", title: "Submit without permission" },
+    requester: { ...requester, permissions: [] },
+    policy,
+    ledger,
+  });
+  assert.equal(blocked.status, "blocked");
+  assert.throws(
+    () => recordApproval({ decision: blocked, approver, policy, ledger }),
+    /DECISION_NOT_ELIGIBLE_FOR_APPROVAL/,
+  );
+});
+
+test("approval policy cannot be configured with zero approvals", () => {
+  const result = evaluateDecision({
+    request: { id: "d-11", title: "Bypass approval" },
+    requester,
+    policy: { ...policy, requiredApprovals: 0 },
+  });
+  assert.equal(result.eligibleToSubmit, false);
+  assert.ok(result.reasons.includes("POLICY_REQUIRED_APPROVALS_INVALID"));
+});
+
+test("audit events snapshot nested data and returned copies cannot alter the ledger", () => {
+  const ledger = new AuditLedger();
+  const reasons = ["first"];
+  ledger.append({ type: "test", reasons });
+  reasons.push("mutated input");
+  const exposed = ledger.list();
+  exposed[0].reasons.push("mutated read");
+  assert.deepEqual(ledger.list()[0].reasons, ["first"]);
+  assert.equal(ledger.verify(), true);
+});
