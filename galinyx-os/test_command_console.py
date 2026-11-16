@@ -7,7 +7,7 @@ from command_console import CommandConsole
 class CommandConsoleTests(unittest.TestCase):
     def setUp(self):
         from test_organization_service import AuthenticatedOrganizationServiceTests
-        self.fixture = AuthenticatedOrganizationServiceTests()
+        self.fixture = AuthenticatedOrganizationServiceTests("test_service_derives_proposer_identity_from_workload_credential")
         self.fixture.setUp()
         self.console = CommandConsole(self.fixture.service)
 
@@ -26,7 +26,7 @@ class CommandConsoleTests(unittest.TestCase):
         self.assertTrue(snapshot["read_only"])
         self.assertEqual(snapshot["organization"]["name"], "GALINYX Ventures")
         self.assertEqual(snapshot["organization"]["authority_model"], "human-root/hybrid-enforcement")
-        self.assertEqual(len(snapshot["roles"]), 3)
+        self.assertEqual(len(snapshot["roles"]), 6)
         self.assertEqual(len(snapshot["authority_grants"]), 2)
         self.assertTrue(snapshot["audit"]["hash_chain_valid"])
         self.assertFalse(snapshot["safety"]["external_actions_enabled"])
