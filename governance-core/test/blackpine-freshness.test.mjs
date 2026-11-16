@@ -32,7 +32,10 @@ const approver = {
 
 const offerTerms = {
   type: "offer-terms",
-  reference: "fixture://bp002/offer-terms",
+  reference: "https://retailer.example/offer-terms",
+  contentSha256: "b".repeat(64),
+  verifiedBy: "bp002-source-reviewer",
+  verifiedAt: "2026-11-16T17:45:00.000Z",
 };
 
 test("BP-002: expired and stale retailer price evidence is blocked", () => {
@@ -96,9 +99,12 @@ test("BP-002: fresh, unexpired price evidence can enter a separate human approva
       evidence: [
         {
           type: "retailer-price-check",
-          reference: "fixture://bp002/current-retailer-check",
+          reference: "https://retailer.example/current-product",
           observedAt: "2026-11-16T17:45:00.000Z",
           expiresAt: "2026-11-17T17:45:00.000Z",
+          contentSha256: "a".repeat(64),
+          verifiedBy: "bp002-source-reviewer",
+          verifiedAt: "2026-11-16T17:45:01.000Z",
         },
         offerTerms,
       ],
@@ -161,9 +167,12 @@ test("BP-002: evidence that expires while awaiting approval blocks the pending d
       evidence: [
         {
           type: "retailer-price-check",
-          reference: "fixture://bp002/short-lived-price-check",
+          reference: "https://retailer.example/short-lived-product",
           observedAt: "2026-11-16T17:45:00.000Z",
           expiresAt: "2026-11-16T18:30:00.000Z",
+          contentSha256: "c".repeat(64),
+          verifiedBy: "bp002-source-reviewer",
+          verifiedAt: "2026-11-16T17:45:01.000Z",
         },
         offerTerms,
       ],
