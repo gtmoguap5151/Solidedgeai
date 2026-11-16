@@ -741,6 +741,8 @@ test("a revoked delegation cannot be used to complete a pending decision", () =>
     () => recordApproval({ decision, approver, policy, ledger, delegationRegistry: registry, authorityRegistry: delegationAuthorityFixture.registry, now }),
     /DELEGATED_AUTHORITY_NO_LONGER_ACTIVE/,
   );
+  assert.equal(decision.status, "blocked");
+  assert.ok(decision.reasons.includes("DELEGATED_AUTHORITY_NO_LONGER_ACTIVE"));
 });
 
 test("approval cannot substitute a different policy version after submission", () => {
