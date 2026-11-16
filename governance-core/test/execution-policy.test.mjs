@@ -252,3 +252,67 @@ test("idempotency key prevents replay of an authorization request", () => {
   execution.authorizeExecution(args);
   assert.throws(() => execution.authorizeExecution(args), /IDEMPOTENCY_KEY_ALREADY_USED/);
 });
+
+test("revoking the human issuer's authority also disables every agent mandate", () => {
+  const { authority, owner, execution, ledger } = setup();
+  execution.registerAgent({
+    issuer: owner,
+    agentId: "agent:issuer-revocation",
+    operations: ["blackpine.metadata.audit"],
+    resources: [testResource],
+    expiresAt: "2026-11-17T12:00:00.000Z",
+    reason: "Mandate must depend on continuing human authority",
+    authorityRegistry: authority,
+    ledger,
+    now: new Date("2026-11-16T12:00:00.000Z"),
+  });
+  const agent = execution.resolveAgent({
+    agentId: "agent:issuer-revocation",
+    identityAssertion: {
+      id: "agent:issuer-revocation",
+      principalType: "agent",
+      verified: true,
+      issuer: "trusted-agent-identity-adapter",
+    },
+    authorityRegistry: authority,
+    now: new Date("2026-11-16T12:00:00.000Z"),
+  });
+  const issuerGrant = authority.listRecords().find((record) =>
+    record.subjectId === owner.id &&
+    record.permission === "governance:permission:grant"
+  );
+  authority.revoke({
+    recordId: issuerGrant.id,
+    actor: owner,
+    reason: "Human delegation authority withdrawn",
+    ledger,
+    now: new Date("2026-11-16T12:06:00.000Z"),
+  });
+  assert.throws(() => execution.authorizeExecution({
+    actor: agent,
+    operation: "blackpine.metadata.audit",
+    resource: testResource,
+    taskId: "bp-task-issuer-revoked",
+    idempotencyKey: "bp-task-issuer-revoked:audit:1",
+    dryRunPassed: true,
+    rollbackPlan: "No mutation is performed by metadata audit",
+    evidenceFreshUntil: "2026-11-16T18:00:00.000Z",
+    ledger,
+    authorityRegistry: authority,
+    now: new Date("2026-11-16T12:07:00.000Z"),
+  }), /EXECUTION_OUTSIDE_ACTIVE_MANDATE/);
+  assert.equal(ledger.verify(), true);
+});
+
+test("execution authorization cannot be issued without an audit ledger", () => {
+  const { authority, owner, execution } = setup();
+  assert.throws(() => execution.registerAgent({
+    issuer: owner,
+    agentId: "agent:no-ledger",
+    operations: ["blackpine.metadata.audit"],
+    resources: [testResource],
+    expiresAt: "2026-11-17T12:00:00.000Z",
+    reason: "Audit is mandatory",
+    authorityRegistry: authority,
+  }), /EXECUTION_AUDIT_LEDGER_REQUIRED/);
+});
