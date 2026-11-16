@@ -1,7 +1,10 @@
+import contextlib
+import io
 import unittest
 from unittest.mock import patch
 
 from command_console import CommandConsole
+from command_console_demo import main as run_console_demo
 
 
 class CommandConsoleTests(unittest.TestCase):
@@ -45,6 +48,16 @@ class CommandConsoleTests(unittest.TestCase):
         approved_snapshot_changes = self.fixture.runtime.db.total_changes
         self.assertEqual(approved_snapshot_changes, after_approval)
         self.assertEqual(approved["approved_awaiting_execution"][0]["state"], "approved")
+
+    def test_disposable_demo_renders_pending_governance_console(self):
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            run_console_demo()
+        rendered = output.getvalue()
+        self.assertIn("GALINYX Ventures — GOVERNANCE COMMAND CONSOLE", rendered)
+        self.assertIn("Pending approvals: 1", rendered)
+        self.assertIn("External actions: DISABLED", rendered)
+        self.assertIn("disposable in-memory simulation only", rendered)
 
     def test_snapshot_limit_is_bounded(self):
         with self.assertRaises(ValueError):
