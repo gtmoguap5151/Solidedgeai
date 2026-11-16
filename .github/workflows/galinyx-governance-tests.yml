@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - galinyx-governance-core-v1
+      - galinyx-blackpine-revenue-test
     paths:
       - "governance-core/**"
       - ".github/workflows/galinyx-governance-tests.yml"
