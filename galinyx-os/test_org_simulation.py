@@ -36,9 +36,13 @@ class GalinyxVenturesAuthorityTests(unittest.TestCase):
         self.assertFalse(result.allowed)
 
     def test_high_impact_requires_human_root_or_approval_gate(self):
-        result = authorize(self.product, "policy.activate")
+        governance = Actor("exec-governance", "division_lead", "governance-risk")
+        result = authorize(governance, "policy.activate")
         self.assertFalse(result.allowed)
+        self.assertEqual(result.code, "human_approval_required")
         self.assertTrue(result.requires_human_approval)
+        approved = authorize(governance, "policy.activate", human_approval=True)
+        self.assertTrue(approved.allowed)
         owner_result = authorize(self.owner, "policy.activate")
         self.assertTrue(owner_result.allowed)
 
