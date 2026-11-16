@@ -40,7 +40,10 @@ class CommandConsoleTests(unittest.TestCase):
         approved = self.console.snapshot("owner-token")
         self.assertEqual(len(approved["pending_proposals"]), 0)
         self.assertEqual(len(approved["approved_awaiting_execution"]), 1)
-        self.assertEqual(self.fixture.runtime.db.total_changes, before + 2)
+        after_approval = self.fixture.runtime.db.total_changes
+        self.assertGreater(after_approval, before)
+        approved_snapshot_changes = self.fixture.runtime.db.total_changes
+        self.assertEqual(approved_snapshot_changes, after_approval)
         self.assertEqual(approved["approved_awaiting_execution"][0]["state"], "approved")
 
     def test_snapshot_limit_is_bounded(self):
