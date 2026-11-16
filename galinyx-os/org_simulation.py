@@ -46,11 +46,11 @@ def galinyx_ventures_org():
         "authority_model": "human-root / hybrid-enforcement",
         "root_authority": HUMAN_OWNER,
         "executives": [
-            {"actor_id": CEO, "title": "Chief Executive Officer", "reports_to": HUMAN_OWNER},
-            {"actor_id": "exec-governance", "title": "Governance & Risk", "reports_to": CEO, "division": "governance-risk"},
-            {"actor_id": "exec-product", "title": "Product & Engineering", "reports_to": CEO, "division": "product-engineering"},
-            {"actor_id": "exec-operations", "title": "Operations", "reports_to": CEO, "division": "operations"},
-            {"actor_id": "exec-commercial", "title": "Commercial Strategy", "reports_to": CEO, "division": "commercial-strategy"},
+            {"actor_id": CEO, "role": "ceo", "title": "Chief Executive Officer", "reports_to": HUMAN_OWNER},
+            {"actor_id": "exec-governance", "role": "division_lead", "title": "Governance & Risk", "reports_to": CEO, "division": "governance-risk"},
+            {"actor_id": "exec-product", "role": "division_lead", "title": "Product & Engineering", "reports_to": CEO, "division": "product-engineering"},
+            {"actor_id": "exec-operations", "role": "division_lead", "title": "Operations", "reports_to": CEO, "division": "operations"},
+            {"actor_id": "exec-commercial", "role": "division_lead", "title": "Commercial Strategy", "reports_to": CEO, "division": "commercial-strategy"},
         ],
         "principle": "organizational rank is descriptive; explicit scoped authority controls actions",
     }
