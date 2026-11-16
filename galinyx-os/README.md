@@ -239,3 +239,11 @@ decision_workflow.py adds a durable proposal lifecycle for GALINYX Ventures. A r
 Approved execution is delegated to the registered executive and passes through the governed organization simulator, which independently checks the persisted role, resource division, AHAF grant, and single-use approval before creating a durable execution receipt. Proposal identities and decision events are append-only, and transitions are also written to the AHAF hash-chained audit stream.
 
 This is still a trusted local workflow prototype. Owner identity is supplied as trusted local context and must be derived from authenticated credentials by a future service boundary before deployment.
+
+Run the end-to-end decision lifecycle demonstration:
+
+```bash
+python galinyx-os/ventures_decision_demo.py
+```
+
+This shows a registered CEO submitting a proposal, the human root approving the exact request, and the designated Governance & Risk executive executing it through the governed simulator. The resulting receipt and append-only decision/audit history are printed.
