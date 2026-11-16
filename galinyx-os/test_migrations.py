@@ -32,7 +32,7 @@ class MigrationTests(unittest.TestCase):
             connection.close()
 
             runtime = Runtime(database)
-            self.assertEqual(runtime.schema_version(), 4)
+            self.assertEqual(runtime.schema_version(), 5)
             row = runtime.db.execute(
                 "SELECT request_id,entity_id,action,payload_hash,result,created_at FROM tasks"
             ).fetchone()
