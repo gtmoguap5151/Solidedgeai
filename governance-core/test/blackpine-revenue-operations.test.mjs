@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { AuthorityRegistry } from "../src/authority-registry.mjs";
 import { AuditLedger, createDecision, evaluateDecision, recordApproval } from "../src/index.mjs";
 import { blackpineRevenuePolicies } from "../adapters/blackpine/revenue-policies.mjs";
+import { blackpinePolicies } from "../adapters/blackpine/policies.mjs";
 
 const now = new Date("2026-11-16T18:00:00.000Z");
 const expiry = "2035-01-01T00:00:00.000Z";
@@ -17,13 +18,13 @@ function setup() {
     ledger,
     now,
   });
-  function principal(id, rank, permission, level) {
+  function principal(id, rank, permission, level, domain = "commercial") {
     registry.issuePermission({
       issuer: root, subjectId: id, permission, scope: "*", expiresAt: expiry,
       reason: "Synthetic test grant", ledger, now,
     });
     registry.certifyCompetency({
-      issuer: root, subjectId: id, domain: "commercial", level,
+      issuer: root, subjectId: id, domain, level,
       evidence: [{ type: "test-credential", reference: `fixture://${id}/commercial` }],
       expiresAt: expiry, reason: "Synthetic test competency", ledger, now,
     });
@@ -76,10 +77,10 @@ test("BP-REV-002: repository content alone cannot support a revenue or performan
 
 test("BP-REV-003: a revenue audit approval does not authorize public publishing", () => {
   const { registry, principal } = setup();
-  const requester = principal("bp-revenue-publisher", "Release Manager", "blackpine:publish:request", 4);
+  const requester = principal("bp-revenue-publisher", "Release Manager", "blackpine:publish:request", 4, "release-management");
   const result = evaluateDecision({
     request: { id: "BP-REV-003", title: "Publish an unreviewed revenue claim", scope: "blackpine:production", evidence: repositoryEvidence },
-    requester, policy: (await import("../adapters/blackpine/policies.mjs")).blackpinePolicies.productionPublish,
+    requester, policy: blackpinePolicies.productionPublish,
     authorityRegistry: registry, now,
   });
   assert.equal(result.eligibleToSubmit, false);
