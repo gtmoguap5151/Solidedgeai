@@ -26,6 +26,23 @@ export const blackpinePolicies = Object.freeze({
     requiredEvidence: ["manufacturer-source", "specification-record"],
     handsOnEvidence: ["possession-record", "test-date", "test-conditions", "load-record"],
   }),
+  priceClaim: Object.freeze({
+    id: "blackpine.price.claim",
+    levelDomain: "commercial",
+    version: "1.0.0",
+    permission: "blackpine:price:submit",
+    approverPermission: "blackpine:price:verify",
+    minimumLevel: 3,
+    requiredApprovals: 1,
+    prohibitedConflicts: ["affiliate-network-conflict"],
+    requiredEvidence: ["retailer-price-check", "offer-terms"],
+    evidenceFreshness: {
+      "retailer-price-check": {
+        maxAgeHours: 24,
+        requireExpiresAt: true,
+      },
+    },
+  }),
   affiliateRelationship: Object.freeze({
     id: "blackpine.affiliate.relationship",
     levelDomain: "commercial",
