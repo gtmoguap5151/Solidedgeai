@@ -219,3 +219,42 @@ test("Blackpine production publication requires owner approval", () => {
   assert.equal(blackpinePolicies.productionPublish.approverPermission, "blackpine:owner:approve");
   assert.equal(blackpinePolicies.productionPublish.minimumLevel, 4);
 });
+
+
+test("Blackpine product claims are blocked without source evidence", () => {
+  const claimAuthor = {
+    id: "bp-researcher", principalType: "human", active: true,
+    rank: "Researcher", level: 3,
+    permissions: ["blackpine:claim:submit"], conflicts: [],
+  };
+  const result = evaluateDecision({
+    request: { id: "bp-claim-1", title: "Claim battery runtime" },
+    requester: claimAuthor,
+    policy: blackpinePolicies.productClaim,
+  });
+  assert.equal(result.eligibleToSubmit, false);
+  assert.ok(result.reasons.includes("REQUIRED_EVIDENCE_MISSING:manufacturer-source"));
+});
+
+test("Blackpine hands-on claims require possession, date, conditions, and load evidence", () => {
+  const claimAuthor = {
+    id: "bp-researcher", principalType: "human", active: true,
+    rank: "Researcher", level: 3,
+    permissions: ["blackpine:claim:submit"], conflicts: [],
+  };
+  const evidence = [
+    { type: "manufacturer-source", reference: "source://manufacturer/spec" },
+    { type: "specification-record", reference: "record://spec-001" },
+  ];
+  const result = evaluateDecision({
+    request: {
+      id: "bp-claim-2", title: "Hands-on durability verdict",
+      claimsHandsOnTesting: true, evidence,
+    },
+    requester: claimAuthor,
+    policy: blackpinePolicies.productClaim,
+  });
+  assert.equal(result.eligibleToSubmit, false);
+  assert.ok(result.reasons.includes("REQUIRED_EVIDENCE_MISSING:possession-record"));
+  assert.ok(result.reasons.includes("REQUIRED_EVIDENCE_MISSING:load-record"));
+});
