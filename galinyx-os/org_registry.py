@@ -170,6 +170,20 @@ class GalinyxOrganizationRegistry:
             raise PermissionError("actor has no registered organizational role")
         return {"role": row[0], "division": row[1]}
 
+    def actor_for_agent(self, org_id, agent_id):
+        row = self.db.execute(
+            "SELECT b.actor_id FROM galinyx_org_actor_bindings b "
+            "JOIN galinyx_organizations o ON o.org_id=b.org_id "
+            "JOIN ahaf_agent_bindings a ON a.agent_id=b.agent_id "
+            "LEFT JOIN ahaf_agent_binding_revocations r ON r.agent_id=a.agent_id "
+            "WHERE b.org_id=? AND b.agent_id=? AND o.mode='simulation-only' "
+            "AND a.tenant_id=o.tenant_id AND r.agent_id IS NULL",
+            (org_id, agent_id),
+        ).fetchone()
+        if row is None:
+            raise PermissionError("workload is not an active registered organization executive")
+        return row[0]
+
     def agent_for_actor(self, org_id, actor_id):
         row = self.db.execute(
             "SELECT b.agent_id FROM galinyx_org_actor_bindings b "
