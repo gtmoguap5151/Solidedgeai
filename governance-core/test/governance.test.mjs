@@ -1486,3 +1486,30 @@ test("price evidence that expires before approval blocks the pending decision", 
   assert.ok(decision.reasons.includes("EVIDENCE_EXPIRED:retailer-price-check"));
   assert.equal(ledger.verify(), true);
 });
+
+
+test("a separately authorized verified human can revoke another person's delegation", () => {
+  const registry = new DelegationRegistry();
+  const ledger = new AuditLedger();
+  const revoker = delegationAuthorityFixture.principal({
+    id: "independent-delegation-revoker",
+    rank: "Governance Officer",
+    levels: { general: 4 },
+    permissions: ["governance:delegation:revoke"],
+  });
+  const grant = grantDelegation({
+    delegator: delegationIssuer, delegate,
+    permissions: ["content:submit"],
+    scope: "blackpine:field-guides",
+    expiresAt: "2026-11-17T12:00:00.000Z",
+    reason: "Temporary editorial coverage",
+    registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
+  });
+  revokeDelegation({
+    delegationId: grant.id, actor: revoker,
+    reason: "Independent governance revocation",
+    registry, authorityRegistry: delegationAuthorityFixture.registry, ledger,
+  });
+  assert.ok(registry.get(grant.id).revokedAt);
+  assert.equal(ledger.verify(), true);
+});
