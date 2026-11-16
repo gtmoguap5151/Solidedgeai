@@ -264,3 +264,22 @@ Do not describe a proposal as implemented. Do not discard an established decisio
 **GALINYX is the ecosystem. GALINYX OS is its shared foundation. Governance and authority are essential platform capabilities, not the whole product. AI, applications, developers, creators, organizations, economic activity, and future digital experiences connect through that foundation. GALINYX will use its own infrastructure while remaining open to independent participants. Human authority, interoperability, modular growth, and accountable operation are foundational requirements.**
 
 The vision is larger than the first release. The first release must nevertheless be real, testable, and honest.
+
+
+---
+
+## 15. Owner-approved governance strategy — 2026-11-16
+
+The owner has approved a dual-purpose strategy for GALINYX Governance and Authority:
+
+1. It is a foundational capability inside GALINYX OS and will be used to govern GALINYX's own first-party services, applications, AI capabilities, organizations, and connected workflows.
+2. It will also be independently available to outside organizations that do not need to adopt the wider GALINYX ecosystem.
+
+This is one reusable governance core with multiple deployment and packaging profiles—not two separate governance systems. The core must use stable, provider-neutral contracts and preserve strict tenant, organization, identity, policy, data, and audit boundaries.
+
+The architecture must distinguish the governance control plane from enforcement at actual execution boundaries. A policy decision without an enforcement integration is advisory, not proof that an external action is controlled. Models and agents may request actions but cannot establish or expand their own authority.
+
+The detailed design is maintained in:
+`architecture/GALINYX-GOVERNANCE-AND-AUTHORITY-ARCHITECTURE-v1.0.md`
+
+This decision does not redefine GALINYX as a governance company or product. Governance remains one foundational subsystem within the larger ecosystem described in this charter.
