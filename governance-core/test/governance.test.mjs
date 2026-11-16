@@ -178,6 +178,7 @@ test("rejection requires a human and a reason", () => {
 
 test("human override requires permission and reason and is separately logged", () => {
   const ledger = new AuditLedger();
+  const overrideAuthority = createBlackpineTestAuthority();
   const decision = createDecision({
     request: { id: "d-8", title: "Publish field guide" },
     requester, policy, ledger,
@@ -187,7 +188,7 @@ test("human override requires permission and reason and is separately logged", (
   }), /OVERRIDE_PERMISSION_REQUIRED/);
   overrideDecision({
     decision,
-    human: { ...approver, permissions: [...approver.permissions, "governance:override"] },
+    human: overrideAuthority.root,
     reason: "Board-directed exception; evidence attached to case record",
     ledger,
   });
