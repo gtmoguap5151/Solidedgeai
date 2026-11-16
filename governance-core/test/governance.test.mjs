@@ -1563,3 +1563,41 @@ test("Blackpine product evidence rejects arbitrary references and missing proven
   assert.ok(result.reasons.includes("EVIDENCE_VERIFIER_REQUIRED:specification-record"));
   assert.ok(result.reasons.includes("EVIDENCE_VERIFICATION_TIME_REQUIRED:specification-record"));
 });
+
+
+test("a product claim can pass only with structured primary-source provenance", () => {
+  const authority = createBlackpineTestAuthority();
+  const researcher = authority.principal({
+    id: "valid-source-researcher", rank: "Researcher",
+    levels: { "product-evidence": 3 },
+    permissions: ["blackpine:claim:submit"],
+  });
+  const now = new Date();
+  const result = evaluateDecision({
+    request: {
+      id: "valid-manufacturer-source",
+      title: "Product claim with source provenance",
+      evidence: [
+        {
+          type: "manufacturer-source",
+          reference: "https://manufacturer.example/specifications/product",
+          contentSha256: "a".repeat(64),
+          verifiedBy: "source-reviewer-01",
+          verifiedAt: now.toISOString(),
+        },
+        {
+          type: "specification-record",
+          reference: "github://blackpine/specification-record",
+          contentSha256: "b".repeat(64),
+          verifiedBy: "repository-reviewer-01",
+          verifiedAt: now.toISOString(),
+        },
+      ],
+    },
+    requester: researcher,
+    policy: blackpinePolicies.productClaim,
+    authorityRegistry: authority.registry,
+    now,
+  });
+  assert.equal(result.eligibleToSubmit, true);
+});
