@@ -76,6 +76,7 @@ test("BP-001: evidence-backed description draft can be approved by a distinct qu
     requester,
     policy: blackpinePolicies.productClaim,
     ledger,
+    reviewedEvidenceDigest: decision.evidenceDigest,
   });
 
   assert.equal(decision.status, "pending_approval");
