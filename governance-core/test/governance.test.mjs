@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { blackpinePolicies } from "../adapters/blackpine/policies.mjs";
 import {
   AuditLedger,
   createDecision,
