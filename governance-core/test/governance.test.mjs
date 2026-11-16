@@ -634,7 +634,7 @@ test("Blackpine snapshot evidence satisfies editorial controls but not unsupport
     requester: editor,
     policy: blackpinePolicies.contentDraft,
   });
-  assert.equal(draft.eligibleToSubmit, true);
+  assert.equal(draft.eligibleToSubmit, true, `reasons: ${draft.reasons.join(", ")}`);
 
   const researcher = authority.principal({
     id: "bp-snapshot-researcher", rank: "Researcher",
@@ -871,6 +871,7 @@ test("Blackpine live-snapshot evidence completes an editorial decision lifecycle
     policy: blackpinePolicies.contentDraft,
     ledger,
   });
+  assert.equal(editorial.status, "pending_approval", `reasons: ${editorial.reasons.join(", ")}`);
   recordApproval({
     decision: editorial, approver: editorialApprover,
     policy: blackpinePolicies.contentDraft, ledger,
