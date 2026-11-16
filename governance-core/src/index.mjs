@@ -489,10 +489,13 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
   return decision;
 }
 
-export function rejectDecision({ decision, actor, reason, ledger, policy, now = new Date() }) {
+export function rejectDecision({ decision, actor, reason, ledger, policy, authorityRegistry, now = new Date() }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   const state = getDecisionState(decision);
   if (!isHuman(actor)) throw new Error("REJECTION_REQUIRES_ACTIVE_HUMAN");
+  if (policy?.requireVerifiedIdentity === true && !(authorityRegistry instanceof AuthorityRegistry)) {
+    throw new Error("AUTHORITY_REGISTRY_REQUIRED_FOR_REJECTION");
+  }
   if (policy?.requireVerifiedIdentity === true && !isVerifiedPrincipal(actor)) {
     throw new Error("REJECTOR_IDENTITY_NOT_VERIFIED");
   }
@@ -503,8 +506,11 @@ export function rejectDecision({ decision, actor, reason, ledger, policy, now = 
     throw new Error("DECISION_POLICY_MISMATCH");
   }
   const rejectionPermission = policy.rejectionPermission ?? policy.approverPermission ?? policy.permission;
-  if (!hasPermission(actor, rejectionPermission)) throw new Error("REJECTION_PERMISSION_REQUIRED");
-  const level = actorLevel(actor, policy);
+  const rejectionAuthority = hasEffectivePermission(actor, rejectionPermission, {
+    authorityRegistry, scope: decision.scope, now,
+  });
+  if (!rejectionAuthority.allowed) throw new Error("REJECTION_PERMISSION_REQUIRED");
+  const level = actorLevel(actor, policy, authorityRegistry, now);
   if (!Number.isInteger(level) || level < 0) {
     throw new Error(policy.levelDomain ? "REJECTOR_DOMAIN_LEVEL_INVALID" : "REJECTOR_LEVEL_INVALID");
   }
@@ -521,6 +527,7 @@ export function rejectDecision({ decision, actor, reason, ledger, policy, now = 
     decisionId: state.decisionId,
     actorId: actor.id,
     permission: rejectionPermission,
+    authorityGrantId: rejectionAuthority.authorityGrantId ?? null,
     policyDigest: state.policyDigest,
     evidenceDigest: state.evidenceDigest,
     levelDomain: policy.levelDomain ?? "general",
@@ -530,17 +537,21 @@ export function rejectDecision({ decision, actor, reason, ledger, policy, now = 
   return decision;
 }
 
-export function overrideDecision({ decision, human, reason, ledger }) {
+export function overrideDecision({ decision, human, reason, ledger, authorityRegistry, now = new Date() }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   const state = getDecisionState(decision);
   if (!isHuman(human)) throw new Error("OVERRIDE_REQUIRES_ACTIVE_HUMAN");
-  if (!hasPermission(human, "governance:override")) throw new Error("OVERRIDE_PERMISSION_REQUIRED");
   if (!isVerifiedPrincipal(human)) throw new Error("OVERRIDE_IDENTITY_NOT_VERIFIED");
+  const overrideAuthority = hasEffectivePermission(human, "governance:override", {
+    authorityRegistry, scope: "*", now,
+  });
+  if (!overrideAuthority.allowed) throw new Error("OVERRIDE_PERMISSION_REQUIRED");
   const detail = requireString(reason, "reason");
   const previousStatus = state.status;
   state.status = "overridden";
   state.override = {
     actorId: human.id,
+    authorityGrantId: overrideAuthority.authorityGrantId ?? null,
     reason: detail,
     previousStatus,
     occurredAt: new Date().toISOString(),
