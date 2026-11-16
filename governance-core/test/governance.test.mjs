@@ -1072,3 +1072,124 @@ test("authority records expire and cannot be revived by resolution", () => {
   assert.ok(before.permissions.includes("content:submit"));
   assert.equal(after.permissions.includes("content:submit"), false);
 });
+
+
+test("requester permission revoked while pending blocks approval", () => {
+  const authority = createBlackpineTestAuthority();
+  const editor = authority.principal({
+    id: "pending-revoked-permission-editor",
+    rank: "Editor",
+    levels: { editorial: 2 },
+    permissions: ["blackpine:content:submit"],
+  });
+  const approver = authority.principal({
+    id: "pending-revoked-permission-approver",
+    rank: "Owner",
+    levels: { editorial: 2 },
+    permissions: ["blackpine:content:approve"],
+  });
+  const decision = createDecision({
+    request: {
+      id: "pending-revoked-permission",
+      title: "Research guide awaiting approval",
+      scope: "blackpine:editorial",
+      evidence: [
+        { type: "source-reference-list", reference: "fixture://sources" },
+        { type: "affiliate-disclosure-check", reference: "fixture://disclosure" },
+      ],
+    },
+    requester: editor,
+    policy: blackpinePolicies.contentDraft,
+    ledger: authority.ledger,
+    authorityRegistry: authority.registry,
+  });
+  assert.equal(decision.status, "pending_approval");
+
+  const grant = authority.registry.listRecords().find((record) =>
+    record.recordType === "permission" &&
+    record.subjectId === editor.id &&
+    record.permission === "blackpine:content:submit"
+  );
+  assert.ok(grant);
+  authority.registry.revoke({
+    recordId: grant.id,
+    actor: authority.root,
+    reason: "Requester permission withdrawn before approval",
+    ledger: authority.ledger,
+  });
+
+  assert.throws(
+    () => recordApproval({
+      decision,
+      approver,
+      policy: blackpinePolicies.contentDraft,
+      ledger: authority.ledger,
+      authorityRegistry: authority.registry,
+      reviewedEvidenceDigest: decision.evidenceDigest,
+    }),
+    /DECISION_AUTHORITY_OR_EVIDENCE_NO_LONGER_VALID/,
+  );
+  assert.equal(decision.status, "blocked");
+  assert.ok(decision.reasons.includes("REQUESTER_LACKS_PERMISSION"));
+  assert.equal(authority.ledger.verify(), true);
+});
+
+test("requester competency revoked while pending blocks approval", () => {
+  const authority = createBlackpineTestAuthority();
+  const editor = authority.principal({
+    id: "pending-revoked-competency-editor",
+    rank: "Editor",
+    levels: { editorial: 2 },
+    permissions: ["blackpine:content:submit"],
+  });
+  const approver = authority.principal({
+    id: "pending-revoked-competency-approver",
+    rank: "Owner",
+    levels: { editorial: 2 },
+    permissions: ["blackpine:content:approve"],
+  });
+  const decision = createDecision({
+    request: {
+      id: "pending-revoked-competency",
+      title: "Research guide awaiting approval",
+      scope: "blackpine:editorial",
+      evidence: [
+        { type: "source-reference-list", reference: "fixture://sources" },
+        { type: "affiliate-disclosure-check", reference: "fixture://disclosure" },
+      ],
+    },
+    requester: editor,
+    policy: blackpinePolicies.contentDraft,
+    ledger: authority.ledger,
+    authorityRegistry: authority.registry,
+  });
+  assert.equal(decision.status, "pending_approval");
+
+  const credential = authority.registry.listRecords().find((record) =>
+    record.recordType === "competency" &&
+    record.subjectId === editor.id &&
+    record.domain === "editorial"
+  );
+  assert.ok(credential);
+  authority.registry.revoke({
+    recordId: credential.id,
+    actor: authority.root,
+    reason: "Editorial competency withdrawn before approval",
+    ledger: authority.ledger,
+  });
+
+  assert.throws(
+    () => recordApproval({
+      decision,
+      approver,
+      policy: blackpinePolicies.contentDraft,
+      ledger: authority.ledger,
+      authorityRegistry: authority.registry,
+      reviewedEvidenceDigest: decision.evidenceDigest,
+    }),
+    /DECISION_AUTHORITY_OR_EVIDENCE_NO_LONGER_VALID/,
+  );
+  assert.equal(decision.status, "blocked");
+  assert.ok(decision.reasons.includes("REQUESTER_LEVEL_INSUFFICIENT"));
+  assert.equal(authority.ledger.verify(), true);
+});
