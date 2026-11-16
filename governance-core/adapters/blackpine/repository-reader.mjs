@@ -134,12 +134,12 @@ export async function loadBlackpineSnapshot({ fetchImpl = globalThis.fetch, ref 
     /\*\*Sources?\s*\(/i.test(content) || /^#+\s*Sources\b/im.test(content),
   );
   const affiliateDisclosurePresent =
-    /some links on this page are affiliate links/i.test(homepage) &&
-    /commission at no extra cost/i.test(homepage) &&
-    /commissions never change our verdicts/i.test(homepage);
+    /some\\s+links on this page are affiliate links/i.test(homepage) &&
+    /commission\\s+at\\s+no\\s+extra\\s+cost/i.test(homepage) &&
+    /commissions\\s+never\\s+change\\s+our\\s+verdicts/i.test(homepage);
   const handsOnTestingDisclosurePresent =
-    /we have not hands-on tested the products covered/i.test(homepage) &&
-    /we never invent test results/i.test(homepage);
+    /we\\s+have\\s+not\\s+hands-on\\s+tested\\s+the\\s+products\\s+covered/i.test(homepage) &&
+    /we\\s+never\\s+invent\\s+test\\s+results/i.test(homepage);
   const researchOnlyLabelsPresent = slateFiles.every(({ content }) =>
     /research\/spec comparison/i.test(content) &&
     /no hands-on testing is claimed/i.test(content),
