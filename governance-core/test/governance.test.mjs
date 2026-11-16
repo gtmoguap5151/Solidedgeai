@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { AuthorityRegistry } from "../src/authority-registry.mjs";
+import { AuthorityRegistry, isVerifiedPrincipal } from "../src/authority-registry.mjs";
 import { BLACKPINE_READ_PATHS, loadBlackpineSnapshot } from "../adapters/blackpine/repository-reader.mjs";
 import { blackpinePolicies } from "../adapters/blackpine/policies.mjs";
 import {
@@ -82,7 +82,7 @@ function createBlackpineTestAuthority() {
     });
   }
 
-  return { registry, ledger, principal };
+  return { registry, ledger, root, principal };
 }
 
 test("rank and level remain separate policy attributes", () => {
