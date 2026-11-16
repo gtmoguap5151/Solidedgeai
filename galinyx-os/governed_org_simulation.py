@@ -9,6 +9,7 @@ import json
 
 from execution_receipts import ExecutionReceiptService
 from org_simulation import ORG_ID, authorize
+from org_registry import GalinyxOrganizationRegistry
 
 
 class GovernedOrganizationSimulator:
@@ -17,30 +18,25 @@ class GovernedOrganizationSimulator:
     ADAPTER_ID = "galinyx-ventures-simulation-only"
     ADAPTER_VERSION = "0.1"
 
-    def __init__(self, authority_store, actor_agent_bindings):
+    def __init__(self, authority_store, organization_id=ORG_ID):
         if authority_store is None:
             raise ValueError("authority_store is required")
-        if not isinstance(actor_agent_bindings, dict) or not actor_agent_bindings:
-            raise ValueError("actor_agent_bindings must map synthetic actor IDs to persisted agent IDs")
         self.store = authority_store
         self.db = authority_store.db
         self.receipts = ExecutionReceiptService(authority_store)
-        self.actor_agent_bindings = dict(actor_agent_bindings)
+        self.registry = GalinyxOrganizationRegistry(authority_store)
+        self.organization_id = organization_id
 
     def _binding(self, actor_id):
-        agent_id = self.actor_agent_bindings.get(actor_id)
-        if not agent_id:
-            raise PermissionError("actor has no persisted workload binding")
+        organization = self.registry.get(self.organization_id)
+        agent_id = self.registry.agent_for_actor(self.organization_id, actor_id)
         row = self.db.execute(
             "SELECT tenant_id,owner_principal_id FROM ahaf_agent_bindings WHERE agent_id=?",
             (agent_id,),
         ).fetchone()
-        if row is None:
-            raise PermissionError("actor workload binding is not persisted")
-        tenant_id, owner_id = row
-        if tenant_id != ORG_ID:
-            raise PermissionError("actor workload is not bound to GALINYX Ventures")
-        return agent_id, tenant_id, owner_id
+        if row is None or row[0] != organization["tenant_id"]:
+            raise PermissionError("actor workload is not bound to this organization")
+        return agent_id, row[0], row[1]
 
     def _record_denial(self, actor, agent_id, action, resource_id, decision):
         self.store._begin()
@@ -49,7 +45,7 @@ class GovernedOrganizationSimulator:
                 actor_type="agent",
                 actor_id=actor.actor_id,
                 agent_id=agent_id,
-                tenant_id=ORG_ID,
+                tenant_id=self.organization_id,
                 policy_version="galinyx-ventures-policy-1",
                 action=action,
                 resource_id=resource_id,
@@ -73,7 +69,7 @@ class GovernedOrganizationSimulator:
         A real approval ID is required for policy paths that require approval;
         the receipt service independently validates and consumes it.
         """
-        if tenant_id != ORG_ID:
+        if tenant_id != self.organization_id:
             decision = authorize(actor, action, tenant_id=tenant_id)
             self._record_denial(actor, None, action, resource_id, decision)
             return {"status": "denied", "decision": decision.code, "side_effect": "none"}
