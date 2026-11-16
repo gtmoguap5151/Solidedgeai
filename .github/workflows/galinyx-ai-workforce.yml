@@ -1,0 +1,30 @@
+name: GALINYX AI Workforce Tests
+
+on:
+  pull_request:
+    paths:
+      - "ai-workforce/**"
+      - "governance-core/adapters/blackpine/repository-reader.mjs"
+      - ".github/workflows/galinyx-ai-workforce.yml"
+  push:
+    branches:
+      - main
+      - galinyx-ai-workforce-v1
+    paths:
+      - "ai-workforce/**"
+      - "governance-core/adapters/blackpine/repository-reader.mjs"
+      - ".github/workflows/galinyx-ai-workforce.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  workforce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run workforce tests
+        run: node --test ai-workforce/test/*.test.mjs
