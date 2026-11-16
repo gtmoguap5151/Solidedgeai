@@ -66,7 +66,7 @@ export function createCloudflareWorkersAIProvider({
             { role: "system", content: system },
             { role: "user", content: prompt },
           ],
-          max_tokens: tokenLimit,
+          max_completion_tokens: tokenLimit,
           temperature: 0.1,
           response_format: { type: "json_object" },
         }),
@@ -77,7 +77,8 @@ export function createCloudflareWorkersAIProvider({
         throw new Error("CLOUDFLARE_MODEL_API_ERROR");
       }
       const result = body?.result ?? body;
-      return parseModelJson(result?.response ?? result?.output ?? result);
+      const content = result?.choices?.[0]?.message?.content ?? result?.response ?? result?.output ?? result;
+      return parseModelJson(content);
     },
   });
 }
