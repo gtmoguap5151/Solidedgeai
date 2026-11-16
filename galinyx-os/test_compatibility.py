@@ -14,7 +14,7 @@ class CompatibilityTests(unittest.TestCase):
             db.commit()
             db.close()
             runtime=Runtime(path)
-            self.assertEqual(runtime.schema_version(), 5)
+            self.assertEqual(runtime.schema_version(), 6)
             self.assertEqual(runtime.db.execute("SELECT count(*) FROM tasks").fetchone()[0],0)
             archived=runtime.db.execute(
                 "SELECT request_id,archive_reason FROM legacy_tasks_archive"
