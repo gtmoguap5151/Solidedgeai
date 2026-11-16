@@ -119,3 +119,24 @@ by a distinct synthetic human principal; a product claim lacking manufacturer
 source evidence remains blocked and cannot be approved. The test ledger is
 verified afterward. These synthetic principals are test fixtures, not real
 Blackpine identities or approvals.
+
+
+## Verified identity and competency requirements
+
+All Blackpine policies require a verified human principal resolved through the
+GALINYX AuthorityRegistry. The registry supplies live permission grants and
+domain competency credentials; decisions and approvals re-check those records
+at the time of action. Revoked or expired requester permissions/competencies
+block a pending decision.
+
+The registry is in-memory for this validation. The CI identity assertions are
+synthetic fixtures and are not real authentication. Production use requires a
+trusted identity provider and durable, protected authority records.
+
+## Evidence review and freshness
+
+Blackpine editorial, product, affiliate, publishing, and financial policies
+require the approver to acknowledge the exact evidence digest attached to the
+decision. The price-claim policy additionally requires a retailer price check
+observed within 24 hours and a future expiry timestamp. Evidence that becomes
+stale or expires while awaiting approval blocks the decision.
