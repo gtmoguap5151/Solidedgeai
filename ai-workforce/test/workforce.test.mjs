@@ -165,7 +165,7 @@ test("Cloudflare Workers AI provider is lazy, sends bounded JSON-mode chat input
       requestInit = init;
       return {
         ok: true,
-        json: async () => ({ success: true, result: { response: JSON.stringify({ summary: "ok" }) } }),
+        json: async () => ({ success: true, result: { choices: [{ message: { content: JSON.stringify({ summary: "ok" }) } }] } }),
       };
     },
   });
@@ -178,7 +178,7 @@ test("Cloudflare Workers AI provider is lazy, sends bounded JSON-mode chat input
   assert.equal(requestInit.redirect, "error");
   assert.equal(requestInit.headers.Authorization, "Bearer test-cloudflare-token");
   const sent = JSON.parse(requestInit.body);
-  assert.equal(sent.max_tokens, 500);
+  assert.equal(sent.max_completion_tokens, 500);
   assert.deepEqual(sent.response_format, { type: "json_object" });
   assert.deepEqual(sent.messages, [
     { role: "system", content: "system rules" },
@@ -198,7 +198,7 @@ test("Cloudflare Workers AI provider rejects missing configuration and malformed
     model: "@cf/zai-org/glm-4.7-flash",
     fetchImpl: async () => ({
       ok: true,
-      json: async () => ({ success: true, result: { response: "truncated {" } }),
+      json: async () => ({ success: true, result: { choices: [{ message: { content: "truncated {" } }] } }),
     }),
   });
   await assert.rejects(
