@@ -561,6 +561,8 @@ export function overrideDecision({ decision, human, reason, ledger, authorityReg
     type: "human_override",
     decisionId: state.decisionId,
     actorId: human.id,
+    authorityGrantId: overrideAuthority.authorityGrantId ?? null,
+    permissionSource: overrideAuthority.source,
     reason: detail,
     previousStatus,
     evidenceDigest: state.evidenceDigest,
