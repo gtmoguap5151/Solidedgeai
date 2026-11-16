@@ -74,13 +74,15 @@ class GovernedExecutionTests(unittest.TestCase):
     def test_scoped_grant_allows_mock_action_and_records_audit(self):
         grant = self.issue_grant()
         result = self.execute(grant)
-        self.assertEqual(result, {"status": "completed", "value": 1})
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(result["value"], 1)
+        self.assertTrue(result["execution_id"])
         valid, bad_event = self.store.verify_audit_chain()
         self.assertTrue(valid)
         self.assertIsNone(bad_event)
         event = self.runtime.db.execute(
             "SELECT decision FROM ahaf_audit_events WHERE request_id=? "
-            "AND decision='mock_execution_completed'",
+            "AND decision='execution_succeeded'",
             ("request-1",),
         ).fetchone()
         self.assertIsNotNone(event)
@@ -129,7 +131,8 @@ class GovernedExecutionTests(unittest.TestCase):
         with self.assertRaises(PermissionError):
             self.execute(grant, request_id="different-request", approval_id=approval)
         result = self.execute(grant, approval_id=approval)
-        self.assertEqual(result, {"status": "completed", "value": 1})
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(result["value"], 1)
 
     def test_only_authenticated_bound_owner_can_approve(self):
         grant = self.issue_grant(approval_required=True)
@@ -172,6 +175,32 @@ class GovernedExecutionTests(unittest.TestCase):
         self.assertEqual(first["status"], "completed")
         self.assertEqual(second["status"], "already_executed")
         self.assertEqual(self.resources[("tenant-1", "counter-1")], 1)
+
+
+    def test_ambiguous_mock_adapter_result_is_held_and_never_redispatched(self):
+        class FailAfterWrite(dict):
+            fail_next = False
+
+            def __setitem__(self, key, value):
+                super().__setitem__(key, value)
+                if self.fail_next:
+                    self.fail_next = False
+                    raise RuntimeError("simulated lost adapter response")
+
+        grant = self.issue_grant()
+        mapping = FailAfterWrite({("tenant-1", "counter-1"): 0})
+        mapping.fail_next = True
+        self.executor.resources = mapping
+
+        result = self.execute(grant, "ambiguous-request")
+        self.assertEqual(result["status"], "outcome_unknown")
+        self.assertEqual(mapping[("tenant-1", "counter-1")], 1)
+        self.assertEqual(self.store.budget_summary(grant)["reserved_units"], 1)
+
+        with self.assertRaisesRegex(PermissionError, "automatic redispatch is blocked"):
+            self.execute(grant, "ambiguous-request")
+        self.assertEqual(mapping[("tenant-1", "counter-1")], 1)
+        self.assertEqual(self.store.budget_summary(grant)["reserved_units"], 1)
 
     def test_budget_exhaustion_denies_new_request(self):
         grant = self.issue_grant(budget=1)
