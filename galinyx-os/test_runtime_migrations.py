@@ -37,7 +37,7 @@ class RuntimeMigrationIntegrationTests(unittest.TestCase):
 
             runtime = Runtime(path)
             try:
-                self.assertEqual(runtime.schema_version(), 4)
+                self.assertEqual(runtime.schema_version(), 5)
                 self.assertEqual(runtime.entity("agent-1")["name"], "Researcher")
                 self.assertEqual(runtime.db.execute(
                     "SELECT result FROM tasks WHERE request_id='req-1'"
@@ -116,7 +116,7 @@ class RuntimeMigrationIntegrationTests(unittest.TestCase):
             first.close()
             second = Runtime(path)
             try:
-                self.assertEqual(second.schema_version(), 4)
+                self.assertEqual(second.schema_version(), 5)
                 self.assertEqual(second.db.execute(
                     "SELECT COUNT(*) FROM principals WHERE principal_id='human-1'"
                 ).fetchone()[0], 1)
