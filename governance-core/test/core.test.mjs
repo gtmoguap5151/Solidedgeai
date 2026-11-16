@@ -42,3 +42,29 @@ test("audit chain detects mutation", () => {
 test("policy rejects duplicate role identifiers", () => {
   assert.throws(()=>validatePolicy({...policy,roles:[...policy.roles,{id:"secretary",level:2}]}),e=>e.code==="DUPLICATE_ROLE");
 });
+
+test("role level alone never grants permission", () => {
+  const highLevelActor = {id:"high-rank",roleId:"secretary"};
+  assert.equal(evaluateAction({actor:highLevelActor,action:"publish_product",policy}).allowed,false);
+});
+test("expired and revoked delegations do not grant authority", () => {
+  const delegatedActor = {id:"delegate-1",roleId:"reviewer"};
+  const expired = evaluateAction({actor:delegatedActor,action:"publish_product",policy,delegations:[{delegateId:"delegate-1",actions:["publish_product"],expiresAt:"2020-01-01T00:00:00.000Z"}]});
+  const revoked = evaluateAction({actor:delegatedActor,action:"publish_product",policy,delegations:[{delegateId:"delegate-1",actions:["publish_product"],expiresAt:"2099-01-01T00:00:00.000Z",revoked:true}]});
+  assert.equal(expired.allowed,false);
+  assert.equal(revoked.allowed,false);
+});
+test("duplicate approvals from one person count only once", () => {
+  const twoApprovalPolicy = {...policy,approvalRules:[{action:"publish_product",minimumApprovals:2,approverRoleIds:["reviewer"]}]};
+  const result=evaluateAction({actor:{id:"publisher",roleId:"director"},action:"publish_product",policy:twoApprovalPolicy,approvals:[{actorId:"reviewer-1",roleId:"reviewer",decision:"approve"},{actorId:"reviewer-1",roleId:"reviewer",decision:"approve"}]});
+  assert.equal(result.validApprovalCount,1);
+  assert.equal(result.allowed,false);
+});
+test("human override cannot bypass a conflict-of-interest hard block", () => {
+  const blocked=evaluateAction({actor,action:"propose_product",policy,resource:{conflictOfInterestActorIds:["user-1"]}});
+  assert.throws(()=>applyHumanOverride(blocked,{actor:{id:"director-1",roleId:"director"},reason:"Documented exception after review",decision:"approve",policy}),e=>e.code==="HARD_BLOCK_CANNOT_BE_OVERRIDDEN");
+});
+test("requester cannot act as their own human override", () => {
+  const evaluation=evaluateAction({actor,action:"propose_product",policy});
+  assert.throws(()=>applyHumanOverride(evaluation,{actor,reason:"I approve my own request",decision:"approve",policy}),e=>e.code==="SELF_OVERRIDE_NOT_ALLOWED");
+});
