@@ -16,6 +16,7 @@ The store is a trusted local component. It is not exposed as a network API and d
 
 - **Agent binding:** binds an existing agent entity to a tenant, owner principal, and opaque external credential/key reference. The reference is metadata only; it is not a credential or secret. Binding records are append-only. Revocation is represented by a separate record.
 - **Authority grant:** immutable root or delegated grant scoped to a subject agent, action set, resource set, expiry, integer budget limit and unit, optional transaction ceiling and unit, transaction actions, approval-required actions, delegable actions, delegation depth, and policy version.
+- **Delegated grant issuance:** the current store can create an attenuated child grant that references a parent grant and bound delegator/delegate agent records. The method checks the grant relationship, shared workspace ownership, and attenuation constraints. **It does not authenticate the delegator agent's workload identity.** The current operation is therefore a trusted-local, owner-governed grant-writing capability—not yet autonomous or authenticated agent-to-agent delegation.
 - **Grant revocation:** separate append-only record. A revoked ancestor makes descendant grants inactive when the chain is evaluated.
 - **Budget reservation:** stable request-scoped reservation with integer units. `BEGIN IMMEDIATE` serializes reservation decisions across SQLite connections. A reserve entry is written against the selected grant and every ancestor, so parent limits include delegated spend across the full grant chain.
 - **Budget ledger:** append-only `reserve`, `commit`, and `release` entries. A committed reservation remains consumed; a released reservation restores available budget. Request IDs make reserve retries idempotent and reject parameter changes.
@@ -32,7 +33,7 @@ A reservation consumes available budget immediately. Commit converts reserved un
 
 - Owner-checked local agent binding and root-grant issuance.
 - Immutable grant and binding rows enforced by SQLite update/delete triggers.
-- Delegated grant issuance from a parent grant, with restrictions preventing broader action/resource scope, longer expiry, increased budget, weaker transaction ceilings, removal of inherited approval requirements, broader further-delegation rights, or increased delegation depth.
+- Owner-governed creation of attenuated delegated grants for bound agents. The implementation prevents broader action/resource scope, longer expiry, increased budget, weaker transaction ceilings, removal of inherited approval requirements, broader further-delegation rights, or increased delegation depth. Delegator workload authentication is not implemented.
 - Append-only revocation records; revocation of an ancestor makes descendant grants inactive when the grant chain is checked.
 - Grant-chain expiry and revocation checks for budget reservation eligibility.
 - Atomic cumulative budget reservation, commit, and release using integer units.
@@ -53,7 +54,7 @@ A reservation consumes available budget immediately. Commit converts reserved un
 
 ## Required next gates
 
-1. Specify authenticated agent workload identity and bind it to the opaque key reference; do not treat the reference itself as proof of identity.
+1. Specify authenticated agent workload identity and bind it to the opaque key reference; do not treat the reference itself as proof of identity. Require authenticated agent identity and explicit delegation authority before allowing an agent to issue a delegated grant.
 2. Implement approvals through an independent authenticated governance flow, scoped to request, action, resource, amount, and expiry.
 3. Implement a fail-closed authorization decision interface that evaluates the complete grant chain against a server-resolved agent identity and an exact operation/resource context.
 4. Define and test the authorize → reserve → execute → commit/release protocol, including idempotency, revocation races, and crash or external-side-effect recovery.
