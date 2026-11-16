@@ -176,6 +176,21 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
   if (policy.handsOnEvidence !== undefined && !Array.isArray(policy.handsOnEvidence)) {
     reasons.push("POLICY_HANDS_ON_EVIDENCE_INVALID");
   }
+  if (policy.evidenceFreshness !== undefined) {
+    if (!policy.evidenceFreshness || typeof policy.evidenceFreshness !== "object" ||
+        Array.isArray(policy.evidenceFreshness)) {
+      reasons.push("POLICY_EVIDENCE_FRESHNESS_INVALID");
+    } else {
+      for (const [evidenceType, rule] of Object.entries(policy.evidenceFreshness)) {
+        if (!evidenceType || !rule || typeof rule !== "object" ||
+            !Number.isFinite(rule.maxAgeHours) || rule.maxAgeHours <= 0 ||
+            (rule.requireExpiresAt !== undefined && typeof rule.requireExpiresAt !== "boolean")) {
+          reasons.push("POLICY_EVIDENCE_FRESHNESS_INVALID");
+          break;
+        }
+      }
+    }
+  }
   if (request.scope !== undefined && (typeof request.scope !== "string" || request.scope.trim() === "")) {
     reasons.push("REQUEST_SCOPE_INVALID");
   }
@@ -212,6 +227,45 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
   for (const evidenceType of requiredEvidence) {
     if (!suppliedEvidence.some((item) => item?.type === evidenceType && typeof item?.reference === "string" && item.reference.trim() !== "")) {
       reasons.push("REQUIRED_EVIDENCE_MISSING:" + evidenceType);
+    }
+  }
+  if (policy.evidenceFreshness && typeof policy.evidenceFreshness === "object" &&
+      !Array.isArray(policy.evidenceFreshness)) {
+    const evaluationTime = now instanceof Date ? now.getTime() : Number.NaN;
+    for (const [evidenceType, rule] of Object.entries(policy.evidenceFreshness)) {
+      if (!rule || typeof rule !== "object" || !Number.isFinite(rule.maxAgeHours) ||
+          rule.maxAgeHours <= 0) continue;
+      const matchingEvidence = suppliedEvidence.filter((item) =>
+        item?.type === evidenceType &&
+        typeof item?.reference === "string" &&
+        item.reference.trim() !== ""
+      );
+      for (const item of matchingEvidence) {
+        const observedAt = typeof item.observedAt === "string"
+          ? Date.parse(item.observedAt)
+          : Number.NaN;
+        if (!Number.isFinite(observedAt)) {
+          reasons.push("EVIDENCE_OBSERVED_AT_REQUIRED:" + evidenceType);
+        } else if (!Number.isFinite(evaluationTime)) {
+          reasons.push("POLICY_EVALUATION_TIME_INVALID");
+        } else if (observedAt > evaluationTime) {
+          reasons.push("EVIDENCE_OBSERVED_AT_IN_FUTURE:" + evidenceType);
+        } else if (evaluationTime - observedAt > rule.maxAgeHours * 60 * 60 * 1000) {
+          reasons.push("EVIDENCE_STALE:" + evidenceType);
+        }
+        if (rule.requireExpiresAt === true) {
+          const expiresAt = typeof item.expiresAt === "string"
+            ? Date.parse(item.expiresAt)
+            : Number.NaN;
+          if (!Number.isFinite(expiresAt)) {
+            reasons.push("EVIDENCE_EXPIRY_REQUIRED:" + evidenceType);
+          } else if (Number.isFinite(evaluationTime) && expiresAt <= evaluationTime) {
+            reasons.push("EVIDENCE_EXPIRED:" + evidenceType);
+          } else if (Number.isFinite(observedAt) && expiresAt < observedAt) {
+            reasons.push("EVIDENCE_EXPIRY_BEFORE_OBSERVATION:" + evidenceType);
+          }
+        }
+      }
     }
   }
 
