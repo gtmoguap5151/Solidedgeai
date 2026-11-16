@@ -17,6 +17,8 @@ function hasPermission(actor, permission) {
   return Array.isArray(actor?.permissions) && actor.permissions.includes(permission);
 }
 
+const REGISTRY_WRITE_TOKEN = Symbol("GALINYX_REGISTRY_WRITE");
+
 const NEVER_DELEGABLE = new Set([
   "governance:delegate",
   "governance:override",
@@ -247,7 +249,8 @@ export function overrideDecision({ decision, human, reason, ledger }) {
 export class DelegationRegistry {
   #grants = new Map();
 
-  add(grant) {
+  add(grant, token) {
+    if (token !== REGISTRY_WRITE_TOKEN) throw new Error("REGISTRY_WRITE_NOT_AUTHORIZED");
     if (this.#grants.has(grant.id)) throw new Error("DUPLICATE_DELEGATION_ID");
     this.#grants.set(grant.id, deepFreeze(structuredClone(grant)));
     return structuredClone(grant);
@@ -276,18 +279,24 @@ export class DelegationRegistry {
     return null;
   }
 
-  revoke(id, actorId, reason, ledger) {
+  revoke(id, actor, reason, ledger, token) {
+    if (token !== REGISTRY_WRITE_TOKEN) throw new Error("REGISTRY_WRITE_NOT_AUTHORIZED");
+    if (!isHuman(actor)) throw new Error("DELEGATION_REVOCATION_REQUIRES_ACTIVE_HUMAN");
     const grant = this.#grants.get(id);
     if (!grant) throw new Error("DELEGATION_NOT_FOUND");
     if (grant.revokedAt) throw new Error("DELEGATION_ALREADY_REVOKED");
+    if (actor.id !== grant.delegatorId && !hasPermission(actor, "governance:delegation:revoke")) {
+      throw new Error("DELEGATION_REVOCATION_PERMISSION_REQUIRED");
+    }
+    const detail = requireString(reason, "reason");
     const updated = deepFreeze({
       ...grant,
       revokedAt: new Date().toISOString(),
-      revokedBy: actorId,
-      revocationReason: reason,
+      revokedBy: actor.id,
+      revocationReason: detail,
     });
     this.#grants.set(id, updated);
-    ledger.append({ type: "delegation_revoked", delegationId: id, actorId, reason });
+    ledger.append({ type: "delegation_revoked", delegationId: id, actorId: actor.id, reason: detail });
     return structuredClone(updated);
   }
 }
@@ -335,7 +344,7 @@ export function grantDelegation({
     subdelegationAllowed: false,
     authoritySource: "human_grant",
   };
-  registry.add(grant);
+  registry.add(grant, REGISTRY_WRITE_TOKEN);
   ledger.append({
     type: "delegation_granted",
     delegationId: grant.id,
@@ -353,12 +362,7 @@ export function revokeDelegation({ delegationId, actor, reason, registry, ledger
   if (!(registry instanceof DelegationRegistry)) throw new TypeError("registry must be a DelegationRegistry");
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   if (!isHuman(actor)) throw new Error("DELEGATION_REVOCATION_REQUIRES_ACTIVE_HUMAN");
-  const grant = registry.get(delegationId);
-  if (!grant) throw new Error("DELEGATION_NOT_FOUND");
-  if (actor.id !== grant.delegatorId && !hasPermission(actor, "governance:delegation:revoke")) {
-    throw new Error("DELEGATION_REVOCATION_PERMISSION_REQUIRED");
-  }
-  return registry.revoke(delegationId, actor.id, requireString(reason, "reason"), ledger);
+  return registry.revoke(delegationId, actor, reason, ledger, REGISTRY_WRITE_TOKEN);
 }
 
 export function resolveDelegatedAuthority({ actor, permission, scope, registry, now = new Date() }) {
