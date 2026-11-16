@@ -284,6 +284,7 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
     type: "approval_recorded",
     decisionId: state.decisionId,
     actorId: approver.id,
+    policyDigest: state.policyDigest,
     permissionSource: approverPermission.source,
     delegationId: approverPermission.delegationId ?? null,
     approvalCount: state.approvals.length,
