@@ -3,11 +3,15 @@ import assert from "node:assert/strict";
 import { blackpinePolicies } from "../adapters/blackpine/policies.mjs";
 import {
   AuditLedger,
+  DelegationRegistry,
   createDecision,
+  grantDelegation,
   evaluateDecision,
   overrideDecision,
   recordApproval,
   rejectDecision,
+  resolveDelegatedAuthority,
+  revokeDelegation,
 } from "../src/index.mjs";
 
 const policy = {
@@ -257,4 +261,161 @@ test("Blackpine hands-on claims require possession, date, conditions, and load e
   assert.equal(result.eligibleToSubmit, false);
   assert.ok(result.reasons.includes("REQUIRED_EVIDENCE_MISSING:possession-record"));
   assert.ok(result.reasons.includes("REQUIRED_EVIDENCE_MISSING:load-record"));
+});
+
+
+const delegationIssuer = {
+  id: "human-delegator", principalType: "human", active: true,
+  rank: "Owner", level: 5,
+  permissions: ["governance:delegate", "content:submit", "content:approve"],
+  conflicts: [],
+};
+const delegate = {
+  id: "human-delegate", principalType: "human", active: true,
+  rank: "Assistant Secretary", level: 3, permissions: [], conflicts: [],
+};
+
+test("delegation grants only held permissions for an exact scope and expires", () => {
+  const registry = new DelegationRegistry();
+  const ledger = new AuditLedger();
+  const now = new Date("2026-11-16T12:00:00.000Z");
+  const grant = grantDelegation({
+    delegator: delegationIssuer, delegate,
+    permissions: ["content:submit"],
+    scope: "blackpine:field-guides",
+    expiresAt: "2026-11-17T12:00:00.000Z",
+    reason: "Temporary editorial coverage",
+    registry, ledger, now,
+  });
+  assert.equal(grant.subdelegationAllowed, false);
+  assert.equal(resolveDelegatedAuthority({
+    actor: delegate, permission: "content:submit",
+    scope: "blackpine:field-guides", registry, now,
+  }).allowed, true);
+  assert.equal(resolveDelegatedAuthority({
+    actor: delegate, permission: "content:submit",
+    scope: "blackpine:financial-accounts", registry, now,
+  }).allowed, false);
+  assert.equal(resolveDelegatedAuthority({
+    actor: delegate, permission: "content:submit",
+    scope: "blackpine:field-guides", registry,
+    now: new Date("2026-11-18T12:00:00.000Z"),
+  }).allowed, false);
+  assert.equal(ledger.verify(), true);
+});
+
+test("delegated permission can submit a scoped decision but cannot approve itself", () => {
+  const registry = new DelegationRegistry();
+  const ledger = new AuditLedger();
+  const now = new Date("2026-11-16T12:00:00.000Z");
+  grantDelegation({
+    delegator: delegationIssuer, delegate,
+    permissions: ["content:submit"],
+    scope: "blackpine:field-guides",
+    expiresAt: "2026-11-17T12:00:00.000Z",
+    reason: "Temporary editorial coverage",
+    registry, ledger, now,
+  });
+  const decision = createDecision({
+    request: { id: "d-delegated-1", title: "Submit guide", scope: "blackpine:field-guides" },
+    requester: delegate, policy, ledger, delegationRegistry: registry, now,
+  });
+  assert.equal(decision.status, "pending_approval");
+  assert.equal(decision.permissionSource, "delegated");
+  assert.throws(
+    () => recordApproval({ decision, approver: delegate, policy, ledger, delegationRegistry: registry, now }),
+    /SELF_APPROVAL_PROHIBITED/,
+  );
+});
+
+test("delegated approval is recorded as delegated and remains subject to all other checks", () => {
+  const registry = new DelegationRegistry();
+  const ledger = new AuditLedger();
+  const now = new Date("2026-11-16T12:00:00.000Z");
+  const approvalDelegate = { ...delegate, id: "human-approval-delegate" };
+  grantDelegation({
+    delegator: delegationIssuer, delegate: approvalDelegate,
+    permissions: ["content:approve"],
+    scope: "blackpine:field-guides",
+    expiresAt: "2026-11-17T12:00:00.000Z",
+    reason: "Temporary approval coverage",
+    registry, ledger, now,
+  });
+  const decision = createDecision({
+    request: { id: "d-delegated-2", title: "Submit guide", scope: "blackpine:field-guides" },
+    requester, policy, ledger, now,
+  });
+  recordApproval({
+    decision, approver: approvalDelegate, policy, ledger,
+    delegationRegistry: registry, now,
+  });
+  assert.equal(decision.status, "approved");
+  assert.equal(decision.approvals[0].permissionSource, "delegated");
+});
+
+test("delegation cannot transfer override, delegation, or Blackpine owner approval", () => {
+  const registry = new DelegationRegistry();
+  const ledger = new AuditLedger();
+  for (const permission of ["governance:override", "governance:delegate", "blackpine:owner:approve"]) {
+    assert.throws(() => grantDelegation({
+      delegator: delegationIssuer, delegate, permissions: [permission],
+      scope: "blackpine:field-guides",
+      expiresAt: "2026-11-17T12:00:00.000Z",
+      reason: "Attempt to transfer reserved authority",
+      registry, ledger,
+    }), /NON_DELEGABLE_PERMISSION_REQUESTED/);
+  }
+});
+
+test("delegation issuer cannot delegate permissions they do not hold", () => {
+  const registry = new DelegationRegistry();
+  const ledger = new AuditLedger();
+  assert.throws(() => grantDelegation({
+    delegator: delegationIssuer, delegate,
+    permissions: ["blackpine:finance:request"],
+    scope: "blackpine:financial-accounts",
+    expiresAt: "2026-11-17T12:00:00.000Z",
+    reason: "Attempt to exceed authority",
+    registry, ledger,
+  }), /DELEGATOR_CANNOT_DELEGATE_UNHELD_PERMISSION/);
+});
+
+test("delegator can revoke a grant immediately and revocation is audited", () => {
+  const registry = new DelegationRegistry();
+  const ledger = new AuditLedger();
+  const grant = grantDelegation({
+    delegator: delegationIssuer, delegate,
+    permissions: ["content:submit"],
+    scope: "blackpine:field-guides",
+    expiresAt: "2026-11-17T12:00:00.000Z",
+    reason: "Temporary editorial coverage",
+    registry, ledger,
+  });
+  revokeDelegation({
+    delegationId: grant.id, actor: delegationIssuer,
+    reason: "Coverage ended", registry, ledger,
+  });
+  assert.equal(resolveDelegatedAuthority({
+    actor: delegate, permission: "content:submit",
+    scope: "blackpine:field-guides", registry,
+  }).allowed, false);
+  assert.equal(ledger.list().at(-1).type, "delegation_revoked");
+  assert.equal(ledger.verify(), true);
+});
+
+test("delegation cannot be self-granted or issued by an agent", () => {
+  const registry = new DelegationRegistry();
+  const ledger = new AuditLedger();
+  assert.throws(() => grantDelegation({
+    delegator: delegationIssuer, delegate: delegationIssuer,
+    permissions: ["content:submit"], scope: "blackpine:field-guides",
+    expiresAt: "2026-11-17T12:00:00.000Z", reason: "Self grant",
+    registry, ledger,
+  }), /SELF_DELEGATION_PROHIBITED/);
+  assert.throws(() => grantDelegation({
+    delegator: { ...delegationIssuer, principalType: "agent" }, delegate,
+    permissions: ["content:submit"], scope: "blackpine:field-guides",
+    expiresAt: "2026-11-17T12:00:00.000Z", reason: "Agent grant",
+    registry, ledger,
+  }), /DELEGATION_REQUIRES_ACTIVE_HUMANS/);
 });
