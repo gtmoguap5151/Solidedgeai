@@ -59,3 +59,28 @@ and test fixtures. The adapter must never write to the production store. A later
 write-capable integration would require a separate, explicitly approved design,
 a staged deployment target, authenticated identity, durable audit storage, and
 rollback controls.
+
+
+## Repository reader
+
+`repository-reader.mjs` reads a fixed allowlist from the public GitHub repository
+using GET requests only. It verifies each downloaded file against the Git blob SHA
+reported by the repository tree, calculates a SHA-256 content digest, and returns
+a metadata snapshot plus evidence references. Raw file contents are not included
+in the returned snapshot.
+
+The reader intentionally does not fetch the operational status file, affiliate
+application packet, private account data, or XABO working files. It does not write
+to GitHub or the storefront.
+
+## Evidence interpretation
+
+- A source-reference-list record proves that a source section exists in a versioned
+  repository file; it does not independently verify the source or the claim.
+- A specification-record proves that a specification comparison document exists
+  at a particular repository revision; it does not prove the manufacturer figure.
+- The current reader does not manufacture manufacturer-source, possession, test-date,
+  test-condition, or load evidence.
+- Therefore a research draft may pass the editorial evidence gate while a product
+  claim requiring manufacturer-source evidence remains blocked. A hands-on claim
+  remains blocked until actual test evidence is attached.
