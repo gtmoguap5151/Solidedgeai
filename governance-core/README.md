@@ -30,6 +30,7 @@ A title does not automatically confer every permission. A higher level does not 
 - `src/index.mjs` — policy evaluation, decision lifecycle, and scoped delegation functions.
 - `adapters/blackpine/policies.mjs` — Blackpine-specific decision and evidence policies.
 - `adapters/blackpine/repository-reader.mjs` — allowlisted, read-only GitHub snapshot reader with Git blob integrity checks; returns evidence references and observations, not raw repository file contents.
+- `adapters/blackpine/check-live.mjs` — live, read-only snapshot check used by CI after the unit tests.
 - `adapters/blackpine/README.md` — read-only integration boundary and operating rules.
 - `test/governance.test.mjs` — Node built-in tests for core invariants and Blackpine scenarios.
 
