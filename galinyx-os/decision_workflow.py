@@ -6,6 +6,12 @@ from uuid import uuid4
 from org_simulation import ORG_ID, RESOURCE_DIVISIONS, Actor, authorize
 
 
+def _required(value, label, maximum=256):
+    if not isinstance(value, str) or not value.strip() or len(value) > maximum:
+        raise ValueError(f"{label} must be a nonempty string of at most {maximum} characters")
+    return value
+
+
 class DecisionWorkflowService:
     """Persist proposals; require owner approval before governed execution."""
 
@@ -49,11 +55,12 @@ class DecisionWorkflowService:
                 (proposal_id, state, actor_type, actor_id, approval_id, execution_id,
                  json.dumps(detail, sort_keys=True, separators=(",", ":")), occurred_at),
             )
+            organization = self._organization()
             self.store._append_audit(
                 actor_type=actor_type,
                 actor_id=actor_id,
                 agent_id=agent_id,
-                tenant_id=proposal[0],
+                tenant_id=organization["tenant_id"],
                 grant_id=grant_id,
                 request_id=request_id,
                 action=action,
@@ -132,9 +139,7 @@ class DecisionWorkflowService:
         self._grant_scope(
             target_grant_id, executor_agent, action, resource_id, require_approval=True
         )
-        request_id = str(request_id).strip()
-        if not request_id:
-            raise ValueError("request_id is required")
+        request_id = _required(request_id, "request_id")
         proposal_id = str(uuid4())
         created_at = datetime.now(timezone.utc).isoformat()
         self.store._begin()
@@ -158,7 +163,7 @@ class DecisionWorkflowService:
             )
             self.store._append_audit(
                 actor_type="agent", actor_id=proposer_actor_id,
-                agent_id=proposer_agent, tenant_id=self.organization_id,
+                agent_id=proposer_agent, tenant_id=org["tenant_id"],
                 grant_id=proposer_grant_id, request_id=request_id,
                 action="decision.propose", resource_id=resource_id,
                 decision="proposed", policy_version="galinyx-decision-workflow-1",
