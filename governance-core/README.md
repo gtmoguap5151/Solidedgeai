@@ -26,7 +26,9 @@ A title does not automatically confer every permission. A higher level does not 
 ## Files
 
 - `src/index.mjs` — policy evaluation and decision lifecycle functions.
-- `test/governance.test.mjs` — Node built-in tests for core invariants.
+- `adapters/blackpine/policies.mjs` — Blackpine-specific decision and evidence policies.
+- `adapters/blackpine/README.md` — read-only integration boundary and operating rules.
+- `test/governance.test.mjs` — Node built-in tests for core invariants and Blackpine scenarios.
 
 ## Run tests
 
