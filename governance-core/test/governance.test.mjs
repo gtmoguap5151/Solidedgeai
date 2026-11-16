@@ -853,16 +853,15 @@ test("Blackpine live-snapshot evidence completes an editorial decision lifecycle
   const mock = mockBlackpineFetch(blackpineFixtureFiles());
   const snapshot = await loadBlackpineSnapshot({ fetchImpl: mock.fetchImpl });
   const ledger = new AuditLedger();
-  const editorialRequester = {
-    id: "bp-lifecycle-editor", principalType: "human", active: true,
-    rank: "Editor", levels: { editorial: 2 },
-    permissions: ["blackpine:content:submit"], conflicts: [],
-  };
-  const editorialApprover = {
-    id: "bp-lifecycle-approver", principalType: "human", active: true,
-    rank: "Owner", levels: { editorial: 2 },
-    permissions: ["blackpine:content:approve"], conflicts: [],
-  };
+  const authority = createBlackpineTestAuthority();
+  const editorialRequester = authority.principal({
+    id: "bp-lifecycle-editor", rank: "Editor",
+    levels: { editorial: 2 }, permissions: ["blackpine:content:submit"],
+  });
+  const editorialApprover = authority.principal({
+    id: "bp-lifecycle-approver", rank: "Owner",
+    levels: { editorial: 2 }, permissions: ["blackpine:content:approve"],
+  });
   const editorial = createDecision({
     request: {
       id: "bp-lifecycle-editorial", title: "Research guide draft",
@@ -883,11 +882,11 @@ test("Blackpine live-snapshot evidence completes an editorial decision lifecycle
       id: "bp-lifecycle-product-claim", title: "Verified product claim",
       scope: "blackpine:product-claims", evidence: snapshot.evidence,
     },
-    requester: {
-      id: "bp-lifecycle-researcher", principalType: "human", active: true,
+    requester: authority.principal({
+      id: "bp-lifecycle-researcher", rank: "Researcher",
       levels: { "product-evidence": 3 },
-      permissions: ["blackpine:claim:submit"], conflicts: [],
-    },
+      permissions: ["blackpine:claim:submit"],
+    }),
     policy: blackpinePolicies.productClaim,
     ledger,
   });
@@ -895,11 +894,11 @@ test("Blackpine live-snapshot evidence completes an editorial decision lifecycle
   assert.throws(
     () => recordApproval({
       decision: productClaim,
-      approver: {
-        id: "bp-lifecycle-claim-approver", principalType: "human", active: true,
+      approver: authority.principal({
+        id: "bp-lifecycle-claim-approver", rank: "Verifier",
         levels: { "product-evidence": 3 },
-        permissions: ["blackpine:claim:verify"], conflicts: [],
-      },
+        permissions: ["blackpine:claim:verify"],
+      }),
       policy: blackpinePolicies.productClaim,
       ledger,
     }),
