@@ -326,6 +326,10 @@ test("delegated permission can submit a scoped decision but cannot approve itsel
     () => recordApproval({ decision, approver: delegate, policy, ledger, delegationRegistry: registry, now }),
     /SELF_APPROVAL_PROHIBITED/,
   );
+  assert.throws(
+    () => recordApproval({ decision, approver: delegationIssuer, policy, ledger, delegationRegistry: registry, now }),
+    /DELEGATION_GRANTOR_CANNOT_APPROVE/,
+  );
 });
 
 test("delegated approval is recorded as delegated and remains subject to all other checks", () => {
