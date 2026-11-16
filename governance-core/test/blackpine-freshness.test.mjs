@@ -148,3 +148,46 @@ test("BP-002: future-dated retailer evidence is blocked", () => {
   assert.equal(result.eligibleToSubmit, false);
   assert.ok(result.reasons.includes("EVIDENCE_OBSERVED_AT_IN_FUTURE:retailer-price-check"));
 });
+
+
+test("BP-002: evidence that expires while awaiting approval blocks the pending decision", () => {
+  const ledger = new AuditLedger();
+  const decision = createDecision({
+    request: {
+      id: "BP-002-expires-before-approval",
+      title: "Update product price with short-lived evidence",
+      scope: "blackpine:product-price",
+      evidence: [
+        {
+          type: "retailer-price-check",
+          reference: "fixture://bp002/short-lived-price-check",
+          observedAt: "2026-11-16T17:45:00.000Z",
+          expiresAt: "2026-11-16T18:30:00.000Z",
+        },
+        offerTerms,
+      ],
+    },
+    requester,
+    policy: blackpinePolicies.priceClaim,
+    ledger,
+    now,
+  });
+
+  assert.equal(decision.status, "pending_approval");
+
+  assert.throws(
+    () => recordApproval({
+      decision,
+      approver,
+      policy: blackpinePolicies.priceClaim,
+      ledger,
+      now: new Date("2026-11-16T18:31:00.000Z"),
+    }),
+    /DECISION_EVIDENCE_NO_LONGER_VALID/,
+  );
+
+  assert.equal(decision.status, "blocked");
+  assert.ok(decision.reasons.includes("EVIDENCE_EXPIRED:retailer-price-check"));
+  assert.equal(ledger.list().at(-1).type, "decision_blocked_at_approval");
+  assert.equal(ledger.verify(), true);
+});
