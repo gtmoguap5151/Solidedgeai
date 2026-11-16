@@ -204,3 +204,22 @@ authentication or a real external action adapter. The module does not itself
 dispatch actions or claim exactly-once effects at an external target.
 
 Run the new receipt tests with the full unittest discovery command above.
+
+## GALINYX Ventures — governed organization simulation
+
+GALINYX Ventures is the first synthetic operating organization for the human-root / hybrid-governance model. The organization chart and deterministic policy decisions are in org_simulation.py. Receipt-backed simulation is in governed_org_simulation.py.
+
+Run the end-to-end local demonstration:
+
+```bash
+python galinyx-os/ventures_governed_demo.py
+```
+
+The demonstration creates a disposable local tenant, persists executive workload bindings and scoped AHAF grants, and exercises:
+- a permitted product-planning action that receives a durable execution receipt;
+- a CEO proposal that is denied when no matching persisted grant exists;
+- a high-impact policy activation denied without approval;
+- the same policy activation after an exact, single-use human-owner approval;
+- verification of the append-only AHAF audit hash chain.
+
+The simulation adapter is synthetic and performs no external work. The injected actor-to-agent map and deterministic credentials are trusted local test/demo setup, not production identity. This environment is not a live company, production security boundary, or deployment.
