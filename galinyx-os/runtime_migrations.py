@@ -320,10 +320,50 @@ def _organization_registry_schema(db):
     )
 
 
+def _decision_workflow_schema(db):
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS galinyx_decision_proposals("
+        "proposal_id TEXT PRIMARY KEY, org_id TEXT NOT NULL, proposer_actor_id TEXT NOT NULL, "
+        "executor_actor_id TEXT NOT NULL, request_id TEXT NOT NULL, action TEXT NOT NULL, "
+        "resource_id TEXT NOT NULL, grant_id TEXT NOT NULL, created_at TEXT NOT NULL, "
+        "UNIQUE(org_id,request_id), "
+        "FOREIGN KEY(org_id) REFERENCES galinyx_organizations(org_id), "
+        "FOREIGN KEY(org_id,proposer_actor_id) REFERENCES galinyx_org_roles(org_id,actor_id), "
+        "FOREIGN KEY(org_id,executor_actor_id) REFERENCES galinyx_org_roles(org_id,actor_id), "
+        "FOREIGN KEY(grant_id) REFERENCES ahaf_authority_grants(grant_id))"
+    )
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS galinyx_decision_events("
+        "event_id INTEGER PRIMARY KEY AUTOINCREMENT, proposal_id TEXT NOT NULL, "
+        "state TEXT NOT NULL CHECK(state IN ('proposed','approved','rejected','executed','execution_denied')), "
+        "actor_type TEXT NOT NULL CHECK(actor_type IN ('human','agent')), actor_id TEXT NOT NULL, "
+        "approval_id TEXT, execution_id TEXT, detail_json TEXT NOT NULL, occurred_at TEXT NOT NULL, "
+        "FOREIGN KEY(proposal_id) REFERENCES galinyx_decision_proposals(proposal_id), "
+        "FOREIGN KEY(approval_id) REFERENCES ahaf_approvals(approval_id), "
+        "FOREIGN KEY(execution_id) REFERENCES ahaf_execution_receipts(execution_id))"
+    )
+    for table in ("galinyx_decision_proposals", "galinyx_decision_events"):
+        db.execute(
+            f"CREATE TRIGGER IF NOT EXISTS {table}_no_update "
+            f"BEFORE UPDATE ON {table} BEGIN "
+            "SELECT RAISE(ABORT, 'GALINYX decision records are append-only'); END"
+        )
+        db.execute(
+            f"CREATE TRIGGER IF NOT EXISTS {table}_no_delete "
+            f"BEFORE DELETE ON {table} BEGIN "
+            "SELECT RAISE(ABORT, 'GALINYX decision records are append-only'); END"
+        )
+    db.execute(
+        "CREATE INDEX IF NOT EXISTS idx_galinyx_decision_events_proposal "
+        "ON galinyx_decision_events(proposal_id,event_id)"
+    )
+
+
 GALINYX_MIGRATIONS = (
     Migration(1, "core_runtime_schema", _core_schema),
     Migration(2, "workspace_identity_schema", _workspace_schema),
     Migration(3, "ahaf_persistent_records", _ahaf_persistence_schema),
     Migration(4, "durable_execution_receipts", _execution_receipt_schema),
     Migration(5, "galinyx_organization_registry", _organization_registry_schema),
+    Migration(6, "galinyx_decision_workflow", _decision_workflow_schema),
 )
