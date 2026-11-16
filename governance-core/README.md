@@ -16,14 +16,15 @@ A title does not automatically confer every permission. A higher level does not 
 ## Non-negotiable design constraints
 
 1. Human beings retain ultimate authority. An AI or automated system may prepare recommendations but cannot finalize, approve, or override a decision.
-2. The core fails closed when identity, authority, permission, level, required approvals, or conflict checks are missing.
+2. The core fails closed when identity, authority, permission, domain-specific level, required approvals, or conflict checks are missing. Approval and rejection are bound to the policy ID and version used when the decision was created; revoked or expired delegated authority cannot be used to complete a pending decision.
 3. The requester cannot approve their own decision.
 4. Required approvals must come from distinct, eligible human actors.
-5. A human override requires an explicit reason and is recorded as a separate event; it does not erase the original evaluation.
-6. Delegation is single-hop, permission-bounded, exact-scope, time-limited, revocable, and auditable. Delegators cannot grant permissions they do not hold. Reserved authority such as governance override, further delegation, and Blackpine owner approval is non-delegable.
-7. Delegated permissions do not transfer the delegator's identity, rank, level, or accountability. The delegate remains the acting human and must independently satisfy the policy's domain-specific level, conflict, evidence, and separation-of-duties checks.
-8. Audit events are hash-linked to make accidental or unauthorized alteration detectable when the chain is retained. This is **not** immutable storage or a security guarantee. Production requires protected persistence, access controls, backups, and independent verification.
-9. The core does not connect to Blackpine Field, external APIs, or production data in this milestone.
+5. Decision state is held behind immutable handles; callers receive snapshots, not writable approval arrays or status fields. Only governance operations can mutate the internal decision state.
+6. A human override requires an explicit reason and is recorded as a separate event; it does not erase the original evaluation.
+7. Delegation is single-hop, permission-bounded, exact-scope, time-limited, revocable, and auditable. Delegators cannot grant permissions they do not hold. Reserved authority such as governance override, further delegation, and Blackpine owner approval is non-delegable.
+8. Delegated permissions do not transfer the delegator's identity, rank, level, or accountability. The delegate remains the acting human and must independently satisfy the policy's domain-specific level, conflict, evidence, and separation-of-duties checks.
+9. Audit events are hash-linked to make accidental or unauthorized alteration detectable when the chain is retained. This is **not** immutable storage or a security guarantee. Production requires protected persistence, access controls, backups, and independent verification.
+10. The core does not connect to Blackpine Field, external APIs, or production data in this milestone.
 
 ## Files
 
