@@ -620,11 +620,12 @@ test("Blackpine repository adapter rejects arbitrary refs and truncated trees", 
 test("Blackpine snapshot evidence satisfies editorial controls but not unsupported product claims", async () => {
   const mock = mockBlackpineFetch(blackpineFixtureFiles());
   const snapshot = await loadBlackpineSnapshot({ fetchImpl: mock.fetchImpl });
-  const editor = {
-    id: "bp-editor-from-snapshot", principalType: "human", active: true,
-    rank: "Editor", levels: { editorial: 2 },
-    permissions: ["blackpine:content:submit"], conflicts: [],
-  };
+  const authority = createBlackpineTestAuthority();
+  const editor = authority.principal({
+    id: "bp-editor-from-snapshot", rank: "Editor",
+    levels: { editorial: 2 },
+    permissions: ["blackpine:content:submit"],
+  });
   const draft = evaluateDecision({
     request: {
       id: "bp-snapshot-draft", title: "Prepare research guide",
@@ -635,10 +636,11 @@ test("Blackpine snapshot evidence satisfies editorial controls but not unsupport
   });
   assert.equal(draft.eligibleToSubmit, true);
 
-  const researcher = {
-    ...editor, id: "bp-snapshot-researcher", levels: { "product-evidence": 3 },
+  const researcher = authority.principal({
+    id: "bp-snapshot-researcher", rank: "Researcher",
+    levels: { "product-evidence": 3 },
     permissions: ["blackpine:claim:submit"],
-  };
+  });
   const claim = evaluateDecision({
     request: {
       id: "bp-snapshot-claim", title: "Publish verified product claim",
