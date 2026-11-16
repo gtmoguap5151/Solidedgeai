@@ -190,7 +190,7 @@ test("human override requires permission and reason and is separately logged", (
     decision,
     human: overrideAuthority.root,
     reason: "Board-directed exception; evidence attached to case record",
-    ledger,
+    ledger, authorityRegistry: overrideAuthority.registry,
   });
   assert.equal(decision.status, "overridden");
   assert.equal(ledger.list().at(-1).type, "human_override");
@@ -918,7 +918,7 @@ test("Blackpine live-snapshot evidence completes an editorial decision lifecycle
         permissions: ["blackpine:claim:verify"],
       }),
       policy: blackpinePolicies.productClaim,
-      ledger,
+      ledger, authorityRegistry: authority.registry,
     }),
     /DECISION_NOT_ELIGIBLE_FOR_APPROVAL/,
   );
@@ -968,7 +968,7 @@ test("authority registry resolves verified identities with scoped permissions an
       id: "scoped-b", title: "Submit guide B",
       scope: "blackpine:guide-b",
     },
-    requester: principal, policy: scopedPolicy,
+    requester: principal, policy: scopedPolicy, authorityRegistry: registry,
   });
   assert.equal(allowed.eligibleToSubmit, true);
   assert.equal(denied.eligibleToSubmit, false);
