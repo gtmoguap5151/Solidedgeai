@@ -159,12 +159,17 @@ export async function loadBlackpineSnapshot({ fetchImpl = globalThis.fetch, ref 
     treeSha: tree.sha,
   });
 
+  const capturedAt = new Date().toISOString();
+  const adapterVerifier = "galinyx-blackpine-read-only-adapter";
   const evidence = [];
   const homepageFile = files.find((file) => file.path === "site/index.html");
   if (affiliateDisclosurePresent && homepageFile) {
     evidence.push(Object.freeze({
       type: "affiliate-disclosure-check",
       reference: referenceFor(source, homepageFile),
+      contentSha256: homepageFile.contentSha256,
+      verifiedBy: adapterVerifier,
+      verifiedAt: capturedAt,
     }));
   }
   for (const item of sourceReferenceFiles) {
@@ -173,6 +178,9 @@ export async function loadBlackpineSnapshot({ fetchImpl = globalThis.fetch, ref 
       evidence.push(Object.freeze({
         type: "source-reference-list",
         reference: referenceFor(source, file),
+        contentSha256: file.contentSha256,
+        verifiedBy: adapterVerifier,
+        verifiedAt: capturedAt,
       }));
     }
   }
@@ -182,6 +190,9 @@ export async function loadBlackpineSnapshot({ fetchImpl = globalThis.fetch, ref 
       evidence.push(Object.freeze({
         type: "specification-record",
         reference: referenceFor(source, file),
+        contentSha256: file.contentSha256,
+        verifiedBy: adapterVerifier,
+        verifiedAt: capturedAt,
       }));
     }
   }
@@ -189,7 +200,7 @@ export async function loadBlackpineSnapshot({ fetchImpl = globalThis.fetch, ref 
   return Object.freeze({
     schemaVersion: "1.0.0",
     source,
-    capturedAt: new Date().toISOString(),
+    capturedAt,
     files: Object.freeze(files),
     observations: Object.freeze({
       affiliateDisclosurePresent,
