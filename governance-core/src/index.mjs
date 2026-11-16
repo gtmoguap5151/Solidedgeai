@@ -66,6 +66,20 @@ function eventDigest(event) {
   return createHash("sha256").update(JSON.stringify(event)).digest("hex");
 }
 
+function stableSerialize(value) {
+  if (Array.isArray(value)) return "[" + value.map(stableSerialize).join(",") + "]";
+  if (value && typeof value === "object") {
+    return "{" + Object.keys(value).sort().map((key) =>
+      JSON.stringify(key) + ":" + stableSerialize(value[key])
+    ).join(",") + "}";
+  }
+  return JSON.stringify(value);
+}
+
+function policyDigest(policy) {
+  return createHash("sha256").update(stableSerialize(policy)).digest("hex");
+}
+
 function deepFreeze(value) {
   if (value && typeof value === "object" && !Object.isFrozen(value)) {
     Object.freeze(value);
@@ -165,6 +179,7 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
     decisionId: request.id,
     policyId: policy.id,
     policyVersion: policy.version,
+    policyDigest: policyDigest(policy),
     permission: policy.permission,
     eligibleToSubmit: reasons.length === 0,
     reasons,
@@ -196,6 +211,7 @@ export function createDecision({ request, requester, policy, ledger, delegationR
     status: state.status,
     policyId: policy.id,
     policyVersion: policy.version,
+    policyDigest: state.policyDigest,
     scope: state.scope,
     permissionSource: state.permissionSource,
     delegationId: state.delegationId,
@@ -211,6 +227,7 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
   if (state.status !== "pending_approval") throw new Error("DECISION_NOT_ELIGIBLE_FOR_APPROVAL");
   if (state.policyId !== policy.id ||
       state.policyVersion !== policy.version ||
+      state.policyDigest !== policyDigest(policy) ||
       state.permission !== policy.permission ||
       state.requiredApprovals !== policy.requiredApprovals ||
       state.levelDomain !== (policy.levelDomain ?? "general")) {
@@ -281,6 +298,7 @@ export function rejectDecision({ decision, actor, reason, ledger, policy, now = 
   if (!isHuman(actor)) throw new Error("REJECTION_REQUIRES_ACTIVE_HUMAN");
   if (TERMINAL.has(state.status)) throw new Error("TERMINAL_DECISION_CANNOT_BE_CHANGED");
   if (!policy || state.policyId !== policy.id || state.policyVersion !== policy.version ||
+      state.policyDigest !== policyDigest(policy) ||
       state.permission !== policy.permission || state.levelDomain !== (policy.levelDomain ?? "general")) {
     throw new Error("DECISION_POLICY_MISMATCH");
   }
@@ -303,6 +321,7 @@ export function rejectDecision({ decision, actor, reason, ledger, policy, now = 
     decisionId: state.decisionId,
     actorId: actor.id,
     permission: rejectionPermission,
+    policyDigest: state.policyDigest,
     levelDomain: policy.levelDomain ?? "general",
     level,
     reason: detail,
