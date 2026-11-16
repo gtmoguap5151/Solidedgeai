@@ -248,6 +248,223 @@ class ExecutionReceiptService:
             self.store._finish(exc)
             raise
 
+    def _receipt_row(self, execution_id, tenant_id):
+        return self.db.execute(
+            "SELECT execution_id,tenant_id,agent_id,grant_id,request_id,"
+            "policy_version,reservation_id FROM ahaf_execution_receipts "
+            "WHERE execution_id=? AND tenant_id=?",
+            (execution_id, tenant_id),
+        ).fetchone()
+
+    def _latest_state(self, execution_id):
+        row = self.db.execute(
+            "SELECT state FROM ahaf_execution_receipt_events "
+            "WHERE execution_id=? ORDER BY event_id DESC LIMIT 1",
+            (execution_id,),
+        ).fetchone()
+        if row is None:
+            raise RuntimeError("execution receipt has no lifecycle event")
+        return row[0]
+
+    def _append_transition(self, receipt, state, actor_type, actor_id, detail, decision, occurred_at):
+        execution_id, tenant_id, agent_id, grant_id, request_id, policy_version, _ = receipt
+        detail_json = json.dumps(detail, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        self.db.execute(
+            "INSERT INTO ahaf_execution_receipt_events "
+            "(execution_id,state,actor_type,actor_id,detail_json,occurred_at) "
+            "VALUES (?,?,?,?,?,?)",
+            (execution_id, state, actor_type, actor_id, detail_json, occurred_at),
+        )
+        self.store._append_audit(
+            actor_type=actor_type, actor_id=actor_id, agent_id=agent_id,
+            tenant_id=tenant_id, grant_id=grant_id, request_id=request_id,
+            policy_version=policy_version, decision=decision,
+            payload={"execution_id": execution_id, "state": state, **detail},
+            occurred_at=occurred_at,
+        )
+
+    def _settle_in_transaction(self, receipt, outcome, actor_id, occurred_at):
+        execution_id, tenant_id, agent_id, grant_id, request_id, policy_version, reservation_id = receipt
+        reservation = self.db.execute(
+            "SELECT leaf_grant_id,request_id,amount_units,unit_code "
+            "FROM ahaf_budget_reservations WHERE reservation_id=?",
+            (reservation_id,),
+        ).fetchone()
+        if reservation is None:
+            raise RuntimeError("execution receipt budget reservation is missing")
+        leaf_grant_id, reserved_request, amount_units, unit_code = reservation
+        if leaf_grant_id != grant_id or reserved_request != request_id:
+            raise RuntimeError("execution receipt budget reservation binding mismatch")
+        status = self.store._reservation_status(reservation_id)
+        if status == ("committed" if outcome == "commit" else "released"):
+            return False
+        if status != "reserved":
+            raise RuntimeError("execution receipt budget reservation has conflicting settlement")
+        chain = self.store._grant_chain(leaf_grant_id, require_active=False)
+        reserve_grants = {
+            row[0] for row in self.db.execute(
+                "SELECT grant_id FROM ahaf_budget_ledger "
+                "WHERE reservation_id=? AND entry_type='reserve'", (reservation_id,)
+            )
+        }
+        if reserve_grants != {item["grant_id"] for item in chain}:
+            raise RuntimeError("reservation grant ancestry no longer matches")
+        for item in chain:
+            self.db.execute(
+                "INSERT INTO ahaf_budget_ledger "
+                "(reservation_id,grant_id,entry_type,amount_units,unit_code,idempotency_key,created_at) "
+                "VALUES (?,?,?,?,?,?,?)",
+                (reservation_id, item["grant_id"], outcome, amount_units, unit_code,
+                 f"{outcome}:{reservation_id}:{item['grant_id']}", occurred_at),
+            )
+        self.store._append_audit(
+            actor_type="system", actor_id=actor_id, agent_id=agent_id,
+            tenant_id=tenant_id, grant_id=grant_id, request_id=request_id,
+            policy_version=policy_version, decision="budget_" + outcome,
+            payload={"execution_id": execution_id, "reservation_id": reservation_id,
+                     "amount_units": amount_units, "unit_code": unit_code},
+            occurred_at=occurred_at,
+        )
+        return True
+
+    def mark_dispatching(self, execution_id, *, tenant_id, adapter_id, adapter_version):
+        """Persist dispatch intent before a trusted adapter is called."""
+        execution_id = _required(execution_id, "execution_id")
+        tenant_id = _required(tenant_id, "tenant_id")
+        adapter_id = _required(adapter_id, "adapter_id")
+        adapter_version = _required(adapter_version, "adapter_version", 64)
+        now = datetime.now(timezone.utc).isoformat()
+        self.store._begin()
+        try:
+            receipt = self._receipt_row(execution_id, tenant_id)
+            if receipt is None:
+                raise KeyError("execution receipt not found")
+            if self._latest_state(execution_id) != "reserved":
+                raise PermissionError("only a reserved execution can enter dispatching")
+            self._append_transition(
+                receipt, "dispatching", "system", "execution-receipt-service",
+                {"adapter_id": adapter_id, "adapter_version": adapter_version},
+                "execution_dispatching", now,
+            )
+            self.store._finish()
+            return {"execution_id": execution_id, "state": "dispatching"}
+        except Exception as exc:
+            self.store._finish(exc)
+            raise
+
+    def record_outcome(self, execution_id, *, tenant_id, outcome,
+                       evidence_ref=None, evidence_digest=None, reason=None):
+        """Record adapter evidence; unknown outcomes deliberately retain budget holds."""
+        execution_id = _required(execution_id, "execution_id")
+        tenant_id = _required(tenant_id, "tenant_id")
+        if outcome not in ("succeeded", "failed_known", "outcome_unknown"):
+            raise ValueError("outcome must be succeeded, failed_known, or outcome_unknown")
+        if outcome in ("succeeded", "failed_known"):
+            evidence_ref = _required(evidence_ref, "evidence_ref", 1024)
+            evidence_digest = _required(evidence_digest, "evidence_digest", 128)
+        else:
+            reason = _required(reason, "reason", 512)
+        now = datetime.now(timezone.utc).isoformat()
+        self.store._begin()
+        try:
+            receipt = self._receipt_row(execution_id, tenant_id)
+            if receipt is None:
+                raise KeyError("execution receipt not found")
+            if self._latest_state(execution_id) != "dispatching":
+                raise PermissionError("adapter outcome requires a dispatching receipt")
+            detail = {"evidence_ref": evidence_ref, "evidence_digest": evidence_digest,
+                      "reason": reason}
+            if outcome == "succeeded":
+                self._settle_in_transaction(receipt, "commit", "execution-receipt-service", now)
+            elif outcome == "failed_known":
+                self._settle_in_transaction(receipt, "release", "execution-receipt-service", now)
+            self._append_transition(
+                receipt, outcome, "adapter", "trusted-adapter", detail,
+                "execution_" + outcome, now,
+            )
+            self.store._finish()
+            return {"execution_id": execution_id, "state": outcome}
+        except Exception as exc:
+            self.store._finish(exc)
+            raise
+
+    def begin_reconciliation(self, execution_id, *, tenant_id, reconciler_id):
+        """Open a reconciliation record for an ambiguous target outcome."""
+        execution_id = _required(execution_id, "execution_id")
+        tenant_id = _required(tenant_id, "tenant_id")
+        reconciler_id = _required(reconciler_id, "reconciler_id")
+        now = datetime.now(timezone.utc).isoformat()
+        self.store._begin()
+        try:
+            receipt = self._receipt_row(execution_id, tenant_id)
+            if receipt is None:
+                raise KeyError("execution receipt not found")
+            if self._latest_state(execution_id) != "outcome_unknown":
+                raise PermissionError("only an unknown outcome can enter reconciliation")
+            self._append_transition(
+                receipt, "reconciling", "system", reconciler_id,
+                {"reason": "target outcome requires evidence-based reconciliation"},
+                "execution_reconciling", now,
+            )
+            self.store._finish()
+            return {"execution_id": execution_id, "state": "reconciling"}
+        except Exception as exc:
+            self.store._finish(exc)
+            raise
+
+    def resolve_reconciliation(self, execution_id, *, tenant_id, owner_principal_id,
+                               resolution, evidence_ref=None, evidence_digest=None,
+                               reason=None):
+        """Resolve an unknown outcome using an authenticated tenant owner context."""
+        execution_id = _required(execution_id, "execution_id")
+        tenant_id = _required(tenant_id, "tenant_id")
+        owner_principal_id = _required(owner_principal_id, "owner_principal_id")
+        if resolution not in ("succeeded", "not_executed", "manual_review_required"):
+            raise ValueError("invalid reconciliation resolution")
+        if resolution in ("succeeded", "not_executed"):
+            evidence_ref = _required(evidence_ref, "evidence_ref", 1024)
+            evidence_digest = _required(evidence_digest, "evidence_digest", 128)
+        else:
+            reason = _required(reason, "reason", 512)
+        now = datetime.now(timezone.utc).isoformat()
+        self.store._begin()
+        try:
+            receipt = self._receipt_row(execution_id, tenant_id)
+            if receipt is None:
+                raise KeyError("execution receipt not found")
+            if self._latest_state(execution_id) != "reconciling":
+                raise PermissionError("receipt must be reconciling before human resolution")
+            owner = self.db.execute(
+                "SELECT 1 FROM principals p JOIN tenants t "
+                "ON t.owner_principal_id=p.principal_id "
+                "JOIN tenant_memberships m ON m.tenant_id=t.tenant_id "
+                "AND m.principal_id=p.principal_id "
+                "WHERE p.principal_id=? AND p.active=1 AND t.tenant_id=? "
+                "AND t.active=1 AND m.active=1 AND m.role='owner'",
+                (owner_principal_id, tenant_id),
+            ).fetchone()
+            if owner is None:
+                raise PermissionError("active tenant owner required to resolve reconciliation")
+            if resolution == "succeeded":
+                state = "reconciled_succeeded"
+                self._settle_in_transaction(receipt, "commit", owner_principal_id, now)
+            elif resolution == "not_executed":
+                state = "reconciled_not_executed"
+                self._settle_in_transaction(receipt, "release", owner_principal_id, now)
+            else:
+                state = "manual_review_required"
+            detail = {"evidence_ref": evidence_ref, "evidence_digest": evidence_digest,
+                      "reason": reason, "resolution": resolution}
+            self._append_transition(
+                receipt, state, "human", owner_principal_id, detail,
+                "execution_" + state, now,
+            )
+            self.store._finish()
+            return {"execution_id": execution_id, "state": state}
+        except Exception as exc:
+            self.store._finish(exc)
+            raise
+
     def get(self, execution_id, *, tenant_id):
         """Read a receipt only within its persisted tenant boundary."""
         execution_id = _required(execution_id, "execution_id")
