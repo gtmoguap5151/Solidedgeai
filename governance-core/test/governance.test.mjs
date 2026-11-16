@@ -190,7 +190,7 @@ test("audit events snapshot nested data and returned copies cannot alter the led
 test("Blackpine Secretary rank alone does not grant publish authority", () => {
   const secretary = {
     id: "bp-secretary", principalType: "human", active: true,
-    rank: "Secretary", level: 4, permissions: [], conflicts: [],
+    rank: "Secretary", level: 99, levels: { "release-management": 4 }, permissions: [], conflicts: [],
   };
   const result = evaluateDecision({
     request: { id: "bp-1", title: "Publish approved field guide" },
@@ -247,7 +247,7 @@ test("Blackpine product claims are blocked without source evidence", () => {
 test("Blackpine hands-on claims require possession, date, conditions, and load evidence", () => {
   const claimAuthor = {
     id: "bp-researcher", principalType: "human", active: true,
-    rank: "Researcher", level: 3,
+    rank: "Researcher", levels: { "product-evidence": 3 },
     permissions: ["blackpine:claim:submit"], conflicts: [],
   };
   const evidence = [
