@@ -1193,3 +1193,146 @@ test("requester competency revoked while pending blocks approval", () => {
   assert.ok(decision.reasons.includes("REQUESTER_LEVEL_INSUFFICIENT"));
   assert.equal(authority.ledger.verify(), true);
 });
+
+
+test("verified Blackpine policies fail closed without a live authority registry", () => {
+  const authority = createBlackpineTestAuthority();
+  const principal = authority.principal({
+    id: "verified-without-registry", rank: "Editor",
+    levels: { editorial: 2 },
+    permissions: ["blackpine:content:submit"],
+  });
+  const result = evaluateDecision({
+    request: {
+      id: "bp-no-authority-registry", title: "Submit editorial draft",
+      scope: "blackpine:editorial",
+      evidence: [
+        { type: "source-reference-list", reference: "source://list" },
+        { type: "affiliate-disclosure-check", reference: "site://disclosure" },
+      ],
+    },
+    requester: principal,
+    policy: blackpinePolicies.contentDraft,
+  });
+  assert.equal(result.eligibleToSubmit, false);
+  assert.ok(result.reasons.includes("AUTHORITY_REGISTRY_REQUIRED"));
+});
+
+test("revoking a permission grant after submission blocks the pending decision", () => {
+  const authority = createBlackpineTestAuthority();
+  const { registry, root, ledger } = authority;
+  const requesterGrant = registry.issuePermission({
+    issuer: root, subjectId: "permission-revoked-requester",
+    permission: "scoped:submit", scope: "*",
+    expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Temporary request permission", ledger,
+  });
+  registry.certifyCompetency({
+    issuer: root, subjectId: "permission-revoked-requester",
+    domain: "editorial", level: 2,
+    evidence: [{ type: "assessment", reference: "assessment://permission-revoked" }],
+    expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Editorial competency", ledger,
+  });
+  const requesterPrincipal = registry.resolve({
+    identity: { id: "permission-revoked-requester", principalType: "human", active: true, verified: true },
+  });
+  const approverGrant = registry.issuePermission({
+    issuer: root, subjectId: "permission-revoked-approver",
+    permission: "scoped:approve", scope: "*",
+    expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Approval permission", ledger,
+  });
+  registry.certifyCompetency({
+    issuer: root, subjectId: "permission-revoked-approver",
+    domain: "editorial", level: 2,
+    evidence: [{ type: "assessment", reference: "assessment://approver" }],
+    expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Editorial competency", ledger,
+  });
+  const approverPrincipal = registry.resolve({
+    identity: { id: "permission-revoked-approver", principalType: "human", active: true, verified: true },
+  });
+  const policy = {
+    id: "permission-revocation-test", version: "1.0.0",
+    permission: "scoped:submit", approverPermission: "scoped:approve",
+    minimumLevel: 2, levelDomain: "editorial", requiredApprovals: 1,
+    requireVerifiedIdentity: true,
+  };
+  const decision = createDecision({
+    request: { id: "permission-revocation-decision", title: "Submit draft", scope: "blackpine:editorial" },
+    requester: requesterPrincipal, policy, ledger, authorityRegistry: registry,
+  });
+  registry.revoke({
+    recordId: requesterGrant.id, actor: root,
+    reason: "Request permission withdrawn", ledger,
+  });
+  assert.throws(
+    () => recordApproval({
+      decision, approver: approverPrincipal, policy, ledger,
+      authorityRegistry: registry,
+    }),
+    /REQUESTER_AUTHORITY_GRANT_NO_LONGER_ACTIVE/,
+  );
+  assert.equal(decision.status, "pending_approval");
+});
+
+test("revoking a competency credential after submission blocks approval", () => {
+  const authority = createBlackpineTestAuthority();
+  const { registry, root, ledger } = authority;
+  registry.issuePermission({
+    issuer: root, subjectId: "competency-revoked-requester",
+    permission: "scoped:submit", scope: "*",
+    expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Request permission", ledger,
+  });
+  const credential = registry.certifyCompetency({
+    issuer: root, subjectId: "competency-revoked-requester",
+    domain: "editorial", level: 2,
+    evidence: [{ type: "assessment", reference: "assessment://competency-revoked" }],
+    expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Editorial competency", ledger,
+  });
+  registry.issuePermission({
+    issuer: root, subjectId: "competency-revoked-approver",
+    permission: "scoped:approve", scope: "*",
+    expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Approval permission", ledger,
+  });
+  registry.certifyCompetency({
+    issuer: root, subjectId: "competency-revoked-approver",
+    domain: "editorial", level: 2,
+    evidence: [{ type: "assessment", reference: "assessment://approver-2" }],
+    expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Editorial competency", ledger,
+  });
+  const requesterPrincipal = registry.resolve({
+    identity: { id: "competency-revoked-requester", principalType: "human", active: true, verified: true },
+  });
+  const approverPrincipal = registry.resolve({
+    identity: { id: "competency-revoked-approver", principalType: "human", active: true, verified: true },
+  });
+  const policy = {
+    id: "competency-revocation-test", version: "1.0.0",
+    permission: "scoped:submit", approverPermission: "scoped:approve",
+    minimumLevel: 2, levelDomain: "editorial", requiredApprovals: 1,
+    requireVerifiedIdentity: true,
+  };
+  const decision = createDecision({
+    request: { id: "competency-revocation-decision", title: "Submit draft", scope: "blackpine:editorial" },
+    requester: requesterPrincipal, policy, ledger, authorityRegistry: registry,
+  });
+  registry.revoke({
+    recordId: credential.id, actor: root,
+    reason: "Competency credential withdrawn", ledger,
+  });
+  assert.throws(
+    () => recordApproval({
+      decision, approver: approverPrincipal, policy, ledger,
+      authorityRegistry: registry,
+    }),
+    /DECISION_AUTHORITY_OR_EVIDENCE_NO_LONGER_VALID/,
+  );
+  assert.equal(decision.status, "blocked");
+  assert.ok(decision.reasons.includes("REQUESTER_DOMAIN_LEVEL_INVALID"));
+});
