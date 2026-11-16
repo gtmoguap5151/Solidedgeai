@@ -17,6 +17,9 @@ The CI integration read 11 allowlisted files from the BLACKPINE FIELD GitHub rep
 
 The live snapshot reported:
 
+- Deployed storefront responded HTTP 200 at `https://blackpinefield.com/` on 2026-11-16 18:59 UTC.
+- Repository source contained 60 product cards; the live storefront also contained 60 product cards. **Inventory count matched.**
+- This current live check supersedes the older 2026-11-13 status note that listed 59 products live. The status document itself still needs a routine update.
 - Affiliate disclosure present.
 - Hands-on-testing disclosure present.
 - Research-only labels present across the three guide drafts.
