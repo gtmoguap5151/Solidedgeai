@@ -5,6 +5,7 @@
 export const blackpinePolicies = Object.freeze({
   contentDraft: Object.freeze({
     id: "blackpine.content.draft",
+    levelDomain: "editorial",
     version: "1.0.0",
     permission: "blackpine:content:submit",
     approverPermission: "blackpine:content:approve",
@@ -15,6 +16,7 @@ export const blackpinePolicies = Object.freeze({
   }),
   productClaim: Object.freeze({
     id: "blackpine.product.claim",
+    levelDomain: "product-evidence",
     version: "1.0.0",
     permission: "blackpine:claim:submit",
     approverPermission: "blackpine:claim:verify",
@@ -26,6 +28,7 @@ export const blackpinePolicies = Object.freeze({
   }),
   affiliateRelationship: Object.freeze({
     id: "blackpine.affiliate.relationship",
+    levelDomain: "commercial",
     version: "1.0.0",
     permission: "blackpine:affiliate:propose",
     approverPermission: "blackpine:owner:approve",
@@ -36,6 +39,7 @@ export const blackpinePolicies = Object.freeze({
   }),
   productionPublish: Object.freeze({
     id: "blackpine.production.publish",
+    levelDomain: "release-management",
     version: "1.0.0",
     permission: "blackpine:publish:request",
     approverPermission: "blackpine:owner:approve",
@@ -46,6 +50,7 @@ export const blackpinePolicies = Object.freeze({
   }),
   financialAccountChange: Object.freeze({
     id: "blackpine.financial.account.change",
+    levelDomain: "financial-controls",
     version: "1.0.0",
     permission: "blackpine:finance:request",
     approverPermission: "blackpine:owner:approve",
