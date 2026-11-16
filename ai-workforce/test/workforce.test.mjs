@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { WORKFORCE_ROLES } from "../roles.mjs";
 import { runBlackpineWorkforce } from "../workforce.mjs";
 import { createOpenAICompatibleProvider } from "../model-provider.mjs";
+import { createCloudflareWorkersAIProvider } from "../cloudflare-workers-ai-provider.mjs";
 import { assertProposalOnly } from "../governance-handoff.mjs";
 
 const evidenceRef = "github://gtmoguap5151/blackpine-field@main/README.md#blob=abc&sha256=def";
@@ -146,4 +147,62 @@ test("model provider rejects non-JSON model output", async () => {
     }),
   });
   await assert.rejects(provider.generate({ system: "system", prompt: "prompt" }), /MODEL_RESPONSE_NOT_VALID_JSON/);
+});
+
+
+test("Cloudflare Workers AI provider is lazy, sends bounded JSON-mode chat input, and parses the API envelope", async () => {
+  let requests = 0;
+  let requestUrl = "";
+  let requestInit;
+  const provider = createCloudflareWorkersAIProvider({
+    accountId: "0123456789abcdef0123456789abcdef",
+    apiToken: "test-cloudflare-token",
+    model: "@cf/zai-org/glm-4.7-flash",
+    maxOutputTokens: 700,
+    fetchImpl: async (url, init) => {
+      requests += 1;
+      requestUrl = url;
+      requestInit = init;
+      return {
+        ok: true,
+        json: async () => ({ success: true, result: { response: JSON.stringify({ summary: "ok" }) } }),
+      };
+    },
+  });
+  assert.equal(requests, 0);
+  const result = await provider.generate({ system: "system rules", prompt: "work prompt", maxTokens: 500 });
+  assert.deepEqual(result, { summary: "ok" });
+  assert.equal(requests, 1);
+  assert.match(requestUrl, /@cf%2Fzai-org%2Fglm-4\.7-flash$/);
+  assert.equal(requestInit.method, "POST");
+  assert.equal(requestInit.redirect, "error");
+  assert.equal(requestInit.headers.Authorization, "Bearer test-cloudflare-token");
+  const sent = JSON.parse(requestInit.body);
+  assert.equal(sent.max_tokens, 500);
+  assert.deepEqual(sent.response_format, { type: "json_object" });
+  assert.deepEqual(sent.messages, [
+    { role: "system", content: "system rules" },
+    { role: "user", content: "work prompt" },
+  ]);
+});
+
+test("Cloudflare Workers AI provider rejects missing configuration and malformed model output", async () => {
+  assert.throws(() => createCloudflareWorkersAIProvider({
+    accountId: "0123456789abcdef0123456789abcdef",
+    apiToken: "",
+    model: "@cf/zai-org/glm-4.7-flash",
+  }), /CLOUDFLARE_API_TOKEN/);
+  const provider = createCloudflareWorkersAIProvider({
+    accountId: "0123456789abcdef0123456789abcdef",
+    apiToken: "test-token",
+    model: "@cf/zai-org/glm-4.7-flash",
+    fetchImpl: async () => ({
+      ok: true,
+      json: async () => ({ success: true, result: { response: "truncated {" } }),
+    }),
+  });
+  await assert.rejects(
+    provider.generate({ system: "system", prompt: "prompt" }),
+    /CLOUDFLARE_MODEL_RESPONSE_NOT_VALID_JSON/,
+  );
 });
