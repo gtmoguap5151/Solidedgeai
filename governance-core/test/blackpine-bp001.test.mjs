@@ -31,11 +31,17 @@ const approver = {
 const completeEvidence = [
   {
     type: "manufacturer-source",
-    reference: "fixture://bp001/manufacturer-product-page",
+    reference: "https://manufacturer.example/products/bp001",
+    contentSha256: "a".repeat(64),
+    verifiedBy: "bp001-source-reviewer",
+    verifiedAt: "2026-11-16T17:00:00.000Z",
   },
   {
     type: "specification-record",
-    reference: "fixture://bp001/claim-to-source-mapping",
+    reference: "https://github.com/gtmoguap5151/blackpine-field/blob/main/launch-slate/01-cordura-vs-ballistic-nylon.md",
+    contentSha256: "b".repeat(64),
+    verifiedBy: "bp001-source-reviewer",
+    verifiedAt: "2026-11-16T17:00:00.000Z",
   },
 ];
 
