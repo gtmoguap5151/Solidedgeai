@@ -238,3 +238,137 @@ export function overrideDecision({ decision, human, reason, ledger }) {
   });
   return decision;
 }
+
+
+/**
+ * In-memory delegation registry for development and tests only.
+ * Grants are single-hop, exact-scope, permission-bounded, and time-limited.
+ */
+export class DelegationRegistry {
+  #grants = new Map();
+
+  add(grant) {
+    if (this.#grants.has(grant.id)) throw new Error("DUPLICATE_DELEGATION_ID");
+    this.#grants.set(grant.id, deepFreeze(structuredClone(grant)));
+    return structuredClone(grant);
+  }
+
+  get(id) {
+    const grant = this.#grants.get(id);
+    return grant ? structuredClone(grant) : null;
+  }
+
+  list() {
+    return [...this.#grants.values()].map((grant) => structuredClone(grant));
+  }
+
+  findActive({ delegateId, permission, scope, now = new Date() }) {
+    const timestamp = new Date(now).getTime();
+    for (const grant of this.#grants.values()) {
+      if (
+        grant.delegateId === delegateId &&
+        grant.permissions.includes(permission) &&
+        grant.scope === scope &&
+        !grant.revokedAt &&
+        new Date(grant.expiresAt).getTime() > timestamp
+      ) return structuredClone(grant);
+    }
+    return null;
+  }
+
+  revoke(id, actorId, reason, ledger) {
+    const grant = this.#grants.get(id);
+    if (!grant) throw new Error("DELEGATION_NOT_FOUND");
+    if (grant.revokedAt) throw new Error("DELEGATION_ALREADY_REVOKED");
+    const updated = deepFreeze({
+      ...grant,
+      revokedAt: new Date().toISOString(),
+      revokedBy: actorId,
+      revocationReason: reason,
+    });
+    this.#grants.set(id, updated);
+    ledger.append({ type: "delegation_revoked", delegationId: id, actorId, reason });
+    return structuredClone(updated);
+  }
+}
+
+export function grantDelegation({
+  delegator, delegate, permissions, scope, expiresAt, reason,
+  registry, ledger, policy = {}, now = new Date(),
+}) {
+  if (!(registry instanceof DelegationRegistry)) throw new TypeError("registry must be a DelegationRegistry");
+  if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
+  if (!isHuman(delegator) || !isHuman(delegate)) throw new Error("DELEGATION_REQUIRES_ACTIVE_HUMANS");
+  if (delegator.id === delegate.id) throw new Error("SELF_DELEGATION_PROHIBITED");
+  if (!hasPermission(delegator, "governance:delegate")) throw new Error("DELEGATION_GRANT_PERMISSION_REQUIRED");
+  if (!Array.isArray(permissions) || permissions.length === 0) throw new Error("DELEGATION_PERMISSIONS_REQUIRED");
+  if (new Set(permissions).size !== permissions.length) throw new Error("DUPLICATE_DELEGATED_PERMISSION");
+  if (permissions.some((permission) => typeof permission !== "string" || permission.trim() === "")) {
+    throw new Error("INVALID_DELEGATED_PERMISSION");
+  }
+  const prohibited = new Set([...NEVER_DELEGABLE, ...(policy.nonDelegablePermissions ?? [])]);
+  if (permissions.some((permission) => prohibited.has(permission))) {
+    throw new Error("NON_DELEGABLE_PERMISSION_REQUESTED");
+  }
+  if (permissions.some((permission) => !hasPermission(delegator, permission))) {
+    throw new Error("DELEGATOR_CANNOT_DELEGATE_UNHELD_PERMISSION");
+  }
+  const normalizedScope = requireString(scope, "scope");
+  const detail = requireString(reason, "reason");
+  const expiry = new Date(expiresAt);
+  const current = new Date(now);
+  if (!Number.isFinite(expiry.getTime()) || !Number.isFinite(current.getTime()) || expiry <= current) {
+    throw new Error("DELEGATION_EXPIRY_MUST_BE_FUTURE");
+  }
+  const grant = {
+    id: randomUUID(),
+    delegatorId: delegator.id,
+    delegateId: delegate.id,
+    permissions: [...permissions],
+    scope: normalizedScope,
+    issuedAt: current.toISOString(),
+    expiresAt: expiry.toISOString(),
+    reason: detail,
+    revokedAt: null,
+    revokedBy: null,
+    revocationReason: null,
+    subdelegationAllowed: false,
+    authoritySource: "human_grant",
+  };
+  registry.add(grant);
+  ledger.append({
+    type: "delegation_granted",
+    delegationId: grant.id,
+    delegatorId: delegator.id,
+    delegateId: delegate.id,
+    permissions: grant.permissions,
+    scope: grant.scope,
+    expiresAt: grant.expiresAt,
+    reason: detail,
+  });
+  return structuredClone(grant);
+}
+
+export function revokeDelegation({ delegationId, actor, reason, registry, ledger }) {
+  if (!(registry instanceof DelegationRegistry)) throw new TypeError("registry must be a DelegationRegistry");
+  if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
+  if (!isHuman(actor)) throw new Error("DELEGATION_REVOCATION_REQUIRES_ACTIVE_HUMAN");
+  const grant = registry.get(delegationId);
+  if (!grant) throw new Error("DELEGATION_NOT_FOUND");
+  if (actor.id !== grant.delegatorId && !hasPermission(actor, "governance:delegation:revoke")) {
+    throw new Error("DELEGATION_REVOCATION_PERMISSION_REQUIRED");
+  }
+  return registry.revoke(delegationId, actor.id, requireString(reason, "reason"), ledger);
+}
+
+export function resolveDelegatedAuthority({ actor, permission, scope, registry, now = new Date() }) {
+  if (!isHuman(actor)) return Object.freeze({ allowed: false, reason: "ACTIVE_HUMAN_REQUIRED" });
+  if (hasPermission(actor, permission)) return Object.freeze({ allowed: true, source: "direct", delegationId: null });
+  if (!(registry instanceof DelegationRegistry)) {
+    return Object.freeze({ allowed: false, reason: "NO_DELEGATION_REGISTRY" });
+  }
+  const grant = registry.findActive({ delegateId: actor.id, permission, scope, now });
+  return grant
+    ? Object.freeze({ allowed: true, source: "delegated", delegationId: grant.id, delegatorId: grant.delegatorId })
+    : Object.freeze({ allowed: false, reason: "NO_ACTIVE_SCOPED_DELEGATION" });
+}
