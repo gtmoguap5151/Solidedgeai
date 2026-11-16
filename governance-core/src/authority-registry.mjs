@@ -4,6 +4,7 @@ const principalHandles = new WeakSet();
 const principalStates = new WeakMap();
 
 export const COMPETENCY_DOMAINS = Object.freeze([
+  "general",
   "editorial",
   "product-evidence",
   "commercial",
@@ -296,6 +297,7 @@ export class AuthorityRegistry {
       conflicts: Array.isArray(identity.conflicts) ? [...identity.conflicts] : [],
       permissions,
       permissionGrants: permissionGrants.map((grant) => structuredClone(grant)),
+      level: levels.general ?? identity.level ?? null,
       levels,
       competencyCredentials: competencyCredentials.map((credential) => structuredClone(credential)),
       identityIssuer: identity.issuer ?? null,
