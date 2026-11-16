@@ -218,3 +218,23 @@ No payment execution, public publishing, or autonomous external side effects sho
 This snapshot was based on GitHub repository metadata, branch refs, pull-request metadata, file trees, selected architecture and source files, commit check-runs, and the PR #9 workflow job log.
 
 No code was checked out or executed locally in this review. No live deployment, production database, external credentials, private secrets, or customer data were inspected. PR mergeability and CI state can change; refresh them before any merge or release decision.
+
+
+---
+
+## 10. Owner decision update — governance strategy (2026-11-16)
+
+The previously open strategic question about whether governance should be internal, independently commercial, or both is now **resolved**.
+
+**Owner-approved decision: both.** GALINYX Governance is to be:
+- A foundational capability used internally by GALINYX OS and first-party projects.
+- An independently deployable and commercially available governance product for outside organizations that do not adopt the wider GALINYX ecosystem.
+
+The selected architecture is one reusable, provider-neutral core with multiple deployment profiles—not separate internal and external engines.
+
+Detailed architecture:
+`architecture/GALINYX-GOVERNANCE-AND-AUTHORITY-ARCHITECTURE-v1.0.md`
+
+The founding charter records this decision in Section 15. The decision does not make governance the whole GALINYX ecosystem.
+
+The next technical work is to map existing AHAF, identity, service-boundary, organization, and OS foundation code to the new six-plane architecture; preserve useful implementation; and identify the first safe end-to-end enforcement slice. No code implementation or PR merge is authorized by this architecture decision alone.
