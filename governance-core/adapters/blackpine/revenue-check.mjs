@@ -22,7 +22,7 @@ async function loadLiveStorefrontSnapshot() {
       status: "available",
       httpStatus: response.status,
       finalUrl: response.url,
-      productCardCount: (html.match(/<article\\s+class=["']product["']/gi) ?? []).length,
+      productCardCount: (html.match(/<article\s+class=["']product["']/gi) ?? []).length,
     };
   } catch (error) {
     return { status: "unavailable", errorName: error?.name ?? "UnknownError" };
