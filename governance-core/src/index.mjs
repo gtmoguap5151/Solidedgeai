@@ -332,7 +332,7 @@ export function createDecision({ request, requester, policy, ledger, delegationR
   const decision = createDecisionHandle(state);
   decisionInputs.set(decision, {
     request: structuredClone(request),
-    requester: structuredClone(requester),
+    requester: isVerifiedPrincipal(requester) ? requester : structuredClone(requester),
   });
   ledger.append({
     type: "decision_created",
@@ -423,35 +423,27 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
     throw new Error("APPROVER_HAS_PROHIBITED_CONFLICT");
   }
 
-  if (policy.evidenceFreshness !== undefined) {
-    const original = decisionInputs.get(decision);
-    if (original) {
-      const currentEvaluation = evaluateDecision({
-        request: original.request,
-        requester: original.requester,
-        policy,
-        delegationRegistry,
-        authorityRegistry,
-        now,
-      });
-      const freshnessFailures = currentEvaluation.reasons.filter((reason) =>
-        reason.startsWith("EVIDENCE_") ||
-        reason === "POLICY_EVALUATION_TIME_INVALID" ||
-        reason === "POLICY_EVIDENCE_FRESHNESS_INVALID"
-      );
-      if (freshnessFailures.length > 0) {
-        state.status = "blocked";
-        state.reasons = [...new Set([...state.reasons, ...freshnessFailures])];
-        ledger.append({
-          type: "decision_blocked_at_approval",
-          decisionId: state.decisionId,
-          actorId: approver.id,
-          policyDigest: state.policyDigest,
-          reasons: freshnessFailures,
-        });
-        throw new Error("DECISION_EVIDENCE_NO_LONGER_VALID");
-      }
-    }
+  const original = decisionInputs.get(decision);
+  if (!original) throw new Error("DECISION_INPUT_SNAPSHOT_MISSING");
+  const currentEvaluation = evaluateDecision({
+    request: original.request,
+    requester: original.requester,
+    policy,
+    delegationRegistry,
+    authorityRegistry,
+    now,
+  });
+  if (!currentEvaluation.eligibleToSubmit) {
+    state.status = "blocked";
+    state.reasons = [...new Set([...state.reasons, ...currentEvaluation.reasons])];
+    ledger.append({
+      type: "decision_blocked_at_approval",
+      decisionId: state.decisionId,
+      actorId: approver.id,
+      policyDigest: state.policyDigest,
+      reasons: currentEvaluation.reasons,
+    });
+    throw new Error("DECISION_AUTHORITY_OR_EVIDENCE_NO_LONGER_VALID");
   }
 
   if (policy.requireEvidenceReview === true) {
