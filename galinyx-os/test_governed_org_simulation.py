@@ -147,7 +147,7 @@ class GovernedOrganizationSimulationTests(unittest.TestCase):
         )
         self.assertEqual(denied["status"], "denied")
         approval = self.executor.approve(
-            "owner-token", grant, "policy-002", "policy.activate", "roadmap"
+            "owner-token", grant, "policy-002", "policy.activate", "policy-set"
         )
         result = self.simulator.execute(
             self.governance, "policy.activate", "policy-set", "policy-002", grant,
