@@ -177,6 +177,17 @@ class GovernedOrganizationSimulationTests(unittest.TestCase):
             1,
         )
 
+
+    def test_resource_division_mismatch_is_denied_and_audited(self):
+        grant = self.grant(actions={"product.plan"})
+        result = self.simulator.execute(
+            self.product, "product.plan", "roadmap", "cross-division-001", grant,
+            resource_division="commercial-strategy",
+        )
+        self.assertEqual(result["status"], "denied")
+        self.assertEqual(result["decision"], "cross_division_denied")
+        self.assertTrue(self.store.verify_audit_chain()[0])
+
     def test_unknown_actor_has_no_workload_binding(self):
         grant = self.grant(actions={"product.plan"})
         unknown = Actor("exec-unknown", "division_lead", "product-engineering")
