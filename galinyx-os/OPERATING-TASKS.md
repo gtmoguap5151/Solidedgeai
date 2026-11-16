@@ -21,8 +21,10 @@ Evidence references, approval decisions, and task events are separate append-onl
 
 ## Security boundary
 
-This module is a trusted-service component. Its actor IDs are attribution fields, not credentials. It does not authenticate people, authorize tenant membership, verify that an approver is the legal owner, or enforce project access. A network-facing service must authenticate and authorize every caller before invoking it and must derive actor and tenant identity server-side. Production use must not expose direct database access.
+The registry remains a trusted-service component. Its actor IDs are attribution fields, not credentials. The `GalinyxService` facade now authenticates through an injected authenticator, derives the actor ID server-side, checks active human membership and role in the requested tenant, scopes reads and writes to that tenant, and permits approval only to the persisted workspace owner. A later rejection supersedes an earlier approval for completion gating.
+
+The authenticator is still a deterministic test adapter in this repository; no production credential issuer, cryptographic token verification, network endpoint, session lifecycle, or protected deployment boundary is included. Do not expose direct Runtime/database access to network callers. Project IDs are currently tenant-scoped labels, not separately authorized project resources.
 
 ## Current scope
 
-This milestone supplies durable task lifecycle, role assignment, evidence, approval records, and append-only events. It does not yet dispatch autonomous agents, send communications, publish content, spend money, or execute external business actions.
+This milestone supplies durable task lifecycle, role assignment, evidence, approval records, append-only events, and an authenticated local service integration seam. It does not yet dispatch autonomous agents, send communications, publish content, spend money, or execute external business actions.
