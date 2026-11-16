@@ -145,7 +145,7 @@ class GovernedOrganizationSimulationTests(unittest.TestCase):
             ceo, "strategy.propose", "roadmap", "ceo-001", grant
         )
         self.assertEqual(result["status"], "denied")
-        self.assertEqual(result["decision"], "ceo_scope_authorized")
+        self.assertEqual(result["decision"], "persisted_grant_denied")
 
 
 if __name__ == "__main__":
