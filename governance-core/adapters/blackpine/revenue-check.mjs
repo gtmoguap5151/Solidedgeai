@@ -5,6 +5,36 @@ import { loadBlackpineSnapshot } from "./repository-reader.mjs";
 import { blackpineRevenuePolicies } from "./revenue-policies.mjs";
 
 const snapshot = await loadBlackpineSnapshot({ ref: "main" });
+
+async function loadLiveStorefrontSnapshot() {
+  try {
+    const response = await fetch("https://blackpinefield.com/", {
+      method: "GET",
+      redirect: "follow",
+      headers: { Accept: "text/html", "User-Agent": "GALINYX-Blackpine-ReadOnly-Validation/1.0" },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!response.ok) {
+      return { status: "http_error", httpStatus: response.status, finalUrl: response.url };
+    }
+    const html = await response.text();
+    return {
+      status: "available",
+      httpStatus: response.status,
+      finalUrl: response.url,
+      productCardCount: (html.match(/<article\\s+class=["']product["']/gi) ?? []).length,
+    };
+  } catch (error) {
+    return { status: "unavailable", errorName: error?.name ?? "UnknownError" };
+  }
+}
+
+const liveStorefront = await loadLiveStorefrontSnapshot();
+const repositoryProductCardCount = snapshot.observations.repositoryProductCardCount;
+const storefrontProductCountMatches = liveStorefront.status === "available"
+  ? liveStorefront.productCardCount === repositoryProductCardCount
+  : null;
+
 const ledger = new AuditLedger();
 const authorityRegistry = new AuthorityRegistry();
 const root = authorityRegistry.bootstrap({
@@ -120,6 +150,14 @@ process.stdout.write(JSON.stringify({
   source: snapshot.source,
   capturedAt: snapshot.capturedAt,
   repositoryFilesReviewed: snapshot.files.length,
+  storefrontReconciliation: {
+    liveStatus: liveStorefront.status,
+    liveHttpStatus: liveStorefront.httpStatus ?? null,
+    liveUrl: liveStorefront.finalUrl ?? null,
+    repositoryProductCardCount,
+    liveProductCardCount: liveStorefront.productCardCount ?? null,
+    productCountMatches: storefrontProductCountMatches,
+  },
   revenueAuditPlan: { status: auditDecision.status, approvalCount: auditDecision.approvals.length },
   revenuePerformanceClaim: { status: performanceEvaluation.status, reasons: performanceEvaluation.reasons },
   measurementState: {
@@ -130,5 +168,5 @@ process.stdout.write(JSON.stringify({
   },
   observations: snapshot.observations,
   auditLedgerValid: ledger.verify(),
-  boundary: "Read-only repository evidence only. No analytics accounts, affiliate dashboards, storefront write paths, publishing, outreach, spending, or financial accounts were accessed.",
+  boundary: "Read-only public repository and storefront GET requests only. No analytics accounts, affiliate dashboards, storefront write paths, publishing, outreach, spending, or financial accounts were accessed.",
 }, null, 2) + "\n");
