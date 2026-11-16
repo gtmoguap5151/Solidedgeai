@@ -556,7 +556,7 @@ function mockBlackpineFetch(fileContents, { tamperPath = null, truncated = false
 
 function blackpineFixtureFiles() {
   const files = {
-    "site/index.html": "Some links on this page are affiliate links. Commission at no extra cost. Commissions never change our verdicts. We have not hands-on tested the products covered. We never invent test results.",
+    "site/index.html": "Some links on this page are affiliate links. Commission at no extra cost. Commissions never change our verdicts. We have not hands-on tested the products covered. We never invent test results. Right now it is $64 with Rewards, down from $160.",
     "brand-guide.md": "No hype. Honest limits.",
   };
   const drafts = [
@@ -585,6 +585,7 @@ test("Blackpine repository adapter reads only allowlisted public files with GET"
   assert.equal(snapshot.observations.researchOnlyLabelsPresent, true);
   assert.equal(snapshot.observations.publishedCompanionsPresent, true);
   assert.equal(snapshot.observations.noHypeBrandRulePresent, true);
+  assert.equal(snapshot.observations.timeSensitivePriceClaimsPresent, true);
   assert.equal(snapshot.observations.manufacturerSourceRecordsPresent, false);
   assert.ok(snapshot.evidence.some((item) => item.type === "affiliate-disclosure-check"));
   assert.ok(snapshot.evidence.some((item) => item.type === "source-reference-list"));
