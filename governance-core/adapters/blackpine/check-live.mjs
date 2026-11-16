@@ -165,6 +165,7 @@ const editorialLifecycle = createDecision({
   requester: editor,
   policy: blackpinePolicies.contentDraft,
   ledger: lifecycleLedger,
+  reviewedEvidenceDigest: editorialLifecycle.evidenceDigest,
 });
 
 recordApproval({
