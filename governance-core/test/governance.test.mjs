@@ -886,6 +886,7 @@ test("Blackpine live-snapshot evidence completes an editorial decision lifecycle
   recordApproval({
     decision: editorial, approver: editorialApprover,
     policy: blackpinePolicies.contentDraft, ledger,
+    reviewedEvidenceDigest: editorial.evidenceDigest,
   });
   assert.equal(editorial.status, "approved");
 
