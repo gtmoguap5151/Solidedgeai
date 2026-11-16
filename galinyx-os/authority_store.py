@@ -68,8 +68,8 @@ class AuthorityStore:
         from runtime_migrations import GALINYX_MIGRATIONS
         MigrationRunner(self.db, GALINYX_MIGRATIONS).migrate()
         version = MigrationRunner(self.db, GALINYX_MIGRATIONS).current_version()
-        if version < 3:
-            raise RuntimeError("AHAF persistence schema version 3 is required")
+        if version < 4:
+            raise RuntimeError("GALINYX governance persistence schema version 4 is required")
 
     def _begin(self):
         if self.db.in_transaction:
