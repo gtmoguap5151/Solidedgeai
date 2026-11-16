@@ -97,6 +97,16 @@ export function evaluateDecision({ request, requester, policy }) {
   if (policy.prohibitedConflicts?.some((conflict) => requester?.conflicts?.includes(conflict))) {
     reasons.push("REQUESTER_HAS_PROHIBITED_CONFLICT");
   }
+  const suppliedEvidence = Array.isArray(request.evidence) ? request.evidence : [];
+  const requiredEvidence = [
+    ...(Array.isArray(policy.requiredEvidence) ? policy.requiredEvidence : []),
+    ...(request.claimsHandsOnTesting && Array.isArray(policy.handsOnEvidence) ? policy.handsOnEvidence : []),
+  ];
+  for (const evidenceType of requiredEvidence) {
+    if (!suppliedEvidence.some((item) => item?.type === evidenceType && typeof item?.reference === "string" && item.reference.trim() !== "")) {
+      reasons.push("REQUIRED_EVIDENCE_MISSING:" + evidenceType);
+    }
+  }
 
   return Object.freeze({
     decisionId: request.id,
