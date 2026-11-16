@@ -173,7 +173,7 @@ test("Cloudflare Workers AI provider is lazy, sends bounded JSON-mode chat input
   const result = await provider.generate({ system: "system rules", prompt: "work prompt", maxTokens: 500 });
   assert.deepEqual(result, { summary: "ok" });
   assert.equal(requests, 1);
-  assert.match(requestUrl, /@cf%2Fzai-org%2Fglm-4\.7-flash$/);
+  assert.match(requestUrl, /\/ai\/run\/%40cf\/zai-org\/glm-4\.7-flash$/);
   assert.equal(requestInit.method, "POST");
   assert.equal(requestInit.redirect, "error");
   assert.equal(requestInit.headers.Authorization, "Bearer test-cloudflare-token");
