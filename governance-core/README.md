@@ -29,6 +29,7 @@ A title does not automatically confer every permission. A higher level does not 
 ## Files
 
 - `src/index.mjs` — policy evaluation, decision lifecycle, and scoped delegation functions.
+- `src/authority-registry.mjs` — in-memory verified-principal, permission-grant, and competency-credential registry with expiry and revocation.
 - `adapters/blackpine/policies.mjs` — Blackpine-specific decision and evidence policies.
 - `adapters/blackpine/repository-reader.mjs` — allowlisted, read-only GitHub snapshot reader with Git blob integrity checks; returns evidence references and observations, not raw repository file contents.
 - `adapters/blackpine/check-live.mjs` — live, read-only snapshot and full decision-lifecycle check used by CI after the unit tests.
@@ -47,7 +48,7 @@ No dependencies or secrets are required.
 
 ## Current limitations / next gates
 
-This is a foundational domain engine, not a complete enterprise governance product. It has no authentication, database, multi-tenant isolation, UI, network service, key management, durable audit storage, or Blackpine integration. The in-memory audit ledger and delegation registry are suitable for tests only. The Blackpine reader is read-only and inspects selected public repository files; it does not inspect external affiliate accounts, authenticate source claims, or change the live storefront. Do not use it to make live business decisions.
+This is a foundational domain engine, not a complete enterprise governance product. It has no authentication, database, multi-tenant isolation, UI, network service, key management, durable audit storage, or Blackpine integration. The in-memory audit ledger, delegation registry, and authority registry are suitable for tests only. The authority registry trusts a verified identity assertion from an external authentication adapter; it does not authenticate people. Production requires a real identity provider, durable permission/competency records, tenant isolation, protected audit storage, and independent verification. The Blackpine reader is read-only and inspects selected public repository files; it does not inspect external affiliate accounts, authenticate source claims, or change the live storefront. Do not use it to make live business decisions.
 
 Before integration, add:
 - authenticated identity and verified human/agent principals;
