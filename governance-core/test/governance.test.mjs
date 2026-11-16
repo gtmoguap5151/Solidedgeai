@@ -1522,3 +1522,44 @@ test("a separately authorized verified human can revoke another person's delegat
   assert.ok(registry.get(grant.id).revokedAt);
   assert.equal(ledger.verify(), true);
 });
+
+
+test("Blackpine product evidence rejects arbitrary references and missing provenance metadata", () => {
+  const authority = createBlackpineTestAuthority();
+  const researcher = authority.principal({
+    id: "bad-evidence-researcher", rank: "Researcher",
+    levels: { "product-evidence": 3 },
+    permissions: ["blackpine:claim:submit"],
+  });
+  const result = evaluateDecision({
+    request: {
+      id: "bad-manufacturer-source",
+      title: "Claim without verifiable source provenance",
+      evidence: [
+        {
+          type: "manufacturer-source",
+          reference: "javascript:alert(1)",
+          contentSha256: "not-a-sha256",
+        },
+        {
+          type: "specification-record",
+          reference: "github://blackpine/spec",
+          contentSha256: "bad-hash",
+          verifiedBy: " ",
+          verifiedAt: "not-a-date",
+        },
+      ],
+    },
+    requester: researcher,
+    policy: blackpinePolicies.productClaim,
+    authorityRegistry: authority.registry,
+  });
+  assert.equal(result.eligibleToSubmit, false);
+  assert.ok(result.reasons.includes("EVIDENCE_REFERENCE_MUST_BE_HTTPS:manufacturer-source"));
+  assert.ok(result.reasons.includes("EVIDENCE_CONTENT_HASH_REQUIRED:manufacturer-source"));
+  assert.ok(result.reasons.includes("EVIDENCE_VERIFIER_REQUIRED:manufacturer-source"));
+  assert.ok(result.reasons.includes("EVIDENCE_VERIFICATION_TIME_REQUIRED:manufacturer-source"));
+  assert.ok(result.reasons.includes("EVIDENCE_CONTENT_HASH_REQUIRED:specification-record"));
+  assert.ok(result.reasons.includes("EVIDENCE_VERIFIER_REQUIRED:specification-record"));
+  assert.ok(result.reasons.includes("EVIDENCE_VERIFICATION_TIME_REQUIRED:specification-record"));
+});
