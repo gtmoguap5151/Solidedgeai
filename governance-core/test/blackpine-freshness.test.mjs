@@ -107,6 +107,7 @@ test("BP-002: fresh, unexpired price evidence can enter a separate human approva
     policy: blackpinePolicies.priceClaim,
     ledger,
     now,
+    reviewedEvidenceDigest: decision.evidenceDigest,
   });
 
   assert.equal(decision.status, "pending_approval");
