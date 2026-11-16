@@ -33,6 +33,12 @@ function parseTime(value, label) {
   return result;
 }
 
+function requireLedger(ledger) {
+  if (!ledger || typeof ledger.append !== "function") {
+    throw new Error("EXECUTION_AUDIT_LEDGER_REQUIRED");
+  }
+}
+
 function activeHumanGrant(authorityRegistry, issuer, now) {
   return authorityRegistry.findActivePermissionGrant({
     subjectId: issuer.id,
@@ -65,6 +71,7 @@ export class ExecutionAuthorityRegistry {
     ledger,
     now = new Date(),
   }) {
+    requireLedger(ledger);
     if (!isVerifiedPrincipal(issuer)) throw new Error("MANDATE_ISSUER_NOT_VERIFIED");
     if (!authorityRegistry || !activeHumanGrant(authorityRegistry, issuer, now)) {
       throw new Error("AGENT_AUTHORIZATION_PERMISSION_REQUIRED");
@@ -138,6 +145,7 @@ export class ExecutionAuthorityRegistry {
   }
 
   revokeMandate({ mandateId, actor, reason, ledger, authorityRegistry, now = new Date() }) {
+    requireLedger(ledger);
     if (!isVerifiedPrincipal(actor)) throw new Error("MANDATE_REVOCATION_REQUIRES_VERIFIED_HUMAN");
     const mandate = this.#mandates.get(mandateId);
     if (!mandate) throw new Error("MANDATE_NOT_FOUND");
@@ -181,6 +189,7 @@ export class ExecutionAuthorityRegistry {
     authorityRegistry,
     now = new Date(),
   }) {
+    requireLedger(ledger);
     const identity = agentHandles.get(actor);
     if (!identity) throw new Error("UNTRUSTED_AGENT_HANDLE");
     const op = requireText(operation, "EXECUTION_OPERATION");
