@@ -366,10 +366,26 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
     throw new Error("DECISION_POLICY_MISMATCH");
   }
   if (!isHuman(approver)) throw new Error("APPROVER_MUST_BE_ACTIVE_HUMAN");
+  if (policy.requireVerifiedIdentity === true && !(authorityRegistry instanceof AuthorityRegistry)) {
+    throw new Error("AUTHORITY_REGISTRY_REQUIRED_FOR_APPROVAL");
+  }
   if (policy.requireVerifiedIdentity === true && !isVerifiedPrincipal(approver)) {
     throw new Error("APPROVER_IDENTITY_NOT_VERIFIED");
   }
   if (approver.id === state.requesterId) throw new Error("SELF_APPROVAL_PROHIBITED");
+  if (state.permissionSource === "authority-grant") {
+    if (!(authorityRegistry instanceof AuthorityRegistry)) {
+      throw new Error("AUTHORITY_REGISTRY_REQUIRED_FOR_APPROVAL");
+    }
+    const sourceGrant = authorityRegistry.findActivePermissionGrant({
+      subjectId: state.requesterId,
+      permission: state.permission,
+      scope: state.scope,
+      grantId: state.authorityGrantId,
+      now,
+    });
+    if (!sourceGrant) throw new Error("REQUESTER_AUTHORITY_GRANT_NO_LONGER_ACTIVE");
+  }
   if (state.permissionSource === "delegated") {
     if (!(delegationRegistry instanceof DelegationRegistry)) {
       throw new Error("DELEGATION_REGISTRY_REQUIRED_FOR_APPROVAL");
@@ -389,10 +405,10 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
   }
   const approvalPermission = policy.approverPermission ?? policy.permission;
   const approverPermission = hasEffectivePermission(approver, approvalPermission, {
-    registry: delegationRegistry, scope: decision.scope, now,
+    registry: delegationRegistry, authorityRegistry, scope: state.scope, now,
   });
   if (!approverPermission.allowed) throw new Error("APPROVER_LACKS_PERMISSION");
-  const approverLevel = actorLevel(approver, policy);
+  const approverLevel = actorLevel(approver, policy, authorityRegistry, now);
   if (!Number.isInteger(approverLevel) || approverLevel < 0) {
     throw new Error(policy.levelDomain ? "APPROVER_DOMAIN_LEVEL_INVALID" : "APPROVER_LEVEL_INVALID");
   }
