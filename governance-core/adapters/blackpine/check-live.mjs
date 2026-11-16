@@ -129,6 +129,49 @@ const priceClaimDecision = evaluateDecision({
   policy: blackpinePolicies.priceClaim,
 });
 
+const priceFreshnessNow = new Date();
+const stalePriceDecision = evaluateDecision({
+  request: {
+    id: "ci-blackpine-stale-price-check",
+    title: "Reject stale retailer price evidence",
+    scope: "blackpine:product-price",
+    evidence: [
+      {
+        type: "retailer-price-check",
+        reference: "ci://retailer/stale-price",
+        observedAt: new Date(priceFreshnessNow.getTime() - 48 * 60 * 60 * 1000).toISOString(),
+        expiresAt: new Date(priceFreshnessNow.getTime() + 24 * 60 * 60 * 1000).toISOString(),
+      },
+      { type: "offer-terms", reference: "ci://retailer/offer-terms" },
+    ],
+  },
+  requester: priceEditor,
+  authorityRegistry,
+  policy: blackpinePolicies.priceClaim,
+  now: priceFreshnessNow,
+});
+
+const freshPriceDecision = evaluateDecision({
+  request: {
+    id: "ci-blackpine-fresh-price-check",
+    title: "Accept current retailer price evidence",
+    scope: "blackpine:product-price",
+    evidence: [
+      {
+        type: "retailer-price-check",
+        reference: "ci://retailer/fresh-price",
+        observedAt: new Date(priceFreshnessNow.getTime() - 60 * 60 * 1000).toISOString(),
+        expiresAt: new Date(priceFreshnessNow.getTime() + 12 * 60 * 60 * 1000).toISOString(),
+      },
+      { type: "offer-terms", reference: "ci://retailer/offer-terms" },
+    ],
+  },
+  requester: priceEditor,
+  authorityRegistry,
+  policy: blackpinePolicies.priceClaim,
+  now: priceFreshnessNow,
+});
+
 const productionDecision = evaluateDecision({
   request: {
     id: "ci-blackpine-production-check",
@@ -157,7 +200,9 @@ if (!editorialDecision.eligibleToSubmit) throw new Error("BLACKPINE_EDITORIAL_EV
 if (productClaimDecision.eligibleToSubmit) throw new Error("BLACKPINE_PRODUCT_CLAIM_GATE_FAILED_OPEN");
 if (handsOnClaimDecision.eligibleToSubmit) throw new Error("BLACKPINE_HANDS_ON_GATE_FAILED_OPEN");
 if (affiliateDecision.eligibleToSubmit) throw new Error("BLACKPINE_AFFILIATE_GATE_FAILED_OPEN");
-if (snapshot.observations.timeSensitivePriceClaimsPresent && priceClaimDecision.eligibleToSubmit) throw new Error("BLACKPINE_PRICE_CLAIM_GATE_FAILED_OPEN");
+if (priceClaimDecision.eligibleToSubmit) throw new Error("BLACKPINE_PRICE_CLAIM_GATE_FAILED_OPEN");
+if (stalePriceDecision.eligibleToSubmit) throw new Error("BLACKPINE_STALE_PRICE_GATE_FAILED_OPEN");
+if (!freshPriceDecision.eligibleToSubmit) throw new Error("BLACKPINE_FRESH_PRICE_GATE_FAILED_CLOSED");
 if (productionDecision.eligibleToSubmit) throw new Error("BLACKPINE_PRODUCTION_GATE_FAILED_OPEN");
 if (financialDecision.eligibleToSubmit) throw new Error("BLACKPINE_FINANCIAL_GATE_FAILED_OPEN");
 
@@ -215,6 +260,8 @@ process.stdout.write(JSON.stringify({
     handsOnClaim: handsOnClaimDecision,
     affiliateRelationship: affiliateDecision,
     timeSensitivePriceClaim: priceClaimDecision,
+    stalePriceEvidence: stalePriceDecision,
+    freshPriceEvidence: freshPriceDecision,
     productionPublish: productionDecision,
     financialAccountChange: financialDecision,
   },
