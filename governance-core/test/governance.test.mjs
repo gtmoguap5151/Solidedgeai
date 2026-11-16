@@ -178,3 +178,43 @@ test("audit events snapshot nested data and returned copies cannot alter the led
   assert.deepEqual(ledger.list()[0].reasons, ["first"]);
   assert.equal(ledger.verify(), true);
 });
+
+
+test("Blackpine Secretary rank alone does not grant publish authority", () => {
+  const secretary = {
+    id: "bp-secretary", principalType: "human", active: true,
+    rank: "Secretary", level: 4, permissions: [], conflicts: [],
+  };
+  const result = evaluateDecision({
+    request: { id: "bp-1", title: "Publish approved field guide" },
+    requester: secretary,
+    policy: blackpinePolicies.productionPublish,
+  });
+  assert.equal(result.eligibleToSubmit, false);
+  assert.ok(result.reasons.includes("REQUESTER_LACKS_PERMISSION"));
+});
+
+test("Blackpine high level without the required office permission is insufficient", () => {
+  const editor = {
+    id: "bp-editor", principalType: "human", active: true,
+    rank: "Editor", level: 4,
+    permissions: ["blackpine:content:submit"], conflicts: [],
+  };
+  const result = evaluateDecision({
+    request: { id: "bp-2", title: "Change payout account" },
+    requester: editor,
+    policy: blackpinePolicies.financialAccountChange,
+  });
+  assert.equal(result.eligibleToSubmit, false);
+  assert.ok(result.reasons.includes("REQUESTER_LACKS_PERMISSION"));
+});
+
+test("Blackpine product claims require a higher evidence level than editorial drafts", () => {
+  assert.ok(blackpinePolicies.productClaim.minimumLevel > blackpinePolicies.contentDraft.minimumLevel);
+  assert.equal(blackpinePolicies.productClaim.approverPermission, "blackpine:claim:verify");
+});
+
+test("Blackpine production publication requires owner approval", () => {
+  assert.equal(blackpinePolicies.productionPublish.approverPermission, "blackpine:owner:approve");
+  assert.equal(blackpinePolicies.productionPublish.minimumLevel, 4);
+});
