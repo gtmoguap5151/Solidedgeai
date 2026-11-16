@@ -184,7 +184,7 @@ test("BP-002: evidence that expires while awaiting approval blocks the pending d
       ledger,
       now: new Date("2026-11-16T18:31:00.000Z"),
     }),
-    /DECISION_EVIDENCE_NO_LONGER_VALID/,
+    /DECISION_AUTHORITY_OR_EVIDENCE_NO_LONGER_VALID/,
   );
 
   assert.equal(decision.status, "blocked");
