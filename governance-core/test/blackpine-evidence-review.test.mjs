@@ -45,6 +45,8 @@ function makeDecision(ledger) {
           type: "offer-terms",
           reference: "https://retailer.example/offer-terms",
           contentSha256: "b".repeat(64),
+          verifiedBy: "blackpine-read-only-source-adapter",
+          verifiedAt: "2026-11-16T18:00:01.000Z",
         },
       ],
     },
