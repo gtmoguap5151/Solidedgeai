@@ -126,3 +126,18 @@ GALINYX will have demonstrated useful operating value only when it can:
 7. Preserve a complete audit trail and respect the human approval boundary.
 
 Passing the current CI tests is a prerequisite, not completion of this real-world business test.
+
+
+## 4A. Measurement CSV intake implemented
+
+A strict, read-only intake module now accepts externally exported CSV files for three evidence types:
+
+- `analytics-report`: `date,sessions,landing_page,source_medium,product_page_views`
+- `affiliate-click-report`: `date,product,destination,outbound_clicks`
+- `commission-report`: `date,network,advertiser,clicks,orders,reversals,commission,currency`
+
+Each intake requires source identity, an HTTPS evidence reference, reporting-period start/end, timezone, ISO currency code, capture timestamp, and verifier identity. It validates required columns, row widths, dates within the declared period, nonnegative numeric values, and currency consistency. It computes a SHA-256 hash of the original CSV bytes and returns normalized rows, totals, and a provenance record.
+
+The intake does **not** fetch files, connect to GA4/Awin/CJ/Amazon, authenticate users, or prove that a supplied export is truthful. A human must obtain and review each export, preserve its original source, and supply accurate metadata. The hash proves file integrity after intake, not the truth of the underlying report. The first version intentionally requires canonical column names; source-specific export mappings are a later adapter task.
+
+Seven dedicated tests cover normalization, quoted CSV fields, missing columns, currency mismatch, reporting-window violations, malformed/negative metrics, and HTTPS evidence references. These tests run with the existing governance suite.
