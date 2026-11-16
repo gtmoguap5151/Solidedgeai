@@ -149,6 +149,9 @@ export async function loadBlackpineSnapshot({ fetchImpl = globalThis.fetch, ref 
   );
   const noHypeBrandRulePresent =
     /no hype/i.test(brandGuide) && /honest limits/i.test(brandGuide);
+  const timeSensitivePriceClaimsPresent =
+    /\b(?:right now|currently|limited[- ]time|sale ends?|ends? (?:on|by|today|tonight))\b/i.test(homepage) &&
+    /\$\s?\d+(?:\.\d{2})?/.test(homepage);
 
   const source = Object.freeze({
     ...BLACKPINE_SOURCE,
@@ -194,6 +197,7 @@ export async function loadBlackpineSnapshot({ fetchImpl = globalThis.fetch, ref 
       researchOnlyLabelsPresent,
       publishedCompanionsPresent,
       noHypeBrandRulePresent,
+      timeSensitivePriceClaimsPresent,
       sourceReferenceListCount: sourceReferenceFiles.length,
       manufacturerSourceRecordsPresent: false,
       handsOnEvidenceRecordsPresent: false,
