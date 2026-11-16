@@ -183,14 +183,22 @@ test("human override requires permission and reason and is separately logged", (
     request: { id: "d-8", title: "Publish field guide" },
     requester, policy, ledger,
   });
+  const verifiedWithoutOverride = overrideAuthority.principal({
+    id: "verified-without-override",
+  });
   assert.throws(() => overrideDecision({
-    decision, human: approver, reason: "Urgent", ledger,
+    decision,
+    human: verifiedWithoutOverride,
+    reason: "Urgent",
+    ledger,
+    authorityRegistry: overrideAuthority.registry,
   }), /OVERRIDE_PERMISSION_REQUIRED/);
   overrideDecision({
     decision,
     human: overrideAuthority.root,
     reason: "Board-directed exception; evidence attached to case record",
-    ledger, authorityRegistry: overrideAuthority.registry,
+    ledger,
+    authorityRegistry: overrideAuthority.registry,
   });
   assert.equal(decision.status, "overridden");
   assert.equal(ledger.list().at(-1).type, "human_override");
