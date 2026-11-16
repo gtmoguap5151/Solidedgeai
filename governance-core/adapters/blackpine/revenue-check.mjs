@@ -3,6 +3,7 @@ import { AuthorityRegistry } from "../../src/authority-registry.mjs";
 import { AuditLedger, createDecision, evaluateDecision, recordApproval } from "../../src/index.mjs";
 import { loadBlackpineSnapshot } from "./repository-reader.mjs";
 import { blackpineRevenuePolicies } from "./revenue-policies.mjs";
+import { rankBlackpineRevenueOpportunities } from "./revenue-opportunities.mjs";
 
 const snapshot = await loadBlackpineSnapshot({ ref: "main" });
 
@@ -87,6 +88,12 @@ const repositoryEvidence = {
 };
 const auditEvidence = [repositoryEvidence, ...snapshot.evidence];
 
+const opportunityReport = rankBlackpineRevenueOpportunities({
+  observations: snapshot.observations,
+  capturedAt: snapshot.capturedAt,
+  sourceReference: `https://github.com/${snapshot.source.owner}/${snapshot.source.repository}/tree/${snapshot.source.ref}`,
+});
+
 const auditEvaluation = evaluateDecision({
   request: {
     id: "ci-blackpine-revenue-audit",
@@ -159,6 +166,7 @@ process.stdout.write(JSON.stringify({
     productCountMatches: storefrontProductCountMatches,
   },
   revenueAuditPlan: { status: auditDecision.status, approvalCount: auditDecision.approvals.length },
+  revenueOpportunityReport: opportunityReport,
   revenuePerformanceClaim: { status: performanceEvaluation.status, reasons: performanceEvaluation.reasons },
   measurementState: {
     analyticsReportInRepositorySnapshot: false,
