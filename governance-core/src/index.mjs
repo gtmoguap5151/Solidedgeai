@@ -631,7 +631,6 @@ export class DelegationRegistry {
     const grant = this.#grants.get(id);
     if (!grant) throw new Error("DELEGATION_NOT_FOUND");
     if (grant.revokedAt) throw new Error("DELEGATION_ALREADY_REVOKED");
-    if (actor.id !== grant.delegatorId) throw new Error("DELEGATION_REVOCATION_PERMISSION_REQUIRED");
     const detail = requireString(reason, "reason");
     const updated = deepFreeze({
       ...grant,
