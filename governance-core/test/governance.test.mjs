@@ -204,7 +204,7 @@ test("Blackpine Secretary rank alone does not grant publish authority", () => {
 test("Blackpine high level without the required office permission is insufficient", () => {
   const editor = {
     id: "bp-editor", principalType: "human", active: true,
-    rank: "Editor", level: 4,
+    rank: "Editor", level: 99, levels: { "financial-controls": 4 },
     permissions: ["blackpine:content:submit"], conflicts: [],
   };
   const result = evaluateDecision({
@@ -218,6 +218,8 @@ test("Blackpine high level without the required office permission is insufficien
 
 test("Blackpine product claims require a higher evidence level than editorial drafts", () => {
   assert.ok(blackpinePolicies.productClaim.minimumLevel > blackpinePolicies.contentDraft.minimumLevel);
+  assert.equal(blackpinePolicies.productClaim.levelDomain, "product-evidence");
+  assert.equal(blackpinePolicies.contentDraft.levelDomain, "editorial");
   assert.equal(blackpinePolicies.productClaim.approverPermission, "blackpine:claim:verify");
 });
 
@@ -230,7 +232,7 @@ test("Blackpine production publication requires owner approval", () => {
 test("Blackpine product claims are blocked without source evidence", () => {
   const claimAuthor = {
     id: "bp-researcher", principalType: "human", active: true,
-    rank: "Researcher", level: 3,
+    rank: "Researcher", levels: { "product-evidence": 3 },
     permissions: ["blackpine:claim:submit"], conflicts: [],
   };
   const result = evaluateDecision({
@@ -571,7 +573,7 @@ test("Blackpine snapshot evidence satisfies editorial controls but not unsupport
   const snapshot = await loadBlackpineSnapshot({ fetchImpl: mock.fetchImpl });
   const editor = {
     id: "bp-editor-from-snapshot", principalType: "human", active: true,
-    rank: "Editor", level: 2,
+    rank: "Editor", levels: { editorial: 2 },
     permissions: ["blackpine:content:submit"], conflicts: [],
   };
   const draft = evaluateDecision({
@@ -585,7 +587,7 @@ test("Blackpine snapshot evidence satisfies editorial controls but not unsupport
   assert.equal(draft.eligibleToSubmit, true);
 
   const researcher = {
-    ...editor, id: "bp-snapshot-researcher", level: 3,
+    ...editor, id: "bp-snapshot-researcher", levels: { "product-evidence": 3 },
     permissions: ["blackpine:claim:submit"],
   };
   const claim = evaluateDecision({
