@@ -39,6 +39,15 @@ class GalinyxOrganizationRegistry:
                 "reports_to_actor_id": role.get("reports_to"),
                 "division": role.get("division"),
             }
+        if owner_principal_id not in normalized_roles:
+            raise ValueError("the human root principal must have an organizational role")
+        for actor_id, role in normalized_roles.items():
+            parent = role["reports_to_actor_id"]
+            if parent is not None and parent not in normalized_roles:
+                raise ValueError("every reporting line must reference a registered actor")
+            if actor_id == owner_principal_id and parent is not None:
+                raise ValueError("the human root role cannot report to another actor")
+
         bindings = {}
         for actor_id, agent_id in actor_agent_bindings.items():
             actor_id = _required(actor_id, "binding.actor_id")
