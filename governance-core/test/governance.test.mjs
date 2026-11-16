@@ -907,3 +907,143 @@ test("Blackpine live-snapshot evidence completes an editorial decision lifecycle
   );
   assert.equal(ledger.verify(), true);
 });
+
+
+test("authority registry resolves verified identities with scoped permissions and domain credentials", () => {
+  const authority = createBlackpineTestAuthority();
+  const { registry, root, ledger } = authority;
+  registry.issuePermission({
+    issuer: root, subjectId: "scoped-editor", permission: "scoped:content:submit",
+    scope: "blackpine:guide-a", expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Bounded editorial assignment", ledger,
+  });
+  registry.certifyCompetency({
+    issuer: root, subjectId: "scoped-editor", domain: "editorial", level: 2,
+    evidence: [{ type: "assessment", reference: "assessment://editorial-2" }],
+    expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Editorial competency assessment", ledger,
+  });
+  const principal = registry.resolve({
+    identity: {
+      id: "scoped-editor", principalType: "human", active: true,
+      verified: true, rank: "Editor", issuer: "test-auth-adapter",
+    },
+  });
+  assert.equal(isVerifiedPrincipal(principal), true);
+  assert.equal(principal.levels.editorial, 2);
+  assert.equal(principal.permissions.includes("scoped:content:submit"), false);
+
+  const scopedPolicy = {
+    id: "scoped-editorial", version: "1.0.0",
+    permission: "scoped:content:submit", minimumLevel: 2,
+    levelDomain: "editorial", requiredApprovals: 1,
+    requireVerifiedIdentity: true,
+  };
+  const allowed = evaluateDecision({
+    request: {
+      id: "scoped-a", title: "Submit guide A",
+      scope: "blackpine:guide-a",
+    },
+    requester: principal, policy: scopedPolicy,
+  });
+  const denied = evaluateDecision({
+    request: {
+      id: "scoped-b", title: "Submit guide B",
+      scope: "blackpine:guide-b",
+    },
+    requester: principal, policy: scopedPolicy,
+  });
+  assert.equal(allowed.eligibleToSubmit, true);
+  assert.equal(denied.eligibleToSubmit, false);
+  assert.ok(denied.reasons.includes("REQUESTER_LACKS_PERMISSION"));
+  assert.equal(ledger.verify(), true);
+});
+
+test("authority registry refuses unverified identities and unauthorized issuers", () => {
+  const registry = new AuthorityRegistry();
+  const ledger = new AuditLedger();
+  assert.throws(() => registry.bootstrap({
+    identity: { id: "fake-root", principalType: "human", active: true, verified: false },
+    initialPermissions: ["governance:permission:grant"],
+    reason: "Unverified bootstrap", ledger,
+  }), /BOOTSTRAP_REQUIRES_VERIFIED_ACTIVE_HUMAN/);
+
+  const authority = createBlackpineTestAuthority();
+  const unprivileged = authority.principal({
+    id: "unprivileged-issuer", permissions: [],
+  });
+  assert.throws(() => authority.registry.issuePermission({
+    issuer: unprivileged, subjectId: "target", permission: "content:submit",
+    scope: "*", expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Unauthorized grant", ledger: authority.ledger,
+  }), /PERMISSION_GRANT_AUTHORITY_REQUIRED/);
+});
+
+test("authority registry prevents self-grants, self-certification, and reserved permission grants", () => {
+  const authority = createBlackpineTestAuthority();
+  const { registry, root, ledger } = authority;
+  assert.throws(() => registry.issuePermission({
+    issuer: root, subjectId: root.id, permission: "content:submit",
+    scope: "*", expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Self grant", ledger,
+  }), /SELF_PERMISSION_GRANT_PROHIBITED/);
+  assert.throws(() => registry.certifyCompetency({
+    issuer: root, subjectId: root.id, domain: "editorial", level: 5,
+    evidence: [{ type: "assessment", reference: "assessment://self" }],
+    expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Self certification", ledger,
+  }), /SELF_CERTIFICATION_PROHIBITED/);
+  assert.throws(() => registry.issuePermission({
+    issuer: root, subjectId: "target", permission: "governance:override",
+    scope: "*", expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Attempt to grant reserved permission", ledger,
+  }), /RESERVED_PERMISSION_REQUIRES_BOOTSTRAP/);
+});
+
+test("authority revocation removes permission and competency on the next principal resolution", () => {
+  const authority = createBlackpineTestAuthority();
+  const { registry, root, ledger } = authority;
+  const permission = registry.issuePermission({
+    issuer: root, subjectId: "revoked-subject", permission: "content:submit",
+    scope: "*", expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Temporary permission", ledger,
+  });
+  const competency = registry.certifyCompetency({
+    issuer: root, subjectId: "revoked-subject", domain: "editorial", level: 3,
+    evidence: [{ type: "assessment", reference: "assessment://editorial-3" }],
+    expiresAt: "2035-01-01T00:00:00.000Z",
+    reason: "Temporary competency", ledger,
+  });
+  const identity = {
+    id: "revoked-subject", principalType: "human", active: true,
+    verified: true, rank: "Editor",
+  };
+  const before = registry.resolve({ identity });
+  assert.ok(before.permissions.includes("content:submit"));
+  assert.equal(before.levels.editorial, 3);
+
+  registry.revoke({ recordId: permission.id, actor: root, reason: "Permission withdrawn", ledger });
+  registry.revoke({ recordId: competency.id, actor: root, reason: "Competency expired after review", ledger });
+  const after = registry.resolve({ identity });
+  assert.equal(after.permissions.includes("content:submit"), false);
+  assert.equal(after.levels.editorial, undefined);
+  assert.equal(ledger.verify(), true);
+});
+
+test("authority records expire and cannot be revived by resolution", () => {
+  const authority = createBlackpineTestAuthority();
+  const { registry, root, ledger } = authority;
+  registry.issuePermission({
+    issuer: root, subjectId: "expired-subject", permission: "content:submit",
+    scope: "*", expiresAt: "2026-11-17T00:00:00.000Z",
+    reason: "One-day access", ledger,
+  });
+  const identity = {
+    id: "expired-subject", principalType: "human", active: true,
+    verified: true, rank: "Editor",
+  };
+  const before = registry.resolve({ identity, now: new Date("2026-11-16T12:00:00.000Z") });
+  const after = registry.resolve({ identity, now: new Date("2026-11-18T12:00:00.000Z") });
+  assert.ok(before.permissions.includes("content:submit"));
+  assert.equal(after.permissions.includes("content:submit"), false);
+});
