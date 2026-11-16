@@ -19,7 +19,7 @@ class RuntimeTests(unittest.TestCase):
         }
         entity_id = self.r.create_from_manifest(manifest)
         self.assertEqual(self.r.entity(entity_id)["kind"], "application")
-        self.assertEqual(self.r.schema_version(), 5)
+        self.assertEqual(self.r.schema_version(), 6)
 
     def test_isolation(self):
         self.r.execute(self.a,"memory.write",{"key":"secret","value":"creator only"})
