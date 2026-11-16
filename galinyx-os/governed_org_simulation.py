@@ -8,7 +8,7 @@ import hashlib
 import json
 
 from execution_receipts import ExecutionReceiptService
-from org_simulation import ORG_ID, authorize
+from org_simulation import ORG_ID, RESOURCE_DIVISIONS, Actor, authorize
 from org_registry import GalinyxOrganizationRegistry
 
 
@@ -63,7 +63,7 @@ class GovernedOrganizationSimulator:
             raise
 
     def execute(self, actor, action, resource_id, request_id, grant_id,
-                *, approval_id=None, amount_units=1, tenant_id=ORG_ID, resource_division=None):
+                *, approval_id=None, amount_units=1, tenant_id=ORG_ID):
         """Authorize, persist, and complete one harmless simulated operation.
 
         A real approval ID is required for policy paths that require approval;
@@ -75,9 +75,13 @@ class GovernedOrganizationSimulator:
             return {"status": "denied", "decision": decision.code, "side_effect": "none"}
 
         agent_id, persisted_tenant, owner_id = self._binding(actor.actor_id)
+        registered_role = self.registry.role_for_actor(self.organization_id, actor.actor_id)
+        trusted_actor = Actor(
+            actor.actor_id, registered_role["role"], registered_role["division"]
+        )
         decision = authorize(
-            actor, action,
-            resource_division=resource_division,
+            trusted_actor, action,
+            resource_division=RESOURCE_DIVISIONS.get(resource_id),
             human_approval=approval_id is not None,
             tenant_id=persisted_tenant,
         )
