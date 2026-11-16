@@ -52,6 +52,7 @@ test("human mandate grants an agent only exact allowlisted operations and resour
       verified: true,
       issuer: "trusted-agent-identity-adapter",
     },
+    authorityRegistry: authority,
     now: new Date("2026-11-16T12:00:00.000Z"),
   });
   const authorization = execution.authorizeExecution({
@@ -64,6 +65,7 @@ test("human mandate grants an agent only exact allowlisted operations and resour
     rollbackPlan: "Delete the created draft file from this isolated branch",
     evidenceFreshUntil: "2026-11-16T18:00:00.000Z",
     ledger,
+    authorityRegistry: authority,
     now: new Date("2026-11-16T12:05:00.000Z"),
   });
   assert.equal(authorization.authorized, true);
@@ -140,6 +142,7 @@ test("missing dry-run, rollback, fresh evidence, or mandate blocks execution aut
       id: "agent:checks", principalType: "agent", verified: true,
       issuer: "trusted-agent-identity-adapter",
     },
+    authorityRegistry: authority,
     now: new Date("2026-11-16T12:00:00.000Z"),
   });
   const request = {
@@ -152,6 +155,7 @@ test("missing dry-run, rollback, fresh evidence, or mandate blocks execution aut
     rollbackPlan: "Restore the prior draft from the recorded Git commit",
     evidenceFreshUntil: "2026-11-16T18:00:00.000Z",
     ledger,
+    authorityRegistry: authority,
     now: new Date("2026-11-16T12:05:00.000Z"),
   };
   assert.throws(() => execution.authorizeExecution({ ...request, dryRunPassed: false }), /SUCCESSFUL_DRY_RUN_REQUIRED/);
@@ -183,6 +187,7 @@ test("revoked and expired mandates no longer authorize actions", () => {
       id: "agent:revocable", principalType: "agent", verified: true,
       issuer: "trusted-agent-identity-adapter",
     },
+    authorityRegistry: authority,
     now: new Date("2026-11-16T12:00:00.000Z"),
   });
   execution.revokeMandate({
@@ -190,6 +195,7 @@ test("revoked and expired mandates no longer authorize actions", () => {
     actor: owner,
     reason: "Owner revoked temporary authority",
     ledger,
+    authorityRegistry: authority,
     now: new Date("2026-11-16T12:10:00.000Z"),
   });
   assert.throws(() => execution.authorizeExecution({
@@ -202,6 +208,7 @@ test("revoked and expired mandates no longer authorize actions", () => {
     rollbackPlan: "No mutation is performed by metadata audit",
     evidenceFreshUntil: "2026-11-16T18:00:00.000Z",
     ledger,
+    authorityRegistry: authority,
     now: new Date("2026-11-16T12:11:00.000Z"),
   }), /EXECUTION_OUTSIDE_ACTIVE_MANDATE/);
   assert.equal(ledger.verify(), true);
@@ -226,6 +233,7 @@ test("idempotency key prevents replay of an authorization request", () => {
       id: "agent:replay", principalType: "agent", verified: true,
       issuer: "trusted-agent-identity-adapter",
     },
+    authorityRegistry: authority,
     now: new Date("2026-11-16T12:00:00.000Z"),
   });
   const args = {
@@ -238,6 +246,7 @@ test("idempotency key prevents replay of an authorization request", () => {
     rollbackPlan: "No mutation is performed by metadata audit",
     evidenceFreshUntil: "2026-11-16T18:00:00.000Z",
     ledger,
+    authorityRegistry: authority,
     now: new Date("2026-11-16T12:05:00.000Z"),
   };
   execution.authorizeExecution(args);
