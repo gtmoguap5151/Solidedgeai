@@ -138,11 +138,14 @@ const stalePriceDecision = evaluateDecision({
     evidence: [
       {
         type: "retailer-price-check",
-        reference: "ci://retailer/stale-price",
+        reference: "https://example.com/retailer/stale-price",
+        contentSha256: "a".repeat(64),
+        verifiedBy: "ci-source-verifier",
+        verifiedAt: priceFreshnessNow.toISOString(),
         observedAt: new Date(priceFreshnessNow.getTime() - 48 * 60 * 60 * 1000).toISOString(),
         expiresAt: new Date(priceFreshnessNow.getTime() + 24 * 60 * 60 * 1000).toISOString(),
       },
-      { type: "offer-terms", reference: "ci://retailer/offer-terms" },
+      { type: "offer-terms", reference: "https://example.com/retailer/offer-terms", contentSha256: "b".repeat(64), verifiedBy: "ci-source-verifier", verifiedAt: priceFreshnessNow.toISOString() },
     ],
   },
   requester: priceEditor,
@@ -159,7 +162,10 @@ const freshPriceDecision = evaluateDecision({
     evidence: [
       {
         type: "retailer-price-check",
-        reference: "ci://retailer/fresh-price",
+        reference: "https://example.com/retailer/fresh-price",
+        contentSha256: "c".repeat(64),
+        verifiedBy: "ci-source-verifier",
+        verifiedAt: priceFreshnessNow.toISOString(),
         observedAt: new Date(priceFreshnessNow.getTime() - 60 * 60 * 1000).toISOString(),
         expiresAt: new Date(priceFreshnessNow.getTime() + 12 * 60 * 60 * 1000).toISOString(),
       },
