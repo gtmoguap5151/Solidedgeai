@@ -91,6 +91,19 @@ function policyDigest(policy) {
   return createHash("sha256").update(stableSerialize(policy)).digest("hex");
 }
 
+function evidenceForReview(evidence) {
+  if (!Array.isArray(evidence)) return [];
+  return evidence.map((item) => ({
+    type: typeof item?.type === "string" ? item.type : null,
+    reference: typeof item?.reference === "string" ? item.reference : null,
+    observedAt: typeof item?.observedAt === "string" ? item.observedAt : null,
+    expiresAt: typeof item?.expiresAt === "string" ? item.expiresAt : null,
+    contentSha256: typeof item?.contentSha256 === "string" ? item.contentSha256 : null,
+    verifiedBy: typeof item?.verifiedBy === "string" ? item.verifiedBy : null,
+    verifiedAt: typeof item?.verifiedAt === "string" ? item.verifiedAt : null,
+  }));
+}
+
 function deepFreeze(value) {
   if (value && typeof value === "object" && !Object.isFrozen(value)) {
     Object.freeze(value);
@@ -192,6 +205,9 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
       }
     }
   }
+  if (policy.requireEvidenceReview !== undefined && typeof policy.requireEvidenceReview !== "boolean") {
+    reasons.push("POLICY_EVIDENCE_REVIEW_INVALID");
+  }
   if (request.scope !== undefined && (typeof request.scope !== "string" || request.scope.trim() === "")) {
     reasons.push("REQUEST_SCOPE_INVALID");
   }
@@ -292,10 +308,14 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
 export function createDecision({ request, requester, policy, ledger, delegationRegistry, now = new Date() }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   const evaluation = evaluateDecision({ request, requester, policy, delegationRegistry, now });
+  const evidence = evidenceForReview(request.evidence);
+  const evidenceDigest = createHash("sha256").update(stableSerialize(evidence)).digest("hex");
   const state = {
     ...evaluation,
     title: request.title,
     requesterId: requester?.id ?? null,
+    evidence,
+    evidenceDigest,
     approvals: [],
     createdAt: new Date().toISOString(),
   };
@@ -312,6 +332,9 @@ export function createDecision({ request, requester, policy, ledger, delegationR
     policyId: policy.id,
     policyVersion: policy.version,
     policyDigest: state.policyDigest,
+    evidenceDigest: state.evidenceDigest,
+    evidenceCount: state.evidence.length,
+    evidenceTypes: state.evidence.map((item) => item.type),
     scope: state.scope,
     permissionSource: state.permissionSource,
     delegationId: state.delegationId,
@@ -320,7 +343,7 @@ export function createDecision({ request, requester, policy, ledger, delegationR
   return decision;
 }
 
-export function recordApproval({ decision, approver, policy, ledger, delegationRegistry, now = new Date() }) {
+export function recordApproval({ decision, approver, policy, ledger, delegationRegistry, reviewedEvidenceDigest, now = new Date() }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   const state = getDecisionState(decision);
   if (TERMINAL.has(state.status)) throw new Error("TERMINAL_DECISION_CANNOT_BE_CHANGED");
@@ -403,8 +426,18 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
     }
   }
 
+  if (policy.requireEvidenceReview === true) {
+    if (typeof reviewedEvidenceDigest !== "string" || reviewedEvidenceDigest.trim() === "") {
+      throw new Error("EVIDENCE_REVIEW_ACKNOWLEDGEMENT_REQUIRED");
+    }
+    if (reviewedEvidenceDigest !== state.evidenceDigest) {
+      throw new Error("EVIDENCE_REVIEW_DIGEST_MISMATCH");
+    }
+  }
+
   state.approvals.push({
     approverId: approver.id,
+    evidenceDigest: state.evidenceDigest,
     rank: approver.rank ?? null,
     level: approverLevel,
     levelDomain: policy.levelDomain ?? "general",
@@ -419,6 +452,7 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
     decisionId: state.decisionId,
     actorId: approver.id,
     policyDigest: state.policyDigest,
+    evidenceDigest: state.evidenceDigest,
     permissionSource: approverPermission.source,
     delegationId: approverPermission.delegationId ?? null,
     authorityGrantId: approverPermission.authorityGrantId ?? null,
@@ -461,6 +495,7 @@ export function rejectDecision({ decision, actor, reason, ledger, policy, now = 
     actorId: actor.id,
     permission: rejectionPermission,
     policyDigest: state.policyDigest,
+    evidenceDigest: state.evidenceDigest,
     levelDomain: policy.levelDomain ?? "general",
     level,
     reason: detail,
@@ -489,6 +524,7 @@ export function overrideDecision({ decision, human, reason, ledger }) {
     actorId: human.id,
     reason: detail,
     previousStatus,
+    evidenceDigest: state.evidenceDigest,
     status: "overridden",
   });
   return decision;
