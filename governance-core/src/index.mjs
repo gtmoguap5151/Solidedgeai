@@ -162,6 +162,9 @@ export function createDecision({ request, requester, policy, ledger, delegationR
     status: decision.status,
     policyId: policy.id,
     policyVersion: policy.version,
+    scope: decision.scope,
+    permissionSource: decision.permissionSource,
+    delegationId: decision.delegationId,
     reasons: [...decision.reasons],
   });
   return decision;
@@ -173,6 +176,12 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
   if (decision.status !== "pending_approval") throw new Error("DECISION_NOT_ELIGIBLE_FOR_APPROVAL");
   if (!isHuman(approver)) throw new Error("APPROVER_MUST_BE_ACTIVE_HUMAN");
   if (approver.id === decision.requesterId) throw new Error("SELF_APPROVAL_PROHIBITED");
+  if (decision.delegationId && delegationRegistry) {
+    const sourceGrant = delegationRegistry.get(decision.delegationId);
+    if (sourceGrant?.delegatorId === approver.id) {
+      throw new Error("DELEGATION_GRANTOR_CANNOT_APPROVE");
+    }
+  }
   const approvalPermission = policy.approverPermission ?? policy.permission;
   const approverPermission = hasEffectivePermission(approver, approvalPermission, {
     registry: delegationRegistry, scope: decision.scope, now,
@@ -201,6 +210,8 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
     type: "approval_recorded",
     decisionId: decision.decisionId,
     actorId: approver.id,
+    permissionSource: approverPermission.source,
+    delegationId: approverPermission.delegationId ?? null,
     approvalCount: decision.approvals.length,
     status: decision.status,
   });
