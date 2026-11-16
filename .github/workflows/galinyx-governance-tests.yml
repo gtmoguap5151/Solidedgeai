@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: 20
       - name: Run governance tests
-        run: node --test governance-core/test/governance.test.mjs
+        run: node --test governance-core/test/*.test.mjs
 
   blackpine-read-only-integration:
     needs: governance-core
