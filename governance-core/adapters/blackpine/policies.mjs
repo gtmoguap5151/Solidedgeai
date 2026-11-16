@@ -11,7 +11,7 @@ export const blackpinePolicies = Object.freeze({
     minimumLevel: 2,
     requiredApprovals: 1,
     prohibitedConflicts: ["direct-product-vendor-interest"],
-    requiredEvidence: ["source-check", "affiliate-disclosure-check"],
+    requiredEvidence: ["source-reference-list", "affiliate-disclosure-check"],
   }),
   productClaim: Object.freeze({
     id: "blackpine.product.claim",
