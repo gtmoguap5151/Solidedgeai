@@ -386,7 +386,19 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
       grantId: state.authorityGrantId,
       now,
     });
-    if (!sourceGrant) throw new Error("REQUESTER_AUTHORITY_GRANT_NO_LONGER_ACTIVE");
+    if (!sourceGrant) {
+      const reason = "REQUESTER_AUTHORITY_GRANT_NO_LONGER_ACTIVE";
+      state.status = "blocked";
+      state.reasons = [...new Set([...state.reasons, reason])];
+      ledger.append({
+        type: "decision_blocked_at_approval",
+        decisionId: state.decisionId,
+        actorId: approver.id,
+        policyDigest: state.policyDigest,
+        reasons: [reason],
+      });
+      throw new Error(reason);
+    }
   }
   if (state.permissionSource === "delegated") {
     if (!(delegationRegistry instanceof DelegationRegistry)) {
@@ -399,7 +411,17 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
       now,
     });
     if (!sourceGrant || sourceGrant.id !== state.delegationId) {
-      throw new Error("DELEGATED_AUTHORITY_NO_LONGER_ACTIVE");
+      const reason = "DELEGATED_AUTHORITY_NO_LONGER_ACTIVE";
+      state.status = "blocked";
+      state.reasons = [...new Set([...state.reasons, reason])];
+      ledger.append({
+        type: "decision_blocked_at_approval",
+        decisionId: state.decisionId,
+        actorId: approver.id,
+        policyDigest: state.policyDigest,
+        reasons: [reason],
+      });
+      throw new Error(reason);
     }
     if (sourceGrant.delegatorId === approver.id) {
       throw new Error("DELEGATION_GRANTOR_CANNOT_APPROVE");
