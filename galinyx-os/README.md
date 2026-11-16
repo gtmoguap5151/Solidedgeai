@@ -29,7 +29,7 @@ This is a local proof of concept, **not production-secure**. The caller supplies
 `contracts.py` validates version-1 entity manifests, task envelopes, and event records. Contract validation checks shape and size; it does not authenticate callers or prove ownership. The runtime currently records schema version `4` through the ordered migration runner. Legacy task rows are preserved during migration, but their missing payload digest cannot be reconstructed; reusing those old request IDs is rejected rather than replayed.
 
 ## Next
-Authenticated agent workload identity, independently authenticated human approvals, fail-closed action/resource authorization, and safe authorization-to-execution integration remain future work.
+Authenticated workload identity and human-approval provider integrations remain future work. The durable receipt foundation now atomically prepares scoped requests, consumes approvals once, and reserves budget; target dispatch and evidence-based reconciliation are still future work.
 
 ## Database compatibility
 The prototype schema is under active development. Existing SQLite databases created before the payload-hash schema change are **not automatically migrated**. Use a fresh local test database for this experimental version; never delete production data to work around migration failures. The versioned migration runner is wired into runtime startup. Supported upgrades are covered by integration tests; back up existing databases before upgrading, and do not treat this prototype migration path as a substitute for production backup and recovery procedures.
