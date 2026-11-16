@@ -63,7 +63,7 @@ class GovernedOrganizationSimulator:
             raise
 
     def execute(self, actor, action, resource_id, request_id, grant_id,
-                *, approval_id=None, amount_units=1, tenant_id=ORG_ID):
+                *, approval_id=None, amount_units=1, tenant_id=ORG_ID, resource_division=None):
         """Authorize, persist, and complete one harmless simulated operation.
 
         A real approval ID is required for policy paths that require approval;
@@ -77,7 +77,7 @@ class GovernedOrganizationSimulator:
         agent_id, persisted_tenant, owner_id = self._binding(actor.actor_id)
         decision = authorize(
             actor, action,
-            resource_division=getattr(actor, "division", None),
+            resource_division=resource_division,
             human_approval=approval_id is not None,
             tenant_id=persisted_tenant,
         )
