@@ -64,11 +64,12 @@ const NEVER_DELEGABLE = new Set([
 
 function hasEffectivePermission(actor, permission, { registry, authorityRegistry, scope, now } = {}) {
   if (isVerifiedPrincipal(actor)) {
-    if (!(authorityRegistry instanceof AuthorityRegistry)) return { allowed: false, source: "none" };
-    const grant = authorityRegistry.findActivePermissionGrant({
-      subjectId: actor.id, permission, scope, now,
-    });
-    if (grant) return { allowed: true, source: "authority-grant", authorityGrantId: grant.id };
+    if (authorityRegistry instanceof AuthorityRegistry) {
+      const grant = authorityRegistry.findActivePermissionGrant({
+        subjectId: actor.id, permission, scope, now,
+      });
+      if (grant) return { allowed: true, source: "authority-grant", authorityGrantId: grant.id };
+    }
   } else if (hasPermission(actor, permission)) {
     return { allowed: true, source: "direct" };
   }
@@ -726,16 +727,19 @@ export function revokeDelegation({ delegationId, actor, reason, registry, author
   return registry.revoke(delegationId, actor, reason, ledger, REGISTRY_WRITE_TOKEN);
 }
 
-export function resolveDelegatedAuthority({ actor, permission, scope, registry, now = new Date() }) {
+export function resolveDelegatedAuthority({ actor, permission, scope, registry, authorityRegistry, now = new Date() }) {
   if (!isHuman(actor) || !isVerifiedPrincipal(actor)) {
     return Object.freeze({ allowed: false, reason: "VERIFIED_ACTIVE_HUMAN_REQUIRED" });
   }
-  if (hasPermission(actor, permission)) return Object.freeze({ allowed: true, source: "direct", delegationId: null });
-  if (!(registry instanceof DelegationRegistry)) {
-    return Object.freeze({ allowed: false, reason: "NO_DELEGATION_REGISTRY" });
-  }
-  const grant = registry.findActive({ delegateId: actor.id, permission, scope, now });
-  return grant
-    ? Object.freeze({ allowed: true, source: "delegated", delegationId: grant.id, delegatorId: grant.delegatorId })
-    : Object.freeze({ allowed: false, reason: "NO_ACTIVE_SCOPED_DELEGATION" });
+  const result = hasEffectivePermission(actor, permission, {
+    registry, authorityRegistry, scope, now,
+  });
+  return result.allowed
+    ? Object.freeze({
+        allowed: true,
+        source: result.source,
+        delegationId: result.delegationId ?? null,
+        authorityGrantId: result.authorityGrantId ?? null,
+      })
+    : Object.freeze({ allowed: false, reason: "NO_ACTIVE_AUTHORITY_FOR_SCOPE" });
 }
