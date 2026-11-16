@@ -115,7 +115,7 @@ test("rejection requires a human and a reason", () => {
   assert.throws(() => rejectDecision({
     decision, actor: { ...approver, principalType: "agent" }, reason: "No", ledger,
   }), /REJECTION_REQUIRES_ACTIVE_HUMAN/);
-  rejectDecision({ decision, actor: approver, reason: "Evidence is incomplete", ledger });
+  rejectDecision({ decision, actor: approver, reason: "Evidence is incomplete", ledger, policy });
   assert.equal(decision.status, "rejected");
 });
 
@@ -704,5 +704,39 @@ test("a delegated decision cannot be approved without its delegation registry", 
   assert.throws(
     () => recordApproval({ decision, approver, policy, ledger, now }),
     /DELEGATION_REGISTRY_REQUIRED_FOR_APPROVAL/,
+  );
+});
+
+
+test("an active human without the policy rejection permission cannot reject", () => {
+  const ledger = new AuditLedger();
+  const decision = createDecision({
+    request: { id: "d-reject-permission", title: "Submit guide" },
+    requester, policy, ledger,
+  });
+  assert.throws(
+    () => rejectDecision({
+      decision, actor: { ...approver, permissions: [] },
+      reason: "Not authorized", ledger, policy,
+    }),
+    /REJECTION_PERMISSION_REQUIRED/,
+  );
+});
+
+test("a rejector must meet the same domain competency threshold", () => {
+  const ledger = new AuditLedger();
+  const domainPolicy = { ...policy, levelDomain: "editorial" };
+  const domainRequester = { ...requester, levels: { editorial: 2 } };
+  const decision = createDecision({
+    request: { id: "d-reject-level", title: "Submit guide" },
+    requester: domainRequester, policy: domainPolicy, ledger,
+  });
+  assert.throws(
+    () => rejectDecision({
+      decision,
+      actor: { ...approver, levels: { editorial: 1 } },
+      reason: "Not qualified", ledger, policy: domainPolicy,
+    }),
+    /REJECTOR_LEVEL_INSUFFICIENT/,
   );
 });
