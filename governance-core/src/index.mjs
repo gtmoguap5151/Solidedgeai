@@ -252,13 +252,37 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
   return decision;
 }
 
-export function rejectDecision({ decision, actor, reason, ledger }) {
+export function rejectDecision({ decision, actor, reason, ledger, policy, now = new Date() }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   if (!isHuman(actor)) throw new Error("REJECTION_REQUIRES_ACTIVE_HUMAN");
   if (TERMINAL.has(decision.status)) throw new Error("TERMINAL_DECISION_CANNOT_BE_CHANGED");
+  if (!policy || decision.policyId !== policy.id || decision.policyVersion !== policy.version ||
+      decision.permission !== policy.permission || decision.levelDomain !== (policy.levelDomain ?? "general")) {
+    throw new Error("DECISION_POLICY_MISMATCH");
+  }
+  const rejectionPermission = policy.rejectionPermission ?? policy.approverPermission ?? policy.permission;
+  if (!hasPermission(actor, rejectionPermission)) throw new Error("REJECTION_PERMISSION_REQUIRED");
+  const level = actorLevel(actor, policy);
+  if (!Number.isInteger(level) || level < 0) {
+    throw new Error(policy.levelDomain ? "REJECTOR_DOMAIN_LEVEL_INVALID" : "REJECTOR_LEVEL_INVALID");
+  }
+  if (!Number.isInteger(policy.minimumLevel) || level < policy.minimumLevel) {
+    throw new Error("REJECTOR_LEVEL_INSUFFICIENT");
+  }
+  if ((policy.prohibitedConflicts ?? []).some((conflict) => actor.conflicts?.includes(conflict))) {
+    throw new Error("REJECTOR_HAS_PROHIBITED_CONFLICT");
+  }
   const detail = requireString(reason, "reason");
   decision.status = "rejected";
-  ledger.append({ type: "decision_rejected", decisionId: decision.decisionId, actorId: actor.id, reason: detail });
+  ledger.append({
+    type: "decision_rejected",
+    decisionId: decision.decisionId,
+    actorId: actor.id,
+    permission: rejectionPermission,
+    levelDomain: policy.levelDomain ?? "general",
+    level,
+    reason: detail,
+  });
   return decision;
 }
 
