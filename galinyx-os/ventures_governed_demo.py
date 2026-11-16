@@ -63,6 +63,7 @@ def main():
         org = galinyx_ventures_org()
         roles = [{
             "actor_id": HUMAN_OWNER,
+            "role": "human_owner",
             "title": "Founder / Human Root",
             "reports_to": None,
             "division": None,
