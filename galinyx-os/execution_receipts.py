@@ -34,7 +34,7 @@ class ExecutionReceiptService:
 
     @staticmethod
     def _canonical_request(*, tenant_id, agent_id, grant_id, request_id,
-                           action, resource_id, amount_units, approval_id):
+                           action, resource_id, amount_units, approval_id, policy_version):
         request = {
             "tenant_id": tenant_id,
             "agent_id": agent_id,
@@ -44,6 +44,7 @@ class ExecutionReceiptService:
             "resource_id": resource_id,
             "amount_units": amount_units,
             "approval_id": approval_id,
+            "policy_version": policy_version,
         }
         encoded = json.dumps(
             request, sort_keys=True, separators=(",", ":"),
@@ -68,17 +69,33 @@ class ExecutionReceiptService:
         if approval_id is not None:
             approval_id = _required(approval_id, "approval_id")
         amount_units = _positive_integer(amount_units, "amount_units")
-        _, _, request_digest = self._canonical_request(
-            tenant_id=tenant_id, agent_id=agent_id, grant_id=grant_id,
-            request_id=request_id, action=action, resource_id=resource_id,
-            amount_units=amount_units, approval_id=approval_id,
-        )
         now = datetime.now(timezone.utc).isoformat()
         execution_id = str(uuid4())
         reservation_id = str(uuid4())
 
         self.store._begin()
         try:
+            grant = self.db.execute(
+                "SELECT g.subject_agent_id,b.tenant_id,b.owner_principal_id,"
+                "g.actions_json,g.resources_json,g.approval_required_json,"
+                "g.budget_unit,g.policy_version,g.max_transaction_units,"
+                "g.transaction_unit,g.transaction_actions_json "
+                "FROM ahaf_authority_grants g "
+                "JOIN ahaf_agent_bindings b ON b.agent_id=g.subject_agent_id "
+                "WHERE g.grant_id=?",
+                (grant_id,),
+            ).fetchone()
+            if grant is None:
+                raise PermissionError("unknown authority grant")
+            (grant_agent, grant_tenant, owner_id, actions_json, resources_json,
+             approval_json, budget_unit, policy_version, max_transaction_units,
+             transaction_unit, transaction_actions_json) = grant
+            _, _, request_digest = self._canonical_request(
+                tenant_id=tenant_id, agent_id=agent_id, grant_id=grant_id,
+                request_id=request_id, action=action, resource_id=resource_id,
+                amount_units=amount_units, approval_id=approval_id,
+                policy_version=policy_version,
+            )
             existing = self.db.execute(
                 "SELECT execution_id,request_digest,reservation_id "
                 "FROM ahaf_execution_receipts WHERE grant_id=? AND request_id=?",
@@ -98,22 +115,6 @@ class ExecutionReceiptService:
                     "state": state_row[0] if state_row else "invalid_receipt",
                     "created": False,
                 }
-
-            grant = self.db.execute(
-                "SELECT g.subject_agent_id,b.tenant_id,b.owner_principal_id,"
-                "g.actions_json,g.resources_json,g.approval_required_json,"
-                "g.budget_unit,g.policy_version,g.max_transaction_units,"
-                "g.transaction_unit,g.transaction_actions_json "
-                "FROM ahaf_authority_grants g "
-                "JOIN ahaf_agent_bindings b ON b.agent_id=g.subject_agent_id "
-                "WHERE g.grant_id=?",
-                (grant_id,),
-            ).fetchone()
-            if grant is None:
-                raise PermissionError("unknown authority grant")
-            (grant_agent, grant_tenant, owner_id, actions_json, resources_json,
-             approval_json, budget_unit, policy_version, max_transaction_units,
-             transaction_unit, transaction_actions_json) = grant
             if grant_agent != agent_id or grant_tenant != tenant_id:
                 raise PermissionError("authenticated workload and tenant must match persisted grant binding")
             chain = self.store._grant_chain(grant_id, require_active=True)
@@ -234,7 +235,8 @@ class ExecutionReceiptService:
                 request_id=request_id, action=action, resource_id=resource_id,
                 decision="execution_prepared", policy_version=policy_version,
                 payload={"execution_id": execution_id, "request_digest": request_digest,
-                         "reservation_id": reservation_id, "approval_id": approval_id},
+                         "reservation_id": reservation_id, "approval_id": approval_id,
+                         "amount_units": amount_units, "unit_code": budget_unit},
                 occurred_at=now,
             )
             self.store._finish()
