@@ -62,6 +62,7 @@ function principal(id, rank, permission, domain, level) {
 const editor = principal("ci-editor", "Editor", "blackpine:content:submit", "editorial", 2);
 const researcher = principal("ci-researcher", "Researcher", "blackpine:claim:submit", "product-evidence", 3);
 const commercial = principal("ci-commercial", "Commercial Officer", "blackpine:affiliate:propose", "commercial", 4);
+const priceEditor = principal("ci-price-editor", "Price Editor", "blackpine:price:submit", "commercial", 3);
 const releaseManager = principal("ci-release-manager", "Release Manager", "blackpine:publish:request", "release-management", 4);
 const financialController = principal("ci-financial-controller", "Financial Controller", "blackpine:finance:request", "financial-controls", 4);
 const editorialApprover = principal("ci-editorial-approver", "Owner", "blackpine:content:approve", "editorial", 2);
@@ -112,6 +113,17 @@ const affiliateDecision = evaluateDecision({
   policy: blackpinePolicies.affiliateRelationship,
 });
 
+const priceClaimDecision = evaluateDecision({
+  request: {
+    id: "ci-blackpine-price-claim-check",
+    title: "Validate time-sensitive product price claims",
+    scope: "blackpine:product-price",
+    evidence: snapshot.evidence,
+  },
+  requester: priceEditor,
+  policy: blackpinePolicies.priceClaim,
+});
+
 const productionDecision = evaluateDecision({
   request: {
     id: "ci-blackpine-production-check",
@@ -138,6 +150,7 @@ if (!editorialDecision.eligibleToSubmit) throw new Error("BLACKPINE_EDITORIAL_EV
 if (productClaimDecision.eligibleToSubmit) throw new Error("BLACKPINE_PRODUCT_CLAIM_GATE_FAILED_OPEN");
 if (handsOnClaimDecision.eligibleToSubmit) throw new Error("BLACKPINE_HANDS_ON_GATE_FAILED_OPEN");
 if (affiliateDecision.eligibleToSubmit) throw new Error("BLACKPINE_AFFILIATE_GATE_FAILED_OPEN");
+if (snapshot.observations.timeSensitivePriceClaimsPresent && priceClaimDecision.eligibleToSubmit) throw new Error("BLACKPINE_PRICE_CLAIM_GATE_FAILED_OPEN");
 if (productionDecision.eligibleToSubmit) throw new Error("BLACKPINE_PRODUCTION_GATE_FAILED_OPEN");
 if (financialDecision.eligibleToSubmit) throw new Error("BLACKPINE_FINANCIAL_GATE_FAILED_OPEN");
 
@@ -190,6 +203,7 @@ process.stdout.write(JSON.stringify({
     productClaim: productClaimDecision,
     handsOnClaim: handsOnClaimDecision,
     affiliateRelationship: affiliateDecision,
+    timeSensitivePriceClaim: priceClaimDecision,
     productionPublish: productionDecision,
     financialAccountChange: financialDecision,
   },
@@ -202,7 +216,7 @@ process.stdout.write(JSON.stringify({
   authorityRegistry: {
     principalCount: new Set([
       editor.id, researcher.id, commercial.id, releaseManager.id,
-      financialController.id, editorialApprover.id, claimApprover.id,
+      financialController.id, priceEditor.id, editorialApprover.id, claimApprover.id,
     ]).size,
     permissionAndCompetencyRecords: authorityRegistry.listRecords().length,
     bootstrapAuditVerified: authorityLedger.verify(),
