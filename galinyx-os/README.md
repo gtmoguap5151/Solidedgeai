@@ -163,3 +163,20 @@ and audit-chain verification. It does not authenticate the caller, enforce
 agent actions, implement delegated grant issuance, or validate authenticated
 human approvals. Back up databases before upgrading and retain independent
 recovery copies.
+
+
+## Governed mock execution and workload identity seam
+
+`governed_execution.py` is a test-only integration harness that joins persisted
+AHAF grants, a separate human approval authenticator, and a workload
+authenticator before changing a fixed in-memory counter. The executor derives
+the agent ID from the workload credential adapter and derives the tenant from
+the persisted grant binding; caller-supplied agent and tenant IDs are not
+accepted as identity proof.
+
+The tests use deterministic credential maps only. This does **not** implement
+production workload credential issuance, cryptographic verification, key
+rotation/revocation, network authentication, or enforcement at a real external
+target. The mock resource is not a production action adapter. Keep this module
+inside the trusted local test boundary until those controls receive independent
+engineering and security review.
