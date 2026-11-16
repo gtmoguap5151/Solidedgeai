@@ -247,3 +247,9 @@ python galinyx-os/ventures_decision_demo.py
 ```
 
 This shows a registered CEO submitting a proposal, the human root approving the exact request, and the designated Governance & Risk executive executing it through the governed simulator. The resulting receipt and append-only decision/audit history are printed.
+
+## Credential-derived organization service boundary
+
+organization_service.py is the narrow service facade for executive proposals, human approvals, rejection, and execution. It derives the proposer from a workload credential, derives the approver from a human credential, and checks that the authenticated workload matches the proposal's designated executor. Callers do not supply proposer actor IDs or approver principal IDs as proof of identity.
+
+The facade requires injected human and workload authenticators plus the approval issuer. Tests use deterministic in-memory authenticators only. A deployed system must connect reviewed identity providers, protect credentials, keep the database and direct workflow objects private, and expose only this facade to callers.
