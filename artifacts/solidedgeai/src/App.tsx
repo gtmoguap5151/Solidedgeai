@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 import {
   Activity, ArrowUpRight, BarChart3, BookOpen, Boxes, CheckCircle2,
-  ChevronRight, CircleAlert, Clock3, Cloud, Database, FileCheck2,
+  ChevronRight, CircleAlert, Clock3, Cloud, Coins, ClipboardCheck, Database, FileCheck2, History,
   Fingerprint, GitBranch, Globe2, LayoutDashboard, LockKeyhole,
   Menu, RadioTower, ShieldCheck, Sparkles, Wallet, X
 } from "lucide-react";
 
-type Section = "Overview" | "AI Workforce" | "BLACKPINE FIELD" | "Revenue" | "Opportunities" | "Governance" | "Evidence" | "Audit Trail" | "Connections";
+type Section = "Overview" | "AI Workforce" | "BLACKPINE FIELD" | "Revenue" | "Opportunities" | "Review Queue" | "Governance" | "Evidence" | "Run History" | "Cost & Usage" | "Audit Trail" | "Connections";
 
 const navigation: { label: Section; icon: typeof LayoutDashboard }[] = [
   { label: "Overview", icon: LayoutDashboard },
@@ -14,8 +14,11 @@ const navigation: { label: Section; icon: typeof LayoutDashboard }[] = [
   { label: "BLACKPINE FIELD", icon: Globe2 },
   { label: "Revenue", icon: Wallet },
   { label: "Opportunities", icon: Sparkles },
+  { label: "Review Queue", icon: ClipboardCheck },
   { label: "Governance", icon: ShieldCheck },
   { label: "Evidence", icon: FileCheck2 },
+  { label: "Run History", icon: History },
+  { label: "Cost & Usage", icon: Coins },
   { label: "Audit Trail", icon: Activity },
   { label: "Connections", icon: RadioTower },
 ];
@@ -59,6 +62,9 @@ export default function App() {
     "BLACKPINE FIELD": "Storefront operations, deployment health, and content integrity.",
     "Revenue": "The complete path from attention to verified affiliate commission.",
     "Opportunities": "Evidence-backed improvements ranked by business priority.",
+    "Review Queue": "Human decisions on proposed actions. Nothing is approved by default.",
+    "Run History": "Recorded workforce executions, validation results, and handoffs.",
+    "Cost & Usage": "Provider usage and spend accounting. Unknown costs remain unreported.",
     "Governance": "Authority, policy enforcement, and human approval boundaries.",
     "Evidence": "The source material behind every metric and recommendation.",
     "Audit Trail": "A traceable record of observations, decisions, and outcomes.",
@@ -175,6 +181,61 @@ export default function App() {
           {section === "Audit Trail" && <div className="rounded-2xl border border-white/10 bg-[#111b2a] p-5"><h2 className="font-semibold text-white">Recorded system milestones</h2><div className="mt-5 space-y-5">{[["16 Nov 2026","Control Room dashboard specification committed","Design contract recorded in governance adapter."],["16 Nov 2026","BLACKPINE revenue opportunities integrated","Three evidence-backed recommendations; execution disabled."],["13 Nov 2026","BLACKPINE production deployment","Latest known successful Pages deployment."],["Earlier test cycle","Governance policy and measurement intake","Authorization and evidence validation tests authored; latest CI result still requires verification."]].map(([date,title,desc])=><div key={title} className="flex gap-3"><div className="mt-1 h-2 w-2 rounded-full bg-amber-300"/><div><div className="text-[11px] text-slate-500">{date}</div><div className="mt-1 text-sm font-medium text-slate-200">{title}</div><div className="mt-1 text-xs text-slate-500">{desc}</div></div></div>)}</div></div>}
 
           {section === "Connections" && <div className="grid gap-3 sm:grid-cols-2">{[{name:"GitHub",detail:"Repository source and governance code",state:"Connected · branch-scoped",tone:"green",icon:GitBranch},{name:"Cloudflare Pages",detail:"BLACKPINE deployment and domain",state:"Connected · read verified",tone:"green",icon:Cloud},{name:"Google Analytics 4",detail:"Sessions and product-page events",state:"Not verified",tone:"amber",icon:BarChart3},{name:"Awin",detail:"Affiliate clicks and commissions",state:"Account status known · reports not connected",tone:"amber",icon:Wallet},{name:"CJ Affiliate",detail:"Advertiser and commission reports",state:"Account status known · reports not connected",tone:"amber",icon:Database}].map(({name,detail,state,tone,icon:Icon})=><div key={name} className="rounded-2xl border border-white/10 bg-[#111b2a] p-5"><div className="flex items-center justify-between"><div className="flex items-center gap-3"><div className="rounded-xl bg-white/5 p-2.5 text-slate-300"><Icon size={18}/></div><div className="font-semibold text-white">{name}</div></div><Status tone={tone as "green"|"amber"}>{tone==="green"?"Connected":"Needs setup"}</Status></div><p className="mt-3 text-xs text-slate-500">{detail}</p><div className="mt-4 border-t border-white/10 pt-3 text-xs text-slate-300">{state}</div></div>)}</div>}
+
+          {section === "Review Queue" && <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Metric label="Awaiting human decision" value="0 verified" note="No durable queue connected" icon={ClipboardCheck} tone="amber"/>
+              <Metric label="Approved actions" value="0 verified" note="No approval ledger connected" icon={CheckCircle2} tone="green"/>
+              <Metric label="Execution authority" value="Disabled" note="No actions can be launched here" icon={LockKeyhole} tone="muted"/>
+            </div>
+            <section className="rounded-2xl border border-amber-300/20 bg-amber-300/[0.04] p-5">
+              <div className="flex items-center gap-2 text-amber-200"><CircleAlert size={17}/><h2 className="font-semibold">Review queue is not connected to a durable approval service</h2></div>
+              <p className="mt-3 text-sm leading-relaxed text-slate-300">Workforce handoff packets are proposals, not approvals. The existing governance adapter uses test identities and in-memory records. This page intentionally does not offer approve, reject, publish, spend, or deploy controls until authenticated human identity, durable storage, scoped authorization, and an immutable audit record are implemented.</p>
+              <div className="mt-4 flex flex-wrap gap-2"><Status tone="green">Human authority retained</Status><Status tone="amber">Production approval service not connected</Status></div>
+            </section>
+            <section className="rounded-2xl border border-white/10 bg-[#111b2a] p-5">
+              <h2 className="font-semibold text-white">Proposal intake contract</h2>
+              <p className="mt-2 text-sm text-slate-400">A future review item must include the requesting worker, exact proposed operation, target resource, evidence references, risk classification, expiry, and a human decision record.</p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {["Worker identity + run ID","Exact action + resource scope","Allowlisted evidence references","Risk + reversibility assessment","Expiry + revocation path","Human identity + decision timestamp"].map(v=><div key={v} className="rounded-lg bg-white/[0.03] px-3 py-2 text-xs text-slate-300"><CheckCircle2 size={13} className="mr-2 inline text-amber-200"/>{v}</div>)}
+              </div>
+            </section>
+          </div>}
+
+          {section === "Run History" && <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Metric label="Verified complete runs" value="0" note="No valid live run confirmed" icon={History} tone="amber"/>
+              <Metric label="Partial / invalid outputs" value="Observed" note="Truncated provider output excluded" icon={CircleAlert} tone="amber"/>
+              <Metric label="Autonomous actions" value="0" note="Execution remains disabled" icon={ShieldCheck} tone="green"/>
+            </div>
+            <section className="rounded-2xl border border-white/10 bg-[#111b2a] p-5">
+              <h2 className="font-semibold text-white">Execution ledger</h2>
+              <p className="mt-2 text-sm text-slate-400">No complete, schema-valid live workforce run has been verified for this environment. A provider response is not counted as a successful run until every specialist output passes validation and the final handoff is recorded.</p>
+              <div className="mt-5 rounded-xl border border-dashed border-white/15 p-6 text-center">
+                <History size={24} className="mx-auto text-slate-500"/>
+                <div className="mt-3 text-sm font-semibold text-slate-300">No verified run records</div>
+                <div className="mt-1 text-xs text-slate-500">Test results and CI checks are tracked separately from live model executions.</div>
+              </div>
+            </section>
+          </div>}
+
+          {section === "Cost & Usage" && <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Metric label="Verified model spend" value="Not reported" note="No provider billing data imported" icon={Coins} tone="amber"/>
+              <Metric label="Live inference runs" value="Not verified" note="No complete live run confirmed" icon={Activity} tone="amber"/>
+              <Metric label="Spend limit" value="Not configured" note="Do not enable live inference yet" icon={LockKeyhole} tone="muted"/>
+            </div>
+            <section className="rounded-2xl border border-amber-300/20 bg-amber-300/[0.04] p-5">
+              <h2 className="font-semibold text-white">Cost-control requirement</h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-300">The Cloudflare Workers AI adapter is implemented, but runtime credentials and live inference have not been configured or verified. No model charges have been incurred by the provider adapter tests. This console does not estimate or invent spend.</p>
+            </section>
+            <section className="rounded-2xl border border-white/10 bg-[#111b2a] p-5">
+              <h2 className="font-semibold text-white">Required before live execution</h2>
+              <div className="mt-4 space-y-3">
+                {["Select the approved model and provider","Set a hard monthly and per-run spend ceiling","Record provider-reported input/output usage","Fail closed when usage or cost cannot be measured","Import billing records for reconciliation"].map((v,i)=><div key={v} className="flex items-start gap-3 border-b border-white/10 pb-3 last:border-0"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/5 text-[11px] text-amber-200">{i+1}</span><span className="text-sm text-slate-300">{v}</span></div>)}
+              </div>
+            </section>
+          </div>}
 
           <footer className="flex flex-col justify-between gap-2 border-t border-white/10 pt-4 text-[10px] text-slate-600 sm:flex-row"><span>GALINYX CONTROL ROOM · INTERNAL TEST INTERFACE</span><span>Known observations are labelled. Unknowns stay unknown. Human authority remains final.</span></footer>
         </div>
