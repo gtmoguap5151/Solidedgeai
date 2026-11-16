@@ -40,7 +40,7 @@ class AuthorityStoreTests(unittest.TestCase):
         self.runtime.close()
 
     def test_runtime_uses_schema_version_five(self):
-        self.assertEqual(self.runtime.schema_version(), 5)
+        self.assertEqual(self.runtime.schema_version(), 6)
 
     def test_agent_binding_requires_existing_agent_and_workspace_owner(self):
         with self.assertRaises(PermissionError):
