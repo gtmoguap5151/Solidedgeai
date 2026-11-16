@@ -14,7 +14,7 @@ const editorialDecision = evaluateDecision({
     evidence: snapshot.evidence,
   },
   requester: {
-    id: "ci-editor", principalType: "human", active: true, level: 2,
+    id: "ci-editor", principalType: "human", active: true, levels: { editorial: 2 },
     permissions: ["blackpine:content:submit"], conflicts: [],
   },
   policy: blackpinePolicies.contentDraft,
@@ -28,7 +28,7 @@ const productClaimDecision = evaluateDecision({
     evidence: snapshot.evidence,
   },
   requester: {
-    id: "ci-researcher", principalType: "human", active: true, level: 3,
+    id: "ci-researcher", principalType: "human", active: true, levels: { "product-evidence": 3 },
     permissions: ["blackpine:claim:submit"], conflicts: [],
   },
   policy: blackpinePolicies.productClaim,
