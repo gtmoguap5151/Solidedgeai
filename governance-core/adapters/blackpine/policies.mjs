@@ -15,6 +15,10 @@ export const blackpinePolicies = Object.freeze({
     requiredApprovals: 1,
     prohibitedConflicts: ["direct-product-vendor-interest"],
     requiredEvidence: ["source-reference-list", "affiliate-disclosure-check"],
+    evidenceRules: {
+      "source-reference-list": { requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+      "affiliate-disclosure-check": { requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+    },
   }),
   productClaim: Object.freeze({
     id: "blackpine.product.claim",
@@ -27,6 +31,14 @@ export const blackpinePolicies = Object.freeze({
     requiredApprovals: 1,
     prohibitedConflicts: ["direct-product-vendor-interest"],
     requiredEvidence: ["manufacturer-source", "specification-record"],
+    evidenceRules: {
+      "manufacturer-source": { requireHttps: true, requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+      "specification-record": { requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+      "possession-record": { requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+      "test-date": { requireVerifiedBy: true, requireVerifiedAt: true },
+      "test-conditions": { requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+      "load-record": { requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+    },
     handsOnEvidence: ["possession-record", "test-date", "test-conditions", "load-record"],
   }),
   priceClaim: Object.freeze({
@@ -40,6 +52,10 @@ export const blackpinePolicies = Object.freeze({
     requiredApprovals: 1,
     prohibitedConflicts: ["affiliate-network-conflict"],
     requiredEvidence: ["retailer-price-check", "offer-terms"],
+    evidenceRules: {
+      "retailer-price-check": { requireHttps: true, requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+      "offer-terms": { requireHttps: true, requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+    },
     evidenceFreshness: {
       "retailer-price-check": {
         maxAgeHours: 24,
@@ -58,6 +74,11 @@ export const blackpinePolicies = Object.freeze({
     requiredApprovals: 1,
     prohibitedConflicts: ["affiliate-network-conflict"],
     requiredEvidence: ["programme-terms", "merchant-fit-review", "disclosure-plan"],
+    evidenceRules: {
+      "programme-terms": { requireHttps: true, requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+      "merchant-fit-review": { requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+      "disclosure-plan": { requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+    },
   }),
   productionPublish: Object.freeze({
     id: "blackpine.production.publish",
@@ -70,6 +91,11 @@ export const blackpinePolicies = Object.freeze({
     requiredApprovals: 1,
     prohibitedConflicts: [],
     requiredEvidence: ["staging-validation", "rollback-plan", "human-release-approval"],
+    evidenceRules: {
+      "staging-validation": { requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+      "rollback-plan": { requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+      "human-release-approval": { requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+    },
   }),
   financialAccountChange: Object.freeze({
     id: "blackpine.financial.account.change",
@@ -82,5 +108,9 @@ export const blackpinePolicies = Object.freeze({
     requiredApprovals: 1,
     prohibitedConflicts: ["personal-financial-interest"],
     requiredEvidence: ["verified-account-owner", "change-confirmation"],
+    evidenceRules: {
+      "verified-account-owner": { requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+      "change-confirmation": { requireContentSha256: true, requireVerifiedBy: true, requireVerifiedAt: true },
+    },
   }),
 });
