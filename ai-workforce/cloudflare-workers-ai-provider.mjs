@@ -42,8 +42,9 @@ export function createCloudflareWorkersAIProvider({
     throw new RangeError("CLOUDFLARE_MODEL_TOKEN_LIMIT_OUT_OF_RANGE");
   }
 
+  const modelPath = selectedModel.split("/").map((part) => encodeURIComponent(part)).join("/");
   const endpoint = "https://api.cloudflare.com/client/v4/accounts/" +
-    encodeURIComponent(account) + "/ai/run/" + encodeURIComponent(selectedModel);
+    encodeURIComponent(account) + "/ai/run/" + modelPath;
 
   return Object.freeze({
     async generate({ system, prompt, maxTokens = maxOutputTokens }) {
