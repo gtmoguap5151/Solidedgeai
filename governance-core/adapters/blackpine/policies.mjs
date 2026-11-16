@@ -7,6 +7,7 @@ export const blackpinePolicies = Object.freeze({
     id: "blackpine.content.draft",
     levelDomain: "editorial",
     version: "1.0.0",
+    requireVerifiedIdentity: true,
     permission: "blackpine:content:submit",
     approverPermission: "blackpine:content:approve",
     minimumLevel: 2,
