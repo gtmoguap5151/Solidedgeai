@@ -601,3 +601,47 @@ test("Blackpine snapshot evidence satisfies editorial controls but not unsupport
   assert.equal(claim.eligibleToSubmit, false);
   assert.ok(claim.reasons.includes("REQUIRED_EVIDENCE_MISSING:manufacturer-source"));
 });
+
+
+test("a high general level cannot substitute for a low product-evidence level", () => {
+  const claimant = {
+    id: "domain-claimant", principalType: "human", active: true,
+    rank: "Researcher", level: 99,
+    levels: { "product-evidence": 2 },
+    permissions: ["blackpine:claim:submit"], conflicts: [],
+  };
+  const result = evaluateDecision({
+    request: {
+      id: "bp-domain-level-1", title: "Verify a product specification",
+      evidence: [
+        { type: "manufacturer-source", reference: "source://manufacturer" },
+        { type: "specification-record", reference: "record://specification" },
+      ],
+    },
+    requester: claimant,
+    policy: blackpinePolicies.productClaim,
+  });
+  assert.equal(result.eligibleToSubmit, false);
+  assert.ok(result.reasons.includes("REQUESTER_LEVEL_INSUFFICIENT"));
+  assert.equal(result.requesterLevel, 2);
+  assert.equal(result.levelDomain, "product-evidence");
+});
+
+test("approver must meet the policy's domain level, not merely a high general level", () => {
+  const ledger = new AuditLedger();
+  const domainPolicy = { ...policy, levelDomain: "editorial" };
+  const domainRequester = {
+    ...requester, level: 99, levels: { editorial: 2 },
+  };
+  const decision = createDecision({
+    request: { id: "bp-domain-approval-1", title: "Review draft" },
+    requester: domainRequester, policy: domainPolicy, ledger,
+  });
+  const underqualifiedApprover = {
+    ...approver, level: 99, levels: { editorial: 1 },
+  };
+  assert.throws(
+    () => recordApproval({ decision, approver: underqualifiedApprover, policy: domainPolicy, ledger }),
+    /APPROVER_LEVEL_INSUFFICIENT/,
+  );
+});
