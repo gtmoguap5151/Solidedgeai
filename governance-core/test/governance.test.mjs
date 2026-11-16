@@ -564,3 +564,38 @@ test("Blackpine repository adapter rejects arbitrary refs and truncated trees", 
     /BLACKPINE_REPOSITORY_TREE_TRUNCATED/,
   );
 });
+
+
+test("Blackpine snapshot evidence satisfies editorial controls but not unsupported product claims", async () => {
+  const mock = mockBlackpineFetch(blackpineFixtureFiles());
+  const snapshot = await loadBlackpineSnapshot({ fetchImpl: mock.fetchImpl });
+  const editor = {
+    id: "bp-editor-from-snapshot", principalType: "human", active: true,
+    rank: "Editor", level: 2,
+    permissions: ["blackpine:content:submit"], conflicts: [],
+  };
+  const draft = evaluateDecision({
+    request: {
+      id: "bp-snapshot-draft", title: "Prepare research guide",
+      scope: "blackpine:editorial", evidence: snapshot.evidence,
+    },
+    requester: editor,
+    policy: blackpinePolicies.contentDraft,
+  });
+  assert.equal(draft.eligibleToSubmit, true);
+
+  const researcher = {
+    ...editor, id: "bp-snapshot-researcher", level: 3,
+    permissions: ["blackpine:claim:submit"],
+  };
+  const claim = evaluateDecision({
+    request: {
+      id: "bp-snapshot-claim", title: "Publish verified product claim",
+      scope: "blackpine:product-claims", evidence: snapshot.evidence,
+    },
+    requester: researcher,
+    policy: blackpinePolicies.productClaim,
+  });
+  assert.equal(claim.eligibleToSubmit, false);
+  assert.ok(claim.reasons.includes("REQUIRED_EVIDENCE_MISSING:manufacturer-source"));
+});
