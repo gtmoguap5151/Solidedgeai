@@ -796,3 +796,63 @@ test("malformed request evidence fails closed", () => {
   assert.equal(result.status, "blocked");
   assert.ok(result.reasons.includes("REQUEST_EVIDENCE_INVALID"));
 });
+
+
+test("Blackpine live-snapshot evidence completes an editorial decision lifecycle and blocks unsupported claims", async () => {
+  const mock = mockBlackpineFetch(blackpineFixtureFiles());
+  const snapshot = await loadBlackpineSnapshot({ fetchImpl: mock.fetchImpl });
+  const ledger = new AuditLedger();
+  const editorialRequester = {
+    id: "bp-lifecycle-editor", principalType: "human", active: true,
+    rank: "Editor", levels: { editorial: 2 },
+    permissions: ["blackpine:content:submit"], conflicts: [],
+  };
+  const editorialApprover = {
+    id: "bp-lifecycle-approver", principalType: "human", active: true,
+    rank: "Owner", levels: { editorial: 2 },
+    permissions: ["blackpine:content:approve"], conflicts: [],
+  };
+  const editorial = createDecision({
+    request: {
+      id: "bp-lifecycle-editorial", title: "Research guide draft",
+      scope: "blackpine:editorial", evidence: snapshot.evidence,
+    },
+    requester: editorialRequester,
+    policy: blackpinePolicies.contentDraft,
+    ledger,
+  });
+  recordApproval({
+    decision: editorial, approver: editorialApprover,
+    policy: blackpinePolicies.contentDraft, ledger,
+  });
+  assert.equal(editorial.status, "approved");
+
+  const productClaim = createDecision({
+    request: {
+      id: "bp-lifecycle-product-claim", title: "Verified product claim",
+      scope: "blackpine:product-claims", evidence: snapshot.evidence,
+    },
+    requester: {
+      id: "bp-lifecycle-researcher", principalType: "human", active: true,
+      levels: { "product-evidence": 3 },
+      permissions: ["blackpine:claim:submit"], conflicts: [],
+    },
+    policy: blackpinePolicies.productClaim,
+    ledger,
+  });
+  assert.equal(productClaim.status, "blocked");
+  assert.throws(
+    () => recordApproval({
+      decision: productClaim,
+      approver: {
+        id: "bp-lifecycle-claim-approver", principalType: "human", active: true,
+        levels: { "product-evidence": 3 },
+        permissions: ["blackpine:claim:verify"], conflicts: [],
+      },
+      policy: blackpinePolicies.productClaim,
+      ledger,
+    }),
+    /DECISION_NOT_ELIGIBLE_FOR_APPROVAL/,
+  );
+  assert.equal(ledger.verify(), true);
+});
