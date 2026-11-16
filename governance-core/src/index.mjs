@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+import { isVerifiedPrincipal } from "./authority-registry.mjs";
 
 const TERMINAL = new Set(["approved", "rejected", "overridden"]);
 const decisionStates = new WeakMap();
@@ -55,6 +56,15 @@ const NEVER_DELEGABLE = new Set([
 
 function hasEffectivePermission(actor, permission, { registry, scope, now } = {}) {
   if (hasPermission(actor, permission)) return { allowed: true, source: "direct" };
+  if (isVerifiedPrincipal(actor)) {
+    const grant = actor.permissionGrants.find((item) =>
+      item.permission === permission &&
+      (item.scope === "*" || item.scope === scope) &&
+      !item.revokedAt &&
+      new Date(item.expiresAt).getTime() > new Date(now ?? Date.now()).getTime()
+    );
+    if (grant) return { allowed: true, source: "authority-grant", authorityGrantId: grant.id };
+  }
   if (!(registry instanceof DelegationRegistry) || !scope) return { allowed: false, source: "none" };
   const grant = registry.findActive({ delegateId: actor?.id, permission, scope, now });
   return grant
@@ -141,6 +151,9 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
   const reasons = [];
   if (!request || !policy) throw new TypeError("request and policy are required");
   if (!isHuman(requester)) reasons.push("REQUESTER_MUST_BE_ACTIVE_HUMAN");
+  if (policy.requireVerifiedIdentity === true && !isVerifiedPrincipal(requester)) {
+    reasons.push("REQUESTER_IDENTITY_NOT_VERIFIED");
+  }
   if (typeof request.id !== "string" || request.id.trim() === "" ||
       typeof request.title !== "string" || request.title.trim() === "") {
     reasons.push("REQUEST_ID_AND_TITLE_REQUIRED");
@@ -208,6 +221,7 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
     policyVersion: policy.version,
     policyDigest: policyDigest(policy),
     permission: policy.permission,
+    requireVerifiedIdentity: policy.requireVerifiedIdentity === true,
     eligibleToSubmit: reasons.length === 0,
     reasons,
     status: reasons.length === 0 ? "pending_approval" : "blocked",
@@ -261,6 +275,9 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
     throw new Error("DECISION_POLICY_MISMATCH");
   }
   if (!isHuman(approver)) throw new Error("APPROVER_MUST_BE_ACTIVE_HUMAN");
+  if (policy.requireVerifiedIdentity === true && !isVerifiedPrincipal(approver)) {
+    throw new Error("APPROVER_IDENTITY_NOT_VERIFIED");
+  }
   if (approver.id === state.requesterId) throw new Error("SELF_APPROVAL_PROHIBITED");
   if (state.permissionSource === "delegated") {
     if (!(delegationRegistry instanceof DelegationRegistry)) {
@@ -304,6 +321,7 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
     levelDomain: policy.levelDomain ?? "general",
     permissionSource: approverPermission.source,
     delegationId: approverPermission.delegationId ?? null,
+    authorityGrantId: approverPermission.authorityGrantId ?? null,
     approvedAt: new Date().toISOString(),
   });
   if (state.approvals.length >= state.requiredApprovals) state.status = "approved";
@@ -314,6 +332,7 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
     policyDigest: state.policyDigest,
     permissionSource: approverPermission.source,
     delegationId: approverPermission.delegationId ?? null,
+    authorityGrantId: approverPermission.authorityGrantId ?? null,
     approvalCount: state.approvals.length,
     status: state.status,
   });
@@ -324,6 +343,9 @@ export function rejectDecision({ decision, actor, reason, ledger, policy, now = 
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   const state = getDecisionState(decision);
   if (!isHuman(actor)) throw new Error("REJECTION_REQUIRES_ACTIVE_HUMAN");
+  if (policy?.requireVerifiedIdentity === true && !isVerifiedPrincipal(actor)) {
+    throw new Error("REJECTOR_IDENTITY_NOT_VERIFIED");
+  }
   if (TERMINAL.has(state.status)) throw new Error("TERMINAL_DECISION_CANNOT_BE_CHANGED");
   if (!policy || state.policyId !== policy.id || state.policyVersion !== policy.version ||
       state.policyDigest !== policyDigest(policy) ||
