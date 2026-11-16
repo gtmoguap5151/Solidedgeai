@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { BLACKPINE_READ_PATHS, loadBlackpineSnapshot } from "../adapters/blackpine/repository-reader.mjs";
 import { blackpinePolicies } from "../adapters/blackpine/policies.mjs";
 import {
   AuditLedger,
@@ -470,4 +472,95 @@ test("decision evaluation ignores untrusted objects masquerading as a delegation
   });
   assert.equal(result.eligibleToSubmit, false);
   assert.ok(result.reasons.includes("REQUESTER_LACKS_PERMISSION"));
+});
+
+
+function mockBlackpineFetch(fileContents, { tamperPath = null, truncated = false } = {}) {
+  const blobSha = (content) => {
+    const bytes = Buffer.from(content, "utf8");
+    return createHash("sha1")
+      .update(Buffer.concat([Buffer.from(`blob ${bytes.length}\0`), bytes]))
+      .digest("hex");
+  };
+  const tree = Object.entries(fileContents).map(([path, content]) => ({
+    path, type: "blob", size: Buffer.byteLength(content, "utf8"), sha: blobSha(content),
+  }));
+  const calls = [];
+  const fetchImpl = async (url, options) => {
+    calls.push({ url, method: options?.method });
+    assert.equal(options?.method, "GET");
+    if (url.includes("/git/trees/")) {
+      return {
+        ok: true,
+        json: async () => ({ sha: "mock-tree-sha", truncated, tree }),
+      };
+    }
+    const path = decodeURIComponent(url.split("/main/")[1]);
+    let content = fileContents[path];
+    if (path === tamperPath) content += "tampered";
+    return { ok: true, text: async () => content };
+  };
+  return { fetchImpl, calls };
+}
+
+function blackpineFixtureFiles() {
+  const files = {
+    "site/index.html": "Some links on this page are affiliate links. Commission at no extra cost. Commissions never change our verdicts. We have not hands-on tested the products covered. We never invent test results.",
+    "brand-guide.md": "No hype. Honest limits.",
+  };
+  const drafts = [
+    "launch-slate/01-cordura-vs-ballistic-nylon.md",
+    "launch-slate/02-solar-generator-vs-gas-inverter.md",
+    "launch-slate/03-best-water-filtration-preparedness.md",
+  ];
+  const published = [
+    "site/cordura-vs-ballistic-nylon.html",
+    "site/solar-generator-vs-gas-inverter.html",
+    "site/best-water-filtration-preparedness.html",
+  ];
+  for (const path of drafts) {
+    files[path] = "Format: research/spec comparison. No hands-on testing is claimed in this piece. **Sources (checked 2026-11-16):** published specifications.";
+  }
+  for (const path of published) files[path] = "<html>Published companion</html>";
+  return files;
+}
+
+test("Blackpine repository adapter reads only allowlisted public files with GET", async () => {
+  const mock = mockBlackpineFetch(blackpineFixtureFiles());
+  const snapshot = await loadBlackpineSnapshot({ fetchImpl: mock.fetchImpl });
+  assert.equal(snapshot.source.repository, "blackpine-field");
+  assert.equal(snapshot.observations.affiliateDisclosurePresent, true);
+  assert.equal(snapshot.observations.handsOnTestingDisclosurePresent, true);
+  assert.equal(snapshot.observations.researchOnlyLabelsPresent, true);
+  assert.equal(snapshot.observations.publishedCompanionsPresent, true);
+  assert.equal(snapshot.observations.noHypeBrandRulePresent, true);
+  assert.equal(snapshot.observations.manufacturerSourceRecordsPresent, false);
+  assert.ok(snapshot.evidence.some((item) => item.type === "affiliate-disclosure-check"));
+  assert.ok(snapshot.evidence.some((item) => item.type === "source-reference-list"));
+  assert.ok(snapshot.evidence.some((item) => item.type === "specification-record"));
+  assert.ok(snapshot.files.every((file) => BLACKPINE_READ_PATHS.includes(file.path)));
+  assert.ok(snapshot.files.every((file) => !("content" in file)));
+  assert.ok(mock.calls.every((call) => call.method === "GET"));
+  assert.ok(mock.calls.every((call) => call.url.startsWith("https://api.github.com/") || call.url.startsWith("https://raw.githubusercontent.com/")));
+});
+
+test("Blackpine repository adapter detects content that does not match the Git tree hash", async () => {
+  const files = blackpineFixtureFiles();
+  const mock = mockBlackpineFetch(files, { tamperPath: "site/index.html" });
+  await assert.rejects(
+    () => loadBlackpineSnapshot({ fetchImpl: mock.fetchImpl }),
+    /BLACKPINE_FILE_INTEGRITY_MISMATCH/,
+  );
+});
+
+test("Blackpine repository adapter rejects arbitrary refs and truncated trees", async () => {
+  const mock = mockBlackpineFetch(blackpineFixtureFiles(), { truncated: true });
+  await assert.rejects(
+    () => loadBlackpineSnapshot({ fetchImpl: mock.fetchImpl, ref: "../main" }),
+    /ref must be main or a full Git commit SHA/,
+  );
+  await assert.rejects(
+    () => loadBlackpineSnapshot({ fetchImpl: mock.fetchImpl }),
+    /BLACKPINE_REPOSITORY_TREE_TRUNCATED/,
+  );
 });
