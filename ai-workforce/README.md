@@ -33,7 +33,7 @@ No provider is selected and no credentials are stored in the repository. Choose 
 - `GALINYX_MODEL_API_KEY` — provider key, stored as a secret in the deployment environment.
 - `GALINYX_MODEL_NAME` — exact model identifier supported by that endpoint.
 
-The Cloudflare Workers AI adapter uses the account REST endpoint directly and does not require an AI Gateway. Configure `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_AI_MODEL` instead of the OpenAI-compatible variables. Store the token as a runtime secret; never commit it. The endpoint is not called until the application explicitly constructs a provider and calls `runBlackpineWorkforce()`. Provider pricing, model availability, rate limits, data retention, and model quality must be checked before enabling paid inference. The test suite uses fixture responses and makes no paid model calls.
+The CLI selects the provider with `GALINYX_MODEL_PROVIDER`. Set it to `cloudflare-workers-ai` to use the Cloudflare Workers AI adapter, which calls the account REST endpoint directly and does not require an AI Gateway. Configure `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_AI_MODEL` instead of the OpenAI-compatible variables. The default provider remains `openai-compatible` for backward compatibility. Store the token as a runtime secret; never commit it. The endpoint is not called until the application explicitly constructs a provider and calls `runBlackpineWorkforce()`. Provider pricing, model availability, rate limits, data retention, and model quality must be checked before enabling paid inference. The test suite uses fixture responses and makes no paid model calls.
 
 ## Governance boundary — important
 
