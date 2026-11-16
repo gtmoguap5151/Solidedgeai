@@ -373,3 +373,25 @@ These decisions must be resolved with traceable requirements and tests, not assu
 ---
 
 **Founder decision summary:** Human authority. Internal and independent external deployment. Hybrid governance. One reusable governance core, tenant-isolated operating environments, explicit enforcement, bounded delegation, and attributable evidence.
+
+
+---
+
+## 17. Self-hosting decision — implementation sequencing update
+
+**Architecture decision:** GALINYX OS is the first customer and native development environment for Governance Core. See `architecture/GALINYX-SELF-HOSTING-ADR-001.md`.
+
+The Governance Core must be implemented as a native platform service and consumed through the same versioned public contracts by first-party and external applications. Do not create a parallel first-party authorization path.
+
+The existing governed mock executor is a conformance/test fixture only. It is not the canonical Governance Core runtime and must not become a second authorization architecture.
+
+The next implementation work is therefore:
+
+1. Map the canonical `galinyx-launch` runtime and the existing identity, AHAF, persistence, and trusted-service branches.
+2. Identify and document the single protected-action enforcement seam in the canonical runtime.
+3. Define versioned task, authorization, approval, decision, and audit contracts consumed by that runtime.
+4. Integrate persistence through the existing migration strategy; do not fork data stores or blindly merge branches.
+5. Demonstrate a first-party workload using the public runtime interfaces.
+6. Demonstrate a second independent sample application using the same interfaces without privileged bypass.
+
+The platform remains an offline local prototype until authentication, isolation, approvals, enforcement, and operational security are validated. Self-hosting is not a claim that GALINYX can autonomously modify, approve, merge, or deploy its own code.
