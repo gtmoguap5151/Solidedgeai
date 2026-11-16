@@ -79,3 +79,83 @@ class GalinyxService:
         if not allowed:
             raise PermissionError(reason)
         return self.__runtime.entity(entity_id)
+
+    def _task_registry(self):
+        from operating_tasks import OperatingTaskRegistry
+        return OperatingTaskRegistry(self.__runtime.db)
+
+    def _task_actor(self, credential, tenant_id, allowed_roles):
+        """Authenticate and authorize a human workspace member for task operations."""
+        principal_id = self._principal(credential)
+        if not isinstance(tenant_id, str) or not tenant_id.strip() or len(tenant_id) > 128:
+            raise ValueError("tenant_id must be a nonempty string of at most 128 characters")
+        row = self.__runtime.db.execute(
+            "SELECT m.role FROM tenant_memberships m "
+            "JOIN tenants t ON t.tenant_id=m.tenant_id "
+            "JOIN principals p ON p.principal_id=m.principal_id "
+            "WHERE m.tenant_id=? AND m.principal_id=? "
+            "AND m.active=1 AND t.active=1 AND p.active=1 AND p.principal_type='human'",
+            (tenant_id, principal_id)
+        ).fetchone()
+        if row is None or row[0] not in allowed_roles:
+            raise PermissionError("active workspace membership and role are required")
+        return principal_id, row[0]
+
+    def create_operating_task(self, credential, tenant_id, project_id, title,
+                              assigned_role, description="", priority="normal",
+                              approval_required=False, due_at=None):
+        principal_id, _ = self._task_actor(credential, tenant_id, {"owner", "editor"})
+        return self._task_registry().create_task(
+            tenant_id=tenant_id, project_id=project_id, title=title,
+            assigned_role=assigned_role, created_by=principal_id,
+            description=description, priority=priority,
+            approval_required=approval_required, due_at=due_at
+        )
+
+    def list_operating_tasks(self, credential, tenant_id, project_id=None, status=None):
+        self._task_actor(credential, tenant_id, {"owner", "editor", "viewer"})
+        return self._task_registry().list_tasks(
+            tenant_id=tenant_id, project_id=project_id, status=status
+        )
+
+    def get_operating_task(self, credential, tenant_id, task_id):
+        self._task_actor(credential, tenant_id, {"owner", "editor", "viewer"})
+        task = self._task_registry().get_task(task_id)
+        if task is None or task["tenant_id"] != tenant_id:
+            return None
+        return task
+
+    def transition_operating_task(self, credential, tenant_id, task_id, status, note=""):
+        principal_id, _ = self._task_actor(credential, tenant_id, {"owner", "editor"})
+        task = self._task_registry().get_task(task_id)
+        if task is None or task["tenant_id"] != tenant_id:
+            raise PermissionError("task is outside the authenticated workspace")
+        return self._task_registry().transition(
+            task_id, actor_id=principal_id, status=status, note=note
+        )
+
+    def add_operating_task_evidence(self, credential, tenant_id, task_id,
+                                    evidence_type, reference, note=""):
+        principal_id, _ = self._task_actor(credential, tenant_id, {"owner", "editor"})
+        task = self._task_registry().get_task(task_id)
+        if task is None or task["tenant_id"] != tenant_id:
+            raise PermissionError("task is outside the authenticated workspace")
+        return self._task_registry().add_evidence(
+            task_id, submitted_by=principal_id, evidence_type=evidence_type,
+            reference=reference, note=note
+        )
+
+    def approve_operating_task(self, credential, tenant_id, task_id, decision, note=""):
+        principal_id, _ = self._task_actor(credential, tenant_id, {"owner"})
+        owner = self.__runtime.db.execute(
+            "SELECT owner_principal_id FROM tenants WHERE tenant_id=? AND active=1",
+            (tenant_id,)
+        ).fetchone()
+        if owner is None or owner[0] != principal_id:
+            raise PermissionError("workspace owner approval is required")
+        task = self._task_registry().get_task(task_id)
+        if task is None or task["tenant_id"] != tenant_id:
+            raise PermissionError("task is outside the authenticated workspace")
+        return self._task_registry().record_approval(
+            task_id, approver_id=principal_id, decision=decision, note=note
+        )
