@@ -10,7 +10,7 @@ function requireString(value, name) {
 }
 
 function isHuman(actor) {
-  return actor?.principalType === "human" && actor?.active === true;
+  return actor?.principalType === "human" && actor?.active === true && typeof actor?.id === "string" && actor.id.trim() !== "";
 }
 
 function hasPermission(actor, permission) {
@@ -32,10 +32,10 @@ export class AuditLedger {
   append(input) {
     const previousHash = this.#events.at(-1)?.hash ?? "GENESIS";
     const body = {
+      ...input,
       sequence: this.#events.length + 1,
       previousHash,
       occurredAt: input.occurredAt ?? new Date().toISOString(),
-      ...input,
     };
     const hash = eventDigest(body);
     const event = Object.freeze({ ...body, hash });
@@ -76,12 +76,14 @@ export function evaluateDecision({ request, requester, policy }) {
   if (!request.id || !request.title) reasons.push("REQUEST_ID_AND_TITLE_REQUIRED");
   if (!policy.id || !policy.version || !policy.permission) reasons.push("POLICY_ID_VERSION_AND_PERMISSION_REQUIRED");
   if (!Number.isInteger(policy.minimumLevel) || policy.minimumLevel < 0) reasons.push("POLICY_MINIMUM_LEVEL_INVALID");
-  if (!Number.isInteger(policy.requiredApprovals) || policy.requiredApprovals < 0) reasons.push("POLICY_REQUIRED_APPROVALS_INVALID");
+  if (!Number.isInteger(policy.requiredApprovals) || policy.requiredApprovals < 1) reasons.push("POLICY_REQUIRED_APPROVALS_INVALID");
 
   if (isHuman(requester) && policy.permission && !hasPermission(requester, policy.permission)) {
     reasons.push("REQUESTER_LACKS_PERMISSION");
   }
-  if (isHuman(requester) && Number.isInteger(policy.minimumLevel) && requester.level < policy.minimumLevel) {
+  if (isHuman(requester) && (!Number.isInteger(requester.level) || requester.level < 0)) {
+    reasons.push("REQUESTER_LEVEL_INVALID");
+  } else if (isHuman(requester) && Number.isInteger(policy.minimumLevel) && requester.level < policy.minimumLevel) {
     reasons.push("REQUESTER_LEVEL_INSUFFICIENT");
   }
   if (policy.prohibitedConflicts?.some((conflict) => requester?.conflicts?.includes(conflict))) {
@@ -124,12 +126,14 @@ export function createDecision({ request, requester, policy, ledger }) {
 export function recordApproval({ decision, approver, policy, ledger }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   if (TERMINAL.has(decision.status)) throw new Error("TERMINAL_DECISION_CANNOT_BE_CHANGED");
+  if (decision.status !== "pending_approval") throw new Error("DECISION_NOT_ELIGIBLE_FOR_APPROVAL");
   if (!isHuman(approver)) throw new Error("APPROVER_MUST_BE_ACTIVE_HUMAN");
   if (approver.id === decision.requesterId) throw new Error("SELF_APPROVAL_PROHIBITED");
   if (!hasPermission(approver, policy.approverPermission ?? policy.permission)) {
     throw new Error("APPROVER_LACKS_PERMISSION");
   }
-  if (approver.level < policy.minimumLevel) throw new Error("APPROVER_LEVEL_INSUFFICIENT");
+  if (!Number.isInteger(approver.level) || approver.level < 0) throw new Error("APPROVER_LEVEL_INVALID");
+  if (!Number.isInteger(policy.minimumLevel) || approver.level < policy.minimumLevel) throw new Error("APPROVER_LEVEL_INSUFFICIENT");
   if (decision.approvals.some((approval) => approval.approverId === approver.id)) {
     throw new Error("DUPLICATE_APPROVAL_PROHIBITED");
   }
