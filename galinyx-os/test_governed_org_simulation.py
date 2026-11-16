@@ -36,7 +36,7 @@ class GovernedOrganizationSimulationTests(unittest.TestCase):
             self.store, self.human_auth, self.workload_auth, {}
         )
         self.simulator = GovernedOrganizationSimulator(
-            self.store, {"exec-product": self.agent_id, "exec-governance": self.agent_id}
+            self.store, {"exec-product": self.agent_id, "exec-governance": self.agent_id, "exec-ceo": self.agent_id}
         )
         self.product = Actor("exec-product", "division_lead", "product-engineering")
         self.governance = Actor("exec-governance", "division_lead", "governance-risk")
@@ -85,7 +85,7 @@ class GovernedOrganizationSimulationTests(unittest.TestCase):
         event = self.runtime.db.execute(
             "SELECT decision FROM ahaf_audit_events ORDER BY event_id DESC LIMIT 1"
         ).fetchone()
-        self.assertEqual(event[0], "human_root_required")
+        self.assertEqual(event[0], "simulation_boundary_denied")
         self.assertTrue(self.store.verify_audit_chain()[0])
 
     def test_high_impact_policy_activation_requires_real_consumable_approval(self):
