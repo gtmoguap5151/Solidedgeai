@@ -148,7 +148,7 @@ for scope and required validation gates.
 `database_migrations.py` provides ordered migration versions, `BEGIN IMMEDIATE`
 serialization, rollback on failure, and fail-closed handling of databases newer
 than the supported migration set. `runtime_migrations.py` defines the current
-core-runtime migration (version 1), workspace-identity migration (version 2), AHAF persistence migration (version 3), and durable execution receipt migration (version 4).
+core-runtime migration (version 1), workspace-identity migration (version 2), AHAF persistence migration (version 3), durable execution receipt migration (version 4), and persistent GALINYX organization registry migration (version 5).
 `Runtime.__init__` now applies these migrations before exposing the runtime.
 
 Tests cover fresh upgrades, idempotent reopen, failed-migration rollback,
@@ -182,7 +182,7 @@ inside the trusted local test boundary until those controls receive independent
 engineering and security review.
 
 
-## Durable governed execution receipt foundation (schema version 4)
+## Durable governed execution receipt foundation (schema version 4; organization registry schema version 5)
 
 \`execution_receipts.py\` provides a trusted-process service for preparing governed
 executions. It binds a stable request ID to a canonical SHA-256 request digest,
@@ -223,3 +223,11 @@ The demonstration creates a disposable local tenant, persists executive workload
 - verification of the append-only AHAF audit hash chain.
 
 The simulation adapter is synthetic and performs no external work. The injected actor-to-agent map and deterministic credentials are trusted local test/demo setup, not production identity. This environment is not a live company, production security boundary, or deployment.
+
+## Persistent GALINYX organization registry (schema version 5)
+
+The version-5 migration adds append-only organization, executive-role, and actor-to-workload binding records. The registry links an organization to an owner-controlled tenant and verifies that every bound executive agent has an active persisted AHAF binding owned by the same human principal. Organizational rank remains descriptive; actual actions still require matching AHAF grants and the organization policy check.
+
+Use org_registry.py to register and inspect the structure. GovernedOrganizationSimulator resolves executive workload identities from the persisted registry rather than accepting an injected actor-to-agent map. Registry records are append-only; structural changes require a separately designed versioned change process and human-owner governance.
+
+This remains prototype infrastructure. The underlying workspace is still represented by the existing tenant model, and the registry does not provide production authentication or external execution.
