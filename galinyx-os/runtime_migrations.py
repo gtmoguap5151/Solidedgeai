@@ -277,9 +277,53 @@ def _execution_receipt_schema(db):
 
 
 
+def _organization_registry_schema(db):
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS galinyx_organizations("
+        "org_id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL UNIQUE, name TEXT NOT NULL, "
+        "mode TEXT NOT NULL CHECK(mode='simulation-only'), "
+        "authority_model TEXT NOT NULL CHECK(authority_model='human-root/hybrid-enforcement'), "
+        "root_principal_id TEXT NOT NULL, policy_version TEXT NOT NULL, created_at TEXT NOT NULL, "
+        "FOREIGN KEY(tenant_id) REFERENCES tenants(tenant_id), "
+        "FOREIGN KEY(root_principal_id) REFERENCES principals(principal_id))"
+    )
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS galinyx_org_roles("
+        "org_id TEXT NOT NULL, actor_id TEXT NOT NULL, title TEXT NOT NULL, "
+        "reports_to_actor_id TEXT, division TEXT, created_at TEXT NOT NULL, "
+        "PRIMARY KEY(org_id,actor_id), "
+        "FOREIGN KEY(org_id) REFERENCES galinyx_organizations(org_id))"
+    )
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS galinyx_org_actor_bindings("
+        "org_id TEXT NOT NULL, actor_id TEXT NOT NULL, agent_id TEXT NOT NULL, created_at TEXT NOT NULL, "
+        "PRIMARY KEY(org_id,actor_id), UNIQUE(org_id,agent_id), "
+        "FOREIGN KEY(org_id,actor_id) REFERENCES galinyx_org_roles(org_id,actor_id), "
+        "FOREIGN KEY(agent_id) REFERENCES ahaf_agent_bindings(agent_id))"
+    )
+    for table in (
+        "galinyx_organizations", "galinyx_org_roles", "galinyx_org_actor_bindings",
+    ):
+        db.execute(
+            f"CREATE TRIGGER IF NOT EXISTS {table}_no_update "
+            f"BEFORE UPDATE ON {table} BEGIN "
+            "SELECT RAISE(ABORT, 'GALINYX organization registry records are append-only'); END"
+        )
+        db.execute(
+            f"CREATE TRIGGER IF NOT EXISTS {table}_no_delete "
+            f"BEFORE DELETE ON {table} BEGIN "
+            "SELECT RAISE(ABORT, 'GALINYX organization registry records are append-only'); END"
+        )
+    db.execute(
+        "CREATE INDEX IF NOT EXISTS idx_galinyx_org_roles_org "
+        "ON galinyx_org_roles(org_id,actor_id)"
+    )
+
+
 GALINYX_MIGRATIONS = (
     Migration(1, "core_runtime_schema", _core_schema),
     Migration(2, "workspace_identity_schema", _workspace_schema),
     Migration(3, "ahaf_persistent_records", _ahaf_persistence_schema),
     Migration(4, "durable_execution_receipts", _execution_receipt_schema),
+    Migration(5, "galinyx_organization_registry", _organization_registry_schema),
 )
