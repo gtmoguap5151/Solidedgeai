@@ -16,6 +16,10 @@ class TestAuthenticator:
         return self.credentials[credential]
 
 
+class TestWorkloadAuthenticator(TestAuthenticator):
+    """Deterministic test double; not a production credential provider."""
+
+
 class GovernedExecutionTests(unittest.TestCase):
     def setUp(self):
         self.runtime = Runtime()
@@ -33,8 +37,14 @@ class GovernedExecutionTests(unittest.TestCase):
             "owner-token": "owner-1",
             "viewer-token": "viewer-1",
         })
+        self.workload_auth = TestWorkloadAuthenticator({
+            "agent-token": self.agent_id,
+            "other-agent-token": "different-agent",
+        })
         self.resources = {("tenant-1", "counter-1"): 0}
-        self.executor = GovernedMockExecutor(self.store, self.auth, self.resources)
+        self.executor = GovernedMockExecutor(
+            self.store, self.auth, self.workload_auth, self.resources
+        )
         self.action = GovernedMockExecutor.ACTION
 
     def tearDown(self):
@@ -53,8 +63,7 @@ class GovernedExecutionTests(unittest.TestCase):
 
     def execute(self, grant_id, request_id="request-1", **kwargs):
         return self.executor.execute(
-            tenant_id=kwargs.get("tenant_id", "tenant-1"),
-            agent_id=kwargs.get("agent_id", self.agent_id),
+            agent_credential=kwargs.get("agent_credential", "agent-token"),
             grant_id=grant_id,
             request_id=request_id,
             action=kwargs.get("action", self.action),
@@ -88,12 +97,26 @@ class GovernedExecutionTests(unittest.TestCase):
             self.execute(grant, resource_id="counter-2")
         self.assertEqual(self.resources[("tenant-1", "counter-1")], 0)
 
-    def test_tenant_and_agent_must_match_grant_subject(self):
+    def test_authenticated_workload_must_match_grant_subject(self):
         grant = self.issue_grant()
         with self.assertRaises(PermissionError):
-            self.execute(grant, tenant_id="tenant-other")
+            self.execute(grant, agent_credential="other-agent-token")
+        self.assertEqual(self.resources[("tenant-1", "counter-1")], 0)
+
+    def test_invalid_workload_credential_is_denied_before_side_effect(self):
+        grant = self.issue_grant()
         with self.assertRaises(PermissionError):
-            self.execute(grant, agent_id="different-agent")
+            self.execute(grant, agent_credential="forged-token")
+        self.assertEqual(self.resources[("tenant-1", "counter-1")], 0)
+
+    def test_executor_does_not_accept_caller_asserted_agent_or_tenant_ids(self):
+        grant = self.issue_grant()
+        with self.assertRaises(TypeError):
+            self.executor.execute(
+                tenant_id="tenant-1", agent_id=self.agent_id,
+                agent_credential="agent-token", grant_id=grant,
+                request_id="request-1", action=self.action, resource_id="counter-1"
+            )
         self.assertEqual(self.resources[("tenant-1", "counter-1")], 0)
 
     def test_required_human_approval_is_enforced_and_action_bound(self):
