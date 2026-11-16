@@ -1339,3 +1339,150 @@ test("revoking a competency credential after submission blocks approval", () => 
   assert.equal(decision.status, "blocked");
   assert.ok(decision.reasons.includes("REQUESTER_DOMAIN_LEVEL_INVALID"));
 });
+
+
+test("Blackpine approvers must acknowledge the exact evidence digest they reviewed", async () => {
+  const authority = createBlackpineTestAuthority();
+  const snapshot = await loadBlackpineSnapshot({
+    fetchImpl: mockBlackpineFetch(blackpineFixtureFiles()).fetchImpl,
+  });
+  const requesterPrincipal = authority.principal({
+    id: "evidence-review-requester", rank: "Editor",
+    levels: { editorial: 2 }, permissions: ["blackpine:content:submit"],
+  });
+  const approverPrincipal = authority.principal({
+    id: "evidence-review-approver", rank: "Owner",
+    levels: { editorial: 2 }, permissions: ["blackpine:content:approve"],
+  });
+  const ledger = new AuditLedger();
+  const decision = createDecision({
+    request: {
+      id: "evidence-review-digest-check", title: "Review editorial evidence",
+      scope: "blackpine:editorial", evidence: snapshot.evidence,
+    },
+    requester: requesterPrincipal,
+    policy: blackpinePolicies.contentDraft,
+    authorityRegistry: authority.registry,
+    ledger,
+  });
+  assert.throws(
+    () => recordApproval({
+      decision, approver: approverPrincipal,
+      policy: blackpinePolicies.contentDraft,
+      authorityRegistry: authority.registry, ledger,
+    }),
+    /EVIDENCE_REVIEW_ACKNOWLEDGEMENT_REQUIRED/,
+  );
+  assert.throws(
+    () => recordApproval({
+      decision, approver: approverPrincipal,
+      policy: blackpinePolicies.contentDraft,
+      authorityRegistry: authority.registry, ledger,
+      reviewedEvidenceDigest: "incorrect-digest",
+    }),
+    /EVIDENCE_REVIEW_DIGEST_MISMATCH/,
+  );
+  recordApproval({
+    decision, approver: approverPrincipal,
+    policy: blackpinePolicies.contentDraft,
+    authorityRegistry: authority.registry, ledger,
+    reviewedEvidenceDigest: decision.evidenceDigest,
+  });
+  assert.equal(decision.status, "approved");
+});
+
+test("time-sensitive price claims require fresh, unexpired retailer evidence", () => {
+  const authority = createBlackpineTestAuthority();
+  const requesterPrincipal = authority.principal({
+    id: "price-freshness-requester", rank: "Price Editor",
+    levels: { commercial: 3 }, permissions: ["blackpine:price:submit"],
+  });
+  const now = new Date("2026-11-16T10:00:00.000Z");
+  const freshEvidence = [
+    {
+      type: "retailer-price-check",
+      reference: "retailer://product/price",
+      observedAt: "2026-11-16T09:30:00.000Z",
+      expiresAt: "2026-11-16T11:30:00.000Z",
+    },
+    { type: "offer-terms", reference: "terms://retailer/offer" },
+  ];
+  const fresh = evaluateDecision({
+    request: { id: "price-fresh", title: "Current retailer price", evidence: freshEvidence },
+    requester: requesterPrincipal,
+    policy: blackpinePolicies.priceClaim,
+    authorityRegistry: authority.registry,
+    now,
+  });
+  assert.equal(fresh.eligibleToSubmit, true);
+
+  const stale = evaluateDecision({
+    request: {
+      id: "price-stale", title: "Stale retailer price",
+      evidence: [
+        {
+          type: "retailer-price-check",
+          reference: "retailer://product/old-price",
+          observedAt: "2026-11-14T08:00:00.000Z",
+          expiresAt: "2026-11-17T08:00:00.000Z",
+        },
+        { type: "offer-terms", reference: "terms://retailer/offer" },
+      ],
+    },
+    requester: requesterPrincipal,
+    policy: blackpinePolicies.priceClaim,
+    authorityRegistry: authority.registry,
+    now,
+  });
+  assert.equal(stale.eligibleToSubmit, false);
+  assert.ok(stale.reasons.includes("EVIDENCE_STALE:retailer-price-check"));
+});
+
+test("price evidence that expires before approval blocks the pending decision", () => {
+  const authority = createBlackpineTestAuthority();
+  const requesterPrincipal = authority.principal({
+    id: "price-expiry-requester", rank: "Price Editor",
+    levels: { commercial: 3 }, permissions: ["blackpine:price:submit"],
+  });
+  const approverPrincipal = authority.principal({
+    id: "price-expiry-approver", rank: "Price Reviewer",
+    levels: { commercial: 3 }, permissions: ["blackpine:price:verify"],
+  });
+  const ledger = new AuditLedger();
+  const decision = createDecision({
+    request: {
+      id: "price-expiry-between-review",
+      title: "Price evidence expires before approval",
+      evidence: [
+        {
+          type: "retailer-price-check",
+          reference: "retailer://product/short-lived-price",
+          observedAt: "2026-11-16T09:30:00.000Z",
+          expiresAt: "2026-11-16T10:15:00.000Z",
+        },
+        { type: "offer-terms", reference: "terms://retailer/offer" },
+      ],
+    },
+    requester: requesterPrincipal,
+    policy: blackpinePolicies.priceClaim,
+    authorityRegistry: authority.registry,
+    ledger,
+    now: new Date("2026-11-16T10:00:00.000Z"),
+  });
+  assert.equal(decision.status, "pending_approval");
+  assert.throws(
+    () => recordApproval({
+      decision,
+      approver: approverPrincipal,
+      policy: blackpinePolicies.priceClaim,
+      authorityRegistry: authority.registry,
+      ledger,
+      reviewedEvidenceDigest: decision.evidenceDigest,
+      now: new Date("2026-11-16T10:30:00.000Z"),
+    }),
+    /DECISION_AUTHORITY_OR_EVIDENCE_NO_LONGER_VALID/,
+  );
+  assert.equal(decision.status, "blocked");
+  assert.ok(decision.reasons.includes("EVIDENCE_EXPIRED:retailer-price-check"));
+  assert.equal(ledger.verify(), true);
+});
