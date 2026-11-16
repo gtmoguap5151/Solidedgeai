@@ -78,12 +78,18 @@ def authorize(actor: Actor, action: str, *, resource_division: Optional[str] = N
         return Decision(False, "unknown_division", reason="No recognized delegated division.")
     if resource_division and resource_division != actor.division:
         return Decision(False, "cross_division_denied", reason="Division authority cannot cross functional boundaries.")
+    if action in HIGH_IMPACT:
+        if action == "policy.activate" and actor.division == "governance-risk":
+            if not human_approval:
+                return Decision(False, "human_approval_required", requires_human_approval=True,
+                                reason="Policy activation requires explicit human approval.")
+            return Decision(True, "human_approved_scope_authorized",
+                            reason="Governance may activate policy only with explicit human approval.")
+        return Decision(False, "human_root_required", requires_human_approval=True,
+                        reason="This high-impact action is reserved to the human owner.")
     allowed_actions = DIVISIONS[actor.division]["actions"]
     if action not in allowed_actions:
         return Decision(False, "division_scope_denied", reason="Action is outside this division's explicit scope.")
-    if action in HIGH_IMPACT and not human_approval:
-        return Decision(False, "human_approval_required", requires_human_approval=True,
-                        reason="High-impact actions require explicit human approval.")
     return Decision(True, "division_scope_authorized", reason="Action is within the division's simulation scope.")
 
 
