@@ -23,11 +23,13 @@ export function evaluateAction({ actor, action, resource = {}, approvals = [], p
   const conflict = Boolean(resource.conflictOfInterestActorIds?.includes(actor.id));
   const blocked = conflict || valid.some(a => a.actorId === actor.id);
   const authority = direct || delegated, enough = count >= required, allowed = authority && enough && !blocked;
-  return Object.freeze({ status: blocked ? "blocked_conflict" : allowed ? "approved" : "pending_or_denied", allowed, actorRole: role.id, authoritySource: direct ? "direct_permission" : delegated ? "delegation" : "none", requiredApprovals: required, validApprovalCount: count, conflict, reasons: [...(!authority ? ["actor_lacks_permission_or_valid_delegation"] : []), ...(!enough ? ["required_approvals_not_met"] : []), ...(conflict ? ["declared_conflict_of_interest"] : []), ...(blocked && !conflict ? ["requester_cannot_approve_own_action"] : [])] });
+  return Object.freeze({ status: blocked ? "blocked_conflict" : allowed ? "approved" : "pending_or_denied", allowed, actorId: actor.id, actorRole: role.id, authoritySource: direct ? "direct_permission" : delegated ? "delegation" : "none", requiredApprovals: required, validApprovalCount: count, conflict, reasons: [...(!authority ? ["actor_lacks_permission_or_valid_delegation"] : []), ...(!enough ? ["required_approvals_not_met"] : []), ...(conflict ? ["declared_conflict_of_interest"] : []), ...(blocked && !conflict ? ["requester_cannot_approve_own_action"] : [])] });
 }
 export function applyHumanOverride(evaluation, { actor, reason, decision, policy }) {
   validatePolicy(policy); const role = roleFor(actor, policy);
   if (!policy.humanOverrideRoleIds?.includes(role.id)) throw new GovernanceError("OVERRIDE_NOT_AUTHORIZED", "Role is not authorized to override.");
+  if (evaluation?.conflict || evaluation?.status === "blocked_conflict") throw new GovernanceError("HARD_BLOCK_CANNOT_BE_OVERRIDDEN", "A conflict-of-interest hard block cannot be overridden.");
+  if (evaluation?.actorId === actor.id) throw new GovernanceError("SELF_OVERRIDE_NOT_ALLOWED", "The requester cannot override their own action.");
   if (!reason || reason.trim().length < 12) throw new GovernanceError("OVERRIDE_REASON_REQUIRED", "A meaningful override reason (12+ characters) is required.");
   if (!["approve", "deny"].includes(decision)) throw new GovernanceError("INVALID_OVERRIDE", "Decision must be approve or deny.");
   return Object.freeze({ ...evaluation, status: decision === "approve" ? "human_override_approved" : "human_override_denied", allowed: decision === "approve", override: Object.freeze({ actorId: actor.id, roleId: role.id, reason: reason.trim(), decision }) });
