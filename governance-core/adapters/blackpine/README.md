@@ -111,3 +111,11 @@ Blackpine policies deliberately use separate level domains:
 
 A person's level in one domain does not qualify them in another. Rank remains
 organizational office metadata; explicit permissions remain action-specific.
+
+
+The live CI check also runs a complete in-memory decision lifecycle against the
+snapshot: an editorial draft with sufficient evidence is submitted and approved
+by a distinct synthetic human principal; a product claim lacking manufacturer
+source evidence remains blocked and cannot be approved. The test ledger is
+verified afterward. These synthetic principals are test fixtures, not real
+Blackpine identities or approvals.
