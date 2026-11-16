@@ -195,9 +195,12 @@ rejected. Receipt reads are tenant-scoped.
 
 The version-4 migration adds immutable receipt identities, append-only receipt
 events, unique approval-consumption records, and supporting indexes. The receipt
-service does not dispatch actions, provide production credential authentication,
-or claim exactly-once effects at an external target. Its initial state is
-\`reserved\`; a separate reviewed adapter and evidence-based reconciliation
-workflow are required before any real action can be enabled.
+service can record dispatch intent, classify adapter outcomes, and reconcile
+unknown outcomes using evidence. Confirmed success commits the reservation;
+confirmed no-effect releases it; unknown and manual-review states keep the
+reservation held. Human reconciliation resolution requires an active workspace
+owner context. These are trusted-process APIs, not production credential
+authentication or a real external action adapter. The module does not itself
+dispatch actions or claim exactly-once effects at an external target.
 
 Run the new receipt tests with the full unittest discovery command above.
