@@ -29,7 +29,7 @@ const NEVER_DELEGABLE = new Set([
 
 function hasEffectivePermission(actor, permission, { registry, scope, now } = {}) {
   if (hasPermission(actor, permission)) return { allowed: true, source: "direct" };
-  if (!registry || !scope) return { allowed: false, source: "none" };
+  if (!(registry instanceof DelegationRegistry) || !scope) return { allowed: false, source: "none" };
   const grant = registry.findActive({ delegateId: actor?.id, permission, scope, now });
   return grant
     ? { allowed: true, source: "delegated", delegationId: grant.id }
