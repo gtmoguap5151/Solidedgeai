@@ -21,6 +21,14 @@ function eventDigest(event) {
   return createHash("sha256").update(JSON.stringify(event)).digest("hex");
 }
 
+function deepFreeze(value) {
+  if (value && typeof value === "object" && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    for (const child of Object.values(value)) deepFreeze(child);
+  }
+  return value;
+}
+
 /**
  * A small in-memory, hash-linked ledger for development and tests.
  * This is tamper-evident only while the full chain and trusted head are protected.
@@ -44,7 +52,7 @@ export class AuditLedger {
   }
 
   list() {
-    return this.#events.map((event) => ({ ...event }));
+    return this.#events.map((event) => structuredClone(event));
   }
 
   verify() {
