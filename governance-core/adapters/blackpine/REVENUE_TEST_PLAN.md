@@ -3,7 +3,7 @@
 **Owner:** Blackpine Field human owner  
 **Governance platform:** GALINYX Governance Core  
 **Validation date:** 2026-11-16  
-**Status:** Read-only repository integration passed; operating-data baseline still incomplete
+**Status:** Read-only repository integration is implemented; evidence-led opportunity ranking and six unit tests are committed; latest branch CI execution is not yet verified; operating-data baseline remains incomplete
 
 ## 1. Purpose
 
@@ -141,3 +141,16 @@ Each intake requires source identity, an HTTPS evidence reference, reporting-per
 The intake does **not** fetch files, connect to GA4/Awin/CJ/Amazon, authenticate users, or prove that a supplied export is truthful. A human must obtain and review each export, preserve its original source, and supply accurate metadata. The hash proves file integrity after intake, not the truth of the underlying report. The first version intentionally requires canonical column names; source-specific export mappings are a later adapter task.
 
 Seven dedicated tests cover normalization, quoted CSV fields, missing columns, currency mismatch, reporting-window violations, malformed/negative metrics, and HTTPS evidence references. These tests run with the existing governance suite.
+
+## 4B. Evidence-led opportunity ranking implemented
+
+A read-only ranking module now converts verified repository observations and explicitly supplied measurement-coverage flags into a deterministic opportunity report. The current repository snapshot produces these priorities:
+
+1. **P1 — Establish an attributable revenue baseline.** Analytics, outbound-click, and commission reports are not present in the supplied measurement coverage. Until they are supplied and validated, sessions, clicks, orders, reversals, commission, and revenue remain unknown. They are never defaulted to zero.
+2. **P1 — Review time-sensitive price language.** The homepage contains time-sensitive price language and a dollar amount, but the repository snapshot does not provide a current retailer-price and offer-terms evidence record. This is a review requirement, not proof the displayed price is wrong.
+3. **P2 — Create a product-claim evidence coverage register.** The adapter did not detect structured manufacturer-source records. This is a traceability gap; it does not prove every product claim is unsupported.
+
+Each recommendation includes its evidence, business mechanism, required human review, and an explicit `executionAllowed: false` control. The report does not forecast revenue, change public copy, publish, spend, or contact third parties.
+
+Six dedicated unit tests cover ranking, missing-data handling, price-review behavior, source-coverage wording, read-only controls, and invalid inputs. These tests are included by the existing `node --test governance-core/test/*.test.mjs` workflow. The branch-specific workflow trigger has been added, but a passing run for the latest commits must still be confirmed before treating the implementation as validated.
+
