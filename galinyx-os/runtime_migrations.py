@@ -330,6 +330,7 @@ def _decision_workflow_schema(db):
         "FOREIGN KEY(org_id) REFERENCES galinyx_organizations(org_id), "
         "FOREIGN KEY(org_id,proposer_actor_id) REFERENCES galinyx_org_roles(org_id,actor_id), "
         "FOREIGN KEY(org_id,executor_actor_id) REFERENCES galinyx_org_roles(org_id,actor_id), "
+        "FOREIGN KEY(proposer_grant_id) REFERENCES ahaf_authority_grants(grant_id), "
         "FOREIGN KEY(grant_id) REFERENCES ahaf_authority_grants(grant_id))"
     )
     db.execute(
