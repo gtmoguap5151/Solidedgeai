@@ -141,8 +141,34 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
   const reasons = [];
   if (!request || !policy) throw new TypeError("request and policy are required");
   if (!isHuman(requester)) reasons.push("REQUESTER_MUST_BE_ACTIVE_HUMAN");
-  if (!request.id || !request.title) reasons.push("REQUEST_ID_AND_TITLE_REQUIRED");
-  if (!policy.id || !policy.version || !policy.permission) reasons.push("POLICY_ID_VERSION_AND_PERMISSION_REQUIRED");
+  if (typeof request.id !== "string" || request.id.trim() === "" ||
+      typeof request.title !== "string" || request.title.trim() === "") {
+    reasons.push("REQUEST_ID_AND_TITLE_REQUIRED");
+  }
+  if (typeof policy.id !== "string" || policy.id.trim() === "" ||
+      typeof policy.version !== "string" || policy.version.trim() === "" ||
+      typeof policy.permission !== "string" || policy.permission.trim() === "") {
+    reasons.push("POLICY_ID_VERSION_AND_PERMISSION_REQUIRED");
+  }
+  if (policy.approverPermission !== undefined &&
+      (typeof policy.approverPermission !== "string" || policy.approverPermission.trim() === "")) {
+    reasons.push("POLICY_APPROVER_PERMISSION_INVALID");
+  }
+  if (policy.prohibitedConflicts !== undefined && !Array.isArray(policy.prohibitedConflicts)) {
+    reasons.push("POLICY_CONFLICTS_INVALID");
+  }
+  if (policy.requiredEvidence !== undefined && !Array.isArray(policy.requiredEvidence)) {
+    reasons.push("POLICY_REQUIRED_EVIDENCE_INVALID");
+  }
+  if (policy.handsOnEvidence !== undefined && !Array.isArray(policy.handsOnEvidence)) {
+    reasons.push("POLICY_HANDS_ON_EVIDENCE_INVALID");
+  }
+  if (request.scope !== undefined && (typeof request.scope !== "string" || request.scope.trim() === "")) {
+    reasons.push("REQUEST_SCOPE_INVALID");
+  }
+  if (request.evidence !== undefined && !Array.isArray(request.evidence)) {
+    reasons.push("REQUEST_EVIDENCE_INVALID");
+  }
   if (!Number.isInteger(policy.minimumLevel) || policy.minimumLevel < 0) reasons.push("POLICY_MINIMUM_LEVEL_INVALID");
   if (policy.levelDomain !== undefined && (typeof policy.levelDomain !== "string" || policy.levelDomain.trim() === "")) {
     reasons.push("POLICY_LEVEL_DOMAIN_INVALID");
@@ -161,7 +187,8 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
   } else if (isHuman(requester) && Number.isInteger(policy.minimumLevel) && requesterLevel < policy.minimumLevel) {
     reasons.push("REQUESTER_LEVEL_INSUFFICIENT");
   }
-  if (policy.prohibitedConflicts?.some((conflict) => requester?.conflicts?.includes(conflict))) {
+  if ((Array.isArray(policy.prohibitedConflicts) ? policy.prohibitedConflicts : [])
+    .some((conflict) => requester?.conflicts?.includes(conflict))) {
     reasons.push("REQUESTER_HAS_PROHIBITED_CONFLICT");
   }
   const suppliedEvidence = Array.isArray(request.evidence) ? request.evidence : [];
