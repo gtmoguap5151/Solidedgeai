@@ -1,4 +1,4 @@
-import { evaluateDecision } from "../../src/index.mjs";
+import { AuditLedger, createDecision, evaluateDecision, recordApproval } from "../../src/index.mjs";
 import { blackpinePolicies } from "./policies.mjs";
 import { loadBlackpineSnapshot } from "./repository-reader.mjs";
 
@@ -105,6 +105,58 @@ if (affiliateDecision.eligibleToSubmit) throw new Error("BLACKPINE_AFFILIATE_GAT
 if (productionDecision.eligibleToSubmit) throw new Error("BLACKPINE_PRODUCTION_GATE_FAILED_OPEN");
 if (financialDecision.eligibleToSubmit) throw new Error("BLACKPINE_FINANCIAL_GATE_FAILED_OPEN");
 
+const lifecycleLedger = new AuditLedger();
+const editorialLifecycle = createDecision({
+  request: {
+    id: "ci-blackpine-editorial-lifecycle",
+    title: "Research guide draft lifecycle",
+    scope: "blackpine:editorial",
+    evidence: snapshot.evidence,
+  },
+  requester: {
+    id: "ci-lifecycle-editor", principalType: "human", active: true,
+    levels: { editorial: 2 },
+    permissions: ["blackpine:content:submit"], conflicts: [],
+  },
+  policy: blackpinePolicies.contentDraft,
+  ledger: lifecycleLedger,
+});
+
+recordApproval({
+  decision: editorialLifecycle,
+  approver: {
+    id: "ci-lifecycle-approver", principalType: "human", active: true,
+    levels: { editorial: 2 },
+    permissions: ["blackpine:content:approve"], conflicts: [],
+  },
+  policy: blackpinePolicies.contentDraft,
+  ledger: lifecycleLedger,
+});
+
+const blockedProductClaim = createDecision({
+  request: {
+    id: "ci-blackpine-blocked-claim-lifecycle",
+    title: "Product claim without manufacturer source",
+    scope: "blackpine:product-claims",
+    evidence: snapshot.evidence,
+  },
+  requester: {
+    id: "ci-lifecycle-researcher", principalType: "human", active: true,
+    levels: { "product-evidence": 3 },
+    permissions: ["blackpine:claim:submit"], conflicts: [],
+  },
+  policy: blackpinePolicies.productClaim,
+  ledger: lifecycleLedger,
+});
+
+if (editorialLifecycle.status !== "approved") {
+  throw new Error("BLACKPINE_EDITORIAL_LIFECYCLE_FAILED");
+}
+if (blockedProductClaim.status !== "blocked") {
+  throw new Error("BLACKPINE_PRODUCT_CLAIM_LIFECYCLE_FAILED_OPEN");
+}
+if (!lifecycleLedger.verify()) throw new Error("BLACKPINE_AUDIT_CHAIN_INVALID");
+
 process.stdout.write(JSON.stringify({
   source: snapshot.source,
   capturedAt: snapshot.capturedAt,
@@ -120,6 +172,12 @@ process.stdout.write(JSON.stringify({
     affiliateRelationship: affiliateDecision,
     productionPublish: productionDecision,
     financialAccountChange: financialDecision,
+  },
+  lifecycle: {
+    editorialStatus: editorialLifecycle.status,
+    unsupportedProductClaimStatus: blockedProductClaim.status,
+    auditEventCount: lifecycleLedger.list().length,
+    auditChainVerified: lifecycleLedger.verify(),
   },
   evidence: snapshot.evidence,
   warnings: snapshot.warnings,
