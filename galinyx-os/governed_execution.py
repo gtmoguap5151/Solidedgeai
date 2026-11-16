@@ -1,10 +1,11 @@
 """Test-only governed mock execution slice for GALINYX.
 
-This module connects persisted AHAF grants and authenticated human approvals to a
-harmless in-memory mock resource. It is an integration test harness, not a
-production workload-authentication mechanism or an enforcement boundary for
-external systems. The agent ID is checked against the grant subject, but no
-cryptographic agent workload credential is validated here.
+This module connects persisted AHAF grants, authenticated human approvals, and
+an injected workload-authentication adapter to a harmless in-memory mock
+resource. The tests prove that the executor derives the agent identity from a
+credential adapter rather than trusting a caller-supplied agent ID. The test
+adapter is not production credential issuance, cryptographic verification, or
+an enforcement boundary for external systems.
 """
 import json
 from datetime import datetime, timedelta, timezone
@@ -16,14 +17,17 @@ class GovernedMockExecutor:
 
     ACTION = "mock.counter.increment"
 
-    def __init__(self, authority_store, authenticator, resources=None):
-        if authority_store is None or authenticator is None:
-            raise ValueError("authority_store and authenticator are required")
-        if not callable(getattr(authenticator, "authenticate", None)):
-            raise TypeError("authenticator must provide authenticate(credential)")
+    def __init__(self, authority_store, human_authenticator, workload_authenticator, resources=None):
+        if authority_store is None or human_authenticator is None or workload_authenticator is None:
+            raise ValueError("authority_store, human_authenticator, and workload_authenticator are required")
+        if not callable(getattr(human_authenticator, "authenticate", None)):
+            raise TypeError("human_authenticator must provide authenticate(credential)")
+        if not callable(getattr(workload_authenticator, "authenticate", None)):
+            raise TypeError("workload_authenticator must provide authenticate(credential)")
         self.store = authority_store
         self.db = authority_store.db
-        self.authenticator = authenticator
+        self.authenticator = human_authenticator
+        self.workload_authenticator = workload_authenticator
         # Preserve the supplied mock mapping so tests and the executor observe the same resource state.
         self.resources = resources if resources is not None else {}
 
@@ -35,6 +39,16 @@ class GovernedMockExecutor:
         if not isinstance(principal_id, str) or not principal_id.strip():
             raise PermissionError("human authentication failed")
         return principal_id
+
+    def _workload_agent(self, credential):
+        """Resolve an authenticated workload credential to a server-side agent ID."""
+        try:
+            agent_id = self.workload_authenticator.authenticate(credential)
+        except Exception as exc:
+            raise PermissionError("agent workload authentication failed") from exc
+        if not isinstance(agent_id, str) or not agent_id.strip():
+            raise PermissionError("agent workload authentication failed")
+        return agent_id
 
     def _grant(self, grant_id):
         row = self.db.execute(
@@ -116,22 +130,25 @@ class GovernedMockExecutor:
             raise
         return approval_id
 
-    def execute(self, *, tenant_id, agent_id, grant_id, request_id,
+    def execute(self, *, agent_credential, grant_id, request_id,
                 action, resource_id, approval_id=None):
         """Run only the fixed, harmless mock increment action.
 
-        The caller is expected to be a trusted local test harness. A production
-        service must authenticate the agent workload and enforce the permit at
-        the actual target-system boundary before exposing this operation.
+        Agent identity is resolved from the injected workload authenticator;
+        callers cannot assert an agent or tenant ID as proof of identity. This
+        remains a local test harness: production credential issuance, rotation,
+        revocation, and target-system enforcement are not implemented here.
         """
         if action != self.ACTION:
             raise PermissionError("mock executor only supports its fixed action")
         if not all(isinstance(v, str) and v.strip() for v in
-                   (tenant_id, agent_id, grant_id, request_id, resource_id)):
-            raise ValueError("tenant, agent, grant, request, and resource IDs are required")
+                   (grant_id, request_id, resource_id)):
+            raise ValueError("grant, request, and resource IDs are required")
+        agent_id = self._workload_agent(agent_credential)
         grant = self._grant(grant_id)
-        if grant["agent_id"] != agent_id or grant["tenant_id"] != tenant_id:
-            raise PermissionError("agent or tenant does not match the authority grant")
+        if grant["agent_id"] != agent_id:
+            raise PermissionError("authenticated workload does not match the authority grant subject")
+        tenant_id = grant["tenant_id"]
         if action not in grant["actions"]:
             raise PermissionError("action is outside grant scope")
         if resource_id not in grant["resources"]:
