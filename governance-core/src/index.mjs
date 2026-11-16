@@ -144,6 +144,7 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
     decisionId: request.id,
     policyId: policy.id,
     policyVersion: policy.version,
+    permission: policy.permission,
     eligibleToSubmit: reasons.length === 0,
     reasons,
     status: reasons.length === 0 ? "pending_approval" : "blocked",
@@ -185,11 +186,29 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   if (TERMINAL.has(decision.status)) throw new Error("TERMINAL_DECISION_CANNOT_BE_CHANGED");
   if (decision.status !== "pending_approval") throw new Error("DECISION_NOT_ELIGIBLE_FOR_APPROVAL");
+  if (decision.policyId !== policy.id ||
+      decision.policyVersion !== policy.version ||
+      decision.permission !== policy.permission ||
+      decision.requiredApprovals !== policy.requiredApprovals ||
+      decision.levelDomain !== (policy.levelDomain ?? "general")) {
+    throw new Error("DECISION_POLICY_MISMATCH");
+  }
   if (!isHuman(approver)) throw new Error("APPROVER_MUST_BE_ACTIVE_HUMAN");
   if (approver.id === decision.requesterId) throw new Error("SELF_APPROVAL_PROHIBITED");
-  if (decision.delegationId && delegationRegistry) {
-    const sourceGrant = delegationRegistry.get(decision.delegationId);
-    if (sourceGrant?.delegatorId === approver.id) {
+  if (decision.permissionSource === "delegated") {
+    if (!(delegationRegistry instanceof DelegationRegistry)) {
+      throw new Error("DELEGATION_REGISTRY_REQUIRED_FOR_APPROVAL");
+    }
+    const sourceGrant = delegationRegistry.findActive({
+      delegateId: decision.requesterId,
+      permission: decision.permission,
+      scope: decision.scope,
+      now,
+    });
+    if (!sourceGrant || sourceGrant.id !== decision.delegationId) {
+      throw new Error("DELEGATED_AUTHORITY_NO_LONGER_ACTIVE");
+    }
+    if (sourceGrant.delegatorId === approver.id) {
       throw new Error("DELEGATION_GRANTOR_CANNOT_APPROVE");
     }
   }
