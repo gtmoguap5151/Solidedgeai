@@ -3,6 +3,7 @@ import { isVerifiedPrincipal } from "./authority-registry.mjs";
 
 const TERMINAL = new Set(["approved", "rejected", "overridden"]);
 const decisionStates = new WeakMap();
+const decisionInputs = new WeakMap();
 
 function getDecisionState(handle) {
   const state = decisionStates.get(handle);
@@ -299,6 +300,10 @@ export function createDecision({ request, requester, policy, ledger, delegationR
     createdAt: new Date().toISOString(),
   };
   const decision = createDecisionHandle(state);
+  decisionInputs.set(decision, {
+    request: structuredClone(request),
+    requester: structuredClone(requester),
+  });
   ledger.append({
     type: "decision_created",
     decisionId: state.decisionId,
@@ -366,6 +371,36 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
   const conflicts = policy.prohibitedConflicts ?? [];
   if (conflicts.some((conflict) => approver.conflicts?.includes(conflict))) {
     throw new Error("APPROVER_HAS_PROHIBITED_CONFLICT");
+  }
+
+  if (policy.evidenceFreshness !== undefined) {
+    const original = decisionInputs.get(decision);
+    if (original) {
+      const currentEvaluation = evaluateDecision({
+        request: original.request,
+        requester: original.requester,
+        policy,
+        delegationRegistry,
+        now,
+      });
+      const freshnessFailures = currentEvaluation.reasons.filter((reason) =>
+        reason.startsWith("EVIDENCE_") ||
+        reason === "POLICY_EVALUATION_TIME_INVALID" ||
+        reason === "POLICY_EVIDENCE_FRESHNESS_INVALID"
+      );
+      if (freshnessFailures.length > 0) {
+        state.status = "blocked";
+        state.reasons = [...new Set([...state.reasons, ...freshnessFailures])];
+        ledger.append({
+          type: "decision_blocked_at_approval",
+          decisionId: state.decisionId,
+          actorId: approver.id,
+          policyDigest: state.policyDigest,
+          reasons: freshnessFailures,
+        });
+        throw new Error("DECISION_EVIDENCE_NO_LONGER_VALID");
+      }
+    }
   }
 
   state.approvals.push({
