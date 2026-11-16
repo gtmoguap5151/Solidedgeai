@@ -1156,8 +1156,8 @@ test("requester competency revoked while pending blocks approval", () => {
       title: "Research guide awaiting approval",
       scope: "blackpine:editorial",
       evidence: [
-        { type: "source-reference-list", reference: "fixture://sources" },
-        { type: "affiliate-disclosure-check", reference: "fixture://disclosure" },
+        { type: "source-reference-list", reference: "fixture://sources", contentSha256: "c".repeat(64), verifiedBy: "test-source-reviewer", verifiedAt: "2026-11-16T00:00:00.000Z" },
+        { type: "affiliate-disclosure-check", reference: "fixture://disclosure", contentSha256: "d".repeat(64), verifiedBy: "test-disclosure-reviewer", verifiedAt: "2026-11-16T00:00:00.000Z" },
       ],
     },
     requester: editor,
