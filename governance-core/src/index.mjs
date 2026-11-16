@@ -1,6 +1,27 @@
 import { createHash, randomUUID } from "node:crypto";
 
 const TERMINAL = new Set(["approved", "rejected", "overridden"]);
+const decisionStates = new WeakMap();
+
+function getDecisionState(handle) {
+  const state = decisionStates.get(handle);
+  if (!state) throw new Error("UNTRUSTED_DECISION_HANDLE");
+  return state;
+}
+
+function createDecisionHandle(state) {
+  const handle = {};
+  for (const key of Object.keys(state)) {
+    Object.defineProperty(handle, key, {
+      enumerable: true,
+      configurable: false,
+      get: () => structuredClone(state[key]),
+    });
+  }
+  Object.freeze(handle);
+  decisionStates.set(handle, state);
+  return handle;
+}
 
 function requireString(value, name) {
   if (typeof value !== "string" || value.trim() === "") {
@@ -160,52 +181,54 @@ export function evaluateDecision({ request, requester, policy, delegationRegistr
 export function createDecision({ request, requester, policy, ledger, delegationRegistry, now = new Date() }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
   const evaluation = evaluateDecision({ request, requester, policy, delegationRegistry, now });
-  const decision = {
+  const state = {
     ...evaluation,
     title: request.title,
     requesterId: requester?.id ?? null,
     approvals: [],
     createdAt: new Date().toISOString(),
   };
+  const decision = createDecisionHandle(state);
   ledger.append({
     type: "decision_created",
-    decisionId: decision.decisionId,
+    decisionId: state.decisionId,
     actorId: requester?.id ?? null,
-    status: decision.status,
+    status: state.status,
     policyId: policy.id,
     policyVersion: policy.version,
-    scope: decision.scope,
-    permissionSource: decision.permissionSource,
-    delegationId: decision.delegationId,
-    reasons: [...decision.reasons],
+    scope: state.scope,
+    permissionSource: state.permissionSource,
+    delegationId: state.delegationId,
+    reasons: [...state.reasons],
   });
   return decision;
 }
 
 export function recordApproval({ decision, approver, policy, ledger, delegationRegistry, now = new Date() }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
-  if (TERMINAL.has(decision.status)) throw new Error("TERMINAL_DECISION_CANNOT_BE_CHANGED");
-  if (decision.status !== "pending_approval") throw new Error("DECISION_NOT_ELIGIBLE_FOR_APPROVAL");
-  if (decision.policyId !== policy.id ||
-      decision.policyVersion !== policy.version ||
-      decision.permission !== policy.permission ||
-      decision.requiredApprovals !== policy.requiredApprovals ||
-      decision.levelDomain !== (policy.levelDomain ?? "general")) {
+  const state = getDecisionState(decision);
+  if (TERMINAL.has(state.status)) throw new Error("TERMINAL_DECISION_CANNOT_BE_CHANGED");
+  if (state.status !== "pending_approval") throw new Error("DECISION_NOT_ELIGIBLE_FOR_APPROVAL");
+  if (state.policyId !== policy.id ||
+      state.policyVersion !== policy.version ||
+      state.permission !== policy.permission ||
+      state.requiredApprovals !== policy.requiredApprovals ||
+      state.levelDomain !== (policy.levelDomain ?? "general")) {
     throw new Error("DECISION_POLICY_MISMATCH");
   }
   if (!isHuman(approver)) throw new Error("APPROVER_MUST_BE_ACTIVE_HUMAN");
-  if (approver.id === decision.requesterId) throw new Error("SELF_APPROVAL_PROHIBITED");
-  if (decision.permissionSource === "delegated") {
+  if (approver.id === state.requesterId) throw new Error("SELF_APPROVAL_PROHIBITED");
+  if (state.permissionSource === "delegated") {
     if (!(delegationRegistry instanceof DelegationRegistry)) {
       throw new Error("DELEGATION_REGISTRY_REQUIRED_FOR_APPROVAL");
     }
     const sourceGrant = delegationRegistry.findActive({
-      delegateId: decision.requesterId,
-      permission: decision.permission,
-      scope: decision.scope,
+      delegateId: state.requesterId,
+      permission: state.permission,
+      scope: state.scope,
       now,
     });
-    if (!sourceGrant || sourceGrant.id !== decision.delegationId) {
+    if (!sourceGrant || sourceGrant.id !== state.delegationId) {
       throw new Error("DELEGATED_AUTHORITY_NO_LONGER_ACTIVE");
     }
     if (sourceGrant.delegatorId === approver.id) {
@@ -222,7 +245,7 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
     throw new Error(policy.levelDomain ? "APPROVER_DOMAIN_LEVEL_INVALID" : "APPROVER_LEVEL_INVALID");
   }
   if (!Number.isInteger(policy.minimumLevel) || approverLevel < policy.minimumLevel) throw new Error("APPROVER_LEVEL_INSUFFICIENT");
-  if (decision.approvals.some((approval) => approval.approverId === approver.id)) {
+  if (state.approvals.some((approval) => approval.approverId === approver.id)) {
     throw new Error("DUPLICATE_APPROVAL_PROHIBITED");
   }
   const conflicts = policy.prohibitedConflicts ?? [];
@@ -230,7 +253,7 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
     throw new Error("APPROVER_HAS_PROHIBITED_CONFLICT");
   }
 
-  decision.approvals.push({
+  state.approvals.push({
     approverId: approver.id,
     rank: approver.rank ?? null,
     level: approverLevel,
@@ -239,25 +262,26 @@ export function recordApproval({ decision, approver, policy, ledger, delegationR
     delegationId: approverPermission.delegationId ?? null,
     approvedAt: new Date().toISOString(),
   });
-  if (decision.approvals.length >= decision.requiredApprovals) decision.status = "approved";
+  if (state.approvals.length >= state.requiredApprovals) state.status = "approved";
   ledger.append({
     type: "approval_recorded",
-    decisionId: decision.decisionId,
+    decisionId: state.decisionId,
     actorId: approver.id,
     permissionSource: approverPermission.source,
     delegationId: approverPermission.delegationId ?? null,
-    approvalCount: decision.approvals.length,
-    status: decision.status,
+    approvalCount: state.approvals.length,
+    status: state.status,
   });
   return decision;
 }
 
 export function rejectDecision({ decision, actor, reason, ledger, policy, now = new Date() }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
+  const state = getDecisionState(decision);
   if (!isHuman(actor)) throw new Error("REJECTION_REQUIRES_ACTIVE_HUMAN");
-  if (TERMINAL.has(decision.status)) throw new Error("TERMINAL_DECISION_CANNOT_BE_CHANGED");
-  if (!policy || decision.policyId !== policy.id || decision.policyVersion !== policy.version ||
-      decision.permission !== policy.permission || decision.levelDomain !== (policy.levelDomain ?? "general")) {
+  if (TERMINAL.has(state.status)) throw new Error("TERMINAL_DECISION_CANNOT_BE_CHANGED");
+  if (!policy || state.policyId !== policy.id || state.policyVersion !== policy.version ||
+      state.permission !== policy.permission || state.levelDomain !== (policy.levelDomain ?? "general")) {
     throw new Error("DECISION_POLICY_MISMATCH");
   }
   const rejectionPermission = policy.rejectionPermission ?? policy.approverPermission ?? policy.permission;
@@ -273,10 +297,10 @@ export function rejectDecision({ decision, actor, reason, ledger, policy, now = 
     throw new Error("REJECTOR_HAS_PROHIBITED_CONFLICT");
   }
   const detail = requireString(reason, "reason");
-  decision.status = "rejected";
+  state.status = "rejected";
   ledger.append({
     type: "decision_rejected",
-    decisionId: decision.decisionId,
+    decisionId: state.decisionId,
     actorId: actor.id,
     permission: rejectionPermission,
     levelDomain: policy.levelDomain ?? "general",
@@ -288,12 +312,13 @@ export function rejectDecision({ decision, actor, reason, ledger, policy, now = 
 
 export function overrideDecision({ decision, human, reason, ledger }) {
   if (!(ledger instanceof AuditLedger)) throw new TypeError("ledger must be an AuditLedger");
+  const state = getDecisionState(decision);
   if (!isHuman(human)) throw new Error("OVERRIDE_REQUIRES_ACTIVE_HUMAN");
   if (!hasPermission(human, "governance:override")) throw new Error("OVERRIDE_PERMISSION_REQUIRED");
   const detail = requireString(reason, "reason");
-  const previousStatus = decision.status;
-  decision.status = "overridden";
-  decision.override = {
+  const previousStatus = state.status;
+  state.status = "overridden";
+  state.override = {
     actorId: human.id,
     reason: detail,
     previousStatus,
@@ -301,7 +326,7 @@ export function overrideDecision({ decision, human, reason, ledger }) {
   };
   ledger.append({
     type: "human_override",
-    decisionId: decision.decisionId,
+    decisionId: state.decisionId,
     actorId: human.id,
     reason: detail,
     previousStatus,
