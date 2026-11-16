@@ -26,7 +26,7 @@ This is a local proof of concept, **not production-secure**. The caller supplies
 
 ## Contract and migration notes
 
-`contracts.py` validates version-1 entity manifests, task envelopes, and event records. Contract validation checks shape and size; it does not authenticate callers or prove ownership. The runtime currently records schema version `3` through the ordered migration runner. Legacy task rows are preserved during migration, but their missing payload digest cannot be reconstructed; reusing those old request IDs is rejected rather than replayed.
+`contracts.py` validates version-1 entity manifests, task envelopes, and event records. Contract validation checks shape and size; it does not authenticate callers or prove ownership. The runtime currently records schema version `4` through the ordered migration runner. Legacy task rows are preserved during migration, but their missing payload digest cannot be reconstructed; reusing those old request IDs is rejected rather than replayed.
 
 ## Next
 Authenticated agent workload identity, independently authenticated human approvals, fail-closed action/resource authorization, and safe authorization-to-execution integration remain future work.
@@ -148,12 +148,12 @@ for scope and required validation gates.
 `database_migrations.py` provides ordered migration versions, `BEGIN IMMEDIATE`
 serialization, rollback on failure, and fail-closed handling of databases newer
 than the supported migration set. `runtime_migrations.py` defines the current
-core-runtime migration (version 1), workspace-identity migration (version 2), and AHAF persistence migration (version 3).
+core-runtime migration (version 1), workspace-identity migration (version 2), AHAF persistence migration (version 3), and durable execution receipt migration (version 4).
 `Runtime.__init__` now applies these migrations before exposing the runtime.
 
 Tests cover fresh upgrades, idempotent reopen, failed-migration rollback,
 legacy task-table conversion, valid-row preservation, orphan-row archival,
-version-1-to-version-3 upgrades, and future schema rejection.
+version-1-to-version-4 upgrades, and future schema rejection.
 
 **Important:** this is still a prototype persistence layer. The version-3 schema reserves persistent records for agent bindings, immutable
 grants, revocations, budget reservations/ledger entries, approval records, and
@@ -180,3 +180,24 @@ rotation/revocation, network authentication, or enforcement at a real external
 target. The mock resource is not a production action adapter. Keep this module
 inside the trusted local test boundary until those controls receive independent
 engineering and security review.
+
+
+## Durable governed execution receipt foundation (schema version 4)
+
+\`execution_receipts.py\` provides a trusted-process service for preparing governed
+executions. It binds a stable request ID to a canonical SHA-256 request digest,
+checks the persisted grant and tenant/agent binding, enforces action/resource
+scope, validates the exact human approval when required, consumes that approval
+once, reserves the grant-chain budget, and writes the immutable receipt plus its
+initial lifecycle event in one SQLite transaction. Replaying the exact request
+returns the existing receipt; reusing its request ID with different content is
+rejected. Receipt reads are tenant-scoped.
+
+The version-4 migration adds immutable receipt identities, append-only receipt
+events, unique approval-consumption records, and supporting indexes. The receipt
+service does not dispatch actions, provide production credential authentication,
+or claim exactly-once effects at an external target. Its initial state is
+\`reserved\`; a separate reviewed adapter and evidence-based reconciliation
+workflow are required before any real action can be enabled.
+
+Run the new receipt tests with the full unittest discovery command above.
