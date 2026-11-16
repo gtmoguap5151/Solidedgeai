@@ -306,6 +306,37 @@ export class AuthorityRegistry {
     return makePrincipalHandle(state);
   }
 
+  findActivePermissionGrant({ subjectId, permission, scope, grantId, now = new Date() }) {
+    const timestamp = new Date(now).getTime();
+    if (!Number.isFinite(timestamp)) throw new Error("AUTHORITY_RESOLUTION_TIME_INVALID");
+    for (const grant of this.#permissionGrants.values()) {
+      if (
+        grant.subjectId === subjectId &&
+        grant.permission === permission &&
+        (grant.scope === "*" || grant.scope === scope) &&
+        (!grantId || grant.id === grantId) &&
+        !grant.revokedAt &&
+        new Date(grant.expiresAt).getTime() > timestamp
+      ) return structuredClone(grant);
+    }
+    return null;
+  }
+
+  getActiveCompetencyLevel({ subjectId, domain, now = new Date() }) {
+    const timestamp = new Date(now).getTime();
+    if (!Number.isFinite(timestamp)) throw new Error("AUTHORITY_RESOLUTION_TIME_INVALID");
+    let level = null;
+    for (const credential of this.#competencyCredentials.values()) {
+      if (
+        credential.subjectId === subjectId &&
+        credential.domain === domain &&
+        !credential.revokedAt &&
+        new Date(credential.expiresAt).getTime() > timestamp
+      ) level = Math.max(level ?? 0, credential.level);
+    }
+    return level;
+  }
+
   listRecords() {
     return [
       ...[...this.#permissionGrants.values()].map((record) => structuredClone(record)),
