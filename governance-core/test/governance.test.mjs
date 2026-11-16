@@ -1401,11 +1401,14 @@ test("time-sensitive price claims require fresh, unexpired retailer evidence", (
   const freshEvidence = [
     {
       type: "retailer-price-check",
-      reference: "retailer://product/price",
+      reference: "https://example.com/product/price",
+      contentSha256: "a".repeat(64),
+      verifiedBy: "test-price-verifier",
+      verifiedAt: "2026-11-16T09:45:00.000Z",
       observedAt: "2026-11-16T09:30:00.000Z",
       expiresAt: "2026-11-16T11:30:00.000Z",
     },
-    { type: "offer-terms", reference: "terms://retailer/offer" },
+    { type: "offer-terms", reference: "https://example.com/offer-terms", contentSha256: "b".repeat(64), verifiedBy: "test-price-verifier", verifiedAt: "2026-11-16T09:45:00.000Z" },
   ];
   const fresh = evaluateDecision({
     request: { id: "price-fresh", title: "Current retailer price", evidence: freshEvidence },
@@ -1422,7 +1425,10 @@ test("time-sensitive price claims require fresh, unexpired retailer evidence", (
       evidence: [
         {
           type: "retailer-price-check",
-          reference: "retailer://product/old-price",
+          reference: "https://example.com/product/old-price",
+          contentSha256: "c".repeat(64),
+          verifiedBy: "test-price-verifier",
+          verifiedAt: "2026-11-16T09:45:00.000Z",
           observedAt: "2026-11-14T08:00:00.000Z",
           expiresAt: "2026-11-17T08:00:00.000Z",
         },
@@ -1456,7 +1462,10 @@ test("price evidence that expires before approval blocks the pending decision", 
       evidence: [
         {
           type: "retailer-price-check",
-          reference: "retailer://product/short-lived-price",
+          reference: "https://example.com/product/short-lived-price",
+          contentSha256: "d".repeat(64),
+          verifiedBy: "test-price-verifier",
+          verifiedAt: "2026-11-16T09:45:00.000Z",
           observedAt: "2026-11-16T09:30:00.000Z",
           expiresAt: "2026-11-16T10:15:00.000Z",
         },
