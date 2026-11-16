@@ -192,7 +192,7 @@ class OperatingTaskRegistry:
             if task[0] not in {"awaiting_approval", "in_progress"}:
                 raise ValueError("task is not eligible for approval")
             self.db.execute(
-                "INSERT INTO operating_task_approvals VALUES (?,?,?,?,?,?,?)",
+                "INSERT INTO operating_task_approvals VALUES (?,?,?,?,?,?)",
                 (approval_id, task_id, approver_id, decision, note, stamp),
             )
             self._event(task_id, approver_id, "task.approval_recorded",
