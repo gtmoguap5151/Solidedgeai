@@ -1,0 +1,3 @@
+# Runtime state — the append-only audit log the core writes as it runs.
+# It is history, not source. Never commit it.
+src/audit-log.jsonl
