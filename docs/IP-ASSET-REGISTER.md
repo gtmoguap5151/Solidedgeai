@@ -90,9 +90,9 @@ Add a new asset only with a unique ID, evidence location, creation/provenance st
 A read-only inspection of the current `galinyx-ai-workforce-v1` branch and repository tree found:
 
 - The repository is marked **private**.
-- The inspected branch endpoint reports `protected: false` and `protection.enabled: false`. Branch protection is therefore **not enabled** on this branch at the time of inspection.
+- The inspected `galinyx-ai-workforce-v1` and `main` branch endpoints both report `protected: false` and `protection.enabled: false`. Branch protection is therefore **not enabled** on either inspected branch at the time of inspection.
 - The GitHub integration could not read the collaborators/administration endpoints because the required permission was unavailable. The collaborator/access list is **not verified**.
-- A sample of the latest 100 commits on this branch reports the same GitHub account as author and committer on all 100. All 100 are reported as unsigned (`verification.verified: false`, reason `unsigned`). This is useful account-level repository history, but it does not independently prove who wrote each change or establish legal ownership.
+- A sample of the latest 200 commits on this branch reports the same GitHub account as author and committer on all 200. All inspected commits are reported as unsigned (`verification.verified: false`, reason `unsigned`). This is useful account-level repository history, but it does not independently prove who wrote each change or establish legal ownership.
 - The repository tree contains no root `LICENSE` or `COPYING` file. However, the root `package.json` declares `"license": "MIT"`. That metadata is a material licensing ambiguity and should be reviewed before any public distribution, copying, or licensing statement. Do not assume it is harmless merely because the repository is private.
 - The workspace uses a pnpm lockfile and multiple package manifests. A complete package-by-package license and provenance review has **not** been performed.
 
