@@ -1,0 +1,16 @@
+{
+  "platform":{"id":"galinyx-os","name":"GALINYX OS","status":"registered"},
+  "registrationNote":"Source-controlled seed only; not a live database registration or production deployment.",
+  "workspaces":[{"id":"blackpine-field","name":"BLACKPINE FIELD","legalEntity":"Unverified — confirm before production activation","status":"registered","description":"First operating workspace under GALINYX OS"}],
+  "operators":[
+    {"id":"operator-chief-of-staff","name":"Chief of Staff","role":"workforce_coordinator","reportsTo":null,"status":"registered","modelProfile":"default-advisory","executionMode":"advisory_read_only","capabilities":["coordinate_work","prepare_assignments","summarize_results"],"prohibitedActions":["publish","spend_money","contact_customers","deploy","change_financial_settings"]},
+    {"id":"operator-research-evidence","name":"Research & Evidence","role":"research_evidence","reportsTo":"operator-chief-of-staff","status":"registered","modelProfile":"default-advisory","executionMode":"advisory_read_only","capabilities":["research","collect_citations","flag_evidence_gaps"],"prohibitedActions":["publish","spend_money","contact_customers","deploy"]},
+    {"id":"operator-content-integrity","name":"Content Integrity","role":"content_integrity","reportsTo":"operator-chief-of-staff","status":"registered","modelProfile":"default-advisory","executionMode":"advisory_read_only","capabilities":["review_claims","check_disclosures","flag_unsupported_content"],"prohibitedActions":["publish","spend_money","contact_customers","deploy"]},
+    {"id":"operator-revenue-operations","name":"Revenue & Affiliate Operations","role":"revenue_operations","reportsTo":"operator-chief-of-staff","status":"registered","modelProfile":"default-advisory","executionMode":"advisory_read_only","capabilities":["analyze_revenue_workflows","prepare_recommendations","flag_commercial_risks"],"prohibitedActions":["spend_money","change_prices","modify_affiliate_links","contact_customers"]},
+    {"id":"operator-seo-distribution","name":"SEO & Distribution","role":"seo_distribution","reportsTo":"operator-chief-of-staff","status":"registered","modelProfile":"default-advisory","executionMode":"advisory_read_only","capabilities":["audit_search_visibility","prepare_distribution_plans","analyze_content_discovery"],"prohibitedActions":["publish","spend_money","contact_customers","deploy"]},
+    {"id":"operator-operations-risk","name":"Operations & Risk","role":"operations_risk","reportsTo":"operator-chief-of-staff","status":"registered","modelProfile":"default-advisory","executionMode":"advisory_read_only","capabilities":["review_workflows","identify_operational_risks","prepare_controls"],"prohibitedActions":["publish","spend_money","contact_customers","deploy","change_financial_settings"]}
+  ],
+  "governanceBinding":{"state":"pending_policy_binding","requiredControlCount":6,"note":"Bind the exact six approved foundational Governance Core control IDs. Do not guess their names."},
+  "modelProvider":{"profile":"default-advisory","provider":"unconfigured","credentialReference":null,"note":"Credentials belong in runtime secrets, never in this registry."},
+  "runtime":{"state":"not_deployed","persistence":"source_control_only","humanOwnerIdentity":"not_bound","auditStore":"not_configured","externalActions":"disabled"}
+}
