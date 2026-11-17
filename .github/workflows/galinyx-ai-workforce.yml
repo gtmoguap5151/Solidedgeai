@@ -5,6 +5,10 @@ on:
     paths:
       - "ai-workforce/**"
       - "governance-core/adapters/blackpine/repository-reader.mjs"
+      - "artifacts/solidedgeai/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
       - ".github/workflows/galinyx-ai-workforce.yml"
   push:
     branches:
@@ -13,6 +17,10 @@ on:
     paths:
       - "ai-workforce/**"
       - "governance-core/adapters/blackpine/repository-reader.mjs"
+      - "artifacts/solidedgeai/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
       - ".github/workflows/galinyx-ai-workforce.yml"
 
 permissions:
@@ -26,6 +34,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck GALINYX Control Room
+        run: pnpm --filter @workspace/solidedgeai run typecheck
+      - name: Build GALINYX Control Room
+        run: pnpm --filter @workspace/solidedgeai run build
       - name: Run workforce tests
         run: node --test ai-workforce/test/*.test.mjs
       - name: Run live BLACKPINE read-only evidence and policy check
