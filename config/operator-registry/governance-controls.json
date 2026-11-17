@@ -1,0 +1,18 @@
+{
+  "policyVersion": "galinyx-governance-core-v1",
+  "bindingStatus": "mapped_pending_runtime_integration",
+  "controls": [
+    {"id":"authority_registry","name":"Authority Registry","responsibility":"Resolve verified human identity and source authority from scoped, time-limited, revocable records."},
+    {"id":"execution_permission_policies","name":"Execution and Permission Policies","responsibility":"Constrain each operator to explicitly granted actions within one workspace."},
+    {"id":"governance_rules_decision_controls","name":"Governance Rules and Decision Controls","responsibility":"Evaluate each proposed task against versioned policy; fail closed when requirements are missing."},
+    {"id":"evidence_validation_audit","name":"Evidence Validation and Audit Mechanisms","responsibility":"Validate evidence references, integrity, freshness, and record decision events for audit."},
+    {"id":"human_approval_authorization","name":"Human Approval and Authorization Framework","responsibility":"Require distinct, verified human approval for consequential decisions; AI operators cannot approve their own proposals."},
+    {"id":"risk_controls_enforcement","name":"Risk Controls and Enforcement Logic","responsibility":"Block prohibited actions and enforce escalation, separation of duties, and fail-closed behavior."}
+  ],
+  "runtimeBoundary": {
+    "operatorMode": "advisory_read_only",
+    "externalExecution": false,
+    "humanApproval": "required_for_consequential_actions",
+    "note": "These identifiers map the six agreed Governance Core control domains. This file does not claim the in-memory Governance Core has become a production service."
+  }
+}
