@@ -83,3 +83,25 @@ Shared infrastructure does not imply shared ownership, books, funds, customers, 
 Add a new asset only with a unique ID, evidence location, creation/provenance status, third-party status, and verification owner. Update this register through dated commits. Do not publicly disclose confidential technical details, file patent applications, grant licenses, change repository visibility, or transfer assets solely on the basis of this register.
 
 **End of initial register.**
+
+
+## Repository and provenance audit — 2026-11-17
+
+A read-only inspection of the current `galinyx-ai-workforce-v1` branch and repository tree found:
+
+- The repository is marked **private**.
+- The inspected branch endpoint reports `protected: false` and `protection.enabled: false`. Branch protection is therefore **not enabled** on this branch at the time of inspection.
+- The GitHub integration could not read the collaborators/administration endpoints because the required permission was unavailable. The collaborator/access list is **not verified**.
+- A sample of the latest 100 commits on this branch reports the same GitHub account as author and committer on all 100. All 100 are reported as unsigned (`verification.verified: false`, reason `unsigned`). This is useful account-level repository history, but it does not independently prove who wrote each change or establish legal ownership.
+- The repository tree contains no root `LICENSE` or `COPYING` file. However, the root `package.json` declares `"license": "MIT"`. That metadata is a material licensing ambiguity and should be reviewed before any public distribution, copying, or licensing statement. Do not assume it is harmless merely because the repository is private.
+- The workspace uses a pnpm lockfile and multiple package manifests. A complete package-by-package license and provenance review has **not** been performed.
+
+### Required remediation
+
+1. Review and correct the root package's `license` metadata so it accurately reflects the founder's intended proprietary status, after checking the full repository and any existing obligations. Do not add a restrictive license notice that purports to override third-party rights.
+2. Enable branch protection for the default branch and active development branch: block force pushes and deletion, require pull requests for the default branch, and require relevant passing CI checks where supported. Confirm settings in GitHub because the current integration cannot administer branch protection.
+3. Review repository collaborators, deploy keys, GitHub Apps, Actions permissions, and any external integrations directly in repository settings.
+4. Enable commit signing for future commits where practical, and preserve signed release tags for important milestones. Historical unsigned commits remain unsigned; do not rewrite them merely to make them appear signed.
+5. Produce a full software bill of materials (SBOM) and third-party license report for every workspace/package before external distribution.
+6. Review commit history beyond the latest 100 entries and compare it with actual human contribution records and any contractor/AI-tool agreements.
+
