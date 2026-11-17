@@ -1,0 +1,45 @@
+name: GALINYX Supply Chain Inventory
+
+on:
+  pull_request:
+    paths:
+      - "package.json"
+      - "**/package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/galinyx-supply-chain-inventory.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: Create report directory
+        run: mkdir -p artifacts/sbom
+      - name: Generate CycloneDX SBOM from repository and lockfile
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: cyclonedx-json
+          output-file: artifacts/sbom/galinyx.cdx.json
+          upload-artifact: false
+      - name: Run pnpm vulnerability audit
+        continue-on-error: true
+        run: pnpm audit --json > artifacts/sbom/pnpm-audit.json
+      - name: Upload dated supply-chain reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: galinyx-supply-chain-${{ github.sha }}
+          path: artifacts/sbom/
+          if-no-files-found: error
+          retention-days: 90
