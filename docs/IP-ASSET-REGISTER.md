@@ -85,7 +85,7 @@ Add a new asset only with a unique ID, evidence location, creation/provenance st
 **End of initial register.**
 
 
-## Repository and provenance audit — 2026-11-17
+## Repository and provenance audit — 2026-11-16
 
 A read-only inspection of the current `galinyx-ai-workforce-v1` branch and repository tree found:
 
@@ -105,3 +105,12 @@ A read-only inspection of the current `galinyx-ai-workforce-v1` branch and repos
 5. Produce a full software bill of materials (SBOM) and third-party license report for every workspace/package before external distribution.
 6. Review commit history beyond the latest 100 entries and compare it with actual human contribution records and any contractor/AI-tool agreements.
 
+
+
+## Dependency and license manifest review — 2026-11-16
+
+A read-only review fetched the root package manifest, pnpm workspace configuration, lockfile, and nine workspace package manifests, plus the separate migration-backup manifest. The root `package.json` declares `"license": "MIT"` while the repository is private and the earlier tree inspection found no root `LICENSE` or `COPYING` file. This is an unresolved licensing inconsistency; private visibility does not neutralize package license metadata. No change was made to that declaration.
+
+The active pnpm workspace contains nine importers. The inspected manifests cover the GALINYX application, API server, mockup sandbox, shared API libraries, database library, scripts, and root workspace. The separate migration-backup manifest was also inspected. The lockfile is approximately 212,892 characters / 5,646 lines. These facts establish the scope and structure of the dependency inventory, **not** the license terms of every direct or transitive dependency.
+
+A detailed initial inventory and limitations are recorded in `docs/THIRD-PARTY-SOFTWARE-REVIEW.md`. Full SBOM generation, package-by-package license/notice review, and a current vulnerability audit remain outstanding. No proprietary license declaration, third-party license conclusion, or ownership claim is made by this update.
