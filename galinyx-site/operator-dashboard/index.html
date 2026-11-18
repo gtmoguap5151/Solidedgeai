@@ -33,6 +33,18 @@
   header .brand { color: var(--green); font-weight: 700; letter-spacing: .18em; font-size: 12px; text-transform: uppercase; }
   header h1 { margin: 6px 0 4px; font-size: 28px; line-height: 1.2; }
   header p { margin: 0; color: var(--muted); max-width: 720px; }
+  nav { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  nav a {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--panel);
+  }
+  nav a[aria-current="page"] { color: var(--green); border-color: #2f6b45; background: var(--green-soft); }
   main { padding: 24px; max-width: 1080px; margin: 0 auto; display: grid; gap: 20px; }
   .grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
   @media (min-width: 820px) { .grid.two { grid-template-columns: 1fr 1fr; } }
@@ -101,6 +113,10 @@
   <div class="brand">GALINYX OS</div>
   <h1>Blackpine Operator Dashboard</h1>
   <p>The read-only window into the Blackpine Operator. This page shows what the operator is allowed to do and what Blackpine Field has actually measured — it cannot grant access or change anything.</p>
+  <nav>
+    <a href="index.html" aria-current="page">Dashboard</a>
+    <a href="core.html">Governance Core</a>
+  </nav>
 </header>
 
 <main>

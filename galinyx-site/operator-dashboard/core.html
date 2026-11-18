@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Governance Core — GALINYX OS</title>
+<style>
+  :root {
+    --bg: #0e1210;
+    --panel: #161c19;
+    --panel-2: #1d2521;
+    --border: #2b362f;
+    --text: #e8ede9;
+    --muted: #9aa8a0;
+    --green: #3fa66a;
+    --green-soft: #234d34;
+    --amber: #d9a441;
+    --red: #c95b5b;
+    --blue: #6aa8d9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 28px 24px 20px;
+  }
+  header .brand { color: var(--green); font-weight: 700; letter-spacing: .18em; font-size: 12px; text-transform: uppercase; }
+  header h1 { margin: 6px 0 4px; font-size: 28px; line-height: 1.2; }
+  header p { margin: 0; color: var(--muted); max-width: 720px; }
+  nav { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  nav a {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--panel);
+  }
+  nav a[aria-current="page"] { color: var(--green); border-color: #2f6b45; background: var(--green-soft); }
+  main { padding: 24px; max-width: 1080px; margin: 0 auto; display: grid; gap: 20px; }
+  .grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
+  @media (min-width: 820px) { .grid.two { grid-template-columns: 1fr 1fr; } }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+  }
+  .card h2 { margin: 0 0 4px; font-size: 18px; }
+  .card .sub { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  .badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .badge.amber { background: #3a2f16; color: var(--amber); border: 1px solid #6b5518; }
+  .badge.grey { background: #262b28; color: var(--muted); border: 1px solid var(--border); }
+  .badge.green { background: var(--green-soft); color: #8fd6a8; border: 1px solid #2f6b45; }
+  .badge.red { background: #3a1d1d; color: #e08a8a; border: 1px solid #6b2f2f; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin: 12px 0; font-size: 15px; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; }
+  .note {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 14px;
+  }
+  .note strong { color: var(--text); }
+  .rule {
+    border-left: 3px solid var(--green);
+    background: var(--panel-2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 15px;
+    margin-top: 12px;
+  }
+  .rules-list { margin: 0; padding-left: 20px; font-size: 15px; }
+  .rules-list li { margin: 8px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+  tr:last-child td { border-bottom: none; }
+  .updated { color: var(--muted); font-size: 13px; }
+  .updated strong { color: var(--text); }
+  .req {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 12px;
+  }
+  .req h3 { margin: 0 0 6px; font-size: 16px; }
+  .req .meta { color: var(--muted); font-size: 13px; margin: 2px 0; }
+  .req .meta strong { color: var(--text); }
+  .req .arrow { color: var(--amber); font-weight: 700; }
+  .req-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .btn {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    color: var(--text);
+    background: var(--panel);
+  }
+  .btn.approve { background: var(--green-soft); border-color: #2f6b45; color: #8fd6a8; }
+  .btn.refuse { background: #3a1d1d; border-color: #6b2f2f; color: #e08a8a; }
+  .btn:disabled { opacity: .7; cursor: default; }
+  .audit-list { list-style: none; margin: 8px 0 0; padding: 0; font-size: 14px; }
+  .audit-list li { padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .audit-list li:last-child { border-bottom: none; }
+  .audit-list .ts { color: var(--muted); font-size: 12px; }
+  .audit-list .reason { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .allowed { color: var(--green); font-weight: 700; }
+  .denied { color: var(--red); font-weight: 700; }
+  .empty { color: var(--muted); font-size: 14px; }
+  .fallback { color: var(--amber); font-size: 14px; }
+  footer { padding: 8px 24px 32px; max-width: 1080px; margin: 0 auto; color: var(--muted); font-size: 13px; }
+  code { background: var(--panel-2); padding: 1px 6px; border-radius: 5px; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">GALINYX OS</div>
+  <h1>Governance Core</h1>
+  <p>Authority, policies, permissions, oversight. The Core decides what every operator is allowed to do, and keeps the record of every decision. It is not an operator — it governs all of them.</p>
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="core.html" aria-current="page">Governance Core</a>
+  </nav>
+</header>
+
+<main>
+  <section class="card">
+    <span class="badge green">Governance Core</span>
+    <h2>The Core, in short</h2>
+    <p class="sub">Its character — the same five questions every intelligence in the system answers.</p>
+    <dl class="kv">
+      <dt>Goal</dt><dd>Keep every operator inside the rules. Nothing publishes, spends, or acts without authorization. Every action checked, every decision recorded.</dd>
+      <dt>Motivation</dt><dd>Trust is the whole system. The Core exists so nothing moves without permission.</dd>
+      <dt>Strength</dt><dd>It never bends — no exceptions, the same rules for Galileo as for the smallest operator. And it remembers everything; the record forgets nothing.</dd>
+      <dt>Flaw</dt><dd>It trusts the rules more than the people. It can block something good the rules don't cover yet, and it needs the owner to update the rules when the world changes.</dd>
+      <dt>Arc</dt><dd>From a gate that only says yes or no to a judge that understands why — enforcing the rules, then helping write better ones, while never letting go of the standard.</dd>
+    </dl>
+    <p class="updated" id="last-updated">Loading snapshot data…</p>
+  </section>
+
+  <section class="card">
+    <h2>The rules it enforces</h2>
+    <p class="sub">These live in the Core's code. They are not suggestions.</p>
+    <ol class="rules-list">
+      <li>Each operator is bound to exactly one environment. No cross-environment access.</li>
+      <li>An operator may only perform actions its current mode allows.</li>
+      <li>Every authorization decision is recorded in an append-only audit log.</li>
+      <li>A mode change is never self-approved. A request is recorded as pending; only the owner can approve it.</li>
+      <li>Fail closed, always. Unknown operators, environments, actions, modes, malformed input, and unexpected errors all deny.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>Registry — operators &amp; environments</h2>
+    <p class="sub">From the Core's registry, as of the last snapshot below.</p>
+    <div id="registry"><p class="empty">Loading…</p></div>
+  </section>
+
+  <section class="card">
+    <h2>Pending mode-change requests</h2>
+    <p class="sub">Requests waiting on the owner. A mode only changes when the owner approves it.</p>
+    <div class="note">
+      <strong>How approval works right now:</strong> this page has no backend, so
+      a tap cannot approve anything directly. Each button copies the exact
+      message to send to Xena, who runs the approval through the Core. The
+      button copies the message — it does not approve by itself. Direct
+      approval from this page comes when the Core has its own backend.
+    </div>
+    <div id="pending"><p class="empty">Loading…</p></div>
+  </section>
+
+  <section class="card">
+    <h2>Recent audit entries</h2>
+    <p class="sub">Newest first. The full log lives in the Core's audit file.</p>
+    <div id="audit"><p class="empty">Loading…</p></div>
+    <div class="note">
+      <strong>How this refreshes:</strong> figures update only when Xena re-checks
+      the live sources and republishes this page. There is no automatic feed and
+      no estimated numbers — a figure shown here is either verified on the date
+      shown, or it is not shown at all.
+    </div>
+  </section>
+</main>
+
+<footer>
+  GALINYX OS — Governance Core · Core screen built Nov 18, 2026.
+  Snapshot data carries its own timestamp; nothing on this page is a live feed.
+</footer>
+
+<script>
+(function () {
+  var registryEl = document.getElementById('registry');
+  var pendingEl = document.getElementById('pending');
+  var auditEl = document.getElementById('audit');
+  var updatedEl = document.getElementById('last-updated');
+
+  function fmtTime(iso) {
+    try {
+      return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    } catch (e) {
+      return iso;
+    }
+  }
+
+  function text(tag, str, cls) {
+    var el = document.createElement(tag);
+    if (cls) el.className = cls;
+    el.textContent = str;
+    return el;
+  }
+
+  function modeLabel(snap, id) {
+    return (snap.modes && snap.modes[id] && snap.modes[id].label) || id;
+  }
+
+  function envLabel(snap, id) {
+    var env = (snap.environments || []).filter(function (e) { return e.id === id; })[0];
+    return env ? env.label + ' — ' + env.kind : id;
+  }
+
+  function statusLabel(status) {
+    if (status === 'deployed-unproven') return 'Deployed — analysis unproven';
+    return status;
+  }
+
+  function showFallback() {
+    updatedEl.textContent = 'Snapshot data could not be loaded. The figures on this page need a fresh snapshot — nothing here is estimated or invented.';
+    registryEl.innerHTML = '';
+    registryEl.appendChild(text('p', 'Registry data could not be loaded.', 'fallback'));
+    pendingEl.innerHTML = '';
+    pendingEl.appendChild(text('p', 'Pending requests could not be loaded.', 'fallback'));
+    auditEl.innerHTML = '';
+    auditEl.appendChild(text('p', 'Audit entries could not be loaded.', 'fallback'));
+  }
+
+  function copyMessage(msg, btn) {
+    function done() {
+      var original = btn.getAttribute('data-label');
+      btn.textContent = 'Copied — paste it to Xena';
+      btn.disabled = true;
+      setTimeout(function () { btn.textContent = original; btn.disabled = false; }, 2500);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(msg).then(done, function () { fallbackCopy(msg, done); });
+    } else {
+      fallbackCopy(msg, done);
+    }
+  }
+
+  function fallbackCopy(msg, done) {
+    var ta = document.createElement('textarea');
+    ta.value = msg;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) { /* clipboard unavailable */ }
+    document.body.removeChild(ta);
+    done();
+  }
+
+  function renderRegistry(snap) {
+    registryEl.innerHTML = '';
+    var table = document.createElement('table');
+    var thead = document.createElement('thead');
+    var hr = document.createElement('tr');
+    ['Operator', 'Environment', 'Mode', 'Status'].forEach(function (h) {
+      hr.appendChild(text('th', h));
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+    var tbody = document.createElement('tbody');
+    snap.operators.forEach(function (op) {
+      var tr = document.createElement('tr');
+      tr.appendChild(text('td', op.name));
+      tr.appendChild(text('td', envLabel(snap, op.environment)));
+      tr.appendChild(text('td', modeLabel(snap, op.mode)));
+      tr.appendChild(text('td', statusLabel(op.status)));
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    registryEl.appendChild(table);
+    var envP = document.createElement('p');
+    envP.className = 'updated';
+    envP.textContent = snap.environments.length + ' environments: ' +
+      snap.environments.map(function (e) { return e.label; }).join(', ') +
+      '. Core version ' + snap.coreVersion + '.';
+    registryEl.appendChild(envP);
+  }
+
+  function renderPending(snap) {
+    pendingEl.innerHTML = '';
+    var reqs = snap.pendingRequests || [];
+    if (reqs.length === 0) {
+      pendingEl.appendChild(text('p', 'No pending requests.', 'empty'));
+      return;
+    }
+    reqs.forEach(function (req) {
+      var box = document.createElement('div');
+      box.className = 'req';
+      if (req.stale) {
+        box.appendChild(text('span', 'Stale', 'badge red'));
+      } else {
+        box.appendChild(text('span', 'Pending owner approval', 'badge amber'));
+      }
+      box.appendChild(text('h3', req.operatorName || req.operatorId));
+      var modes = document.createElement('p');
+      modes.className = 'meta';
+      modes.appendChild(document.createTextNode('Mode change: '));
+      modes.appendChild(text('strong', modeLabel(snap, req.currentMode)));
+      modes.appendChild(document.createTextNode(' '));
+      var arrow = document.createElement('span');
+      arrow.className = 'arrow';
+      arrow.textContent = '→';
+      modes.appendChild(arrow);
+      modes.appendChild(document.createTextNode(' '));
+      modes.appendChild(text('strong', modeLabel(snap, req.requestedMode)));
+      box.appendChild(modes);
+      var by = document.createElement('p');
+      by.className = 'meta';
+      by.appendChild(document.createTextNode('Requested by '));
+      by.appendChild(text('strong', req.requestedBy || 'unknown'));
+      by.appendChild(document.createTextNode(' on ' + fmtTime(req.requestedAt) + '.'));
+      box.appendChild(by);
+      var exp = document.createElement('p');
+      exp.className = 'meta';
+      exp.appendChild(document.createTextNode('Expires ' + fmtTime(req.expiresAt) + '.'));
+      box.appendChild(exp);
+      if (req.stale) {
+        var staleNote = document.createElement('p');
+        staleNote.className = 'meta';
+        staleNote.textContent = 'Stale: this request was made when the operator was in ' +
+          modeLabel(snap, req.currentMode) + ' mode, and its mode has moved since. ' +
+          'The Core will mark it stale rather than apply it.';
+        box.appendChild(staleNote);
+      }
+      var idP = document.createElement('p');
+      idP.className = 'meta';
+      idP.appendChild(document.createTextNode('Request '));
+      var code = document.createElement('code');
+      code.textContent = req.id;
+      idP.appendChild(code);
+      box.appendChild(idP);
+
+      var actions = document.createElement('div');
+      actions.className = 'req-actions';
+      var approveBtn = document.createElement('button');
+      approveBtn.className = 'btn approve';
+      approveBtn.setAttribute('data-label', 'Copy approve message');
+      approveBtn.textContent = 'Copy approve message';
+      approveBtn.addEventListener('click', function () {
+        copyMessage('Approve mode change ' + req.id + ' for ' + (req.operatorName || req.operatorId), approveBtn);
+      });
+      var refuseBtn = document.createElement('button');
+      refuseBtn.className = 'btn refuse';
+      refuseBtn.setAttribute('data-label', 'Copy refuse message');
+      refuseBtn.textContent = 'Copy refuse message';
+      refuseBtn.addEventListener('click', function () {
+        copyMessage('Refuse mode change ' + req.id + ' for ' + (req.operatorName || req.operatorId), refuseBtn);
+      });
+      actions.appendChild(approveBtn);
+      actions.appendChild(refuseBtn);
+      box.appendChild(actions);
+      pendingEl.appendChild(box);
+    });
+  }
+
+  function renderAudit(snap) {
+    auditEl.innerHTML = '';
+    var entries = snap.audit || [];
+    if (entries.length === 0) {
+      auditEl.appendChild(text('p', 'No audit entries in this snapshot.', 'empty'));
+      return;
+    }
+    var list = document.createElement('ul');
+    list.className = 'audit-list';
+    entries.forEach(function (e) {
+      var li = document.createElement('li');
+      var head = document.createElement('div');
+      head.appendChild(document.createTextNode('#' + e.seq + ' · ' + e.type + ' · ' + (e.operatorId || '') + ' · ' + (e.action || '') + ' — '));
+      var verdict = document.createElement('span');
+      verdict.className = e.allowed ? 'allowed' : 'denied';
+      verdict.textContent = e.allowed ? 'Allowed' : 'Denied';
+      head.appendChild(verdict);
+      li.appendChild(head);
+      var ts = document.createElement('div');
+      ts.className = 'ts';
+      ts.textContent = fmtTime(e.timestamp);
+      li.appendChild(ts);
+      if (e.reason) {
+        li.appendChild(text('div', e.reason, 'reason'));
+      }
+      list.appendChild(li);
+    });
+    auditEl.appendChild(list);
+    var total = document.createElement('p');
+    total.className = 'updated';
+    total.textContent = 'Showing ' + entries.length + ' of ' + snap.auditStats.inMemoryEntries + ' entries in the audit log.';
+    auditEl.appendChild(total);
+  }
+
+  fetch('core-snapshot.json', { cache: 'no-store' })
+    .then(function (res) {
+      if (!res.ok) throw new Error('snapshot fetch failed: ' + res.status);
+      return res.json();
+    })
+    .then(function (snap) {
+      updatedEl.innerHTML = '';
+      updatedEl.appendChild(document.createTextNode('Snapshot last updated '));
+      updatedEl.appendChild(text('strong', fmtTime(snap.generatedAt)));
+      updatedEl.appendChild(document.createTextNode('. Core version ' + snap.coreVersion + '.'));
+      renderRegistry(snap);
+      renderPending(snap);
+      renderAudit(snap);
+    })
+    .catch(function () {
+      showFallback();
+    });
+})();
+</script>
+</body>
+</html>
