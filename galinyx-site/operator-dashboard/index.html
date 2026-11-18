@@ -142,9 +142,9 @@
       <h2>Registry</h2>
       <p class="sub">One governance system, separate operators, separate data.</p>
       <dl class="kv">
-        <dt>Operators registered</dt><dd>2</dd>
-        <dt>Operators deployed</dt><dd>2 (Blackpine, Rivet Reach)</dd>
-        <dt>Environments</dt><dd>2 — Blackpine Field, Rivet Reach</dd>
+        <dt>Operators registered</dt><dd>7</dd>
+        <dt>Operators in draft-only</dt><dd>4 (Blackpine, Rivet Reach, Galileo, Finance Brother)</dd>
+        <dt>Environments</dt><dd>3 — Blackpine Field, Rivet Reach, GALINYX Workforce</dd>
       </dl>
       <div class="rule">
         <strong>The rule:</strong> access changes happen in the Governance Core,
@@ -160,6 +160,34 @@
       <dl class="kv">
         <dt>Operator</dt><dd>Rivet Reach Operator</dd>
         <dt>Environment</dt><dd>Rivet Reach — lead generation</dd>
+        <dt>Mode</dt><dd>Draft-Only</dd>
+        <dt>Status</dt><dd>Deployed — draft-only, unproven</dd>
+      </dl>
+      <p class="audit-empty">May observe, advise, and draft to staging. May not publish, spend, or change anything live. Its analysis has not yet been proven reliable.</p>
+    </section>
+  </div>
+
+  <div class="grid two">
+    <section class="card">
+      <span class="badge amber">Draft-Only</span>
+      <h2>Galileo Ferraris</h2>
+      <p class="sub">Draft-only since Nov 18, 2026, approved by the owner. Electrical engineer and physicist — the technical brain of the workforce, true to the real Galileo Ferraris (1847–1897).</p>
+      <dl class="kv">
+        <dt>Operator</dt><dd>Galileo Ferraris</dd>
+        <dt>Environment</dt><dd>GALINYX Workforce — workforce</dd>
+        <dt>Mode</dt><dd>Draft-Only</dd>
+        <dt>Status</dt><dd>Deployed — draft-only, unproven</dd>
+      </dl>
+      <p class="audit-empty">May observe, advise, and draft to staging. May not publish, spend, or change anything live. Its analysis has not yet been proven reliable. He names the Finance Brother.</p>
+    </section>
+
+    <section class="card">
+      <span class="badge amber">Draft-Only</span>
+      <h2>Finance Brother (unnamed)</h2>
+      <p class="sub">Draft-only since Nov 18, 2026, approved by the owner. Technical analyst and financial savant — the numbers brain. He has no name yet; Galileo names him, under the owner's free-will rule.</p>
+      <dl class="kv">
+        <dt>Operator</dt><dd>Finance Brother (unnamed — to be named by Galileo)</dd>
+        <dt>Environment</dt><dd>GALINYX Workforce — workforce</dd>
         <dt>Mode</dt><dd>Draft-Only</dd>
         <dt>Status</dt><dd>Deployed — draft-only, unproven</dd>
       </dl>
@@ -206,20 +234,34 @@
   </section>
 
   <section class="card">
+    <h2>Staging drafts — what the operators wrote</h2>
+    <p class="sub">Drafts only. Nothing here is published, and nothing goes live without the owner reviewing it first.</p>
+    <div class="note">
+      <strong>Blackpine Operator — Black Friday post (Nov 17, 2026):</strong><br>
+      "Black Friday's coming to Blackpine Field. 60 products across 9 departments, eighteen deer-season picks, all gear judged under load. No gimmicks, no fake sales — real stuff for real hunts. The Black Friday front opens this week. blackpinefield.com"
+    </div>
+    <div class="note">
+      <strong>Rivet Reach Operator — homeowner post (Nov 17, 2026):</strong><br>
+      "Got a project you've been putting off? Rivet Reach matches you with local contractors in Central Kentucky, around Nashville, and Knoxville. No account needed to start — tell us about the job and we'll find the right crew. rivetreach.com"
+    </div>
+  </section>
+
+  <section class="card">
     <h2>Activity &amp; audit</h2>
     <p class="sub">The Governance Core keeps an append-only audit log of every authorization decision it makes.</p>
     <p class="audit-empty">
-      No entries are shown here because this page does not invent activity. When the
-      core runs, each decision it records — allowed or denied, with a timestamp — goes
-      into its audit log, and that log is the record. Run
-      <code>node governance-core/src/demo.mjs</code> in the repository to see the core
-      log real decisions.
+      30 decisions logged as of Nov 17, 2026, evening — including the two
+      owner-approved mode changes to draft-only, and the allowed writes that
+      produced the drafts above. Denied actions are logged too: publish and
+      spend are still refused for both operators. The full log lives in the
+      core's audit file; run <code>node governance-core/src/demo.mjs</code> in
+      the repository to see the core log real decisions.
     </p>
   </section>
 </main>
 
 <footer>
-  GALINYX OS — Governance Core · Blackpine Operator Dashboard · Built Nov 17, 2026.
+  GALINYX OS — Governance Core · Blackpine Operator Dashboard · Built Nov 17, 2026. Workforce operators (Galileo Ferraris, Finance Brother) added Nov 18, 2026.
   Figures carry their own verification dates; nothing on this page is a live feed.
 </footer>
 </body>
