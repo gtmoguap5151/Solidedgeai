@@ -9,7 +9,7 @@
 @media(max-width:780px){.layout{grid-template-columns:1fr;gap:14px}.sidebar{position:static;display:flex;overflow-x:auto;gap:4px;padding:7px}.side-label,.side-note{display:none}.nav{white-space:nowrap;width:auto;padding:10px}.nav b{width:auto;margin-right:6px}.grid{grid-template-columns:1fr}.wide,.full{grid-column:auto}.heading{flex-direction:column}.heading .btn{width:100%}.app{padding:0 13px}header{height:67px}.brand{font-size:15px}.status{font-size:9px}.whoami{font-size:9px;max-width:110px;padding:6px 8px}.wf-columns{grid-template-columns:1fr}}
 .rules{margin:0;padding-left:20px;font-size:13px;line-height:1.7;color:#dce5f9}.rules li{margin:8px 0}.ok{color:#7dc69b;font-weight:700}.no{color:#e08a8a;font-weight:700}.inbox-decided{opacity:.62}.inbox-details{margin-top:13px}.inbox-details summary{cursor:pointer;font-size:12px;color:var(--muted);padding:7px 2px}.inbox-details summary:hover{color:var(--text)}
 .draft-badge{color:#e9c77a!important;border-color:#695c3b!important}.nw-code{font-size:12px;max-height:280px;overflow:auto}
-.wf-columns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;align-items:start}.wf-column{border:1px solid #26334e;background:#0d1527;border-radius:9px;padding:13px;min-width:0}.wf-column h3{font-size:13px;margin:0 0 4px}.wf-column .wf-col-sub{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:11px}.wf-column .list{gap:7px}.wf-column .item{padding:11px}
+.wf-columns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;align-items:start}.wf-column{border:1px solid #26334e;background:#0d1527;border-radius:9px;padding:13px;min-width:0}.wf-column h3{font-size:13px;margin:0 0 4px}.wf-column .wf-col-sub{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:11px}.wf-column .list{gap:7px}.wf-column .item{padding:11px}.item.tappable{cursor:pointer}.item.tappable:hover{border-color:#52648a}.item.selected{border-color:#a7bcff;box-shadow:0 0 0 1px #a7bcff inset}.wf-hint{color:#8fa3cc!important}.wf-draft-body{margin-top:4px}
 @media(max-width:1100px){.wf-columns{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
@@ -75,6 +75,7 @@
 <div id="wf-worker-drafts" class="list" style="margin-top:14px"><div class="empty">No draft workers yet. Define one above — it stays a draft until the owner approves it.</div></div>
 </article>
 <article class="panel full"><div class="section-title"><h2>Operators</h2><span class="tiny" id="wf-op-count"></span></div><div id="wf-operators" class="list"><div class="empty">Loading workforce data…</div></div></article>
+<article class="panel full hidden" id="wf-operator-detail-panel"><div id="wf-operator-detail"></div></article>
 <article class="panel"><h2>The rules the Core enforces</h2><ol id="wf-rules" class="rules"><li>Loading…</li></ol></article>
 <article class="panel wide"><div class="section-title"><h2>Drafts in staging</h2><span class="tiny">Operator work awaiting review</span></div><div id="wf-staging" class="list"><div class="empty">Loading…</div></div></article>
 <article class="panel"><h2>Pending mode changes</h2><div id="wf-pending" class="list"><div class="empty">Loading…</div></div></article>
@@ -142,8 +143,10 @@ function wfModeLabel(snap,id){return (snap.modes&&snap.modes[id]&&snap.modes[id]
 function wfEnvLabel(snap,id){const e=(snap.environments||[]).find(x=>x.id===id);return e?e.label+' — '+e.kind:id}
 function wfStatusLabel(s){return s==='deployed-unproven'?'Deployed — analysis unproven':s}
 function wfTime(iso){try{return new Date(iso).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'})}catch(e){return iso}}
-function wfFallback(){const msg='<div class="empty">Workforce data could not be loaded. The figures need a fresh snapshot — nothing here is estimated or invented.</div>';['wf-inbox','wf-operators','wf-staging','wf-pending','wf-audit'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=msg});const r=document.getElementById('wf-rules');if(r)r.innerHTML='<li>Rules could not be loaded.</li>';const u=document.getElementById('wf-updated');if(u)u.textContent='unknown — snapshot missing';const c=document.getElementById('wf-inbox-count');if(c)c.textContent='unknown';renderWorkerDrafts()}
+function wfFallback(){wfSnapshot=null;wfCloseOperatorDetail();const msg='<div class="empty">Workforce data could not be loaded. The figures need a fresh snapshot — nothing here is estimated or invented.</div>';['wf-inbox','wf-operators','wf-staging','wf-pending','wf-audit'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=msg});const r=document.getElementById('wf-rules');if(r)r.innerHTML='<li>Rules could not be loaded.</li>';const u=document.getElementById('wf-updated');if(u)u.textContent='unknown — snapshot missing';const c=document.getElementById('wf-inbox-count');if(c)c.textContent='unknown';renderWorkerDrafts()}
 let wfNotifications=[];
+let wfSnapshot=null;
+let wfOpenOperatorId=null;
 function wfCopyMessage(msg,btn){function done(){const original=btn.getAttribute('data-label');btn.textContent='Copied — paste it to Xena';btn.disabled=true;setTimeout(()=>{btn.textContent=original;btn.disabled=false},2500)}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(msg).then(done,()=>wfFallbackCopy(msg,done))}else{wfFallbackCopy(msg,done)}}
 function wfFallbackCopy(msg,done){const ta=document.createElement('textarea');ta.value=msg;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta);done()}
 function wfDecideNotification(id,approve,btn){const n=wfNotifications.find(x=>x.id===id);if(!n)return;const verb=approve?'Approve':'Deny';wfCopyMessage(verb+' notification '+n.id+' — '+n.operatorName+' asked to '+n.action+' ('+n.reference+').',btn)}
@@ -234,7 +237,7 @@ const WF_DEPARTMENTS=[
 {title:'Rivet Reach',sub:'Contractors and homeowners',ids:['rivet-reach-operator','homeowner-operator']},
 {title:'GALINYX Workforce',sub:'The builders and the numbers',ids:['galileo-operator','finance-brother-operator','tester-operator']}
 ];
-function wfOperatorItem(snap,op){return '<div class="item"><div class="dot"></div><div style="flex:1;min-width:0"><strong>'+esc(op.name)+' <span class="badge">'+esc(wfModeLabel(snap,op.mode))+'</span></strong><small>'+esc(wfStatusLabel(op.status))+'</small></div></div>'}
+function wfOperatorItem(snap,op){const sel=wfOpenOperatorId===op.id;return '<div class="item tappable wf-operator-item'+(sel?' selected':'')+'" data-op-id="'+esc(op.id)+'" onclick="wfToggleOperator(\''+esc(op.id)+'\')"><div class="dot"></div><div style="flex:1;min-width:0"><strong>'+esc(op.name)+' <span class="badge">'+esc(wfModeLabel(snap,op.mode))+'</span></strong><small>'+esc(wfStatusLabel(op.status))+'</small><small class="wf-hint">Tap to open ›</small></div></div>'}
 function wfRenderOperators(snap){
 const ops=snap.operators||[];
 if(!ops.length)return '<div class="empty">No operators in this snapshot.</div>';
@@ -249,7 +252,60 @@ const rest=ops.filter(o=>!placed[o.id]);
 if(rest.length)cols.push('<div class="wf-column"><h3>Other operators ('+rest.length+')</h3><div class="wf-col-sub">Not assigned to a column yet — still listed, never hidden.</div><div class="list">'+rest.map(o=>wfOperatorItem(snap,o)).join('')+'</div></div>');
 return '<div class="wf-columns">'+cols.join('')+'</div>';
 }
+/* Tappable operator cards + staging drafts (owner's call, Nov 19, 2026):
+   the cards were plain divs with no click handler, so tapping did nothing. */
+function wfDepartmentFor(opId){const d=WF_DEPARTMENTS.find(x=>x.ids.indexOf(opId)!==-1);return d||null}
+/* Most staging entries carry no operatorId/operatorName in the snapshot
+   (only the four oldest do), so the operator is read off the draft file
+   name instead: draft-tailor-design-01.md belongs to the Tailor, and so on.
+   draft-printify-department-product-setup.md is department-level and maps
+   to no single operator. */
+const WF_SLUG_TO_OPERATOR={'affiliate':'affiliate-operator','black-friday':'black-friday-operator','blackpine':'blackpine-operator','closer':'closer-operator','content':'content-operator','customer-care':'customer-care-operator','deadlock':'deadlock-operator','proof':'deal-checker-operator','deal-checker':'deal-checker-operator','finance-brother':'finance-brother-operator','adamo':'finance-brother-operator','galileo':'galileo-operator','hearth':'homeowner-operator','homeowner':'homeowner-operator','interlock':'interlock-operator','listings':'listings-operator','matlock':'matlock-operator','orders':'orders-operator','handshake':'partnerships-operator','partnerships':'partnerships-operator','mirror':'performance-operator','performance':'performance-operator','pricing-promotions':'pricing-promotions-operator','product-promotion':'product-promotion-operator','repeat-buyer':'repeat-buyer-operator','rivet-reach':'rivet-reach-operator','sherlock':'sherlock-operator','shuttle':'supplier-operator','supplier':'supplier-operator','tailor':'tailor-operator','prova':'tester-operator','tester':'tester-operator'};
+function wfDraftOperatorId(snap,d){
+if(d.operatorId){const hit=(snap.operators||[]).find(o=>o.id===d.operatorId);if(hit)return hit.id}
+if(d.operatorName){const hit=(snap.operators||[]).find(o=>o.name===d.operatorName);if(hit)return hit.id}
+const f=String(d.file||'');
+const full=(snap.operators||[]).map(o=>o.id).find(id=>f.indexOf(id)!==-1);
+if(full)return full;
+let core=f.replace(/^draft-/,'').replace(/\.md$/,'');
+['team-needs-','helper-needs-','naming-','new-'].forEach(p=>{if(core.indexOf(p)===0)core=core.slice(p.length)});
+const slugs=Object.keys(WF_SLUG_TO_OPERATOR).sort((a,b)=>b.length-a.length);
+for(let i=0;i<slugs.length;i++){const s=slugs[i];if(core===s||core.indexOf(s+'-')===0)return WF_SLUG_TO_OPERATOR[s]}
+return null;
+}
+function wfDraftOperatorName(snap,d){const id=wfDraftOperatorId(snap,d);if(!id)return '';const op=(snap.operators||[]).find(o=>o.id===id);return op?op.name:''}
+function wfToggleOperator(opId){
+if(wfOpenOperatorId===opId){wfCloseOperatorDetail();return}
+const snap=wfSnapshot;if(!snap)return;
+const op=(snap.operators||[]).find(o=>o.id===opId);if(!op)return;
+const detail=document.getElementById('wf-operator-detail');if(!detail)return;
+const panel=document.getElementById('wf-operator-detail-panel');if(!panel)return;
+wfOpenOperatorId=opId;
+document.querySelectorAll('.wf-operator-item').forEach(el=>el.classList.toggle('selected',el.getAttribute('data-op-id')===opId));
+detail.innerHTML=wfRenderOperatorDetail(snap,op);
+panel.classList.remove('hidden');
+panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function wfCloseOperatorDetail(){wfOpenOperatorId=null;document.querySelectorAll('.wf-operator-item').forEach(el=>el.classList.remove('selected'));const p=document.getElementById('wf-operator-detail-panel');if(p)p.classList.add('hidden')}
+function wfRenderOperatorDetail(snap,op){
+const mode=snap.modes&&snap.modes[op.mode];
+const dept=wfDepartmentFor(op.id);
+const drafts=(snap.staging||[]).filter(d=>wfDraftOperatorId(snap,d)===op.id);
+const draftsHtml=drafts.length?drafts.map(d=>'<div class="item"><div class="dot"></div><div style="flex:1;min-width:0"><strong>'+esc(d.title)+' <span class="badge">'+esc(d.status==='published'?'Published':'In staging')+'</span></strong><small>'+esc(d.draftId)+' · '+esc(d.date||'')+'</small><small>'+esc(d.summary||'')+'</small>'+(d.decision?'<small>Decision: '+esc(d.decision)+'</small>':'')+(d.publishedUrl?'<small><a href="'+esc(d.publishedUrl)+'" target="_blank" rel="noopener" style="color:#a7bcff">Open published post ›</a></small>':'')+'</div></div>').join(''):'<div class="empty">No drafts yet — this operator has not staged anything.</div>';
+return '<div class="section-title"><h2>'+esc(op.name)+'</h2><span class="badge">'+esc(wfModeLabel(snap,op.mode))+'</span></div>'
++'<div class="list">'
++'<div class="item"><div class="dot"></div><div style="flex:1;min-width:0"><strong>What it does</strong><small>'+esc(op.statusNote||'No description in this snapshot.')+'</small></div></div>'
++'<div class="item"><div class="dot"></div><div style="flex:1;min-width:0"><strong>Works in</strong><small>'+esc(wfEnvLabel(snap,op.environment))+(dept?' · '+esc(dept.title)+' — '+esc(dept.sub):'')+'</small></div></div>'
++'<div class="item"><div class="dot"></div><div style="flex:1;min-width:0"><strong>Mode</strong><small>'+esc(wfModeLabel(snap,op.mode))+(mode&&mode.description?' — '+esc(mode.description):'')+'</small></div></div>'
++'<div class="item"><div class="dot"></div><div style="flex:1;min-width:0"><strong>Status</strong><small>'+esc(wfStatusLabel(op.status))+'</small></div></div>'
++'</div>'
++'<div class="section-title" style="margin-top:16px"><h2>Its drafts ('+drafts.length+')</h2><span class="tiny">From staging — nothing here is live unless marked Published</span></div>'
++'<div class="list">'+draftsHtml+'</div>'
++'<div class="row" style="margin-top:14px"><button class="btn secondary" onclick="wfCloseOperatorDetail()">Close</button></div>';
+}
+function wfToggleDraft(el){const body=el.querySelector('.wf-draft-body');if(!body)return;const opening=body.classList.contains('hidden');body.classList.toggle('hidden');const hint=el.querySelector('.wf-hint');if(hint)hint.textContent=opening?'Tap to close ›':'Tap to read ›'}
 function loadWorkforce(){fetch('./operator-dashboard/core-snapshot.json',{cache:'no-store'}).then(res=>{if(!res.ok)throw new Error('snapshot fetch failed: '+res.status);return res.json()}).then(snap=>{
+wfSnapshot=snap;wfCloseOperatorDetail();
 document.getElementById('wf-updated').textContent=wfTime(snap.generatedAt)+' · Core v'+snap.coreVersion;
 wfEnvironments=(snap.environments&&snap.environments.length)?snap.environments:NW_FALLBACK_ENVS;wfOperatorIds=(snap.operators||[]).map(o=>o.id);wfPopulateEnvSelect();renderWorkerDrafts();
 const notifs=snap.notifications||[];
@@ -264,7 +320,7 @@ document.getElementById('wf-op-count').textContent=snap.operators.length+' opera
 document.getElementById('wf-operators').innerHTML=wfRenderOperators(snap);
 document.getElementById('wf-rules').innerHTML=(snap.rules||[]).map(r=>'<li>'+esc(r)+'</li>').join('')||'<li>No rules in this snapshot.</li>';
 const st=snap.staging||[];
-document.getElementById('wf-staging').innerHTML=st.map(d=>'<div class="item"><div class="dot"></div><div style="flex:1;min-width:0"><strong>'+esc(d.title)+' <span class="badge">'+esc(d.status==='published'?'Published':'In staging')+'</span></strong><small>'+esc(d.operatorName)+' · '+esc(d.draftId)+' · '+esc(d.date||'')+'</small><small>'+esc(d.summary||'')+'</small>'+(d.decision?'<small>Decision: '+esc(d.decision)+'</small>':'')+'</div></div>').join('')||'<div class="empty">No drafts in staging.</div>';
+document.getElementById('wf-staging').innerHTML=st.map(d=>'<div class="item tappable wf-staging-item" onclick="wfToggleDraft(this)"><div class="dot"></div><div style="flex:1;min-width:0"><strong>'+esc(d.title)+' <span class="badge">'+esc(d.status==='published'?'Published':'In staging')+'</span></strong><small>'+esc([wfDraftOperatorName(snap,d),d.draftId,d.date].filter(Boolean).join(' · '))+'</small><small class="wf-hint">Tap to read ›</small><div class="wf-draft-body hidden"><small>'+esc(d.summary||'')+'</small>'+(d.decision?'<small>Decision: '+esc(d.decision)+'</small>':'')+(d.publishedUrl?'<small><a href="'+esc(d.publishedUrl)+'" target="_blank" rel="noopener" style="color:#a7bcff" onclick="event.stopPropagation()">Open published post ›</a></small>':'')+'</div></div></div>').join('')||'<div class="empty">No drafts in staging.</div>';
 const pq=snap.pendingRequests||[];
 document.getElementById('wf-pending').innerHTML=pq.map(req=>'<div class="item"><div class="dot"></div><div style="flex:1;min-width:0"><strong>'+esc(req.operatorName||req.operatorId)+' <span class="badge">'+esc(req.stale?'Stale':'Pending owner approval')+'</span></strong><small>'+esc(wfModeLabel(snap,req.currentMode))+' → '+esc(wfModeLabel(snap,req.requestedMode))+'</small><small>Requested by '+esc(req.requestedBy||'unknown')+' · '+esc(wfTime(req.requestedAt))+' · Expires '+esc(wfTime(req.expiresAt))+'</small>'+(req.stale?'<small>Stale: the operator’s mode moved after this request was made. The Core will not apply it.</small>':'')+'</div></div>').join('')||'<div class="empty">No pending requests.</div>';
 const au=snap.audit||[];
