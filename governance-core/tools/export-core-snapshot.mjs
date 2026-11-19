@@ -104,6 +104,19 @@ const staging = readdirSync(stagingDir)
     const dateLine = lines.find((l) => l.startsWith('Date:')) || '';
     const date = dateLine.replace(/^Date:\s*/, '').trim();
     const decisionLine = lines.find((l) => l.startsWith('DECISION')) || '';
+    // Decision state, same rules as the draft log: an explicit Status: line,
+    // a DECISION line, or a first-line banner. Anything without an explicit
+    // decision is pending. The app shows Approve/Deny buttons only on pending
+    // drafts (owner's order, Nov 19, 2026).
+    const statusLine = lines.find((l) => /^Status:/i.test(l)) || '';
+    const decisionText = `${statusLine} ${decisionLine} ${firstLine}`.toLowerCase();
+    const decisionStatus = /denied|refused|rejected/.test(decisionText)
+      ? 'denied'
+      : /approved/.test(decisionText)
+        ? 'approved'
+        : /published/.test(decisionText) && !/not published/.test(decisionText)
+          ? 'published'
+          : 'pending';
     // Design-suggestion drafts carry a Photo line with the live image URL
     // (owner's rule, Nov 19, 2026): "- Photo: https://...". The app shows
     // the photo when the draft is opened.
@@ -129,6 +142,7 @@ const staging = readdirSync(stagingDir)
       operatorName: op.name,
       title: m ? humanizeSlug(m[3]) : file,
       status: published ? 'published' : 'draft',
+      decisionStatus,
       date,
       summary: truncate(summaryLine, 160),
     };

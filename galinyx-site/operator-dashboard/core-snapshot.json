@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T22:25:07.670Z",
+  "generatedAt": "2026-11-19T22:36:11.605Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -275,6 +275,7 @@
       "operatorName": "Blackpine Operator",
       "title": "Black Friday Post",
       "status": "published",
+      "decisionStatus": "approved",
       "date": "Nov 17, 2026",
       "summary": "Black Friday's coming to Blackpine Field. 60 products across 9 departments, eighteen deer-season picks, all gear judged under load. No gimmicks, no fake sales …",
       "publishedUrl": "https://facebook.com/61575776663109/posts/pfbid02MXAnkk2JApTzJXwqjf1dx1j56CTJyeMP6dkH1CbYBiFZ1CYrCfTfRpip719DnMjEl/"
@@ -286,6 +287,7 @@
       "operatorName": "Blackpine Operator",
       "title": "Revenue Boost Ideas",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 17, 2026",
       "summary": "Current state (verified live Nov 17): 12 affiliate clicks ever (Awin 8, CJ 4), 0 sales, $0.00.",
       "decision": "DECISION (Xena, round table 2026-11-18): APPROVED as advisory guidance. Suggestions 1, 2, 3, 5 are already executed as of today (Black Friday page live via Git push; Free Country Lanier card live $126; firearm course li…"
@@ -297,6 +299,7 @@
       "operatorName": "",
       "title": "draft-blackpine-operator-store-improvements.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "## Draft 1 — Black Friday deals shelf (top of the store, this week)"
     },
@@ -307,6 +310,7 @@
       "operatorName": "",
       "title": "draft-closer-visitor-to-sale.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "## 1. What is being ignored, and why"
     },
@@ -317,6 +321,7 @@
       "operatorName": "",
       "title": "draft-content-mirror-tn1day-and-click-read.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "## Part 1 — tn1day publish notes (Content Operator)"
     },
@@ -327,6 +332,7 @@
       "operatorName": "",
       "title": "draft-deadlock-d001-paperwork-checklist.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026.",
       "summary": "# Assignment Paperwork Checklist — Deal D-001"
     },
@@ -337,6 +343,7 @@
       "operatorName": "",
       "title": "draft-handshake-pending-application-followups.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "## Account facts (for reference in every follow-up)"
     },
@@ -347,6 +354,7 @@
       "operatorName": "",
       "title": "draft-hearth-homeowner-posts.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "## POST 1 — Personal profile (Matt Jeremiah)"
     },
@@ -357,6 +365,7 @@
       "operatorName": "",
       "title": "draft-helper-needs-closer.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "",
       "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live.*"
     },
@@ -367,6 +376,7 @@
       "operatorName": "",
       "title": "draft-helper-needs-handshake.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "",
       "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live.*"
     },
@@ -377,6 +387,7 @@
       "operatorName": "",
       "title": "draft-helper-needs-hearth.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "",
       "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live. The…"
     },
@@ -387,6 +398,7 @@
       "operatorName": "",
       "title": "draft-helper-needs-mirror.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "",
       "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live.*"
     },
@@ -397,6 +409,7 @@
       "operatorName": "",
       "title": "draft-helper-needs-proof.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "",
       "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live.*"
     },
@@ -407,6 +420,7 @@
       "operatorName": "",
       "title": "draft-helper-needs-prova.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "",
       "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live.*"
     },
@@ -417,6 +431,7 @@
       "operatorName": "",
       "title": "draft-helper-needs-shuttle.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "",
       "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live.*"
     },
@@ -427,6 +442,7 @@
       "operatorName": "",
       "title": "draft-interlock-d001-buyer-match.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "## Deal summary — D-001"
     },
@@ -437,6 +453,7 @@
       "operatorName": "",
       "title": "draft-log.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "",
       "summary": "# Draft Log — GALINYX OS"
     },
@@ -447,6 +464,7 @@
       "operatorName": "",
       "title": "draft-matlock-verification-plan.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "## Scope and method"
     },
@@ -457,6 +475,7 @@
       "operatorName": "",
       "title": "draft-naming-closer.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "I name him The Closer."
     },
@@ -467,6 +486,7 @@
       "operatorName": "",
       "title": "draft-naming-deal-checker.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "I name him The Proof."
     },
@@ -477,6 +497,7 @@
       "operatorName": "",
       "title": "draft-naming-finance-brother.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "I name him Adamo."
     },
@@ -487,6 +508,7 @@
       "operatorName": "",
       "title": "draft-naming-homeowner.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "I name her The Hearth."
     },
@@ -497,6 +519,7 @@
       "operatorName": "",
       "title": "draft-naming-partnerships.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "I name him The Handshake."
     },
@@ -507,6 +530,7 @@
       "operatorName": "",
       "title": "draft-naming-performance.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "I name her The Mirror."
     },
@@ -517,6 +541,7 @@
       "operatorName": "",
       "title": "draft-naming-supplier.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "I name him The Shuttle."
     },
@@ -527,6 +552,7 @@
       "operatorName": "",
       "title": "draft-naming-tester.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "I name her Prova."
     },
@@ -537,6 +563,7 @@
       "operatorName": "",
       "title": "draft-new-customer-care-worker.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "The Customer Care Worker is the newest member of the Apparel & Sales department. It drafts replies to buyer questions and sizing help: what size to order, what…"
     },
@@ -547,6 +574,7 @@
       "operatorName": "",
       "title": "draft-new-listings-worker.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "The Listings Worker is the newest member of the Apparel & Sales department. It owns the product listings: the titles, the descriptions, and the mockup placemen…"
     },
@@ -557,6 +585,7 @@
       "operatorName": "",
       "title": "draft-new-orders-worker.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "The Orders Worker is the newest member of the Apparel & Sales department. It owns what happens after a buyer pays: tracking every Printify order — placed, prin…"
     },
@@ -567,6 +596,7 @@
       "operatorName": "",
       "title": "draft-new-pricing-promotions-worker.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "The Pricing & Promotions Worker is the newest member of the Apparel & Sales department. It watches the money in every product: what it costs, what it sells for…"
     },
@@ -577,6 +607,7 @@
       "operatorName": "",
       "title": "draft-new-product-promotion-worker.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "The Product Promotion Worker is the newest member of the Apparel & Sales department. It gets eyes on the products: the posts, the drop announcements, and the s…"
     },
@@ -587,6 +618,7 @@
       "operatorName": "",
       "title": "draft-new-repeat-buyer-worker.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "The Repeat Buyer Worker is the newest member of the Apparel & Sales department. It owns the second sale: the follow-up after delivery, the next-drop notices, a…"
     },
@@ -597,6 +629,7 @@
       "operatorName": "",
       "title": "draft-printify-department-product-setup.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026.",
       "summary": "## Ground truth this draft stands on"
     },
@@ -607,6 +640,7 @@
       "operatorName": "",
       "title": "draft-proof-black-friday-price-check.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "## Method and limits"
     },
@@ -617,6 +651,7 @@
       "operatorName": "",
       "title": "draft-prova-phase3-shell-test.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026.",
       "summary": "## 1. What I checked and how"
     },
@@ -627,6 +662,7 @@
       "operatorName": "",
       "title": "draft-rivet-reach-operator-next-wave.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "# Refreshed Next Contractor Wave — Rivet Reach"
     },
@@ -637,6 +673,7 @@
       "operatorName": "",
       "title": "draft-sherlock-jacksonville-leads.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "## Top 10 fresh leads"
     },
@@ -647,6 +684,7 @@
       "operatorName": "",
       "title": "draft-shuttle-supplier-plan.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "*Draft-only. Nothing in this plan has been created, sent, signed up for,",
       "decision": "DECISION NEEDED FROM MATT (one word, either way):"
@@ -658,6 +696,7 @@
       "operatorName": "",
       "title": "draft-tailor-design-01.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Design 01 — The Classic Combo — White**",
       "image": "https://blackpinefield.com/img/design-01.png"
@@ -669,6 +708,7 @@
       "operatorName": "",
       "title": "draft-tailor-design-02.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Design 02 — The Classic Combo — Black**",
       "image": "https://blackpinefield.com/img/design-02.png"
@@ -680,6 +720,7 @@
       "operatorName": "",
       "title": "draft-tailor-design-03.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Design 03 — Chest Lockup — White**",
       "image": "https://blackpinefield.com/img/design-03.png"
@@ -691,6 +732,7 @@
       "operatorName": "",
       "title": "draft-tailor-design-04.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Design 04 — Chest Lockup — Black**",
       "image": "https://blackpinefield.com/img/design-04.png"
@@ -702,6 +744,7 @@
       "operatorName": "",
       "title": "draft-tailor-design-05.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Design 05 — Camel Back — True Pine**",
       "image": "https://blackpinefield.com/img/design-05.png"
@@ -713,6 +756,7 @@
       "operatorName": "",
       "title": "draft-tailor-design-06.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Design 06 — Fall Drop — BORN TO HUNT**",
       "image": "https://blackpinefield.com/img/design-06.png"
@@ -724,6 +768,7 @@
       "operatorName": "",
       "title": "draft-tailor-design-07.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Design 07 — Winter Drop — BUILT FOR COLD**",
       "image": "https://blackpinefield.com/img/design-07.png"
@@ -735,6 +780,7 @@
       "operatorName": "",
       "title": "draft-tailor-design-08.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Design 08 — Oversized True Pine — White**",
       "image": "https://blackpinefield.com/img/design-08.png"
@@ -746,6 +792,7 @@
       "operatorName": "",
       "title": "draft-tailor-design-09.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Design 09 — Left-Chest Minimal — Black**",
       "image": "https://blackpinefield.com/img/design-09.png"
@@ -757,6 +804,7 @@
       "operatorName": "",
       "title": "draft-tailor-design-10.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Design 10 — Spring Drop — SPRING THUNDER CALLS**",
       "image": "https://blackpinefield.com/img/design-10.png"
@@ -768,6 +816,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-crewneck-01.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Crewneck 01 — Lockup — Black**",
       "image": "https://blackpinefield.com/img/crewneck-01.png"
@@ -779,6 +828,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-crewneck-02.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Crewneck 02 — True Pine — White**",
       "image": "https://blackpinefield.com/img/crewneck-02.png"
@@ -790,6 +840,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-crewneck-03.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Crewneck 03 — Born to Hunt — White**",
       "image": "https://blackpinefield.com/img/crewneck-03.png"
@@ -801,6 +852,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-dadcap-01.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Dad Cap 01 — Lockup — Black**",
       "image": "https://blackpinefield.com/img/dadcap-01.png"
@@ -812,6 +864,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-dadcap-02.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Dad Cap 02 — Pine Only — Black**",
       "image": "https://blackpinefield.com/img/dadcap-02.png"
@@ -823,6 +876,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-hoodie-01.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Hoodie 01 — Chest Lockup — Black**",
       "image": "https://blackpinefield.com/img/hoodie-01.png"
@@ -834,6 +888,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-hoodie-02.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Hoodie 02 — Built for Cold — Black**",
       "image": "https://blackpinefield.com/img/hoodie-02.png"
@@ -845,6 +900,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-hoodie-03.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Hoodie 03 — True Pine — White**",
       "image": "https://blackpinefield.com/img/hoodie-03.png"
@@ -856,6 +912,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-longsleeve-01.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Long Sleeve 01 — True Pine Back — White**",
       "image": "https://blackpinefield.com/img/longsleeve-01.png"
@@ -867,6 +924,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-longsleeve-02.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Long Sleeve 02 — Lockup — White**",
       "image": "https://blackpinefield.com/img/longsleeve-02.png"
@@ -878,6 +936,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-longsleeve-03.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Long Sleeve 03 — Minimal — Black**",
       "image": "https://blackpinefield.com/img/longsleeve-03.png"
@@ -889,6 +948,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-mug-01.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Mug 01 — Full Lockup — White**",
       "image": "https://blackpinefield.com/img/mug-01.png"
@@ -900,6 +960,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-mug-02.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Mug 02 — True Pine — Black**",
       "image": "https://blackpinefield.com/img/mug-02.png"
@@ -911,6 +972,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-mug-03.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Mug 03 — Minimal — White**",
       "image": "https://blackpinefield.com/img/mug-03.png"
@@ -922,6 +984,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-trucker-01.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Trucker Cap 01 — Lockup — Black**",
       "image": "https://blackpinefield.com/img/trucker-01.png"
@@ -933,6 +996,7 @@
       "operatorName": "",
       "title": "draft-tailor-line-trucker-02.md",
       "status": "draft",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "**Trucker Cap 02 — True Pine — Black**",
       "image": "https://blackpinefield.com/img/trucker-02.png"
@@ -944,6 +1008,7 @@
       "operatorName": "",
       "title": "draft-tailor-mark-reconciliation.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "## The conflict, plainly"
     },
@@ -954,6 +1019,7 @@
       "operatorName": "",
       "title": "draft-team-needs-affiliate-operator.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "Yes. I need a partnerships worker."
     },
@@ -964,6 +1030,7 @@
       "operatorName": "",
       "title": "draft-team-needs-black-friday-operator.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "Yes. I need a deal-checker."
     },
@@ -974,6 +1041,7 @@
       "operatorName": "",
       "title": "draft-team-needs-blackpine-operator.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "Yes. I need a closer."
     },
@@ -984,6 +1052,7 @@
       "operatorName": "",
       "title": "draft-team-needs-content-operator.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "Yes. I need a performance reader."
     },
@@ -994,6 +1063,7 @@
       "operatorName": "",
       "title": "draft-team-needs-finance-brother-operator.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "None. I do not need another team member. I need numbers to read."
     },
@@ -1004,6 +1074,7 @@
       "operatorName": "",
       "title": "draft-team-needs-galileo-operator.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "Yes. I need a tester."
     },
@@ -1014,6 +1085,7 @@
       "operatorName": "",
       "title": "draft-team-needs-rivet-reach-operator.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "Yes. I need a homeowner worker."
     },
@@ -1024,6 +1096,7 @@
       "operatorName": "",
       "title": "draft-team-needs-tailor-operator.md",
       "status": "draft",
+      "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "Yes. I need a supplier worker."
     },
@@ -1034,6 +1107,7 @@
       "operatorName": "Rivet Reach Operator",
       "title": "Homeowner Post",
       "status": "published",
+      "decisionStatus": "approved",
       "date": "Nov 17, 2026",
       "summary": "Got a project you've been putting off? Rivet Reach matches you with local contractors in Central Kentucky, around Nashville, and Knoxville. No account needed t…",
       "publishedUrl": "https://facebook.com/61575776663109/posts/pfbid02NBcSwKL4o49pK3mrRT7cLm1Npcrk9aLk8AojSoqnQV1FH4yngbvYPsJdsFucLAX6l/"
@@ -1045,6 +1119,7 @@
       "operatorName": "Rivet Reach Operator",
       "title": "Alternate Routes",
       "status": "draft",
+      "decisionStatus": "denied",
       "date": "Nov 17, 2026",
       "summary": "Current state (verified Nov 17): 71 contractor shops reached across five waves, 0 replies ever, 0 signups. Contractor-first outreach has not converted.",
       "decision": "DECISION (Xena, round table 2026-11-18): APPROVED as advisory guidance, with one refusal. Routes 1 (homeowner-first, Facebook posts), 4 (point outreach at the live contractor backdoor), and 5 (test property managers/age…"
