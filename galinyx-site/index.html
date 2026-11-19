@@ -8,6 +8,7 @@
 :root{color-scheme:dark;--bg:#080c18;--panel:#111a2d;--panel2:#0d1425;--line:#283653;--muted:#9eacc8;--text:#eef3ff;--blue:#a7bcff;--gold:#e9c77a;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% 0%,#24335c 0,transparent 34%),var(--bg);color:var(--text);min-height:100vh}button,input,textarea,select{font:inherit}button{cursor:pointer}.app{max-width:1240px;margin:auto;padding:0 22px}header{height:78px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:12px}.brand{font-weight:850;letter-spacing:.12em;font-size:18px}.brand span{color:var(--blue)}.status{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#e6d39e;border:1px solid #695c3b;padding:7px 10px;border-radius:99px}.layout{display:grid;grid-template-columns:225px minmax(0,1fr);gap:24px;padding:25px 0 55px}.sidebar{border:1px solid var(--line);border-radius:14px;padding:15px;background:#0c1324;height:max-content;position:sticky;top:12px}.side-label{font-size:10px;letter-spacing:.18em;color:#7888aa;padding:10px 11px}.nav{display:block;width:100%;text-align:left;background:transparent;color:#b8c5df;border:0;padding:12px 11px;border-radius:8px;margin:2px 0;font-size:13px}.nav.active,.nav:hover{background:#1c2944;color:#fff}.nav b{display:inline-block;width:23px;color:var(--blue)}.side-note{margin:18px 5px 4px;border-top:1px solid var(--line);padding:16px 5px 5px;color:var(--muted);font-size:12px;line-height:1.6}.eyebrow{font-size:11px;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;font-weight:750}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:8px 0 22px}.heading h1{font-size:clamp(29px,4vw,43px);letter-spacing:-.045em;margin:9px 0}.heading p{color:var(--muted);font-size:14px;line-height:1.6;margin:0}.btn{border:1px solid #52648a;background:#dce6ff;color:#101a32;border-radius:8px;padding:11px 14px;font-weight:750;font-size:12px}.btn.secondary{background:#17223a;color:#e8eeff;border-color:#334464}.btn.ghost{background:transparent;color:#cbd5ea;border-color:var(--line)}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.panel{background:linear-gradient(145deg,#121d33,#0e1628);border:1px solid var(--line);border-radius:13px;padding:19px;min-width:0}.panel h2{font-size:14px;margin:0 0 12px}.metric{font-size:29px;font-weight:800;letter-spacing:-.04em}.sub{font-size:12px;color:var(--muted);line-height:1.55;margin-top:6px}.metric-tag{font-size:10px;color:#b9d5bf;margin-left:5px}.wide{grid-column:span 2}.full{grid-column:1/-1}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}.section-title h2{margin:0}.list{display:grid;gap:9px}.item{display:flex;align-items:flex-start;gap:12px;border:1px solid #26334e;background:#0d1527;padding:13px;border-radius:9px}.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);margin-top:5px;flex-shrink:0}.item strong{display:block;font-size:13px}.item small{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.5}.badge{font-size:10px;white-space:nowrap;color:#d9e3ff;border:1px solid #39496b;border-radius:99px;padding:5px 7px;margin-left:auto}.field{display:grid;gap:7px;margin:12px 0}.field label{font-size:12px;color:#c3cee5}.field input,.field textarea,.field select{width:100%;background:#091122;color:var(--text);border:1px solid #354463;border-radius:8px;padding:11px;outline:none}.field textarea{min-height:115px;resize:vertical;line-height:1.55}.field input:focus,.field textarea:focus{border-color:#a7bcff}.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.output{white-space:pre-wrap;line-height:1.65;color:#dce5f9;background:#091122;border:1px solid var(--line);padding:15px;border-radius:9px;min-height:60px;font-size:13px}.hidden{display:none!important}.callout{padding:13px 15px;border:1px solid #685a37;background:#211d13;color:#e7d7a9;border-radius:9px;font-size:12px;line-height:1.6;margin-bottom:16px}.tiny{font-size:11px;color:var(--muted);line-height:1.6}.chip{font-size:11px;border:1px solid #344565;border-radius:7px;padding:7px 9px;color:#d5dff4}.divider{border-top:1px solid var(--line);margin:16px 0}.empty{color:var(--muted);font-size:12px;padding:18px;text-align:center;border:1px dashed #354463;border-radius:9px}footer{border-top:1px solid var(--line);padding:18px 0 25px;color:#7f8eac;font-size:11px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 @media(max-width:780px){.layout{grid-template-columns:1fr;gap:14px}.sidebar{position:static;display:flex;overflow-x:auto;gap:4px;padding:7px}.side-label,.side-note{display:none}.nav{white-space:nowrap;width:auto;padding:10px}.nav b{width:auto;margin-right:6px}.grid{grid-template-columns:1fr}.wide,.full{grid-column:auto}.heading{flex-direction:column}.heading .btn{width:100%}.app{padding:0 13px}header{height:67px}.brand{font-size:15px}.status{font-size:9px}}
 .rules{margin:0;padding-left:20px;font-size:13px;line-height:1.7;color:#dce5f9}.rules li{margin:8px 0}.ok{color:#7dc69b;font-weight:700}.no{color:#e08a8a;font-weight:700}.inbox-decided{opacity:.62}.inbox-details{margin-top:13px}.inbox-details summary{cursor:pointer;font-size:12px;color:var(--muted);padding:7px 2px}.inbox-details summary:hover{color:var(--text)}
+.draft-badge{color:#e9c77a!important;border-color:#695c3b!important}.nw-code{font-size:12px;max-height:280px;overflow:auto}
 </style>
 </head>
 <body><div class="app">
@@ -54,6 +55,22 @@
 <div class="callout">READ-ONLY SNAPSHOT — These figures come from a published snapshot of the Governance Core, updated <span id="wf-updated">…</span>. Nothing here is a live feed: the figures refresh only when the snapshot is republished. Nothing on this page can publish, spend, or change anything.</div>
 <div class="grid">
 <article class="panel full"><div class="section-title"><h2>🔔 Notifications inbox</h2><span class="badge" id="wf-inbox-count">…</span></div><div id="wf-inbox" class="list"><div class="empty">Loading…</div></div><div class="tiny" style="margin-top:12px">Until the backend lands, Approve / Deny copies the decision text for you to paste back to Xena. Approving records a yes — it grants no permission by itself, and it changes no mode.</div></article>
+<article class="panel full"><div class="section-title"><h2>＋ New worker</h2><span class="tiny">Build a worker inside the OS</span></div>
+<div class="tiny" style="margin-bottom:12px">A worker isn't built until it shows up in the OS. Define one here and it becomes a <strong>DRAFT</strong>. Drafts become workers when the owner approves them. Nothing here registers a worker on its own: approval copies a message you paste back to Xena, and the registry is updated from that.</div>
+<button class="btn" onclick="wfToggleNewWorkerForm()">Define a new worker</button>
+<div id="wf-newworker-form" class="hidden" style="margin-top:14px">
+<div class="field"><label for="nw-name">Worker name</label><input id="nw-name" placeholder="e.g. The Closer"></div>
+<div class="field"><label for="nw-role">Role — one line</label><input id="nw-role" placeholder="e.g. Turns store visitors into sales"></div>
+<div class="field"><label for="nw-env">Environment</label><select id="nw-env"></select></div>
+<div class="field"><label for="nw-goal">Goal — what does this worker pursue?</label><textarea id="nw-goal" style="min-height:75px" placeholder="The one thing this worker is trying to achieve."></textarea></div>
+<div class="field"><label for="nw-motivation">Motivation — why does it matter?</label><textarea id="nw-motivation" style="min-height:75px" placeholder="Why this work matters to the business."></textarea></div>
+<div class="field"><label for="nw-strength">Strength — what is this worker good at?</label><textarea id="nw-strength" style="min-height:75px" placeholder="What this worker does best."></textarea></div>
+<div class="field"><label for="nw-flaw">Flaw — what trips this worker up?</label><textarea id="nw-flaw" style="min-height:75px" placeholder="The honest weakness."></textarea></div>
+<div class="field"><label for="nw-arc">Arc — where does this worker grow?</label><textarea id="nw-arc" style="min-height:75px" placeholder="What this worker grows into over time."></textarea></div>
+<div class="row"><button class="btn" onclick="wfSubmitNewWorker()">Create draft worker</button><button class="btn ghost" onclick="wfToggleNewWorkerForm()">Cancel</button></div>
+</div>
+<div id="wf-worker-drafts" class="list" style="margin-top:14px"><div class="empty">No draft workers yet. Define one above — it stays a draft until the owner approves it.</div></div>
+</article>
 <article class="panel full"><div class="section-title"><h2>Operators</h2><span class="tiny" id="wf-op-count"></span></div><div id="wf-operators" class="list"><div class="empty">Loading workforce data…</div></div></article>
 <article class="panel"><h2>The rules the Core enforces</h2><ol id="wf-rules" class="rules"><li>Loading…</li></ol></article>
 <article class="panel wide"><div class="section-title"><h2>Drafts in staging</h2><span class="tiny">Operator work awaiting review</span></div><div id="wf-staging" class="list"><div class="empty">Loading…</div></div></article>
@@ -70,7 +87,7 @@
 </div>
 <script>
 const KEY='galinyx-os-workspace-v1';
-const initial={projects:[],memories:[],tasks:[],activity:[]};
+const initial={projects:[],memories:[],tasks:[],activity:[],workerDrafts:[]};
 let data;
 try{data={...initial,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){data={...initial}}
 let lastDraft='';
@@ -97,13 +114,91 @@ function wfModeLabel(snap,id){return (snap.modes&&snap.modes[id]&&snap.modes[id]
 function wfEnvLabel(snap,id){const e=(snap.environments||[]).find(x=>x.id===id);return e?e.label+' — '+e.kind:id}
 function wfStatusLabel(s){return s==='deployed-unproven'?'Deployed — analysis unproven':s}
 function wfTime(iso){try{return new Date(iso).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'})}catch(e){return iso}}
-function wfFallback(){const msg='<div class="empty">Workforce data could not be loaded. The figures need a fresh snapshot — nothing here is estimated or invented.</div>';['wf-inbox','wf-operators','wf-staging','wf-pending','wf-audit'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=msg});const r=document.getElementById('wf-rules');if(r)r.innerHTML='<li>Rules could not be loaded.</li>';const u=document.getElementById('wf-updated');if(u)u.textContent='unknown — snapshot missing';const c=document.getElementById('wf-inbox-count');if(c)c.textContent='unknown'}
+function wfFallback(){const msg='<div class="empty">Workforce data could not be loaded. The figures need a fresh snapshot — nothing here is estimated or invented.</div>';['wf-inbox','wf-operators','wf-staging','wf-pending','wf-audit'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=msg});const r=document.getElementById('wf-rules');if(r)r.innerHTML='<li>Rules could not be loaded.</li>';const u=document.getElementById('wf-updated');if(u)u.textContent='unknown — snapshot missing';const c=document.getElementById('wf-inbox-count');if(c)c.textContent='unknown';renderWorkerDrafts()}
 let wfNotifications=[];
 function wfCopyMessage(msg,btn){function done(){const original=btn.getAttribute('data-label');btn.textContent='Copied — paste it to Xena';btn.disabled=true;setTimeout(()=>{btn.textContent=original;btn.disabled=false},2500)}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(msg).then(done,()=>wfFallbackCopy(msg,done))}else{wfFallbackCopy(msg,done)}}
 function wfFallbackCopy(msg,done){const ta=document.createElement('textarea');ta.value=msg;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta);done()}
 function wfDecideNotification(id,approve,btn){const n=wfNotifications.find(x=>x.id===id);if(!n)return;const verb=approve?'Approve':'Deny';wfCopyMessage(verb+' notification '+n.id+' — '+n.operatorName+' asked to '+n.action+' ('+n.reference+').',btn)}
+const NW_FALLBACK_ENVS=[{id:'blackpine-field',kind:'storefront',label:'Blackpine Field'},{id:'rivet-reach',kind:'lead generation',label:'Rivet Reach'},{id:'galinyx-workforce',kind:'workforce',label:'GALINYX Workforce'}];
+let wfEnvironments=NW_FALLBACK_ENVS.slice();
+let wfOperatorIds=[];
+function wfPopulateEnvSelect(){const sel=document.getElementById('nw-env');if(!sel)return;const cur=sel.value;sel.innerHTML=wfEnvironments.map(e=>'<option value="'+esc(e.id)+'">'+esc(e.label)+' — '+esc(e.kind)+'</option>').join('');if(cur)sel.value=cur}
+function wfToggleNewWorkerForm(){const f=document.getElementById('wf-newworker-form');if(!f)return;const opening=f.classList.contains('hidden');f.classList.toggle('hidden');if(opening)wfPopulateEnvSelect()}
+function wfSlugId(name){const base=name.trim().replace(/^the\s+/i,'');return base.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')+'-operator'}
+function wfDateLabel(iso){try{return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}catch(e){return iso}}
+function wfEnvLabelById(id){const e=wfEnvironments.find(x=>x.id===id);return e?e.label:id}
+function wfRegistryEntry(d){return{environment:d.environment,id:d.workerId,mode:'draft-only',name:d.name,status:'deployed-unproven',statusNote:'Draft-only mode since '+wfDateLabel(d.createdAt)+' (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable.'}}
+function wfRegistryText(d){return JSON.stringify(wfRegistryEntry(d),null,2)}
+function wfCharFileName(d){return d.workerId.replace(/-operator$/,'')+'.md'}
+function wfCharacterText(d){const envLabel=wfEnvLabelById(d.environment);return['# '+d.name+' — '+d.role,'','**Operator ID:** `'+d.workerId+'`','**Environment:** '+envLabel+' (`'+d.environment+'`)','**Mode:** Draft-Only','**Status:** Draft — not yet approved by the owner. Defined in the GALINYX OS New worker flow, '+wfDateLabel(d.createdAt)+'.','','## Who this worker is','',d.name+' — '+d.role+'. Works in '+envLabel+' under the Governance Core, in draft-only mode: may observe, advise, and write drafts to staging, and nothing goes live, publishes, or spends without the owner\'s approval per action.','','## Character','','**Goal.** '+d.goal,'','**Motivation.** '+d.motivation,'','**Strength.** '+d.strength,'','**Flaw.** '+d.flaw,'','**Arc.** '+d.arc,'','## Limits','','Draft-only, like every operator in the workforce. May observe, advise, and write drafts to staging. May not publish, spend, or change anything live. Analysis not yet proven reliable.'].join('\n')}
+function wfApprovalText(d){return['Approve worker '+d.name+' ('+d.workerId+').','','Environment: '+wfEnvLabelById(d.environment)+' ('+d.environment+'). Mode: draft-only.','','Please register this worker in the Governance Core registry and save its character file. Registry entry:','',wfRegistryText(d),'','Character file (governance-core/characters/'+wfCharFileName(d)+'):','',wfCharacterText(d)].join('\n')}
+function wfSubmitNewWorker(){
+const name=document.getElementById('nw-name').value.trim();
+const role=document.getElementById('nw-role').value.trim();
+const environment=document.getElementById('nw-env').value;
+const goal=document.getElementById('nw-goal').value.trim();
+const motivation=document.getElementById('nw-motivation').value.trim();
+const strength=document.getElementById('nw-strength').value.trim();
+const flaw=document.getElementById('nw-flaw').value.trim();
+const arc=document.getElementById('nw-arc').value.trim();
+const missing=[];
+if(!name)missing.push('name');
+if(!role)missing.push('role');
+if(!goal)missing.push('Goal');
+if(!motivation)missing.push('Motivation');
+if(!strength)missing.push('Strength');
+if(!flaw)missing.push('Flaw');
+if(!arc)missing.push('Arc');
+if(missing.length){alert('This worker is not fully defined yet — missing: '+missing.join(', ')+'.');return}
+const workerId=wfSlugId(name);
+if(workerId==='-operator'){alert('Pick a name with letters or numbers in it.');return}
+if(wfOperatorIds.includes(workerId)){alert('A registered worker already uses the ID "'+workerId+'". Pick a different name.');return}
+if(!Array.isArray(data.workerDrafts))data.workerDrafts=[];
+if(data.workerDrafts.some(x=>x.workerId===workerId)){alert('A draft worker already uses the ID "'+workerId+'". Pick a different name.');return}
+const draft={id:'nw-'+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36),workerId,name,role,environment,goal,motivation,strength,flaw,arc,createdAt:new Date().toISOString(),approvalCopiedAt:null};
+data.workerDrafts.unshift(draft);
+if(!persist())return;
+log('Draft worker created',name+' · '+workerId);
+['nw-name','nw-role','nw-goal','nw-motivation','nw-strength','nw-flaw','nw-arc'].forEach(id=>{document.getElementById(id).value=''});
+document.getElementById('wf-newworker-form').classList.add('hidden');
+renderWorkerDrafts();renderHome();
+}
+function renderWorkerDrafts(){
+const el=document.getElementById('wf-worker-drafts');
+if(!el)return;
+const drafts=data.workerDrafts||[];
+if(!drafts.length){el.innerHTML='<div class="empty">No draft workers yet. Define one above — it stays a draft until the owner approves it.</div>';return}
+el.innerHTML=drafts.map(d=>{
+const five=[['Goal',d.goal],['Motivation',d.motivation],['Strength',d.strength],['Flaw',d.flaw],['Arc',d.arc]].map(([k,v])=>'<div style="margin-bottom:9px"><strong>'+k+'.</strong> '+esc(v)+'</div>').join('');
+return '<div class="item"><div class="dot" style="background:var(--gold)"></div><div style="flex:1;min-width:0">'
++'<strong>'+esc(d.name)+' <span class="badge draft-badge">DRAFT — not registered</span></strong>'
++'<small>'+esc(d.role)+' · '+esc(wfEnvLabelById(d.environment))+' · '+esc(d.workerId)+' · defined '+esc(wfTime(d.createdAt))+'</small>'
++'<details class="inbox-details"><summary>Character — the five questions</summary><div style="margin-top:9px;font-size:12px;line-height:1.6;color:#dce5f9">'+five+'</div></details>'
++'<details class="inbox-details"><summary>Registry entry (JSON)</summary><pre class="output nw-code" style="margin-top:9px">'+esc(wfRegistryText(d))+'</pre><div class="row" style="margin-top:9px"><button class="btn secondary" style="padding:6px 9px" data-label="Copy registry entry" onclick="wfCopyWorkerText(\''+d.id+'\',\'registry\',this)">Copy registry entry</button></div></details>'
++'<details class="inbox-details"><summary>Character file ('+esc(wfCharFileName(d))+')</summary><pre class="output nw-code" style="margin-top:9px">'+esc(wfCharacterText(d))+'</pre><div class="row" style="margin-top:9px"><button class="btn secondary" style="padding:6px 9px" data-label="Copy character file" onclick="wfCopyWorkerText(\''+d.id+'\',\'character\',this)">Copy character file</button></div></details>'
++'<div class="row" style="margin-top:12px"><button class="btn" style="padding:8px 11px" data-label="Copy approval message" onclick="wfCopyWorkerText(\''+d.id+'\',\'approval\',this)">Copy approval message</button><button class="btn ghost" style="padding:8px 11px" onclick="wfDiscardWorkerDraft(\''+d.id+'\')">Discard draft</button></div>'
++'<small id="nw-approval-note-'+d.id+'">'+(d.approvalCopiedAt?'Approval message copied '+esc(wfTime(d.approvalCopiedAt))+' — paste it back to Xena to register this worker.':'Drafts become workers when the owner approves them.')+'</small>'
++'</div></div>';
+}).join('');
+}
+function wfCopyWorkerText(draftId,kind,btn){
+const d=(data.workerDrafts||[]).find(x=>x.id===draftId);
+if(!d)return;
+const text=kind==='registry'?wfRegistryText(d):kind==='character'?wfCharacterText(d):wfApprovalText(d);
+if(kind==='approval'){d.approvalCopiedAt=new Date().toISOString();persist();const note=document.getElementById('nw-approval-note-'+d.id);if(note)note.textContent='Approval message copied '+wfTime(d.approvalCopiedAt)+' — paste it back to Xena to register this worker.';log('Draft worker approval copied',d.name+' · '+d.workerId)}
+wfCopyMessage(text,btn);
+}
+function wfDiscardWorkerDraft(draftId){
+const d=(data.workerDrafts||[]).find(x=>x.id===draftId);
+if(!d)return;
+if(!confirm('Discard the draft worker "'+d.name+'"? This cannot be undone.'))return;
+data.workerDrafts=data.workerDrafts.filter(x=>x.id!==draftId);
+persist();log('Draft worker discarded',d.name+' · '+d.workerId);
+renderWorkerDrafts();renderHome();
+}
 function loadWorkforce(){fetch('./operator-dashboard/core-snapshot.json',{cache:'no-store'}).then(res=>{if(!res.ok)throw new Error('snapshot fetch failed: '+res.status);return res.json()}).then(snap=>{
 document.getElementById('wf-updated').textContent=wfTime(snap.generatedAt)+' · Core v'+snap.coreVersion;
+wfEnvironments=(snap.environments&&snap.environments.length)?snap.environments:NW_FALLBACK_ENVS;wfOperatorIds=(snap.operators||[]).map(o=>o.id);wfPopulateEnvSelect();renderWorkerDrafts();
 const notifs=snap.notifications||[];
 wfNotifications=notifs;
 const pend=notifs.filter(n=>n.status==='pending');
@@ -125,7 +220,7 @@ document.getElementById('wf-audit-note').textContent='Showing '+au.length+' of '
 }).catch(()=>wfFallback())}
 function clearActivity(){if(!confirm('Clear the local activity log? This does not delete projects, memories, or tasks.'))return;data.activity=[];persist();renderActivity();renderHomeActivity()}
 function exportData(){const blob=new Blob([JSON.stringify({schemaVersion:1,exportedAt:new Date().toISOString(),product:'GALINYX OS workspace',data},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='galinyx-os-workspace-export.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);log('Workspace backup exported','JSON backup created for safekeeping')}
-function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(String(reader.result||''));const incoming=parsed&&parsed.data;if(!incoming||!Array.isArray(incoming.projects)||!Array.isArray(incoming.memories)||!Array.isArray(incoming.tasks)||!Array.isArray(incoming.activity))throw new Error('This file is not a valid GALINYX OS workspace backup.');if(!confirm('Import this backup and replace the workspace data currently saved in this browser? Export your current data first if you want to keep it.'))return;data={projects:incoming.projects,memories:incoming.memories,tasks:incoming.tasks,activity:incoming.activity};if(!persist())return;renderHome();renderMemory();renderTasks();renderActivity();log('Workspace backup imported','Imported data from '+file.name);alert('Workspace backup imported.')}catch(error){alert(error instanceof Error?error.message:'Unable to import this file.')}finally{event.target.value=''}};reader.onerror=()=>{alert('The backup file could not be read.');event.target.value=''};reader.readAsText(file)}
+function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(String(reader.result||''));const incoming=parsed&&parsed.data;if(!incoming||!Array.isArray(incoming.projects)||!Array.isArray(incoming.memories)||!Array.isArray(incoming.tasks)||!Array.isArray(incoming.activity))throw new Error('This file is not a valid GALINYX OS workspace backup.');if(!confirm('Import this backup and replace the workspace data currently saved in this browser? Export your current data first if you want to keep it.'))return;data={projects:incoming.projects,memories:incoming.memories,tasks:incoming.tasks,activity:incoming.activity,workerDrafts:Array.isArray(incoming.workerDrafts)?incoming.workerDrafts:[]};if(!persist())return;renderHome();renderMemory();renderTasks();renderActivity();log('Workspace backup imported','Imported data from '+file.name);alert('Workspace backup imported.')}catch(error){alert(error instanceof Error?error.message:'Unable to import this file.')}finally{event.target.value=''}};reader.onerror=()=>{alert('The backup file could not be read.');event.target.value=''};reader.readAsText(file)}
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register(new URL('./sw.js',document.baseURI)).catch(()=>{}))}
 renderHome();renderMemory();renderTasks();renderActivity();
 </script></body></html>

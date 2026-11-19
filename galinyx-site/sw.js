@@ -1,4 +1,4 @@
-const CACHE_NAME = "galinyx-os-shell-v3";
+const CACHE_NAME = "galinyx-os-shell-v4";
 const SHELL_FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
 
 self.addEventListener("install", (event) => {
