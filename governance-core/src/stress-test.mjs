@@ -18,10 +18,23 @@
  * notification logs, with the notification system registered as the
  * Core's sink so authorize() denials reach the inbox.
  *
+ * Section L tests signed operator authentication (./auth.mjs) the same
+ * way: fresh core instances, a fresh temp auth key store, and fresh
+ * nonces, so the shipped operator-keys store is never touched.
+ *
+ * Section M tests the v1.5.0 hierarchy-gap closures: operator
+ * registration (registerOperator), the hash-chained audit log
+ * (./audit-chain.mjs), shared state (./state-store.mjs, syncState),
+ * the owner-key ceremony (./owner-key.mjs, test keys only, temp
+ * store), the seq allocator, and the authorize() denial reason.
+ *
  * Checks use fresh module instances (cache-busted imports) so each group
  * starts from a clean registry and audit log. Temp files go under an mkdtemp
  * directory and are removed at the end. Nothing in this test writes to the
- * working copy: every instance gets its own temp audit file.
+ * working copy: every instance gets its own temp audit file AND its own
+ * temp copy of the registry (v1.5.0: approveModeChange() and
+ * registerOperator() persist to the registry file, so a shared live
+ * registry would be written by the tests).
  *
  * Exit code: 1 if any check FAILED, else 0.
  */
@@ -31,12 +44,30 @@ import os from 'node:os';
 import path from 'node:path';
 import { createInteractionLayer } from './interactions.mjs';
 import { createNotificationSystem } from './notifications.mjs';
+import * as auditChain from './audit-chain.mjs';
+import { createStateStore } from './state-store.mjs';
 
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'galinyx-stress-'));
+
+// Auth stores for Section L: the auth module resolves its files from
+// these env vars at import time, so set them before any core instance is
+// imported. Tests that need a clean auth store call resetAuth() (Section
+// L), which FAILS LOUDLY if the clear is refused — a wrong env-var name
+// once sent test keys into the live store, and the suite must never
+// silently do that again. The shipped operator-keys store is never touched.
+process.env.GALINYX_AUTH_KEYS_FILE = path.join(TMP, 'operator-keys.json');
+process.env.GALINYX_AUTH_NONCES_FILE = path.join(TMP, 'auth-nonces.jsonl');
+process.env.GALINYX_AUTH_KEYS_DIR = path.join(TMP, '.keys-local');
+
 const MODULE_URL = new URL('./index.mjs', import.meta.url).href;
+const AUTH_MODULE_URL = new URL('./auth.mjs', import.meta.url).href;
 const SRC_TEXT = fs.readFileSync(new URL('./index.mjs', import.meta.url), 'utf8');
+const AUTH_TEXT = fs.readFileSync(new URL('./auth.mjs', import.meta.url), 'utf8');
 const INTERACTIONS_TEXT = fs.readFileSync(new URL('./interactions.mjs', import.meta.url), 'utf8');
 const NOTIFICATIONS_TEXT = fs.readFileSync(new URL('./notifications.mjs', import.meta.url), 'utf8');
+const AUDIT_CHAIN_TEXT = fs.readFileSync(new URL('./audit-chain.mjs', import.meta.url), 'utf8');
+const STATE_STORE_TEXT = fs.readFileSync(new URL('./state-store.mjs', import.meta.url), 'utf8');
+const OWNER_KEY_TEXT = fs.readFileSync(new URL('./owner-key.mjs', import.meta.url), 'utf8');
 const VERSION = (SRC_TEXT.match(/CORE_VERSION\s*=\s*['"]([^'"]+)['"]/) || [])[1] || 'unversioned (original build)';
 
 console.log('GALINYX Governance Core — adversarial stress test');
@@ -82,7 +113,16 @@ async function fresh(tag, opts = {}) {
   process.env.GALINYX_AUDIT_FILE =
     opts.auditFile || path.join(TMP, `audit-${tag}-${instanceCounter}.jsonl`);
   if (opts.operatorsFile) process.env.GALINYX_OPERATORS_FILE = opts.operatorsFile;
-  else delete process.env.GALINYX_OPERATORS_FILE;
+  else {
+    // v1.5.0: approveModeChange() and registerOperator() now PERSIST to
+    // the registry file. Every instance gets its own temp copy of the
+    // shipped registry, so no check can ever write to the live
+    // operators.json. The copy is byte-identical, so behavior matches
+    // the shipped registry exactly.
+    const copy = path.join(TMP, `operators-${tag}-${instanceCounter}.json`);
+    fs.copyFileSync(new URL('./operators.json', import.meta.url), copy);
+    process.env.GALINYX_OPERATORS_FILE = copy;
+  }
   if (opts.ownerId) process.env.GALINYX_OWNER_ID = opts.ownerId;
   else delete process.env.GALINYX_OWNER_ID;
   if (opts.ttlMs !== undefined) process.env.GALINYX_MODE_CHANGE_TTL_MS = String(opts.ttlMs);
@@ -837,12 +877,10 @@ console.log('\n== F. Scale ==');
 
 {
   const m = await fresh('f3');
-  await check('F3 there is no public API to register an operator', () => {
-    const hasApi = typeof m.registerOperator === 'function';
-    return finding(
-      hasApi
-        ? 'registerOperator() exists'
-        : 'no registerOperator() — operators are added by editing the registry and restarting (original code: by editing source or mutating the export)',
+  await check('F3 registerOperator() exists — registration goes through the Core (v1.5.0)', () => {
+    return ok(
+      typeof m.registerOperator === 'function',
+      'registration requires owner approval, writes the registry, is audit-logged, and defaults to draft-only (see Section M)',
     );
   });
 }
@@ -1036,15 +1074,25 @@ console.log('\n== H. Concurrency & multi-instance ==');
 }
 
 {
-  const m1 = await fresh('h2a');
-  const m2 = await fresh('h2b');
-  await check('H2 two live instances diverge (state is per-process)', () => {
+  // v1.5.0: both instances share ONE registry file here, so the mode
+  // change in A persists where B can sync from. (fresh() normally gives
+  // each instance its own temp copy, so a shared file must be explicit.)
+  const sharedRegistry = path.join(TMP, 'operators-h2-shared.json');
+  fs.copyFileSync(new URL('./operators.json', import.meta.url), sharedRegistry);
+  const m1 = await fresh('h2a', { operatorsFile: sharedRegistry });
+  const m2 = await fresh('h2b', { operatorsFile: sharedRegistry });
+  await check('H2 two live instances diverge until syncState() — shared state is explicit, not automatic (v1.5.0)', () => {
     const req = m1.requestModeChange('blackpine-operator', 'not-deployed', 'a');
     m1.approveModeChange('blackpine-operator', req.request.id, 'owner');
     const mode1 = m1.getOperator('blackpine-operator').mode;
-    const mode2 = m2.getOperator('blackpine-operator').mode;
-    return finding(
-      `instance A mode: ${mode1}; instance B mode: ${mode2} — each process holds its own registry state; there is no shared state or sync`,
+    const before = m2.getOperator('blackpine-operator').mode;
+    // The approval persisted to the registry FILE, but B still holds
+    // its own copy until it syncs. After syncState(), B converges.
+    const sync = m2.syncState();
+    const after = m2.getOperator('blackpine-operator').mode;
+    return ok(
+      mode1 === 'not-deployed' && before === 'draft-only' && sync.synced === true && after === 'not-deployed',
+      `A: ${mode1}; B before sync: ${before}; after syncState(): ${after} (changes: ${sync.changes})`,
     );
   });
 }
@@ -1068,9 +1116,14 @@ console.log('\n== H. Concurrency & multi-instance ==');
 console.log('\n== I. Longevity (static checks) ==');
 
 {
-  await check('I1 zero third-party dependencies (only node: built-ins)', () => {
-    const imports = [...SRC_TEXT.matchAll(/^import\s+.*?\s+from\s+['"]([^'"]+)['"]/gm)].map((x) => x[1]);
-    const thirdParty = imports.filter((i) => !i.startsWith('node:'));
+  // v1.4.0: index.mjs imports ./auth.mjs, a first-party sibling module.
+  // The rule is still "no third-party dependencies": node: built-ins
+  // and relative first-party imports are allowed; bare specifiers are not.
+  await check('I1 zero third-party dependencies (only node: built-ins + first-party relative imports)', () => {
+    const imports = [...SRC_TEXT.matchAll(/^import\s+[\s\S]*?\s+from\s+['"]([^'"]+)['"]/gm)].map((x) => x[1]);
+    const thirdParty = imports.filter(
+      (i) => !i.startsWith('node:') && !i.startsWith('./') && !i.startsWith('../'),
+    );
     return ok(thirdParty.length === 0, `imports: ${imports.join(', ') || '(none)'}`);
   });
 }
@@ -1348,7 +1401,7 @@ console.log('\n== J. Operator interaction layer ==');
 
 {
   await check('J14 interactions module: zero third-party deps, no eval/fetch/network', () => {
-    const imports = [...INTERACTIONS_TEXT.matchAll(/^import\s+.*?\s+from\s+['"]([^'"]+)['"]/gm)].map((x) => x[1]);
+    const imports = [...INTERACTIONS_TEXT.matchAll(/^import\s+[\s\S]*?\s+from\s+['"]([^'"]+)['"]/gm)].map((x) => x[1]);
     const thirdParty = imports.filter((i) => !i.startsWith('node:'));
     const bad = ['eval(', 'new Function', 'fetch(', 'http.request', 'XMLHttpRequest'].filter((s) =>
       INTERACTIONS_TEXT.includes(s),
@@ -1594,7 +1647,7 @@ console.log('\n== K. Owner alert & notification system ==');
 
 {
   await check('K12 notifications module: zero third-party deps, no eval/fetch/network', () => {
-    const imports = [...NOTIFICATIONS_TEXT.matchAll(/^import\s+.*?\s+from\s+['"]([^'"]+)['"]/gm)].map((x) => x[1]);
+    const imports = [...NOTIFICATIONS_TEXT.matchAll(/^import\s+[\s\S]*?\s+from\s+['"]([^'"]+)['"]/gm)].map((x) => x[1]);
     const thirdParty = imports.filter((i) => !i.startsWith('node:'));
     const bad = ['eval(', 'new Function', 'fetch(', 'http.request', 'XMLHttpRequest'].filter((s) =>
       NOTIFICATIONS_TEXT.includes(s),
@@ -1607,10 +1660,829 @@ console.log('\n== K. Owner alert & notification system ==');
 }
 
 {
-  await check('K13 owner identity is a claim until signed auth; a decision grants nothing', () => {
+  await check('K13 owner identity is a claim until an owner key is registered; a decision grants nothing', () => {
     return finding(
-      'decide() trusts the configured owner identity (GALINYX_OWNER_ID, default \'owner\'), the same guardrail as approveModeChange — a claim, not a credential, until signed owner approvals land in v1 Phase 4; approving a notification records a YES but grants no permission — execution still needs a mode change or the owner/Xena acting',
+      'decide() trusts the configured owner identity (GALINYX_OWNER_ID, default \'owner\') until an owner key is registered — a claim, not a credential. v1.4.0 (Section L) adds signed owner approvals: once a key is registered, decide() and approveModeChange() require a valid owner signature. v1.5.0 adds the owner-key ceremony tooling (src/owner-key.mjs, tools/owner-key.mjs) — but no owner key is registered yet; generating one is Matt\'s step, in person. Approving a notification records a YES but grants no permission — execution still needs a mode change or the owner/Xena acting',
     );
+  });
+}
+
+// ---------------------------------------------------------------------------
+// L. Signed operator authentication (auth.mjs)
+// ---------------------------------------------------------------------------
+console.log('\n== L. Signed operator authentication ==');
+
+// The auth module is imported cache-busted so each group gets a fresh
+// instance; every instance reads the same temp key store (set at the top
+// of this file), and verifyProof() re-reads the store on every call, so
+// keys registered here are visible to fresh Core instances — the same
+// way a production deployment shares one key store.
+let authInstanceCounter = 0;
+async function freshAuth(tag) {
+  authInstanceCounter++;
+  const url = `${AUTH_MODULE_URL}?instance=${tag}-${authInstanceCounter}-${Date.now()}`;
+  return import(url);
+}
+
+// Wipe the temp auth store between groups. FAILS LOUDLY if the clear is
+// refused (e.g. the store paths point at the live store): a silent
+// refusal once let test keys leak into the live operator-keys.json and
+// left a test owner key registered, which would have locked the owner
+// out of approvals. Never again.
+async function resetAuth(auth) {
+  const r = await auth.clearAuthStoreForTests();
+  if (!r.cleared) throw new Error(`auth store reset refused: ${r.reason}`);
+}
+
+// Issue + register a key for one operator subject; returns the keypair
+// (public + private key, both in memory only — never written to disk by
+// this suite except inside the temp key store's public-key records).
+async function makeOperatorKey(auth, subject) {
+  const g = auth.generateKeyPair(subject, `stress test ${subject}`);
+  if (!g.ok) throw new Error(`keygen failed for ${subject}: ${g.reason}`);
+  const r = auth.registerPublicKey({
+    keyId: g.keyId,
+    subject,
+    subjectType: 'operator',
+    publicKey: g.publicKey,
+  });
+  if (!r.registered) throw new Error(`register failed for ${subject}: ${r.reason}`);
+  return g;
+}
+
+async function makeOwnerKey(auth) {
+  const g = auth.generateKeyPair('owner', 'stress test owner');
+  if (!g.ok) throw new Error(`owner keygen failed: ${g.reason}`);
+  const r = auth.registerPublicKey({
+    keyId: g.keyId,
+    subject: 'owner',
+    subjectType: 'owner',
+    publicKey: g.publicKey,
+  });
+  if (!r.registered) throw new Error(`owner register failed: ${r.reason}`);
+  return g;
+}
+
+function mustProof(auth, args) {
+  const p = auth.createProof(args);
+  if (!p.ok) throw new Error(`proof failed: ${p.reason}`);
+  return p.proof;
+}
+
+{
+  const auth = await freshAuth('l1');
+  await resetAuth(auth);
+  const key = await makeOperatorKey(auth, 'tailor-operator');
+  const m = await fresh('l1');
+  await check('L1 valid operator proof authenticates authorize()', () => {
+    const proof = mustProof(auth, {
+      subject: 'tailor-operator',
+      action: 'write',
+      privateKey: key.privateKey,
+      keyId: key.keyId,
+    });
+    const r = m.authorize('tailor-operator', 'blackpine-field', 'write', proof);
+    return ok(
+      r.allowed === true && r.authenticated === true && r.authKeyId === key.keyId,
+      `allowed + authenticated with ${key.keyId}`,
+    );
+  });
+}
+
+{
+  const auth = await freshAuth('l2');
+  await resetAuth(auth);
+  const key = await makeOperatorKey(auth, 'tailor-operator');
+  const m = await fresh('l2');
+  await check('L2 forged signature is rejected and denies the action', () => {
+    const proof = mustProof(auth, {
+      subject: 'tailor-operator',
+      action: 'write',
+      privateKey: key.privateKey,
+      keyId: key.keyId,
+    });
+    // Same shape, wrong signature: flip bytes in the signature.
+    const sig = Buffer.from(proof.signature, 'base64');
+    sig[0] ^= 0xff;
+    const forged = { ...proof, signature: sig.toString('base64') };
+    const r = m.authorize('tailor-operator', 'blackpine-field', 'write', forged);
+    return ok(r.allowed === false && r.authenticated === false, r.reason);
+  });
+}
+
+{
+  const auth = await freshAuth('l3');
+  await resetAuth(auth);
+  await makeOperatorKey(auth, 'tailor-operator');
+  const blackpine = await makeOperatorKey(auth, 'blackpine-operator');
+  const m = await fresh('l3');
+  await check("L3 another operator's key cannot prove this operator's identity", () => {
+    // Blackpine signs a proof that claims to be the Tailor.
+    const proof = mustProof(auth, {
+      subject: 'tailor-operator',
+      action: 'write',
+      privateKey: blackpine.privateKey,
+      keyId: blackpine.keyId,
+    });
+    const r = m.authorize('tailor-operator', 'blackpine-field', 'write', proof);
+    return ok(r.allowed === false && r.authenticated === false, r.reason);
+  });
+}
+
+{
+  const auth = await freshAuth('l4');
+  await resetAuth(auth);
+  const key = await makeOperatorKey(auth, 'tailor-operator');
+  const m = await fresh('l4');
+  await check('L4 expired and far-future timestamps are rejected', () => {
+    const old = mustProof(auth, {
+      subject: 'tailor-operator',
+      action: 'write',
+      privateKey: key.privateKey,
+      keyId: key.keyId,
+      timestamp: new Date(Date.now() - 6 * 60 * 1000).toISOString(),
+    });
+    const future = mustProof(auth, {
+      subject: 'tailor-operator',
+      action: 'write',
+      privateKey: key.privateKey,
+      keyId: key.keyId,
+      timestamp: new Date(Date.now() + 6 * 60 * 1000).toISOString(),
+    });
+    const r1 = m.authorize('tailor-operator', 'blackpine-field', 'write', old);
+    const r2 = m.authorize('tailor-operator', 'blackpine-field', 'write', future);
+    return ok(
+      r1.allowed === false && r1.authenticated === false && r2.allowed === false && r2.authenticated === false,
+      '6 minutes old and 6 minutes ahead both denied',
+    );
+  });
+}
+
+{
+  const auth = await freshAuth('l5');
+  await resetAuth(auth);
+  const key = await makeOperatorKey(auth, 'tailor-operator');
+  const m = await fresh('l5');
+  await check('L5 replayed proof is rejected (first use works, second does not)', () => {
+    const proof = mustProof(auth, {
+      subject: 'tailor-operator',
+      action: 'write',
+      privateKey: key.privateKey,
+      keyId: key.keyId,
+    });
+    const r1 = m.authorize('tailor-operator', 'blackpine-field', 'write', proof);
+    const r2 = m.authorize('tailor-operator', 'blackpine-field', 'write', proof);
+    return ok(
+      r1.allowed === true && r1.authenticated === true && r2.allowed === false && r2.authenticated === false,
+      'same proof twice: first allowed, replay denied',
+    );
+  });
+}
+
+{
+  const auth = await freshAuth('l6');
+  await resetAuth(auth);
+  const key = await makeOperatorKey(auth, 'tailor-operator');
+  const m = await fresh('l6');
+  await check('L6 revoked key verifies as invalid', () => {
+    const before = mustProof(auth, {
+      subject: 'tailor-operator',
+      action: 'write',
+      privateKey: key.privateKey,
+      keyId: key.keyId,
+    });
+    const r1 = m.authorize('tailor-operator', 'blackpine-field', 'write', before);
+    const revoked = auth.revokeKey(key.keyId, 'stress test: key compromised');
+    // A FRESH proof with the revoked key must still fail — revocation is
+    // checked at verify time, not only against old proofs.
+    const after = mustProof(auth, {
+      subject: 'tailor-operator',
+      action: 'write',
+      privateKey: key.privateKey,
+      keyId: key.keyId,
+    });
+    const r2 = m.authorize('tailor-operator', 'blackpine-field', 'write', after);
+    return ok(
+      r1.allowed === true && revoked.revoked === true && r2.allowed === false && r2.authenticated === false,
+      'worked before revocation, denied after',
+    );
+  });
+}
+
+{
+  const auth = await freshAuth('l7');
+  await resetAuth(auth);
+  const oldKey = await makeOperatorKey(auth, 'tailor-operator');
+  const m = await fresh('l7');
+  await check('L7 rotation: old key stops working, new key works', () => {
+    const replacement = auth.generateKeyPair('tailor-operator', 'stress test rotation');
+    if (!replacement.ok) throw new Error(`rotation keygen failed: ${replacement.reason}`);
+    const rotated = auth.rotateKey('tailor-operator', replacement.publicKey);
+    const oldProof = mustProof(auth, {
+      subject: 'tailor-operator',
+      action: 'write',
+      privateKey: oldKey.privateKey,
+      keyId: oldKey.keyId,
+    });
+    const newProof = mustProof(auth, {
+      subject: 'tailor-operator',
+      action: 'write',
+      privateKey: replacement.privateKey,
+      keyId: rotated.newKeyId,
+    });
+    const rOld = m.authorize('tailor-operator', 'blackpine-field', 'write', oldProof);
+    const rNew = m.authorize('tailor-operator', 'blackpine-field', 'write', newProof);
+    return ok(
+      rotated.rotated === true &&
+        rOld.allowed === false &&
+        rOld.authenticated === false &&
+        rNew.allowed === true &&
+        rNew.authenticated === true &&
+        rNew.authKeyId === rotated.newKeyId,
+      'old key denied, replacement key authenticated',
+    );
+  });
+}
+
+{
+  const auth = await freshAuth('l8');
+  await resetAuth(auth);
+  const owner = await makeOwnerKey(auth);
+  const m = await fresh('l8');
+  await check('L8 owner approval requires a valid owner signature once an owner key is registered', () => {
+    const req = m.requestModeChange('tailor-operator', 'read-only-advisory', 'stress test');
+    if (!req.recorded) throw new Error(`request failed: ${req.reason}`);
+    // No proof at all: refused, and the request stays pending.
+    const noProof = m.approveModeChange('tailor-operator', req.request.id, 'owner', true);
+    // A proof bound to a DIFFERENT request: refused, request still pending.
+    const wrongProof = mustProof(auth, {
+      subject: 'owner',
+      action: 'mode-change',
+      context: 'mode-change-someone-elses-request',
+      privateKey: owner.privateKey,
+      keyId: owner.keyId,
+    });
+    const wrong = m.approveModeChange('tailor-operator', req.request.id, 'owner', true, wrongProof);
+    // The correctly-bound proof: applied, and the audit records it signed.
+    const goodProof = mustProof(auth, {
+      subject: 'owner',
+      action: 'mode-change',
+      context: req.request.id,
+      privateKey: owner.privateKey,
+      keyId: owner.keyId,
+    });
+    const good = m.approveModeChange('tailor-operator', req.request.id, 'owner', true, goodProof);
+    const entry = m.getAuditLog().find((e) => e.type === 'mode-change-approved');
+    return ok(
+      noProof.applied === false &&
+        wrong.applied === false &&
+        good.applied === true &&
+        m.getOperator('tailor-operator').mode === 'read-only-advisory' &&
+        entry &&
+        entry.authenticated === true &&
+        entry.authKeyId === owner.keyId,
+      'unsigned and mis-bound approvals refused; signed approval applied and audit-flagged',
+    );
+  });
+}
+
+{
+  const auth = await freshAuth('l9');
+  await resetAuth(auth);
+  const m = await fresh('l9');
+  await check('L9 with no owner key registered, the claim path still works (and is flagged unauthenticated)', () => {
+    const req = m.requestModeChange('tailor-operator', 'read-only-advisory', 'stress test');
+    if (!req.recorded) throw new Error(`request failed: ${req.reason}`);
+    const ap = m.approveModeChange('tailor-operator', req.request.id, 'owner', true);
+    const entry = m.getAuditLog().find((e) => e.type === 'mode-change-approved');
+    return ok(
+      ap.applied === true &&
+        m.getOperator('tailor-operator').mode === 'read-only-advisory' &&
+        entry &&
+        entry.authenticated === false,
+      'claim approval applied; audit entry flags authenticated: false',
+    );
+  });
+}
+
+{
+  const auth = await freshAuth('l10');
+  await resetAuth(auth);
+  const key = await makeOperatorKey(auth, 'tailor-operator');
+  const m = await fresh('l10');
+  await check('L10 a proof is bound to its action: a read-proof cannot authorize write', () => {
+    const proof = mustProof(auth, {
+      subject: 'tailor-operator',
+      action: 'read',
+      privateKey: key.privateKey,
+      keyId: key.keyId,
+    });
+    const r = m.authorize('tailor-operator', 'blackpine-field', 'write', proof);
+    return ok(r.allowed === false && r.authenticated === false, r.reason);
+  });
+}
+
+{
+  const auth = await freshAuth('l11');
+  await resetAuth(auth);
+  const owner = await makeOwnerKey(auth);
+  const m = await fresh('l11');
+  await check('L11 an owner proof for one request cannot approve a different request', () => {
+    const reqA = m.requestModeChange('tailor-operator', 'read-only-advisory', 'stress test');
+    const reqB = m.requestModeChange('blackpine-operator', 'read-only-advisory', 'stress test');
+    if (!reqA.recorded || !reqB.recorded) throw new Error('requests failed');
+    const proofForA = mustProof(auth, {
+      subject: 'owner',
+      action: 'mode-change',
+      context: reqA.request.id,
+      privateKey: owner.privateKey,
+      keyId: owner.keyId,
+    });
+    // Present A's proof against B's request: refused.
+    const wrong = m.approveModeChange('blackpine-operator', reqB.request.id, 'owner', true, proofForA);
+    // B's own proof still works afterwards — the refused attempt left B pending.
+    const proofForB = mustProof(auth, {
+      subject: 'owner',
+      action: 'mode-change',
+      context: reqB.request.id,
+      privateKey: owner.privateKey,
+      keyId: owner.keyId,
+    });
+    const good = m.approveModeChange('blackpine-operator', reqB.request.id, 'owner', true, proofForB);
+    return ok(
+      wrong.applied === false &&
+        good.applied === true &&
+        m.getOperator('blackpine-operator').mode === 'read-only-advisory' &&
+        m.getOperator('tailor-operator').mode === 'draft-only',
+      "A's proof refused for B; B's own proof applied; A untouched",
+    );
+  });
+}
+
+{
+  const auth = await freshAuth('l12');
+  await resetAuth(auth);
+  const owner = await makeOwnerKey(auth);
+  const m = await fresh('l12');
+  const { system } = freshNotificationSystem('l12', m);
+  await check('L12 notification decide() requires a signed owner approval once an owner key is registered', () => {
+    m.authorize('tailor-operator', 'blackpine-field', 'publish');
+    const pending = system.listPending();
+    if (pending.length !== 1) throw new Error(`expected 1 pending notification, got ${pending.length}`);
+    const id = pending[0].id;
+    // No proof: refused, notification stays pending.
+    const noProof = system.decide(id, 'owner', true, 'go ahead');
+    // A proof bound to a different notification: refused.
+    const wrongProof = mustProof(auth, {
+      subject: 'owner',
+      action: 'notification-decision',
+      context: 'notif-someone-elses',
+      privateKey: owner.privateKey,
+      keyId: owner.keyId,
+    });
+    const wrong = system.decide(id, 'owner', true, 'go ahead', wrongProof);
+    // The correctly-bound proof: decided, flagged authenticated.
+    const goodProof = mustProof(auth, {
+      subject: 'owner',
+      action: 'notification-decision',
+      context: id,
+      privateKey: owner.privateKey,
+      keyId: owner.keyId,
+    });
+    const good = system.decide(id, 'owner', true, 'go ahead', goodProof);
+    return ok(
+      noProof.decided === false &&
+        wrong.decided === false &&
+        good.decided === true &&
+        good.authenticated === true &&
+        good.authKeyId === owner.keyId &&
+        system.listPending().length === 0,
+      'unsigned and mis-bound decisions refused; signed decision applied',
+    );
+  });
+}
+
+{
+  await check('L13 auth module: zero third-party deps, no eval/fetch/network', () => {
+    const imports = [...AUTH_TEXT.matchAll(/^import\s+[\s\S]*?\s+from\s+['"]([^'"]+)['"]/gm)].map((x) => x[1]);
+    const thirdParty = imports.filter(
+      (i) => !i.startsWith('node:') && !i.startsWith('./') && !i.startsWith('../'),
+    );
+    const bad = ['eval(', 'new Function', 'fetch(', 'http.request', 'XMLHttpRequest'].filter((s) =>
+      AUTH_TEXT.includes(s),
+    );
+    return ok(
+      thirdParty.length === 0 && bad.length === 0,
+      `imports: ${imports.join(', ') || '(none)'}; clean`,
+    );
+  });
+}
+
+{
+  const auth = await freshAuth('l14');
+  await resetAuth(auth);
+  const key = await makeOperatorKey(auth, 'tailor-operator');
+  const m = await fresh('l14');
+  await check('L14 authentication is NOT permission: a valid signature still cannot publish', () => {
+    const proof = mustProof(auth, {
+      subject: 'tailor-operator',
+      action: 'publish',
+      privateKey: key.privateKey,
+      keyId: key.keyId,
+    });
+    const r = m.authorize('tailor-operator', 'blackpine-field', 'publish', proof);
+    return ok(
+      r.allowed === false && r.authenticated === true,
+      'identity proven, action still denied by draft-only mode',
+    );
+  });
+}
+
+// ---------------------------------------------------------------------------
+// M. Hierarchy gaps closed (v1.5.0): operator registration, hash-chained
+// audit log, shared state, owner-key ceremony, seq allocator.
+// ---------------------------------------------------------------------------
+console.log('\n== M. Hierarchy gaps closed (v1.5.0) ==');
+
+// The M checks need a registry that includes a draft-only mode (the
+// default buildRegistry() does not). One shared builder for all M
+// registry files.
+function buildRegistryWithDraftOnly() {
+  return buildRegistry({
+    modes: {
+      'read-only-advisory': {
+        label: 'RO',
+        description: 'Observe and advise only.',
+        permissions: { read: true, advise: true, write: false, publish: false, spend: false },
+      },
+      'draft-only': {
+        label: 'Draft-Only',
+        description: 'Drafts freely; publishes and spends nothing.',
+        permissions: { read: true, advise: true, write: true, publish: false, spend: false },
+      },
+      'not-deployed': {
+        label: 'ND',
+        description: 'No access at all.',
+        permissions: { read: false, advise: false, write: false, publish: false, spend: false },
+      },
+    },
+  });
+}
+
+{
+  const regFile = writeRegistry('operators-m1.json', buildRegistryWithDraftOnly());
+  const m = await fresh('m1', { operatorsFile: regFile });
+  await check('M1 registerOperator() registers a draft-only operator through the Core', () => {
+    const r = m.registerOperator(
+      { id: 'test-operator', name: 'Test Operator', environment: 'blackpine-field' },
+      'owner',
+    );
+    const onDisk = JSON.parse(fs.readFileSync(regFile, 'utf8'));
+    const inFile = onDisk.operators.find((o) => o.id === 'test-operator');
+    const entry = m.getAuditLog().find((e) => e.type === 'operator-registration');
+    return ok(
+      r.registered === true &&
+        r.operator.mode === 'draft-only' &&
+        m.getOperator('test-operator') !== null &&
+        m.getOperator('test-operator').mode === 'draft-only' &&
+        inFile !== undefined &&
+        inFile.mode === 'draft-only' &&
+        entry !== undefined &&
+        entry.allowed === true,
+      'registered in memory + file, draft-only, audit-logged',
+    );
+  });
+}
+
+{
+  const regFile = writeRegistry('operators-m2.json', buildRegistryWithDraftOnly());
+  const m = await fresh('m2', { operatorsFile: regFile });
+  await check('M2 registerOperator() refuses a non-owner approver', () => {
+    const r = m.registerOperator(
+      { id: 'intruder-operator', name: 'Intruder', environment: 'blackpine-field' },
+      'someone-else',
+    );
+    const onDisk = JSON.parse(fs.readFileSync(regFile, 'utf8'));
+    return ok(
+      r.registered === false &&
+        m.getOperator('intruder-operator') === null &&
+        !onDisk.operators.some((o) => o.id === 'intruder-operator'),
+      r.reason,
+    );
+  });
+}
+
+{
+  const regFile = writeRegistry('operators-m3.json', buildRegistryWithDraftOnly());
+  const m = await fresh('m3', { operatorsFile: regFile });
+  await check('M3 registerOperator() validates: duplicate, unknown environment, bad id, empty name', () => {
+    const dup = m.registerOperator(
+      { id: 'blackpine-operator', name: 'Copy', environment: 'blackpine-field' },
+      'owner',
+    );
+    const badEnv = m.registerOperator(
+      { id: 'new-op', name: 'New', environment: 'no-such-place' },
+      'owner',
+    );
+    const badId = m.registerOperator(
+      { id: '__proto__', name: 'Bad', environment: 'blackpine-field' },
+      'owner',
+    );
+    const badName = m.registerOperator(
+      { id: 'new-op-2', name: '  ', environment: 'blackpine-field' },
+      'owner',
+    );
+    return ok(
+      dup.registered === false &&
+        badEnv.registered === false &&
+        badId.registered === false &&
+        badName.registered === false &&
+        m.getOperator('new-op') === null &&
+        m.getOperator('new-op-2') === null,
+      'all four refused',
+    );
+  });
+}
+
+{
+  const auditFile = path.join(TMP, 'audit-m4.jsonl');
+  const m = await fresh('m4', { auditFile });
+  await check('M4 hash chain: a fresh log verifies; a tampered entry is detected', () => {
+    m.authorize('blackpine-operator', 'blackpine-field', 'read');
+    m.authorize('blackpine-operator', 'blackpine-field', 'publish');
+    const before = auditChain.verifyAuditFile(auditFile);
+    // Tamper: rewrite the first entry's reason.
+    const lines = fs.readFileSync(auditFile, 'utf8').split('\n');
+    const e0 = JSON.parse(lines[0]);
+    e0.reason = 'TAMPERED';
+    lines[0] = JSON.stringify(e0);
+    fs.writeFileSync(auditFile, lines.join('\n'));
+    const after = auditChain.verifyAuditFile(auditFile);
+    return ok(
+      before.ok === true &&
+        before.chained === 2 &&
+        after.ok === false &&
+        after.errors.length > 0,
+      `clean log verified (${before.chained} chained); tampered log failed: ${after.errors[0] || ''}`,
+    );
+  });
+}
+
+{
+  const auditFile = path.join(TMP, 'audit-m5.jsonl');
+  // Simulate the pre-chain log: two legacy lines (no chain fields),
+  // one shaped like the owner entries (a `ts` field, no `timestamp`).
+  const legacy = [
+    JSON.stringify({
+      type: 'owner-direction',
+      ts: '2026-11-19T13:25:44.000Z',
+      operator: 'tailor-operator',
+      action: 'record-direction',
+      decision: 'RECORDED',
+      detail: 'legacy',
+      seq: 52,
+      coreVersion: '1.4.0',
+    }),
+    JSON.stringify({
+      type: 'authorization',
+      timestamp: '2026-11-19T13:44:02.000Z',
+      operatorId: 'tailor-operator',
+      environment: 'blackpine-field',
+      action: 'read',
+      allowed: true,
+      reason: 'legacy',
+      seq: 53,
+      coreVersion: '1.4.0',
+    }),
+  ];
+  fs.writeFileSync(auditFile, `${legacy.join('\n')}\n`);
+  const genesisPath = path.join(TMP, 'audit-m5-genesis.json');
+  const g = auditChain.createGenesis(auditFile);
+  auditChain.writeGenesis(g.genesis, genesisPath);
+  const m = await fresh('m5', { auditFile });
+  await check('M5 genesis: legacy pre-chain lines verify, and new entries chain from the tail', () => {
+    m.authorize('blackpine-operator', 'blackpine-field', 'read'); // line 3, seq 54
+    // External append (another writer, no chain fields) — like Xena's entries.
+    fs.appendFileSync(
+      auditFile,
+      `${JSON.stringify({
+        type: 'owner-note',
+        ts: new Date().toISOString(),
+        operator: 'tailor-operator',
+        action: 'record-note',
+        decision: 'RECORDED',
+        detail: 'external',
+        seq: 55,
+        coreVersion: '1.5.0',
+      })}\n`,
+    );
+    m.authorize('blackpine-operator', 'blackpine-field', 'write'); // line 5, seq 56
+    const report = auditChain.verifyAuditFile(auditFile, genesisPath);
+    const last = m.getAuditLog().at(-1);
+    return ok(
+      report.ok === true &&
+        report.genesis.ok === true &&
+        report.chained === 2 &&
+        report.unchained.length === 1 &&
+        report.unchained[0] === 4 &&
+        last.seq === 56,
+      `genesis OK, ${report.chained} chained, ${report.unchained.length} unchained (line ${report.unchained[0]}), last seq ${last.seq}`,
+    );
+  });
+}
+
+{
+  const sharedRegistry = path.join(TMP, 'operators-m6-shared.json');
+  fs.copyFileSync(new URL('./operators.json', import.meta.url), sharedRegistry);
+  const m1 = await fresh('m6a', { operatorsFile: sharedRegistry });
+  const m2 = await fresh('m6b', { operatorsFile: sharedRegistry });
+  await check('M6 shared state: a mode change in one instance is visible to another after syncState()', () => {
+    const req = m1.requestModeChange('blackpine-operator', 'not-deployed', 'm6');
+    const ap = m1.approveModeChange('blackpine-operator', req.request.id, 'owner');
+    const before = m2.getOperator('blackpine-operator').mode;
+    const sync = m2.syncState();
+    const after = m2.getOperator('blackpine-operator').mode;
+    const onDisk = JSON.parse(fs.readFileSync(sharedRegistry, 'utf8'));
+    const diskMode = onDisk.operators.find((o) => o.id === 'blackpine-operator').mode;
+    return ok(
+      ap.applied === true &&
+        diskMode === 'not-deployed' &&
+        before === 'draft-only' &&
+        sync.synced === true &&
+        after === 'not-deployed',
+      `disk: ${diskMode}; B before sync: ${before}; after: ${after}`,
+    );
+  });
+}
+
+{
+  await check('M7 state store: a save with a stale revision is refused (optimistic concurrency)', () => {
+    const file = path.join(TMP, 'store-m7.json');
+    const store = createStateStore({ file });
+    const first = store.save({ a: 1 });
+    const stale = store.save({ a: 2 }, 0); // revision moved to 1; 0 is stale
+    const current = store.load();
+    return ok(
+      first.ok === true &&
+        first.revision === 1 &&
+        stale.ok === false &&
+        stale.conflict === true &&
+        current.data.a === 1,
+      'stale write refused, data untouched',
+    );
+  });
+}
+
+{
+  const auth = await freshAuth('m8');
+  await resetAuth(auth);
+  const ownerKey = await import('./owner-key.mjs?instance=m8');
+  const m = await fresh('m8');
+  await check('M8 owner-key ceremony (test key, temp store): generate -> registered -> unsigned refused -> signed works', () => {
+    const unconfirmed = ownerKey.generateOwnerKey({ confirmed: false });
+    const gen = ownerKey.generateOwnerKey({ confirmed: true, label: 'stress test owner key' });
+    if (!gen.generated) throw new Error(`generate failed: ${gen.reason}`);
+    const status = ownerKey.ownerKeyStatus();
+    const backup = ownerKey.verifyOwnerKeyBackup({ file: gen.privateKeyPath });
+    const req = m.requestModeChange('tailor-operator', 'read-only-advisory', 'm8');
+    if (!req.recorded) throw new Error(`request failed: ${req.reason}`);
+    const noProof = m.approveModeChange('tailor-operator', req.request.id, 'owner', true);
+    const loaded = auth.loadPrivateKey(gen.keyId);
+    if (!loaded.ok) throw new Error(`load private key failed: ${loaded.reason}`);
+    const proof = mustProof(auth, {
+      subject: 'owner',
+      action: 'mode-change',
+      context: req.request.id,
+      privateKey: loaded.privateKey,
+      keyId: gen.keyId,
+    });
+    const signed = m.approveModeChange('tailor-operator', req.request.id, 'owner', true, proof);
+    return ok(
+      unconfirmed.generated === false &&
+        status.registered === true &&
+        status.keyId === gen.keyId &&
+        backup.ok === true &&
+        backup.matches === true &&
+        noProof.applied === false &&
+        signed.applied === true &&
+        m.getOperator('tailor-operator').mode === 'read-only-advisory',
+      'unconfirmed refused; key registered; backup verified; unsigned refused; signed applied',
+    );
+  });
+}
+
+{
+  const auth = await freshAuth('m9');
+  await resetAuth(auth);
+  const ownerKey = await import('./owner-key.mjs?instance=m9');
+  const m = await fresh('m9');
+  await check('M9 owner-key rotation (test key, temp store): old key stops, new key works', () => {
+    const gen = ownerKey.generateOwnerKey({ confirmed: true, label: 'stress test owner key 1' });
+    if (!gen.generated) throw new Error(`generate failed: ${gen.reason}`);
+    const oldKeyId = gen.keyId;
+    const rot = ownerKey.rotateOwnerKey({ confirmed: true, label: 'stress test owner key 2' });
+    if (!rot.rotated) throw new Error(`rotate failed: ${rot.reason}`);
+    const oldLoaded = auth.loadPrivateKey(oldKeyId);
+    const newLoaded = auth.loadPrivateKey(rot.newKeyId);
+    if (!newLoaded.ok) throw new Error(`new key load failed: ${newLoaded.reason}`);
+    const req = m.requestModeChange('tailor-operator', 'read-only-advisory', 'm9');
+    if (!req.recorded) throw new Error(`request failed: ${req.reason}`);
+    let oldApplied = false;
+    if (oldLoaded.ok) {
+      const oldProof = mustProof(auth, {
+        subject: 'owner',
+        action: 'mode-change',
+        context: req.request.id,
+        privateKey: oldLoaded.privateKey,
+        keyId: oldKeyId,
+      });
+      oldApplied = m.approveModeChange('tailor-operator', req.request.id, 'owner', true, oldProof).applied;
+    }
+    const newProof = mustProof(auth, {
+      subject: 'owner',
+      action: 'mode-change',
+      context: req.request.id,
+      privateKey: newLoaded.privateKey,
+      keyId: rot.newKeyId,
+    });
+    const newApplied = m.approveModeChange('tailor-operator', req.request.id, 'owner', true, newProof).applied;
+    return ok(
+      rot.newKeyId !== oldKeyId &&
+        oldApplied === false &&
+        newApplied === true &&
+        m.getOperator('tailor-operator').mode === 'read-only-advisory',
+      'old key refused after rotation; new key applied',
+    );
+  });
+}
+
+{
+  const m = await fresh('m10');
+  await check("M10 authorize() denial reason names the operator's actual mode", () => {
+    const r = m.authorize('tailor-operator', 'blackpine-field', 'publish');
+    return ok(
+      r.allowed === false &&
+        r.reason.includes('Draft-Only') &&
+        !r.reason.includes('Read-only advisory mode allows') &&
+        r.reason.includes('read, advise, write'),
+      r.reason,
+    );
+  });
+}
+
+{
+  await check('M11 new modules (audit-chain, state-store, owner-key): zero third-party deps, no eval/fetch/network', () => {
+    const texts = [AUDIT_CHAIN_TEXT, STATE_STORE_TEXT, OWNER_KEY_TEXT];
+    const bad = ['eval(', 'new Function', 'fetch(', 'http.request', 'XMLHttpRequest'];
+    const found = [];
+    for (const t of texts) {
+      const imports = [...t.matchAll(/^import\s+[\s\S]*?\s+from\s+['"]([^'"]+)['"]/gm)].map((x) => x[1]);
+      const thirdParty = imports.filter(
+        (i) => !i.startsWith('node:') && !i.startsWith('./') && !i.startsWith('../'),
+      );
+      found.push(...thirdParty);
+      found.push(...bad.filter((s) => t.includes(s)));
+    }
+    return ok(found.length === 0, found.length ? `found: ${found.join(', ')}` : 'clean');
+  });
+}
+
+{
+  const auditFile = path.join(TMP, 'audit-m12.jsonl');
+  // A log where the highest seq sits on a `ts`-shaped entry (no
+  // `timestamp`) — the shape that fooled the old allocator into
+  // restarting at 51 (live log, 2026-11-19).
+  const lines = [
+    JSON.stringify({
+      type: 'authorization',
+      timestamp: '2026-11-19T13:00:00.000Z',
+      operatorId: 'tailor-operator',
+      environment: 'blackpine-field',
+      action: 'read',
+      allowed: true,
+      reason: 'x',
+      seq: 50,
+      coreVersion: '1.4.0',
+    }),
+    JSON.stringify({
+      type: 'owner-order',
+      ts: '2026-11-19T13:43:41.000Z',
+      operator: 'tailor-operator',
+      action: 'grant',
+      decision: 'GRANTED',
+      detail: 'x',
+      seq: 60,
+      coreVersion: '1.4.0',
+    }),
+  ];
+  fs.writeFileSync(auditFile, `${lines.join('\n')}\n`);
+  const m = await fresh('m12', { auditFile });
+  await check("M12 seq allocator continues from the file's max seq, even when the top entry has no timestamp field", () => {
+    m.authorize('blackpine-operator', 'blackpine-field', 'read');
+    const entry = m.getAuditLog().find(
+      (e) => e.type === 'authorization' && e.operatorId === 'blackpine-operator',
+    );
+    return ok(entry !== undefined && entry.seq === 61, `next seq: ${entry ? entry.seq : 'none'} (must be 61, not 51)`);
   });
 }
 

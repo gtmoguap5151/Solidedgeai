@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "file": "audit-log.jsonl",
+  "lines": 72,
+  "bytesHash": "b30a627e326543827294efc69c1180acecde7ffd23b682da1370cd43945cda62",
+  "lastLineHash": "5aa92973b8b961e89e74cc01466d612d77ec963d5b819ba55478ca2ace4b543a",
+  "createdAt": "2026-11-19T13:57:37.735Z",
+  "note": "SHA-256 of the exact bytes of the first N lines of the audit log as it stood when hash-chaining began (Core v1.5.0). Those lines stay byte-identical; the chain covers the log as it is, duplicate seqs 51-60 included. History is never rewritten or renumbered."
+}

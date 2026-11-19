@@ -1,5 +1,5 @@
 /**
- * GALINYX Governance Core — owner alert & notification system (v1.3.0)
+ * GALINYX Governance Core — owner alert & notification system (v1.5.0)
  * ====================================================================
  * The owner's inbox: when an operator wants to do something that needs
  * owner approval, the owner is told and can respond.
@@ -56,7 +56,11 @@
  *      check to pass AND refuses any decider that is a registered
  *      operator ID — even if the owner identity were misconfigured to
  *      match one. Without the Core's isOwner hook (an older core), all
- *      decisions are refused rather than guessed.
+ *      decisions are refused rather than guessed. v1.4.0: once an owner
+ *      key is registered, decide() ALSO requires a valid owner signature
+ *      bound to the notification — the identity claim alone is no
+ *      longer enough. Until then the claim path still works, and the
+ *      decision entry flags authenticated: false.
  *   2. A notification can be decided exactly once. Deciding an
  *      already-decided (or unknown) notification is refused.
  *   3. Every decision is audit-logged. If the Core's
@@ -69,10 +73,13 @@
  *      audit-logged by authorize() regardless.
  *
  * Honest limits (same as the Core):
- *   - Owner identity is a claim, not a credential: isOwner() compares
- *     against the configured owner identity (GALINYX_OWNER_ID, default
- *     'owner'), same guardrail as approveModeChange(). Signed owner
- *     approvals are future work (v1 Phase 4).
+ *   - Owner identity is a claim until an owner key is registered:
+ *     isOwner() compares against the configured owner identity
+ *     (GALINYX_OWNER_ID, default 'owner'), same guardrail as
+ *     approveModeChange(). v1.4.0 adds signed owner approvals
+ *     (./auth.mjs): once an owner key is registered, decide()
+ *     requires a valid owner signature. Until then, only trusted
+ *     in-process code may call decide().
  *   - No push delivery in this build. The inbox + log is the system;
  *     in-app Approve/Deny buttons use the copy-text fallback until the
  *     Phase 2 backend lands, and real push notifications come with it.
@@ -109,7 +116,7 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
-export const NOTIFICATION_LAYER_VERSION = '1.3.0';
+export const NOTIFICATION_LAYER_VERSION = '1.5.0';
 
 // Actions a notification may concern. Core actions (from authorize()),
 // plus the two approval-needing flows that don't go through authorize():
@@ -420,8 +427,16 @@ export function createNotificationSystem(core, opts = {}) {
   // decision is a recorded YES, not a grant. Execution follows through
   // existing channels (a mode change, or the owner/Xena performing the
   // action). Every decision entry records grantsPermission: false.
+  //
+  // Signed owner approval (v1.4.0): decide() accepts an optional 5th
+  // argument, a signed owner proof (see ./auth.mjs). Once an owner key
+  // is registered with the Core, a decision REQUIRES a valid proof bound
+  // to the notification — the identity claim alone is refused. Until
+  // then the claim path still works, and the decision entry records
+  // authenticated: false. With an older Core (no isOwnerKeyRegistered
+  // hook), the claim path is all there is.
   // -------------------------------------------------------------------------
-  function decide(notificationId, decidedBy, approve, decisionReason = '') {
+  function decide(notificationId, decidedBy, approve, decisionReason = '', proof = null) {
     try {
       if (typeof notificationId !== 'string' || notificationId === '') {
         return { decided: false, reason: 'Invalid notification ID.' };
@@ -454,6 +469,37 @@ export function createNotificationSystem(core, opts = {}) {
           reason: `Decider '${sanitizeValue(decidedBy)}' is a registered operator. Operators can never decide notifications — even their own.`,
         };
       }
+      // Third guard (v1.4.0): when an owner key is registered, the
+      // decision must carry a valid owner signature bound to this
+      // notification. A signature for a different notification, an
+      // expired or replayed proof, or no proof at all is refused — and
+      // the notification stays pending, so the owner can decide it
+      // properly later.
+      let authenticated = false;
+      let authKeyId = null;
+      if (typeof core.isOwnerKeyRegistered === 'function' && core.isOwnerKeyRegistered()) {
+        if (proof === null || proof === undefined) {
+          return {
+            decided: false,
+            reason: 'An owner key is registered: decisions require a signed owner approval. No proof was presented.',
+          };
+        }
+        if (typeof core.verifyOwnerApproval !== 'function') {
+          return {
+            decided: false,
+            reason: 'This Core cannot verify owner signatures (no verifyOwnerApproval hook). Decision refused.',
+          };
+        }
+        const check = core.verifyOwnerApproval(proof, {
+          action: 'notification-decision',
+          context: notificationId,
+        });
+        if (!check.authenticated) {
+          return { decided: false, reason: `Owner approval rejected: ${check.reason}` };
+        }
+        authenticated = true;
+        authKeyId = check.keyId;
+      }
       const current = byId.get(notificationId);
       if (!current) {
         return { decided: false, reason: `Unknown notification '${notificationId}'.` };
@@ -480,7 +526,9 @@ export function createNotificationSystem(core, opts = {}) {
             environment: current.environment,
             decision,
             decidedBy,
-            reason: `Owner '${decidedBy}' ${decision} ${current.operatorName}'s request to '${current.action}' (${current.reference}).${safeReason ? ` Owner's note: ${safeReason}` : ''}`,
+            reason: `Owner '${decidedBy}' ${decision} ${current.operatorName}'s request to '${current.action}' (${current.reference}).${safeReason ? ` Owner's note: ${safeReason}` : ''}${authenticated ? ' Signed owner approval.' : ''}`,
+            authenticated,
+            authKeyId,
           });
           auditLogged = recorded !== null;
         } catch {
@@ -510,6 +558,8 @@ export function createNotificationSystem(core, opts = {}) {
         // permissions change only through the Core's own flows.
         grantsPermission: false,
         auditLogged,
+        authenticated,
+        authKeyId,
       });
       seq = decisionEntry.seq;
       persistEntry(decisionEntry);
@@ -521,6 +571,8 @@ export function createNotificationSystem(core, opts = {}) {
         decidedAt,
         decisionReason: safeReason,
         auditLogged,
+        authenticated,
+        authKeyId,
       });
       byId.set(notificationId, updated);
 
@@ -529,7 +581,9 @@ export function createNotificationSystem(core, opts = {}) {
         approved: approve,
         notification: copy(updated),
         auditLogged,
-        reason: `Owner '${decidedBy}' ${decision} the request from '${current.operatorName}' to '${current.action}'.`,
+        authenticated,
+        authKeyId,
+        reason: `Owner '${decidedBy}' ${decision} the request from '${current.operatorName}' to '${current.action}'.${authenticated ? ' Signed.' : ''}`,
       };
     } catch (err) {
       return {

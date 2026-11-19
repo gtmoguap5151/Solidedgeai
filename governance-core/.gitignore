@@ -1,3 +1,9 @@
 # Runtime state — the append-only audit log the core writes as it runs.
 # It is history, not source. Never commit it.
 src/audit-log.jsonl
+# Runtime state — used auth nonces (replay protection). Not source.
+src/auth-nonces.jsonl
+# PRIVATE KEY MATERIAL — NEVER COMMIT. The repo is PUBLIC. Private keys
+# live only in .keys-local/ (chmod 700 dir, 600 files). If a private key
+# ever lands in a pushable file, revoke that key immediately and rotate.
+.keys-local/
