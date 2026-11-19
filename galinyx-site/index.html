@@ -6,13 +6,15 @@
 <title>GALINYX OS™ — Workspace</title>
 <style>
 :root{color-scheme:dark;--bg:#080c18;--panel:#111a2d;--panel2:#0d1425;--line:#283653;--muted:#9eacc8;--text:#eef3ff;--blue:#a7bcff;--gold:#e9c77a;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% 0%,#24335c 0,transparent 34%),var(--bg);color:var(--text);min-height:100vh}button,input,textarea,select{font:inherit}button{cursor:pointer}.app{max-width:1240px;margin:auto;padding:0 22px}header{height:78px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:12px}.brand{font-weight:850;letter-spacing:.12em;font-size:18px}.brand span{color:var(--blue)}.status{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#e6d39e;border:1px solid #695c3b;padding:7px 10px;border-radius:99px}.layout{display:grid;grid-template-columns:225px minmax(0,1fr);gap:24px;padding:25px 0 55px}.sidebar{border:1px solid var(--line);border-radius:14px;padding:15px;background:#0c1324;height:max-content;position:sticky;top:12px}.side-label{font-size:10px;letter-spacing:.18em;color:#7888aa;padding:10px 11px}.nav{display:block;width:100%;text-align:left;background:transparent;color:#b8c5df;border:0;padding:12px 11px;border-radius:8px;margin:2px 0;font-size:13px}.nav.active,.nav:hover{background:#1c2944;color:#fff}.nav b{display:inline-block;width:23px;color:var(--blue)}.side-note{margin:18px 5px 4px;border-top:1px solid var(--line);padding:16px 5px 5px;color:var(--muted);font-size:12px;line-height:1.6}.eyebrow{font-size:11px;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;font-weight:750}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:8px 0 22px}.heading h1{font-size:clamp(29px,4vw,43px);letter-spacing:-.045em;margin:9px 0}.heading p{color:var(--muted);font-size:14px;line-height:1.6;margin:0}.btn{border:1px solid #52648a;background:#dce6ff;color:#101a32;border-radius:8px;padding:11px 14px;font-weight:750;font-size:12px}.btn.secondary{background:#17223a;color:#e8eeff;border-color:#334464}.btn.ghost{background:transparent;color:#cbd5ea;border-color:var(--line)}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.panel{background:linear-gradient(145deg,#121d33,#0e1628);border:1px solid var(--line);border-radius:13px;padding:19px;min-width:0}.panel h2{font-size:14px;margin:0 0 12px}.metric{font-size:29px;font-weight:800;letter-spacing:-.04em}.sub{font-size:12px;color:var(--muted);line-height:1.55;margin-top:6px}.metric-tag{font-size:10px;color:#b9d5bf;margin-left:5px}.wide{grid-column:span 2}.full{grid-column:1/-1}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}.section-title h2{margin:0}.list{display:grid;gap:9px}.item{display:flex;align-items:flex-start;gap:12px;border:1px solid #26334e;background:#0d1527;padding:13px;border-radius:9px}.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);margin-top:5px;flex-shrink:0}.item strong{display:block;font-size:13px}.item small{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.5}.badge{font-size:10px;white-space:nowrap;color:#d9e3ff;border:1px solid #39496b;border-radius:99px;padding:5px 7px;margin-left:auto}.field{display:grid;gap:7px;margin:12px 0}.field label{font-size:12px;color:#c3cee5}.field input,.field textarea,.field select{width:100%;background:#091122;color:var(--text);border:1px solid #354463;border-radius:8px;padding:11px;outline:none}.field textarea{min-height:115px;resize:vertical;line-height:1.55}.field input:focus,.field textarea:focus{border-color:#a7bcff}.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.output{white-space:pre-wrap;line-height:1.65;color:#dce5f9;background:#091122;border:1px solid var(--line);padding:15px;border-radius:9px;min-height:60px;font-size:13px}.hidden{display:none!important}.callout{padding:13px 15px;border:1px solid #685a37;background:#211d13;color:#e7d7a9;border-radius:9px;font-size:12px;line-height:1.6;margin-bottom:16px}.tiny{font-size:11px;color:var(--muted);line-height:1.6}.chip{font-size:11px;border:1px solid #344565;border-radius:7px;padding:7px 9px;color:#d5dff4}.divider{border-top:1px solid var(--line);margin:16px 0}.empty{color:var(--muted);font-size:12px;padding:18px;text-align:center;border:1px dashed #354463;border-radius:9px}footer{border-top:1px solid var(--line);padding:18px 0 25px;color:#7f8eac;font-size:11px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-@media(max-width:780px){.layout{grid-template-columns:1fr;gap:14px}.sidebar{position:static;display:flex;overflow-x:auto;gap:4px;padding:7px}.side-label,.side-note{display:none}.nav{white-space:nowrap;width:auto;padding:10px}.nav b{width:auto;margin-right:6px}.grid{grid-template-columns:1fr}.wide,.full{grid-column:auto}.heading{flex-direction:column}.heading .btn{width:100%}.app{padding:0 13px}header{height:67px}.brand{font-size:15px}.status{font-size:9px}}
+@media(max-width:780px){.layout{grid-template-columns:1fr;gap:14px}.sidebar{position:static;display:flex;overflow-x:auto;gap:4px;padding:7px}.side-label,.side-note{display:none}.nav{white-space:nowrap;width:auto;padding:10px}.nav b{width:auto;margin-right:6px}.grid{grid-template-columns:1fr}.wide,.full{grid-column:auto}.heading{flex-direction:column}.heading .btn{width:100%}.app{padding:0 13px}header{height:67px}.brand{font-size:15px}.status{font-size:9px}.wf-columns{grid-template-columns:1fr}}
 .rules{margin:0;padding-left:20px;font-size:13px;line-height:1.7;color:#dce5f9}.rules li{margin:8px 0}.ok{color:#7dc69b;font-weight:700}.no{color:#e08a8a;font-weight:700}.inbox-decided{opacity:.62}.inbox-details{margin-top:13px}.inbox-details summary{cursor:pointer;font-size:12px;color:var(--muted);padding:7px 2px}.inbox-details summary:hover{color:var(--text)}
 .draft-badge{color:#e9c77a!important;border-color:#695c3b!important}.nw-code{font-size:12px;max-height:280px;overflow:auto}
+.wf-columns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;align-items:start}.wf-column{border:1px solid #26334e;background:#0d1527;border-radius:9px;padding:13px;min-width:0}.wf-column h3{font-size:13px;margin:0 0 4px}.wf-column .wf-col-sub{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:11px}.wf-column .list{gap:7px}.wf-column .item{padding:11px}
+@media(max-width:1100px){.wf-columns{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body><div class="app">
-<header><a class="brand" href="#" aria-label="GALINYX OS home">GALI<span>NYX OS™</span></a><div class="status">Workspace · Local storage</div></header>
+<header><a class="brand" href="#" aria-label="GALINYX OS home">GALI<span>NYX OS™</span></a><div class="status" id="auth-status">Workspace · Local only</div></header>
 <div class="layout">
 <aside class="sidebar" aria-label="Workspace navigation">
 <div class="side-label">WORKSPACE</div>
@@ -22,12 +24,13 @@
 <button class="nav" data-view="tasks"><b>✓</b> Task Planner</button>
 <button class="nav" data-view="workforce"><b>⚙</b> Workforce</button>
 <button class="nav" data-view="activity"><b>◷</b> Activity Log</button>
-<div class="side-note">Your workspace entries are saved in this browser on this device. Account sign-in and server sync are not connected.</div>
+<button class="nav" data-view="account"><b>◉</b> Account</button>
+<div class="side-note" id="side-note">Your workspace entries are saved in this browser on this device. Sign in from Account to sync them across devices.</div>
 </aside>
 <main>
 <section id="view-home" class="view">
 <div class="heading"><div><div class="eyebrow">Personal workspace</div><h1>Make the next idea real.</h1><p>A place to shape creative projects, preserve important context, and turn ideas into reviewable next steps.</p></div><button class="btn" onclick="showView('creator')">＋ Start a project</button></div>
-<div class="callout">CURRENT CAPABILITIES — Creator tools organize your input into structured drafts. AI generation, cloud sync, external publishing, and autonomous execution are not connected.</div>
+<div class="callout">CURRENT CAPABILITIES — Creator tools organize your input into structured drafts. Account sign-in and cloud sync are available from the Account view. AI generation, external publishing, and autonomous execution are not connected.</div>
 <div class="grid">
 <article class="panel"><h2>Active projects</h2><div class="metric" id="metric-projects">0</div><div class="sub">Projects saved in this browser</div></article>
 <article class="panel"><h2>Saved memory notes</h2><div class="metric" id="metric-memory">0</div><div class="sub">Context you chose to preserve</div></article>
@@ -43,7 +46,7 @@
 </section>
 <section id="view-memory" class="view hidden">
 <div class="heading"><div><div class="eyebrow">Tool 02 / Remember</div><h1>Project Memory</h1><p>Keep project facts, decisions, and open questions in one searchable list.</p></div></div>
-<div class="callout">Memory is saved in this browser on this device only. It is not encrypted, synced to an account, or available on other devices. Avoid storing passwords or sensitive personal information.</div>
+<div class="callout">Memory is saved in this browser first. When you are signed in, notes also sync to your account so they follow you across devices. Notes are not encrypted — avoid storing passwords or sensitive personal information.</div>
 <div class="grid"><article class="panel"><h2>Add a memory note</h2><div class="field"><label for="memory-project">Project / subject</label><input id="memory-project" placeholder="Project name"></div><div class="field"><label for="memory-kind">Note type</label><select id="memory-kind"><option>Canon / confirmed fact</option><option>Decision</option><option>Open question</option><option>Research lead — unverified</option><option>Constraint</option></select></div><div class="field"><label for="memory-text">Note</label><textarea id="memory-text" placeholder="One useful piece of context…"></textarea></div><button class="btn" onclick="addMemory()">Save note</button></article><article class="panel wide"><div class="section-title"><h2>Saved notes</h2><input id="memory-search" aria-label="Search memories" placeholder="Search notes…" oninput="renderMemory()" style="max-width:190px;background:#091122;border:1px solid #354463;border-radius:8px;padding:9px;color:var(--text)"></div><div id="memory-list" class="list"></div></article></div>
 </section>
 <section id="view-tasks" class="view hidden">
@@ -78,36 +81,60 @@
 <article class="panel wide"><div class="section-title"><h2>Recent audit entries</h2><span class="tiny" id="wf-audit-note"></span></div><div id="wf-audit" class="list"><div class="empty">Loading…</div></div></article>
 </div>
 </section>
+<section id="view-account" class="view hidden">
+<div class="heading"><div><div class="eyebrow">System / Account</div><h1>Account</h1><p>Sign in to sync your projects, memory, and tasks across devices. Everything still works signed out — your work stays in this browser.</p></div></div>
+<div class="grid">
+<article class="panel" id="account-signed-out">
+<h2>Sign in or create an account</h2>
+<div class="field"><label for="auth-email">Email</label><input id="auth-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+<div class="field"><label for="auth-password">Password</label><input id="auth-password" type="password" autocomplete="current-password" placeholder="At least 6 characters"></div>
+<div class="row"><button class="btn" onclick="sbSignIn()">Sign in</button><button class="btn secondary" onclick="sbSignUp()">Create account</button></div>
+<div class="tiny" id="auth-message" style="margin-top:12px">Your password goes to Supabase only — it is never stored in this browser. Google sign-in is coming later.</div>
+</article>
+<article class="panel hidden" id="account-signed-in">
+<h2>Signed in</h2>
+<div class="sub" id="account-email"></div>
+<div class="sub" id="account-sync-status" style="margin-top:9px"></div>
+<div class="row" style="margin-top:14px"><button class="btn secondary" onclick="sbSyncNow(true)">Sync now</button><button class="btn ghost" onclick="sbSignOut()">Sign out</button></div>
+<div class="tiny" style="margin-top:12px">Signing out keeps your local copy in this browser. Nothing is deleted from this device or your account.</div>
+</article>
+<article class="panel"><h2>How sync works</h2><div class="sub">Local first: every change saves in this browser immediately, then syncs to your account when you are signed in and online. If you are offline, changes wait and sync when you reconnect. Only you can see your rows — the database enforces that per account.</div><div class="divider"></div><div class="tiny" id="account-setup-note">Sync needs the one-time database setup in the project dashboard. Until then, sign-in works but sync reports "setup pending".</div></article>
+</div>
+</section>
 <section id="view-activity" class="view hidden">
 <div class="heading"><div><div class="eyebrow">System / Transparency</div><h1>Activity Log</h1><p>A local record of actions taken inside this workspace.</p></div><button class="btn ghost" onclick="exportData()">Export workspace</button></div>
 <div class="callout">This log records actions taken inside the workspace. It is not tamper-proof or a security audit, and records remain in this browser.</div><article class="panel"><div class="section-title"><h2>Recent events</h2><div class="row"><button class="btn secondary" onclick="document.getElementById('import-file').click()">Import backup</button><button class="btn secondary" onclick="exportData()">Export workspace</button><button class="btn ghost" onclick="clearActivity()">Clear log</button></div><input id="import-file" type="file" accept="application/json,.json" hidden onchange="importData(event)"></div><div id="activity-list" class="list"></div></article>
 </section>
 </main></div>
-<footer><span>GALINYX OS™ · Workspace</span><span>Local storage · AI and cloud services not connected</span></footer>
+<footer><span>GALINYX OS™ · Workspace</span><span>Local-first · Account sync available · AI not connected</span></footer>
 </div>
 <script>
 const KEY='galinyx-os-workspace-v1';
-const initial={projects:[],memories:[],tasks:[],activity:[],workerDrafts:[]};
+const initial={projects:[],memories:[],tasks:[],activity:[],workerDrafts:[],deleted:{projects:[],memories:[],tasks:[]}};
 let data;
 try{data={...initial,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){data={...initial}}
+if(!data.deleted||!Array.isArray(data.deleted.projects))data.deleted={projects:[],memories:[],tasks:[]};
+// Sync needs stable ids: projects created before Phase 2 have none.
+function ensureLocalIds(){let changed=false;let t=Date.now();data.projects.forEach((p,i)=>{if(typeof p.id!=='number'){p.id=t+i;changed=true}});data.memories.forEach(m=>{if(typeof m.id!=='number'){m.id=++t;changed=true}});data.tasks.forEach(x=>{if(typeof x.id!=='number'){x.id=++t;changed=true}});if(changed)persist()}
+ensureLocalIds();
 let lastDraft='';
-function persist(){try{localStorage.setItem(KEY,JSON.stringify(data));return true}catch(e){alert('Browser storage is unavailable or full. Export your work before closing this page.');return false}}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(data));if(typeof sbScheduleSync==='function')sbScheduleSync();return true}catch(e){alert('Browser storage is unavailable or full. Export your work before closing this page.');return false}}
 function log(action,detail){data.activity.unshift({id:Date.now()+Math.random(),action,detail,at:new Date().toISOString()});data.activity=data.activity.slice(0,100);persist();renderActivity();renderHomeActivity()}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));document.getElementById('view-'+name).classList.remove('hidden');document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===name));if(name==='memory')renderMemory();if(name==='tasks')renderTasks();if(name==='activity')renderActivity();if(name==='workforce')loadWorkforce();if(name==='home')renderHome()}
+function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));document.getElementById('view-'+name).classList.remove('hidden');document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===name));if(name==='memory')renderMemory();if(name==='tasks')renderTasks();if(name==='activity')renderActivity();if(name==='workforce')loadWorkforce();if(name==='home')renderHome();if(name==='account')renderAccount()}
 document.querySelectorAll('.nav').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
 function renderHome(){document.getElementById('metric-projects').textContent=data.projects.length;document.getElementById('metric-memory').textContent=data.memories.length;document.getElementById('metric-tasks').textContent=data.tasks.filter(t=>!t.done).length;renderHomeActivity()}
 function eventItem(x){return '<div class="item"><div class="dot"></div><div><strong>'+esc(x.action)+'</strong><small>'+esc(x.detail||'')+' · '+esc(new Date(x.at).toLocaleString())+'</small></div></div>'}
 function renderHomeActivity(){const el=document.getElementById('home-activity');if(el)el.innerHTML=data.activity.slice(0,4).map(eventItem).join('')||'<div class="empty">Your actions will appear here as you use the workspace.</div>'}
-function makeDraft(){const title=document.getElementById('project-title').value.trim()||'Untitled project',idea=document.getElementById('project-idea').value.trim(),kind=document.getElementById('creator-type').value,guard=document.getElementById('project-constraints').value.trim();if(!idea){alert('Add your idea first.');return}const label={story:'STORY PREMISE',character:'CHARACTER OUTLINE','product':'PROJECT BRIEF'}[kind];let parts=[title.toUpperCase(),label,'','CORE IDEA',idea,'','ESTABLISHED DETAILS','• Details directly provided by the creator: '+idea];if(kind==='story')parts.push('','STORY QUESTIONS','• What does the main character want most?','• What stands in the way?','• What changes if they fail?','• What choice drives the turning point?');if(kind==='character')parts.push('','CHARACTER QUESTIONS','• Goal: What do they actively pursue?','• Motivation: Why does it matter?','• Strength: What helps them?','• Flaw or tension: What complicates their choices?','• Arc: What could change?');if(kind==='product')parts.push('','PROJECT QUESTIONS','• Who is this for?','• What problem does it solve?','• What is the smallest useful version?','• How will success be measured?','• What must be tested before launch?');parts.push('','CONSTRAINTS / CANON',guard||'No constraints supplied yet.','', 'OPEN QUESTIONS','• Add unanswered questions here; do not treat assumptions as verified facts.','', 'STATUS','Initial structured draft — review and revise. No external research or AI generation was performed.');lastDraft=parts.join('\n');document.getElementById('draft-output').textContent=lastDraft;document.getElementById('draft-status').textContent='Draft built locally.';if(!data.projects.some(p=>p.title===title)){data.projects.push({title,kind,at:new Date().toISOString()});persist()}log('Structured draft created',title+' · '+label);renderHome()}
+function makeDraft(){const title=document.getElementById('project-title').value.trim()||'Untitled project',idea=document.getElementById('project-idea').value.trim(),kind=document.getElementById('creator-type').value,guard=document.getElementById('project-constraints').value.trim();if(!idea){alert('Add your idea first.');return}const label={story:'STORY PREMISE',character:'CHARACTER OUTLINE','product':'PROJECT BRIEF'}[kind];let parts=[title.toUpperCase(),label,'','CORE IDEA',idea,'','ESTABLISHED DETAILS','• Details directly provided by the creator: '+idea];if(kind==='story')parts.push('','STORY QUESTIONS','• What does the main character want most?','• What stands in the way?','• What changes if they fail?','• What choice drives the turning point?');if(kind==='character')parts.push('','CHARACTER QUESTIONS','• Goal: What do they actively pursue?','• Motivation: Why does it matter?','• Strength: What helps them?','• Flaw or tension: What complicates their choices?','• Arc: What could change?');if(kind==='product')parts.push('','PROJECT QUESTIONS','• Who is this for?','• What problem does it solve?','• What is the smallest useful version?','• How will success be measured?','• What must be tested before launch?');parts.push('','CONSTRAINTS / CANON',guard||'No constraints supplied yet.','', 'OPEN QUESTIONS','• Add unanswered questions here; do not treat assumptions as verified facts.','', 'STATUS','Initial structured draft — review and revise. No external research or AI generation was performed.');lastDraft=parts.join('\n');document.getElementById('draft-output').textContent=lastDraft;document.getElementById('draft-status').textContent='Draft built locally.';if(!data.projects.some(p=>p.title===title)){data.projects.push({id:Date.now(),title,kind,at:new Date().toISOString()});persist()}log('Structured draft created',title+' · '+label);renderHome()}
 async function copyDraft(){if(!lastDraft){alert('Build a draft first.');return}try{await navigator.clipboard.writeText(lastDraft);document.getElementById('draft-status').textContent='Copied to clipboard.'}catch(e){document.getElementById('draft-status').textContent='Clipboard access blocked. Select and copy the draft text manually.'}}
 function saveDraftMemory(){if(!lastDraft){alert('Build a draft first.');return}data.memories.unshift({id:Date.now(),project:document.getElementById('project-title').value.trim()||'Untitled project',kind:'Creator draft',text:lastDraft,at:new Date().toISOString()});persist();log('Draft saved to Project Memory',document.getElementById('project-title').value.trim()||'Untitled project');document.getElementById('draft-status').textContent='Saved to local Project Memory.';renderHome()}
 function addMemory(){const project=document.getElementById('memory-project').value.trim(),text=document.getElementById('memory-text').value.trim(),kind=document.getElementById('memory-kind').value;if(!project||!text){alert('Enter a project name and a note.');return}data.memories.unshift({id:Date.now(),project,kind,text,at:new Date().toISOString()});persist();log('Memory note saved',project+' · '+kind);document.getElementById('memory-text').value='';renderMemory();renderHome()}
 function renderMemory(){const q=(document.getElementById('memory-search')?.value||'').toLowerCase();const list=data.memories.filter(m=>(m.project+' '+m.kind+' '+m.text).toLowerCase().includes(q));document.getElementById('memory-list').innerHTML=list.map(m=>'<div class="item"><div class="dot"></div><div style="flex:1;min-width:0"><strong>'+esc(m.project)+' <span class="badge">'+esc(m.kind)+'</span></strong><small>'+esc(m.text)+'</small><small>'+esc(new Date(m.at).toLocaleString())+'</small><button class="btn ghost" style="margin-top:9px;padding:6px 9px" onclick="deleteMemory('+Number(m.id)+')">Delete note</button></div></div>').join('')||'<div class="empty">No matching notes. Add one to preserve useful context.</div>'}
-function deleteMemory(id){data.memories=data.memories.filter(m=>m.id!==id);persist();log('Memory note deleted','Note ID '+id);renderMemory();renderHome()}
+function deleteMemory(id){data.memories=data.memories.filter(m=>m.id!==id);sbTombstone('memories',id);persist();log('Memory note deleted','Note ID '+id);renderMemory();renderHome()}
 function addTask(){const title=document.getElementById('task-name').value.trim();if(!title){alert('Enter a task.');return}const project=document.getElementById('task-project').value.trim();const priority=document.getElementById('task-priority').value;data.tasks.unshift({id:Date.now(),title,project,priority,done:false,at:new Date().toISOString()});persist();log('Task added',title);document.getElementById('task-name').value='';renderTasks();renderHome()}
 function toggleTask(id){const t=data.tasks.find(x=>x.id===id);if(!t)return;t.done=!t.done;persist();log(t.done?'Task completed':'Task reopened',t.title);renderTasks();renderHome()}
-function deleteTask(id){data.tasks=data.tasks.filter(t=>t.id!==id);persist();log('Task deleted','Task ID '+id);renderTasks();renderHome()}
+function deleteTask(id){data.tasks=data.tasks.filter(t=>t.id!==id);sbTombstone('tasks',id);persist();log('Task deleted','Task ID '+id);renderTasks();renderHome()}
 function renderTasks(){const filter=document.getElementById('task-filter')?.value||'all';const tasks=data.tasks.filter(t=>filter==='all'||(filter==='done'?t.done:!t.done));document.getElementById('task-list').innerHTML=tasks.map(t=>'<div class="item"><div class="dot" style="background:'+(t.done?'#7dc69b':t.priority==='High'?'#edb57b':'var(--gold)')+'"></div><div style="flex:1;min-width:0"><strong style="'+(t.done?'text-decoration:line-through;opacity:.7':'')+'">'+esc(t.title)+'</strong><small>'+esc(t.project||'No project')+' · '+esc(t.priority)+' priority · '+(t.done?'Completed':'Open')+'</small><div class="row" style="margin-top:9px"><button class="btn secondary" style="padding:6px 9px" onclick="toggleTask('+Number(t.id)+')">'+(t.done?'Reopen':'Mark complete')+'</button><button class="btn ghost" style="padding:6px 9px" onclick="deleteTask('+Number(t.id)+')">Delete</button></div></div></div>').join('')||'<div class="empty">No tasks here yet. Add one small, concrete next step.</div>'}
 function renderActivity(){const el=document.getElementById('activity-list');if(el)el.innerHTML=data.activity.map(eventItem).join('')||'<div class="empty">No events recorded yet.</div>'}
 function wfModeLabel(snap,id){return (snap.modes&&snap.modes[id]&&snap.modes[id].label)||id}
@@ -196,6 +223,31 @@ data.workerDrafts=data.workerDrafts.filter(x=>x.id!==draftId);
 persist();log('Draft worker discarded',d.name+' · '+d.workerId);
 renderWorkerDrafts();renderHome();
 }
+/* Workforce columns: display grouping only. Printify is its own column
+   (owner's call, Nov 19, 2026) — the registry still keeps those operators
+   in the blackpine-field environment. Any operator not listed here falls
+   into "Other operators" so nothing ever vanishes from the view. */
+const WF_DEPARTMENTS=[
+{title:'Blackpine Field',sub:'The storefront: cards, deals, content, partners',ids:['blackpine-operator','affiliate-operator','black-friday-operator','content-operator','partnerships-operator','deal-checker-operator','performance-operator']},
+{title:'Printify — Apparel & Sales',sub:'The BLACKPINE label: design to repeat buyer',ids:['tailor-operator','supplier-operator','closer-operator','listings-operator','product-promotion-operator','orders-operator','customer-care-operator','pricing-promotions-operator','repeat-buyer-operator']},
+{title:'Rivet Reach',sub:'Contractors and homeowners',ids:['rivet-reach-operator','homeowner-operator']},
+{title:'GALINYX Workforce',sub:'The builders and the numbers',ids:['galileo-operator','finance-brother-operator','tester-operator']}
+];
+function wfOperatorItem(snap,op){return '<div class="item"><div class="dot"></div><div style="flex:1;min-width:0"><strong>'+esc(op.name)+' <span class="badge">'+esc(wfModeLabel(snap,op.mode))+'</span></strong><small>'+esc(wfStatusLabel(op.status))+'</small></div></div>'}
+function wfRenderOperators(snap){
+const ops=snap.operators||[];
+if(!ops.length)return '<div class="empty">No operators in this snapshot.</div>';
+const byId={};ops.forEach(o=>{byId[o.id]=o});
+const placed={};
+const cols=WF_DEPARTMENTS.map(d=>{
+const members=d.ids.map(id=>byId[id]).filter(Boolean);
+members.forEach(o=>{placed[o.id]=true});
+return '<div class="wf-column"><h3>'+esc(d.title)+' ('+members.length+')</h3><div class="wf-col-sub">'+esc(d.sub)+'</div><div class="list">'+members.map(o=>wfOperatorItem(snap,o)).join('')+'</div></div>';
+});
+const rest=ops.filter(o=>!placed[o.id]);
+if(rest.length)cols.push('<div class="wf-column"><h3>Other operators ('+rest.length+')</h3><div class="wf-col-sub">Not assigned to a column yet — still listed, never hidden.</div><div class="list">'+rest.map(o=>wfOperatorItem(snap,o)).join('')+'</div></div>');
+return '<div class="wf-columns">'+cols.join('')+'</div>';
+}
 function loadWorkforce(){fetch('./operator-dashboard/core-snapshot.json',{cache:'no-store'}).then(res=>{if(!res.ok)throw new Error('snapshot fetch failed: '+res.status);return res.json()}).then(snap=>{
 document.getElementById('wf-updated').textContent=wfTime(snap.generatedAt)+' · Core v'+snap.coreVersion;
 wfEnvironments=(snap.environments&&snap.environments.length)?snap.environments:NW_FALLBACK_ENVS;wfOperatorIds=(snap.operators||[]).map(o=>o.id);wfPopulateEnvSelect();renderWorkerDrafts();
@@ -208,7 +260,7 @@ const pendHtml=pend.map(n=>'<div class="item"><div class="dot" style="background
 const decHtml=dec.length?'<details class="inbox-details"><summary>Decided ('+dec.length+') — tap to show</summary><div class="list" style="margin-top:9px">'+dec.map(n=>'<div class="item inbox-decided"><div class="dot" style="background:'+(n.status==='approved'?'#7dc69b':'#e08a8a')+'"></div><div style="flex:1;min-width:0"><strong>'+esc(n.operatorName)+' wanted to '+esc(n.action)+' <span class="badge">'+esc(n.status==='approved'?'Approved':'Denied')+'</span></strong><small>'+esc(wfEnvLabel(snap,n.environment))+' · asked '+esc(wfTime(n.timestamp))+' · decided '+esc(wfTime(n.decidedAt))+' by '+esc(n.decidedBy||'owner')+'</small>'+(n.decisionReason?'<small>“'+esc(n.decisionReason)+'”</small>':'')+'</div></div>').join('')+'</div></details>':'';
 document.getElementById('wf-inbox').innerHTML=(pendHtml||'<div class="empty">No pending requests.</div>')+decHtml;
 document.getElementById('wf-op-count').textContent=snap.operators.length+' operators · '+snap.environments.length+' environments';
-document.getElementById('wf-operators').innerHTML=snap.operators.map(op=>'<div class="item"><div class="dot"></div><div style="flex:1;min-width:0"><strong>'+esc(op.name)+' <span class="badge">'+esc(wfModeLabel(snap,op.mode))+'</span></strong><small>'+esc(wfEnvLabel(snap,op.environment))+' · '+esc(wfStatusLabel(op.status))+'</small></div></div>').join('')||'<div class="empty">No operators in this snapshot.</div>';
+document.getElementById('wf-operators').innerHTML=wfRenderOperators(snap);
 document.getElementById('wf-rules').innerHTML=(snap.rules||[]).map(r=>'<li>'+esc(r)+'</li>').join('')||'<li>No rules in this snapshot.</li>';
 const st=snap.staging||[];
 document.getElementById('wf-staging').innerHTML=st.map(d=>'<div class="item"><div class="dot"></div><div style="flex:1;min-width:0"><strong>'+esc(d.title)+' <span class="badge">'+esc(d.status==='published'?'Published':'In staging')+'</span></strong><small>'+esc(d.operatorName)+' · '+esc(d.draftId)+' · '+esc(d.date||'')+'</small><small>'+esc(d.summary||'')+'</small>'+(d.decision?'<small>Decision: '+esc(d.decision)+'</small>':'')+'</div></div>').join('')||'<div class="empty">No drafts in staging.</div>';
@@ -220,7 +272,140 @@ document.getElementById('wf-audit-note').textContent='Showing '+au.length+' of '
 }).catch(()=>wfFallback())}
 function clearActivity(){if(!confirm('Clear the local activity log? This does not delete projects, memories, or tasks.'))return;data.activity=[];persist();renderActivity();renderHomeActivity()}
 function exportData(){const blob=new Blob([JSON.stringify({schemaVersion:1,exportedAt:new Date().toISOString(),product:'GALINYX OS workspace',data},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='galinyx-os-workspace-export.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);log('Workspace backup exported','JSON backup created for safekeeping')}
-function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(String(reader.result||''));const incoming=parsed&&parsed.data;if(!incoming||!Array.isArray(incoming.projects)||!Array.isArray(incoming.memories)||!Array.isArray(incoming.tasks)||!Array.isArray(incoming.activity))throw new Error('This file is not a valid GALINYX OS workspace backup.');if(!confirm('Import this backup and replace the workspace data currently saved in this browser? Export your current data first if you want to keep it.'))return;data={projects:incoming.projects,memories:incoming.memories,tasks:incoming.tasks,activity:incoming.activity,workerDrafts:Array.isArray(incoming.workerDrafts)?incoming.workerDrafts:[]};if(!persist())return;renderHome();renderMemory();renderTasks();renderActivity();log('Workspace backup imported','Imported data from '+file.name);alert('Workspace backup imported.')}catch(error){alert(error instanceof Error?error.message:'Unable to import this file.')}finally{event.target.value=''}};reader.onerror=()=>{alert('The backup file could not be read.');event.target.value=''};reader.readAsText(file)}
+function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(String(reader.result||''));const incoming=parsed&&parsed.data;if(!incoming||!Array.isArray(incoming.projects)||!Array.isArray(incoming.memories)||!Array.isArray(incoming.tasks)||!Array.isArray(incoming.activity))throw new Error('This file is not a valid GALINYX OS workspace backup.');if(!confirm('Import this backup and replace the workspace data currently saved in this browser? Export your current data first if you want to keep it.'))return;data={projects:incoming.projects,memories:incoming.memories,tasks:incoming.tasks,activity:incoming.activity,workerDrafts:Array.isArray(incoming.workerDrafts)?incoming.workerDrafts:[],deleted:mergeDeleted(data.deleted,incoming.deleted)};ensureLocalIds();if(!persist())return;renderHome();renderMemory();renderTasks();renderActivity();log('Workspace backup imported','Imported data from '+file.name);alert('Workspace backup imported.')}catch(error){alert(error instanceof Error?error.message:'Unable to import this file.')}finally{event.target.value=''}};reader.onerror=()=>{alert('The backup file could not be read.');event.target.value=''};reader.readAsText(file)}
+/* ---------- Phase 2: Supabase accounts + sync (local-first) ---------- */
+/* The publishable key below is designed to ship in frontend code. The
+   service_role (secret) key is never used here. Google sign-in is not
+   attempted yet — it needs an OAuth client set up in the dashboard. */
+const SB_URL='https://sebcnrlexkcuuyfmigoq.supabase.co';
+const SB_PUBLISHABLE_KEY='sb_publishable_Vh1NqPKKxLSYh3YoBaTAzw_UJEK6UAB';
+const SB_CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.1/dist/umd/supabase.min.js';
+const SB_SYNC_OK_KEY='galinyx-os-sync-ok-v1';
+let sbClient=null;
+let sbUser=null;
+let sbState='loading'; /* loading | ready | unavailable (CDN unreachable/offline) */
+let sbSyncState='idle'; /* idle | syncing | ok | error | setup-pending */
+let sbSyncError='';
+let sbLastSyncAt=null;
+let sbSyncTimer=null;
+let sbSyncRunning=false;
+function sbEl(id){return document.getElementById(id)}
+function sbSetStatus(text){const el=sbEl('auth-status');if(el)el.textContent=text}
+function sbTombstone(kind,id){if(!data.deleted[kind].includes(id)){data.deleted[kind].push(id);if(data.deleted[kind].length>500)data.deleted[kind]=data.deleted[kind].slice(-500)}}
+function mergeDeleted(a,b){const out={projects:[],memories:[],tasks:[]};['projects','memories','tasks'].forEach(k=>{out[k]=Array.from(new Set([].concat((a&&a[k])||[],(b&&b[k])||[])))});return out}
+function sbLoadLibrary(){return new Promise(resolve=>{if(window.supabase&&window.supabase.createClient){resolve(true);return}const s=document.createElement('script');s.src=SB_CDN;s.async=true;let done=false;const finish=ok=>{if(done)return;done=true;resolve(ok)};s.onload=()=>finish(true);s.onerror=()=>finish(false);setTimeout(()=>finish(!!(window.supabase&&window.supabase.createClient)),10000);document.head.appendChild(s)})}
+async function sbInit(){
+const ok=await sbLoadLibrary();
+if(!ok||!window.supabase||!window.supabase.createClient){sbState='unavailable';sbUpdateAccountUI();return}
+try{sbClient=window.supabase.createClient(SB_URL,SB_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}catch(e){sbState='unavailable';sbUpdateAccountUI();return}
+sbState='ready';
+sbClient.auth.onAuthStateChange((event,session)=>{sbUser=session?session.user:null;if(event==='SIGNED_IN'&&sbUser){sbEnsureProfile();sbSyncNow()}sbUpdateAccountUI()});
+try{const res=await sbClient.auth.getSession();sbUser=res.data&&res.data.session?res.data.session.user:null}catch(e){sbUser=null}
+sbUpdateAccountUI();
+if(sbUser){sbEnsureProfile();sbSyncNow()}
+}
+async function sbEnsureProfile(){if(!sbClient||!sbUser)return;try{await sbClient.from('profiles').upsert({id:sbUser.id,email:sbUser.email},{onConflict:'id'})}catch(e){/* tables may not exist yet — sync reports that */}
+}
+function sbAuthMessage(text){const el=sbEl('auth-message');if(el)el.textContent=text}
+async function sbSignUp(){
+if(sbState!=='ready'){sbAuthMessage('Sign-in is unavailable right now — the account library could not load. Your local workspace still works.');return}
+const email=sbEl('auth-email').value.trim(),password=sbEl('auth-password').value;
+if(!email||password.length<6){sbAuthMessage('Enter an email and a password of at least 6 characters.');return}
+sbAuthMessage('Creating your account…');
+const res=await sbClient.auth.signUp({email,password});
+if(res.error){sbAuthMessage('Could not create the account: '+res.error.message);return}
+if(res.data&&res.data.session){sbAuthMessage('Account created — you are signed in.')}else{sbAuthMessage('Account created. Check your email and confirm your address, then sign in here.')}
+log('Account created',email);
+}
+async function sbSignIn(){
+if(sbState!=='ready'){sbAuthMessage('Sign-in is unavailable right now — the account library could not load. Your local workspace still works.');return}
+const email=sbEl('auth-email').value.trim(),password=sbEl('auth-password').value;
+if(!email||!password){sbAuthMessage('Enter your email and password.');return}
+sbAuthMessage('Signing in…');
+const res=await sbClient.auth.signInWithPassword({email,password});
+if(res.error){sbAuthMessage('Could not sign in: '+res.error.message);return}
+sbAuthMessage('Signed in.');
+log('Signed in',email);
+}
+async function sbSignOut(){if(sbClient){try{await sbClient.auth.signOut()}catch(e){}}sbUser=null;sbSyncState='idle';sbUpdateAccountUI();log('Signed out','Local copy kept in this browser.')}
+function sbTableRows(kind){
+const uid=sbUser.id;
+if(kind==='projects')return data.projects.map(p=>({user_id:uid,id:p.id,title:p.title,kind:p.kind||null,created_at:p.at||null}));
+if(kind==='memories')return data.memories.map(m=>({user_id:uid,id:m.id,project:m.project,kind:m.kind||null,text:m.text,created_at:m.at||null}));
+return data.tasks.map(t=>({user_id:uid,id:t.id,title:t.title,project:t.project||null,priority:t.priority||null,done:!!t.done,created_at:t.at||null}));
+}
+function sbRowToLocal(kind,row){
+if(kind==='projects')return{id:Number(row.id),title:row.title,kind:row.kind||'product',at:row.created_at||new Date().toISOString()};
+if(kind==='memories')return{id:Number(row.id),project:row.project,kind:row.kind||'Canon / confirmed fact',text:row.text,at:row.created_at||new Date().toISOString()};
+return{id:Number(row.id),title:row.title,project:row.project||'',priority:row.priority||'Normal',done:!!row.done,at:row.created_at||new Date().toISOString()};
+}
+function sbIsSetupError(err){return !!err&&(err.code==='42P01'||err.code==='PGRST205'||/relation .* does not exist/i.test(err.message||''))}
+async function sbSyncNow(){
+if(!sbClient||!sbUser||sbSyncRunning)return;
+sbSyncRunning=true;sbSyncState='syncing';sbUpdateAccountUI();
+try{
+for(const kind of ['projects','memories','tasks']){
+const dead=data.deleted[kind]||[];
+if(dead.length){
+data[kind]=data[kind].filter(x=>!dead.includes(x.id));
+const res=await sbClient.from(kind).delete().eq('user_id',sbUser.id).in('id',dead);
+if(res.error)throw res.error;
+data.deleted[kind]=[];
+}
+}
+persist();
+let pulled=0;
+for(const kind of ['projects','memories','tasks']){
+const res=await sbClient.from(kind).select('*').eq('user_id',sbUser.id);
+if(res.error)throw res.error;
+const localIds=new Set(data[kind].map(x=>x.id));
+const dead=new Set(data.deleted[kind]||[]);
+(res.data||[]).forEach(r=>{const id=Number(r.id);if(!localIds.has(id)&&!dead.has(id)){data[kind].push(sbRowToLocal(kind,r));pulled++}});
+}
+for(const kind of ['projects','memories','tasks']){
+const rows=sbTableRows(kind);
+if(rows.length){const res=await sbClient.from(kind).upsert(rows,{onConflict:'user_id,id'});if(res.error)throw res.error}
+}
+persist();
+sbSyncState='ok';sbSyncError='';sbLastSyncAt=new Date();
+try{localStorage.setItem(SB_SYNC_OK_KEY,'1')}catch(e){}
+renderHome();renderMemory();renderTasks();
+if(pulled)log('Synced from account',pulled+' item(s) pulled from your account');
+}catch(e){
+if(sbIsSetupError(e)){sbSyncState='setup-pending';sbSyncError='The database tables are not set up yet.'}
+else{sbSyncState='error';sbSyncError=(e&&e.message)||'Sync failed.'}
+}finally{sbSyncRunning=false;sbUpdateAccountUI()}
+}
+function sbScheduleSync(){if(!sbClient||!sbUser||sbSyncRunning)return;if(sbSyncTimer)clearTimeout(sbSyncTimer);sbSyncTimer=setTimeout(()=>sbSyncNow(),1500)}
+function renderAccount(){sbUpdateAccountUI()}
+function sbUpdateAccountUI(){
+const signedIn=!!sbUser;
+const outEl=sbEl('account-signed-out'),inEl=sbEl('account-signed-in');
+if(outEl)outEl.classList.toggle('hidden',signedIn);
+if(inEl)inEl.classList.toggle('hidden',!signedIn);
+const emailEl=sbEl('account-email');if(emailEl)emailEl.textContent=signedIn?('Signed in as '+sbUser.email):'';
+const syncEl=sbEl('account-sync-status');
+if(syncEl){
+if(!signedIn)syncEl.textContent='';
+else if(sbSyncState==='syncing')syncEl.textContent='Syncing…';
+else if(sbSyncState==='ok')syncEl.textContent='Synced'+(sbLastSyncAt?' at '+sbLastSyncAt.toLocaleTimeString():'')+'. Your projects, memory, and tasks are backed up to your account.';
+else if(sbSyncState==='setup-pending')syncEl.textContent='Sync pending: the database tables are not set up yet. Your work is safe in this browser.';
+else if(sbSyncState==='error')syncEl.textContent='Last sync failed: '+sbSyncError+' Your work is safe in this browser — it will retry.';
+else syncEl.textContent='Sync ready.';
+}
+const note=sbEl('account-setup-note');
+if(note){let ok=false;try{ok=localStorage.getItem(SB_SYNC_OK_KEY)==='1'}catch(e){}note.classList.toggle('hidden',ok)}
+const side=sbEl('side-note');
+if(side)side.textContent=signedIn?('Signed in as '+sbUser.email+'. Your work saves here first, then syncs to your account.'):'Your workspace entries are saved in this browser on this device. Sign in from Account to sync them across devices.';
+if(sbState==='unavailable')sbSetStatus('Workspace · Local only');
+else if(!signedIn)sbSetStatus('Workspace · Signed out');
+else if(sbSyncState==='syncing')sbSetStatus('Workspace · Syncing…');
+else if(sbSyncState==='setup-pending')sbSetStatus('Workspace · Sync setup pending');
+else if(sbSyncState==='error')sbSetStatus('Workspace · Sync failed — local copy safe');
+else sbSetStatus('Workspace · Synced');
+}
+window.addEventListener('online',()=>{if(sbUser)sbSyncNow()});
+sbInit();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register(new URL('./sw.js',document.baseURI)).catch(()=>{}))}
 renderHome();renderMemory();renderTasks();renderActivity();
 </script></body></html>

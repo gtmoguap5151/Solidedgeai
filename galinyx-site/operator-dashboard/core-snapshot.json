@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T02:28:03.793Z",
+  "generatedAt": "2026-11-19T13:01:33.609Z",
   "coreVersion": "1.3.0",
   "operators": [
     {
@@ -121,6 +121,54 @@
       "mode": "draft-only",
       "status": "deployed-unproven",
       "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+    },
+    {
+      "id": "listings-operator",
+      "name": "Listings Worker",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+    },
+    {
+      "id": "product-promotion-operator",
+      "name": "Product Promotion Worker",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+    },
+    {
+      "id": "orders-operator",
+      "name": "Orders Worker",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+    },
+    {
+      "id": "customer-care-operator",
+      "name": "Customer Care Worker",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable. Hard rule: never promises refunds — all sales are final."
+    },
+    {
+      "id": "pricing-promotions-operator",
+      "name": "Pricing & Promotions Worker",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+    },
+    {
+      "id": "repeat-buyer-operator",
+      "name": "Repeat Buyer Worker",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
     }
   ],
   "environments": [
@@ -206,6 +254,76 @@
       "decision": "DECISION (Xena, round table 2026-11-18): APPROVED as advisory guidance. Suggestions 1, 2, 3, 5 are already executed as of today (Black Friday page live via Git push; Free Country Lanier card live $126; firearm course li…"
     },
     {
+      "file": "draft-helper-needs-closer.md",
+      "draftId": "draft-helper-needs-closer.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-helper-needs-closer.md",
+      "status": "draft",
+      "date": "",
+      "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live.*"
+    },
+    {
+      "file": "draft-helper-needs-handshake.md",
+      "draftId": "draft-helper-needs-handshake.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-helper-needs-handshake.md",
+      "status": "draft",
+      "date": "",
+      "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live.*"
+    },
+    {
+      "file": "draft-helper-needs-hearth.md",
+      "draftId": "draft-helper-needs-hearth.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-helper-needs-hearth.md",
+      "status": "draft",
+      "date": "",
+      "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live. The…"
+    },
+    {
+      "file": "draft-helper-needs-mirror.md",
+      "draftId": "draft-helper-needs-mirror.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-helper-needs-mirror.md",
+      "status": "draft",
+      "date": "",
+      "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live.*"
+    },
+    {
+      "file": "draft-helper-needs-proof.md",
+      "draftId": "draft-helper-needs-proof.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-helper-needs-proof.md",
+      "status": "draft",
+      "date": "",
+      "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live.*"
+    },
+    {
+      "file": "draft-helper-needs-prova.md",
+      "draftId": "draft-helper-needs-prova.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-helper-needs-prova.md",
+      "status": "draft",
+      "date": "",
+      "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live.*"
+    },
+    {
+      "file": "draft-helper-needs-shuttle.md",
+      "draftId": "draft-helper-needs-shuttle.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-helper-needs-shuttle.md",
+      "status": "draft",
+      "date": "",
+      "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live.*"
+    },
+    {
       "file": "draft-naming-closer.md",
       "draftId": "draft-naming-closer.md",
       "operatorId": "",
@@ -284,6 +402,66 @@
       "status": "draft",
       "date": "Nov 18, 2026",
       "summary": "I name her Prova."
+    },
+    {
+      "file": "draft-new-customer-care-worker.md",
+      "draftId": "draft-new-customer-care-worker.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-customer-care-worker.md",
+      "status": "draft",
+      "date": "Nov 19, 2026",
+      "summary": "The Customer Care Worker is the newest member of the Apparel & Sales department. It drafts replies to buyer questions and sizing help: what size to order, what…"
+    },
+    {
+      "file": "draft-new-listings-worker.md",
+      "draftId": "draft-new-listings-worker.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-listings-worker.md",
+      "status": "draft",
+      "date": "Nov 19, 2026",
+      "summary": "The Listings Worker is the newest member of the Apparel & Sales department. It owns the product listings: the titles, the descriptions, and the mockup placemen…"
+    },
+    {
+      "file": "draft-new-orders-worker.md",
+      "draftId": "draft-new-orders-worker.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-orders-worker.md",
+      "status": "draft",
+      "date": "Nov 19, 2026",
+      "summary": "The Orders Worker is the newest member of the Apparel & Sales department. It owns what happens after a buyer pays: tracking every Printify order — placed, prin…"
+    },
+    {
+      "file": "draft-new-pricing-promotions-worker.md",
+      "draftId": "draft-new-pricing-promotions-worker.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-pricing-promotions-worker.md",
+      "status": "draft",
+      "date": "Nov 19, 2026",
+      "summary": "The Pricing & Promotions Worker is the newest member of the Apparel & Sales department. It watches the money in every product: what it costs, what it sells for…"
+    },
+    {
+      "file": "draft-new-product-promotion-worker.md",
+      "draftId": "draft-new-product-promotion-worker.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-product-promotion-worker.md",
+      "status": "draft",
+      "date": "Nov 19, 2026",
+      "summary": "The Product Promotion Worker is the newest member of the Apparel & Sales department. It gets eyes on the products: the posts, the drop announcements, and the s…"
+    },
+    {
+      "file": "draft-new-repeat-buyer-worker.md",
+      "draftId": "draft-new-repeat-buyer-worker.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-repeat-buyer-worker.md",
+      "status": "draft",
+      "date": "Nov 19, 2026",
+      "summary": "The Repeat Buyer Worker is the newest member of the Apparel & Sales department. It owns the second sale: the follow-up after delivery, the next-drop notices, a…"
     },
     {
       "file": "draft-team-needs-affiliate-operator.md",
