@@ -104,6 +104,12 @@ const staging = readdirSync(stagingDir)
     const dateLine = lines.find((l) => l.startsWith('Date:')) || '';
     const date = dateLine.replace(/^Date:\s*/, '').trim();
     const decisionLine = lines.find((l) => l.startsWith('DECISION')) || '';
+    // Design-suggestion drafts carry a Photo line with the live image URL
+    // (owner's rule, Nov 19, 2026): "- Photo: https://...". The app shows
+    // the photo when the draft is opened.
+    const photoLine = lines.find((l) => /^\s*[-*]?\s*Photo:\s*\S+/.test(l)) || '';
+    const photoMatch = photoLine.match(/Photo:\s*(\S+)/);
+    const image = photoMatch ? photoMatch[1].replace(/[),.]+$/, '') : '';
     const dividerAt = lines.findIndex((l) => l.trim() === '---');
     const body = dividerAt >= 0 ? lines.slice(dividerAt + 1) : lines;
     // First line with real content: skip blanks and section headers
@@ -127,6 +133,7 @@ const staging = readdirSync(stagingDir)
       summary: truncate(summaryLine, 160),
     };
     if (decisionLine) entry.decision = truncate(decisionLine, 220);
+    if (image) entry.image = image;
     if (published) {
       const url = firstLine.match(/https?:\/\/\S+/);
       if (url) entry.publishedUrl = url[0].replace(/[),.]+$/, '');

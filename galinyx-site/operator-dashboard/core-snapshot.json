@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T21:29:33.956Z",
+  "generatedAt": "2026-11-19T22:25:07.670Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -431,6 +431,16 @@
       "summary": "## Deal summary — D-001"
     },
     {
+      "file": "draft-log.md",
+      "draftId": "draft-log.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-log.md",
+      "status": "draft",
+      "date": "",
+      "summary": "# Draft Log — GALINYX OS"
+    },
+    {
       "file": "draft-matlock-verification-plan.md",
       "draftId": "draft-matlock-verification-plan.md",
       "operatorId": "",
@@ -649,7 +659,8 @@
       "title": "draft-tailor-design-01.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Design 01 — The Classic Combo — White**"
+      "summary": "**Design 01 — The Classic Combo — White**",
+      "image": "https://blackpinefield.com/img/design-01.png"
     },
     {
       "file": "draft-tailor-design-02.md",
@@ -659,7 +670,8 @@
       "title": "draft-tailor-design-02.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Design 02 — The Classic Combo — Black**"
+      "summary": "**Design 02 — The Classic Combo — Black**",
+      "image": "https://blackpinefield.com/img/design-02.png"
     },
     {
       "file": "draft-tailor-design-03.md",
@@ -669,7 +681,8 @@
       "title": "draft-tailor-design-03.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Design 03 — Chest Lockup — White**"
+      "summary": "**Design 03 — Chest Lockup — White**",
+      "image": "https://blackpinefield.com/img/design-03.png"
     },
     {
       "file": "draft-tailor-design-04.md",
@@ -679,7 +692,8 @@
       "title": "draft-tailor-design-04.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Design 04 — Chest Lockup — Black**"
+      "summary": "**Design 04 — Chest Lockup — Black**",
+      "image": "https://blackpinefield.com/img/design-04.png"
     },
     {
       "file": "draft-tailor-design-05.md",
@@ -689,7 +703,8 @@
       "title": "draft-tailor-design-05.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Design 05 — Camel Back — True Pine**"
+      "summary": "**Design 05 — Camel Back — True Pine**",
+      "image": "https://blackpinefield.com/img/design-05.png"
     },
     {
       "file": "draft-tailor-design-06.md",
@@ -699,7 +714,8 @@
       "title": "draft-tailor-design-06.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Design 06 — Fall Drop — BORN TO HUNT**"
+      "summary": "**Design 06 — Fall Drop — BORN TO HUNT**",
+      "image": "https://blackpinefield.com/img/design-06.png"
     },
     {
       "file": "draft-tailor-design-07.md",
@@ -709,7 +725,8 @@
       "title": "draft-tailor-design-07.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Design 07 — Winter Drop — BUILT FOR COLD**"
+      "summary": "**Design 07 — Winter Drop — BUILT FOR COLD**",
+      "image": "https://blackpinefield.com/img/design-07.png"
     },
     {
       "file": "draft-tailor-design-08.md",
@@ -719,7 +736,8 @@
       "title": "draft-tailor-design-08.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Design 08 — Oversized True Pine — White**"
+      "summary": "**Design 08 — Oversized True Pine — White**",
+      "image": "https://blackpinefield.com/img/design-08.png"
     },
     {
       "file": "draft-tailor-design-09.md",
@@ -729,7 +747,8 @@
       "title": "draft-tailor-design-09.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Design 09 — Left-Chest Minimal — Black**"
+      "summary": "**Design 09 — Left-Chest Minimal — Black**",
+      "image": "https://blackpinefield.com/img/design-09.png"
     },
     {
       "file": "draft-tailor-design-10.md",
@@ -739,7 +758,8 @@
       "title": "draft-tailor-design-10.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Design 10 — Spring Drop — SPRING THUNDER CALLS**"
+      "summary": "**Design 10 — Spring Drop — SPRING THUNDER CALLS**",
+      "image": "https://blackpinefield.com/img/design-10.png"
     },
     {
       "file": "draft-tailor-line-crewneck-01.md",
@@ -749,7 +769,8 @@
       "title": "draft-tailor-line-crewneck-01.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Crewneck 01 — Lockup — Black**"
+      "summary": "**Crewneck 01 — Lockup — Black**",
+      "image": "https://blackpinefield.com/img/crewneck-01.png"
     },
     {
       "file": "draft-tailor-line-crewneck-02.md",
@@ -759,7 +780,8 @@
       "title": "draft-tailor-line-crewneck-02.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Crewneck 02 — True Pine — White**"
+      "summary": "**Crewneck 02 — True Pine — White**",
+      "image": "https://blackpinefield.com/img/crewneck-02.png"
     },
     {
       "file": "draft-tailor-line-crewneck-03.md",
@@ -769,7 +791,8 @@
       "title": "draft-tailor-line-crewneck-03.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Crewneck 03 — Born to Hunt — White**"
+      "summary": "**Crewneck 03 — Born to Hunt — White**",
+      "image": "https://blackpinefield.com/img/crewneck-03.png"
     },
     {
       "file": "draft-tailor-line-dadcap-01.md",
@@ -779,7 +802,8 @@
       "title": "draft-tailor-line-dadcap-01.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Dad Cap 01 — Lockup — Black**"
+      "summary": "**Dad Cap 01 — Lockup — Black**",
+      "image": "https://blackpinefield.com/img/dadcap-01.png"
     },
     {
       "file": "draft-tailor-line-dadcap-02.md",
@@ -789,7 +813,8 @@
       "title": "draft-tailor-line-dadcap-02.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Dad Cap 02 — Pine Only — Black**"
+      "summary": "**Dad Cap 02 — Pine Only — Black**",
+      "image": "https://blackpinefield.com/img/dadcap-02.png"
     },
     {
       "file": "draft-tailor-line-hoodie-01.md",
@@ -799,7 +824,8 @@
       "title": "draft-tailor-line-hoodie-01.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Hoodie 01 — Chest Lockup — Black**"
+      "summary": "**Hoodie 01 — Chest Lockup — Black**",
+      "image": "https://blackpinefield.com/img/hoodie-01.png"
     },
     {
       "file": "draft-tailor-line-hoodie-02.md",
@@ -809,7 +835,8 @@
       "title": "draft-tailor-line-hoodie-02.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Hoodie 02 — Built for Cold — Black**"
+      "summary": "**Hoodie 02 — Built for Cold — Black**",
+      "image": "https://blackpinefield.com/img/hoodie-02.png"
     },
     {
       "file": "draft-tailor-line-hoodie-03.md",
@@ -819,7 +846,8 @@
       "title": "draft-tailor-line-hoodie-03.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Hoodie 03 — True Pine — White**"
+      "summary": "**Hoodie 03 — True Pine — White**",
+      "image": "https://blackpinefield.com/img/hoodie-03.png"
     },
     {
       "file": "draft-tailor-line-longsleeve-01.md",
@@ -829,7 +857,8 @@
       "title": "draft-tailor-line-longsleeve-01.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Long Sleeve 01 — True Pine Back — White**"
+      "summary": "**Long Sleeve 01 — True Pine Back — White**",
+      "image": "https://blackpinefield.com/img/longsleeve-01.png"
     },
     {
       "file": "draft-tailor-line-longsleeve-02.md",
@@ -839,7 +868,8 @@
       "title": "draft-tailor-line-longsleeve-02.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Long Sleeve 02 — Lockup — White**"
+      "summary": "**Long Sleeve 02 — Lockup — White**",
+      "image": "https://blackpinefield.com/img/longsleeve-02.png"
     },
     {
       "file": "draft-tailor-line-longsleeve-03.md",
@@ -849,7 +879,8 @@
       "title": "draft-tailor-line-longsleeve-03.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Long Sleeve 03 — Minimal — Black**"
+      "summary": "**Long Sleeve 03 — Minimal — Black**",
+      "image": "https://blackpinefield.com/img/longsleeve-03.png"
     },
     {
       "file": "draft-tailor-line-mug-01.md",
@@ -859,7 +890,8 @@
       "title": "draft-tailor-line-mug-01.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Mug 01 — Full Lockup — White**"
+      "summary": "**Mug 01 — Full Lockup — White**",
+      "image": "https://blackpinefield.com/img/mug-01.png"
     },
     {
       "file": "draft-tailor-line-mug-02.md",
@@ -869,7 +901,8 @@
       "title": "draft-tailor-line-mug-02.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Mug 02 — True Pine — Black**"
+      "summary": "**Mug 02 — True Pine — Black**",
+      "image": "https://blackpinefield.com/img/mug-02.png"
     },
     {
       "file": "draft-tailor-line-mug-03.md",
@@ -879,7 +912,8 @@
       "title": "draft-tailor-line-mug-03.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Mug 03 — Minimal — White**"
+      "summary": "**Mug 03 — Minimal — White**",
+      "image": "https://blackpinefield.com/img/mug-03.png"
     },
     {
       "file": "draft-tailor-line-trucker-01.md",
@@ -889,7 +923,8 @@
       "title": "draft-tailor-line-trucker-01.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Trucker Cap 01 — Lockup — Black**"
+      "summary": "**Trucker Cap 01 — Lockup — Black**",
+      "image": "https://blackpinefield.com/img/trucker-01.png"
     },
     {
       "file": "draft-tailor-line-trucker-02.md",
@@ -899,7 +934,8 @@
       "title": "draft-tailor-line-trucker-02.md",
       "status": "draft",
       "date": "Nov 19, 2026",
-      "summary": "**Trucker Cap 02 — True Pine — Black**"
+      "summary": "**Trucker Cap 02 — True Pine — Black**",
+      "image": "https://blackpinefield.com/img/trucker-02.png"
     },
     {
       "file": "draft-tailor-mark-reconciliation.md",
@@ -1382,7 +1418,7 @@
   ],
   "auditStats": {
     "inMemoryEntries": 69,
-    "lastSeq": 72,
+    "lastSeq": 73,
     "persistFailures": 0
   }
 }
