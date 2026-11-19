@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T02:19:31.187Z",
+  "generatedAt": "2026-11-19T02:28:03.793Z",
   "coreVersion": "1.3.0",
   "operators": [
     {
@@ -459,6 +459,20 @@
   },
   "audit": [
     {
+      "type": "interaction",
+      "timestamp": "2026-11-19T02:28:00.823Z",
+      "operatorId": "blackpine-operator",
+      "environment": "blackpine-field",
+      "action": "message:ASK",
+      "allowed": true,
+      "reason": "Allowed (cross-environment, owner-approved by 'owner'): 'Blackpine Operator' -> 'Rivet Reach Operator' (ASK).",
+      "messageId": "msg-403b4cb1-1b78-45a2-837b-c6b8c9dca54a",
+      "toOperatorId": "rivet-reach-operator",
+      "kind": "ASK",
+      "seq": 49,
+      "coreVersion": "1.3.0"
+    },
+    {
       "type": "notification-decision",
       "timestamp": "2026-11-19T02:19:24.507Z",
       "operatorId": "tailor-operator",
@@ -741,22 +755,11 @@
       "reason": "Allowed: 'Rivet Reach Operator' in mode 'Draft-Only' may 'write' in 'rivet-reach'.",
       "seq": 30,
       "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:41:32.433Z",
-      "operatorId": "blackpine-operator",
-      "environment": "blackpine-field",
-      "action": "write",
-      "allowed": true,
-      "reason": "Allowed: 'Blackpine Operator' in mode 'Draft-Only' may 'write' in 'blackpine-field'.",
-      "seq": 29,
-      "coreVersion": "1.1.0"
     }
   ],
   "auditStats": {
-    "inMemoryEntries": 48,
-    "lastSeq": 48,
+    "inMemoryEntries": 49,
+    "lastSeq": 49,
     "persistFailures": 0
   }
 }
