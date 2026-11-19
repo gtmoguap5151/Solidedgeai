@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T22:36:11.605Z",
+  "generatedAt": "2026-11-19T22:58:07.968Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -299,7 +299,7 @@
       "operatorName": "",
       "title": "draft-blackpine-operator-store-improvements.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "## Draft 1 — Black Friday deals shelf (top of the store, this week)"
     },
@@ -1493,7 +1493,7 @@
   ],
   "auditStats": {
     "inMemoryEntries": 69,
-    "lastSeq": 73,
+    "lastSeq": 74,
     "persistFailures": 0
   }
 }

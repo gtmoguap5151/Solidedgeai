@@ -30,7 +30,7 @@ it when the draft is opened. No design draft ships without its picture.
 
 | Draft | Staged | Status | Title | Photo |
 |---|---|---|---|---|
-| `draft-blackpine-operator-store-improvements.md` | 2026-11-19 | Staged — pending review | Where the store stands (honest numbers, Nov 19, 2026) | — |
+| `draft-blackpine-operator-store-improvements.md` | 2026-11-19 | Approved | Where the store stands (honest numbers, Nov 19, 2026) | — |
 
 ## closer-visitor (1)
 
