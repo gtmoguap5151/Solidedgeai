@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T01:38:04.838Z",
+  "generatedAt": "2026-11-19T02:19:31.187Z",
   "coreVersion": "1.3.0",
   "operators": [
     {
@@ -431,10 +431,10 @@
       "reference": "'publish' in 'blackpine-field' (mode 'Draft-Only')",
       "reason": "Denied: 'The Tailor' in mode 'Draft-Only' may not 'publish'. Read-only advisory mode allows observe and advise only.",
       "timestamp": "2026-11-19T01:28:03.380Z",
-      "status": "pending",
-      "decidedBy": null,
-      "decidedAt": null,
-      "decisionReason": null
+      "status": "approved",
+      "decidedBy": "owner",
+      "decidedAt": "2026-11-19T02:19:24.493Z",
+      "decisionReason": "Run it."
     },
     {
       "id": "notif-5b01eb3d-817b-432d-b42f-009e51a0e31b",
@@ -454,10 +454,24 @@
   ],
   "notificationStats": {
     "total": 3,
-    "pendingCount": 1,
-    "decidedCount": 2
+    "pendingCount": 0,
+    "decidedCount": 3
   },
   "audit": [
+    {
+      "type": "notification-decision",
+      "timestamp": "2026-11-19T02:19:24.507Z",
+      "operatorId": "tailor-operator",
+      "environment": "blackpine-field",
+      "action": "notification:approved",
+      "allowed": true,
+      "reason": "Owner 'owner' approved The Tailor's request to 'publish' ('publish' in 'blackpine-field' (mode 'Draft-Only')). Owner's note: Run it.",
+      "notificationId": "notif-11a56d15-6bba-4fd7-8456-93a05fb77144",
+      "decision": "approved",
+      "decidedBy": "owner",
+      "seq": 48,
+      "coreVersion": "1.3.0"
+    },
     {
       "type": "mode-change-approved",
       "timestamp": "2026-11-19T01:36:22.870Z",
@@ -738,22 +752,11 @@
       "reason": "Allowed: 'Blackpine Operator' in mode 'Draft-Only' may 'write' in 'blackpine-field'.",
       "seq": 29,
       "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:41:32.433Z",
-      "operatorId": "rivet-reach-operator",
-      "environment": "rivet-reach",
-      "action": "publish",
-      "allowed": false,
-      "reason": "Denied: 'Rivet Reach Operator' in mode 'Draft-Only' may not 'publish'. Read-only advisory mode allows observe and advise only.",
-      "seq": 28,
-      "coreVersion": "1.1.0"
     }
   ],
   "auditStats": {
-    "inMemoryEntries": 47,
-    "lastSeq": 47,
+    "inMemoryEntries": 48,
+    "lastSeq": 48,
     "persistFailures": 0
   }
 }
