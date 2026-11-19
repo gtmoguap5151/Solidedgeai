@@ -1,5 +1,5 @@
-const CACHE_NAME = "galinyx-os-shell-v11";
-const SHELL_FILES = ["./", "./index.html", "./studio-ai.js", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
+const CACHE_NAME = "galinyx-os-shell-v12";
+const SHELL_FILES = ["./", "./index.html", "./studio-ai.js", "./galileo-avatar.js", "./xena-avatar.js", "./galileo-avatar-video.js", "./galileo-chat.js", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

@@ -11,6 +11,38 @@
 .draft-badge{color:#e9c77a!important;border-color:#695c3b!important}.nw-code{font-size:12px;max-height:280px;overflow:auto}
 .wf-columns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;align-items:start}.wf-column{border:1px solid #26334e;background:#0d1527;border-radius:9px;padding:13px;min-width:0}.wf-column h3{font-size:13px;margin:0 0 4px}.wf-column .wf-col-sub{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:11px}.wf-column .list{gap:7px}.wf-column .item{padding:11px}.item.tappable{cursor:pointer}.item.tappable:hover{border-color:#52648a}.item.selected{border-color:#a7bcff;box-shadow:0 0 0 1px #a7bcff inset}.wf-hint{color:#8fa3cc!important}.wf-draft-body{margin-top:4px}
 @media(max-width:1100px){.wf-columns{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.chat-presence{display:flex;align-items:center;gap:14px;margin-bottom:13px}
+.chat-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #52648a;flex-shrink:0;cursor:pointer;transition:transform .25s,box-shadow .25s,border-color .25s}
+.chat-avatar:hover{transform:scale(1.04)}
+.chat-avatar.small{width:44px;height:44px}
+.chat-avatar.listening{border-color:#7dc69b;box-shadow:0 0 0 4px rgba(125,198,155,.25);animation:galileoPulse 1.1s ease-in-out infinite}
+.chat-avatar.thinking{border-color:var(--blue);box-shadow:0 0 0 4px rgba(167,188,255,.22);animation:galileoPulse 1.4s ease-in-out infinite}
+.chat-avatar.speaking{border-color:var(--gold);box-shadow:0 0 0 4px rgba(233,199,122,.28);animation:galileoBob .9s ease-in-out infinite}
+.chat-avatar.welcoming{animation:galileoBob 1.2s ease-in-out 2}
+@keyframes galileoPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes galileoBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.chat-presence-main{display:grid;gap:3px}
+.chat-xena{margin-left:auto;display:flex;align-items:center;gap:10px;text-align:right}
+.chat-xena div{display:grid;gap:3px}
+.chat-log{display:grid;gap:10px;max-height:52vh;overflow:auto;padding:4px 2px}
+.chat-msg{display:flex;gap:10px;align-items:flex-start}
+.chat-msg .chat-bubble{padding:11px 13px;border-radius:9px;font-size:13px;line-height:1.6;white-space:pre-wrap;max-width:85%}
+.chat-msg.galileo .chat-bubble,.chat-msg.model .chat-bubble{background:#0d1527;border:1px solid #26334e}
+.chat-msg.xena .chat-bubble{background:#17122b;border:1px solid #4a3a75}
+.chat-msg.matt{justify-content:flex-end}
+.chat-msg.matt .chat-bubble{background:#1c2944;border:1px solid #39496b}
+.chat-msg.system{justify-content:center}
+.chat-msg.system .chat-bubble{background:transparent;border:1px dashed #354463;color:var(--muted);font-size:12px}
+.chat-msg .chat-thumb{width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid #354463;flex-shrink:0}
+.chat-input-row{display:flex;gap:9px;margin-top:13px;flex-wrap:wrap}
+.chat-input-row input{flex:1;min-width:180px;background:#091122;color:var(--text);border:1px solid #354463;border-radius:8px;padding:11px;outline:none}
+.chat-input-row input:focus{border-color:#a7bcff}
+.typing-dots i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#9eacc8;margin-right:4px;animation:galileoBlink 1.2s infinite}
+.typing-dots i:nth-child(2){animation-delay:.2s}.typing-dots i:nth-child(3){animation-delay:.4s}
+@keyframes galileoBlink{0%,100%{opacity:.3}50%{opacity:1}}
+.btn.listening{border-color:#7dc69b!important;color:#b9d5bf}
+.btn.voice-on{border-color:var(--gold)!important;color:#e9c77a}
+@media(max-width:780px){.chat-presence{flex-wrap:wrap}.chat-xena{margin-left:0}}
 </style>
 </head>
 <body><div class="app">
@@ -23,6 +55,7 @@
 <button class="nav" data-view="memory"><b>▤</b> Project Memory</button>
 <button class="nav" data-view="tasks"><b>✓</b> Task Planner</button>
 <button class="nav" data-view="workforce"><b>⚙</b> Workforce</button>
+<button class="nav" data-view="galileo"><b>◐</b> Galileo</button>
 <button class="nav" data-view="activity"><b>◷</b> Activity Log</button>
 <button class="nav" data-view="account"><b>◉</b> Account</button>
 <div class="side-note" id="side-note">Your workspace entries are saved in this browser on this device. Sign in from Account to sync them across devices.</div>
@@ -37,7 +70,7 @@
 <article class="panel"><h2>Open tasks</h2><div class="metric" id="metric-tasks">0</div><div class="sub">Planned work not yet completed</div></article>
 <article class="panel wide"><div class="section-title"><h2>Workspace activity</h2><button class="btn ghost" onclick="showView('activity')">View log</button></div><div id="home-activity" class="list"></div></article>
 <article class="panel"><h2>Operating principle</h2><div class="metric" style="font-size:20px">Human-directed.</div><div class="sub">You choose what to save, what to do next, and what leaves the workspace.</div><div class="divider"></div><span class="chip">Review before action</span></article>
-<article class="panel full"><div class="section-title"><h2>Choose a workspace tool</h2><span class="tiny">Sign in from Account — it shows who you are. The tools still work signed out, local-only.</span></div><div class="grid"><button class="panel" onclick="showView('creator')" style="text-align:left;color:inherit;cursor:pointer"><h2>✳ Creator Studio</h2><div class="sub">Build a project brief, story premise, or character outline.</div></button><button class="panel" onclick="showView('memory')" style="text-align:left;color:inherit;cursor:pointer"><h2>▤ Project Memory</h2><div class="sub">Store notes with a project name and category.</div></button><button class="panel" onclick="showView('tasks')" style="text-align:left;color:inherit;cursor:pointer"><h2>✓ Task Planner</h2><div class="sub">Create tasks and track their status.</div></button><button class="panel" onclick="showView('workforce')" style="text-align:left;color:inherit;cursor:pointer"><h2>⚙ Workforce</h2><div class="sub">Meet the operators — and the Core that governs them.</div></button></div></article>
+<article class="panel full"><div class="section-title"><h2>Choose a workspace tool</h2><span class="tiny">Sign in from Account — it shows who you are. The tools still work signed out, local-only.</span></div><div class="grid"><button class="panel" onclick="showView('creator')" style="text-align:left;color:inherit;cursor:pointer"><h2>✳ Creator Studio</h2><div class="sub">Build a project brief, story premise, or character outline.</div></button><button class="panel" onclick="showView('memory')" style="text-align:left;color:inherit;cursor:pointer"><h2>▤ Project Memory</h2><div class="sub">Store notes with a project name and category.</div></button><button class="panel" onclick="showView('tasks')" style="text-align:left;color:inherit;cursor:pointer"><h2>✓ Task Planner</h2><div class="sub">Create tasks and track their status.</div></button><button class="panel" onclick="showView('workforce')" style="text-align:left;color:inherit;cursor:pointer"><h2>⚙ Workforce</h2><div class="sub">Meet the operators — and the Core that governs them.</div></button><button class="panel" onclick="showView('galileo')" style="text-align:left;color:inherit;cursor:pointer"><h2>◐ Galileo</h2><div class="sub">Talk to Galileo — he greets you first. Type, or speak and hear him answer.</div></button></div></article>
 </div></section>
 <section id="view-creator" class="view hidden">
 <div class="heading"><div><div class="eyebrow">Tool 01 / Create</div><h1>Creator Studio</h1><p>Turn a rough idea into a structured starting draft you can revise.</p></div></div>
@@ -82,6 +115,11 @@
 <article class="panel wide"><div class="section-title"><h2>Recent audit entries</h2><span class="tiny" id="wf-audit-note"></span></div><div id="wf-audit" class="list"><div class="empty">Loading…</div></div></article>
 </div>
 </section>
+<section id="view-galileo" class="view hidden">
+<div class="heading"><div><div class="eyebrow">Talk to Galileo</div><h1>Galileo Ferraris.</h1><p>Electrical engineer and physicist. He greets you first — you built him, and he knows it. His avatar is live: he moves, and when Voice is on he speaks out loud. This chat runs on the GALINYX shell, independent of the Muse app. Type, or tap Speak to talk.</p></div></div>
+<div class="panel chat-presence"><video id="galileo-avatar-video" class="chat-avatar hidden" autoplay muted loop playsinline title="Tap to say hello" onclick="galileoTap()"></video><img id="galileo-avatar-img" class="chat-avatar" alt="Galileo Ferraris" title="Tap to say hello" onclick="galileoTap()"><div class="chat-presence-main"><strong>Galileo Ferraris</strong><span class="tiny" id="galileo-status">Here.</span></div><div class="chat-xena"><div><strong>Xena</strong><span class="tiny">Here in the system</span></div><img id="xena-avatar-img" class="chat-avatar small" alt="Xena" title="Tap to say hello" onclick="xenaTap()"></div></div>
+<div class="panel"><div id="galileo-messages" class="chat-log"></div><div class="chat-input-row"><input id="galileo-input" placeholder="Talk to Galileo…" autocomplete="off"><button class="btn secondary" id="galileo-mic" onclick="galileoToggleMic()">Speak</button><button class="btn secondary" id="galileo-voice" onclick="galileoToggleVoice()">Voice: Off</button><button class="btn" id="galileo-send" onclick="sendGalileoMessage()">Send</button><button class="btn secondary" onclick="clearGalileoChat()">Clear</button></div><div class="tiny" style="margin-top:10px">Galileo is draft-only: he advises and writes drafts. He never publishes, spends, or changes anything live. Voice uses this browser's own speech — no call, no recording kept.</div></div>
+</section>
 <section id="view-account" class="view hidden">
 <div class="heading"><div><div class="eyebrow">System / Account</div><h1>Account</h1><p>Sign in to sync your projects, memory, and tasks across devices. Everything still works signed out — your work stays in this browser.</p></div></div>
 <div class="grid">
@@ -122,7 +160,7 @@ let lastDraft='';
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(data));if(typeof sbScheduleSync==='function')sbScheduleSync();return true}catch(e){alert('Browser storage is unavailable or full. Export your work before closing this page.');return false}}
 function log(action,detail){data.activity.unshift({id:Date.now()+Math.random(),action,detail,at:new Date().toISOString()});data.activity=data.activity.slice(0,100);persist();renderActivity();renderHomeActivity()}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));document.getElementById('view-'+name).classList.remove('hidden');document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===name));if(name==='memory')renderMemory();if(name==='tasks')renderTasks();if(name==='activity')renderActivity();if(name==='workforce')loadWorkforce();if(name==='home')renderHome();if(name==='account')renderAccount()}
+function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));document.getElementById('view-'+name).classList.remove('hidden');document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===name));if(name==='memory')renderMemory();if(name==='tasks')renderTasks();if(name==='activity')renderActivity();if(name==='workforce')loadWorkforce();if(name==='home')renderHome();if(name==='account')renderAccount();if(name==='galileo'&&typeof initGalileoChat==='function')initGalileoChat()}
 document.querySelectorAll('.nav').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
 function renderHome(){document.getElementById('metric-projects').textContent=data.projects.length;document.getElementById('metric-memory').textContent=data.memories.length;document.getElementById('metric-tasks').textContent=data.tasks.filter(t=>!t.done).length;renderHomeActivity()}
 function eventItem(x){return '<div class="item"><div class="dot"></div><div><strong>'+esc(x.action)+'</strong><small>'+esc(x.detail||'')+' · '+esc(new Date(x.at).toLocaleString())+'</small></div></div>'}
@@ -468,4 +506,4 @@ window.addEventListener('online',()=>{if(sbUser)sbSyncNow()});
 sbInit();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register(new URL('./sw.js',document.baseURI)).catch(()=>{}))}
 renderHome();renderMemory();renderTasks();renderActivity();
-</script><script src="./studio-ai.js"></script></body></html>
+</script><script src="./studio-ai.js"></script><script src="./galileo-avatar.js"></script><script src="./xena-avatar.js"></script><script src="./galileo-avatar-video.js"></script><script src="./galileo-chat.js"></script></body></html>
