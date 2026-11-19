@@ -1,5 +1,5 @@
-const CACHE_NAME = "galinyx-os-shell-v1";
-const SHELL_FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
+const CACHE_NAME = "galinyx-os-shell-v3";
+const SHELL_FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -30,6 +30,24 @@ self.addEventListener("fetch", (event) => {
         }
         return response;
       }).catch(async () => (await caches.match("./index.html")) || Response.error())
+    );
+    return;
+  }
+
+  // The Core snapshot is republished whenever the registry, staging, or audit
+  // log changes. Always try the network first so the Workforce view and the
+  // Core screen show the latest published snapshot; fall back to the cached
+  // copy only when offline. (Cache-first here would freeze the snapshot at
+  // the first load, since this worker never re-fetches a cache hit.)
+  if (request.url.endsWith('core-snapshot.json')) {
+    event.respondWith(
+      fetch(request).then((response) => {
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      }).catch(() => caches.match(request))
     );
     return;
   }

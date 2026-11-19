@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-18T09:37:34.272Z",
+  "generatedAt": "2026-11-19T01:17:28.546Z",
   "coreVersion": "1.1.0",
   "operators": [
     {
@@ -7,49 +7,64 @@
       "name": "Blackpine Operator",
       "environment": "blackpine-field",
       "mode": "draft-only",
-      "status": "deployed-unproven"
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 17, 2026 (owner-approved). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
     },
     {
       "id": "rivet-reach-operator",
       "name": "Rivet Reach Operator",
       "environment": "rivet-reach",
       "mode": "draft-only",
-      "status": "deployed-unproven"
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 17, 2026, on the owner's confirmation. May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
     },
     {
       "id": "affiliate-operator",
       "name": "Affiliate Operator",
       "environment": "blackpine-field",
       "mode": "read-only-advisory",
-      "status": "deployed-unproven"
+      "status": "deployed-unproven",
+      "statusNote": "Deployed in read-only advisory mode Nov 17, 2026 (revenue team test). Watches the affiliate pipeline and advises on approvals and tracked links. Its analysis has not yet been proven reliable."
     },
     {
       "id": "black-friday-operator",
       "name": "Black Friday Operator",
       "environment": "blackpine-field",
       "mode": "read-only-advisory",
-      "status": "deployed-unproven"
+      "status": "deployed-unproven",
+      "statusNote": "Deployed in read-only advisory mode Nov 17, 2026 (revenue team test). Advises on the Black Friday storefront: deals, countdown, gift picks. Its analysis has not yet been proven reliable."
     },
     {
       "id": "content-operator",
       "name": "Content Operator",
       "environment": "blackpine-field",
       "mode": "read-only-advisory",
-      "status": "deployed-unproven"
+      "status": "deployed-unproven",
+      "statusNote": "Deployed in read-only advisory mode Nov 17, 2026 (revenue team test). Advises on reels and posts driving traffic to the store. Its analysis has not yet been proven reliable."
     },
     {
       "id": "galileo-operator",
       "name": "Galileo Ferraris",
       "environment": "galinyx-workforce",
       "mode": "draft-only",
-      "status": "deployed-unproven"
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
     },
     {
       "id": "finance-brother-operator",
       "name": "Finance Brother (unnamed — to be named by Galileo)",
       "environment": "galinyx-workforce",
       "mode": "draft-only",
-      "status": "deployed-unproven"
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable. Its name is Galileo's choice, per the owner's free-will rule — it has no name yet."
+    },
+    {
+      "id": "tailor-operator",
+      "name": "The Tailor",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). Full scope of work: he may draft anything for Blackpine Field. Nothing he drafts goes live, publishes, or spends without the owner's approval per action (owner's rule, Nov 18, 2026). Its analysis has not yet been proven reliable."
     }
   ],
   "environments": [
@@ -104,6 +119,59 @@
       }
     }
   },
+  "rules": [
+    "Each operator is bound to exactly one environment. No cross-environment access.",
+    "An operator may only perform actions its current mode allows.",
+    "Every authorization decision is recorded in an append-only audit log.",
+    "A mode change is never self-approved. A request is recorded as pending; only the owner can approve it.",
+    "Fail closed, always. Unknown operators, environments, actions, modes, malformed input, and unexpected errors all deny."
+  ],
+  "staging": [
+    {
+      "file": "blackpine-draft-001-black-friday-post.md",
+      "draftId": "draft-001",
+      "operatorId": "blackpine-operator",
+      "operatorName": "Blackpine Operator",
+      "title": "Black Friday Post",
+      "status": "published",
+      "date": "Nov 17, 2026",
+      "summary": "Black Friday's coming to Blackpine Field. 60 products across 9 departments, eighteen deer-season picks, all gear judged under load. No gimmicks, no fake sales …",
+      "publishedUrl": "https://facebook.com/61575776663109/posts/pfbid02MXAnkk2JApTzJXwqjf1dx1j56CTJyeMP6dkH1CbYBiFZ1CYrCfTfRpip719DnMjEl/"
+    },
+    {
+      "file": "blackpine-draft-002-revenue-boost-ideas.md",
+      "draftId": "draft-002",
+      "operatorId": "blackpine-operator",
+      "operatorName": "Blackpine Operator",
+      "title": "Revenue Boost Ideas",
+      "status": "draft",
+      "date": "Nov 17, 2026",
+      "summary": "Current state (verified live Nov 17): 12 affiliate clicks ever (Awin 8, CJ 4), 0 sales, $0.00.",
+      "decision": "DECISION (Xena, round table 2026-11-18): APPROVED as advisory guidance. Suggestions 1, 2, 3, 5 are already executed as of today (Black Friday page live via Git push; Free Country Lanier card live $126; firearm course li…"
+    },
+    {
+      "file": "rivet-reach-draft-001-homeowner-post.md",
+      "draftId": "draft-001",
+      "operatorId": "rivet-reach-operator",
+      "operatorName": "Rivet Reach Operator",
+      "title": "Homeowner Post",
+      "status": "published",
+      "date": "Nov 17, 2026",
+      "summary": "Got a project you've been putting off? Rivet Reach matches you with local contractors in Central Kentucky, around Nashville, and Knoxville. No account needed t…",
+      "publishedUrl": "https://facebook.com/61575776663109/posts/pfbid02NBcSwKL4o49pK3mrRT7cLm1Npcrk9aLk8AojSoqnQV1FH4yngbvYPsJdsFucLAX6l/"
+    },
+    {
+      "file": "rivet-reach-draft-002-alternate-routes.md",
+      "draftId": "draft-002",
+      "operatorId": "rivet-reach-operator",
+      "operatorName": "Rivet Reach Operator",
+      "title": "Alternate Routes",
+      "status": "draft",
+      "date": "Nov 17, 2026",
+      "summary": "Current state (verified Nov 17): 71 contractor shops reached across five waves, 0 replies ever, 0 signups. Contractor-first outreach has not converted.",
+      "decision": "DECISION (Xena, round table 2026-11-18): APPROVED as advisory guidance, with one refusal. Routes 1 (homeowner-first, Facebook posts), 4 (point outreach at the live contractor backdoor), and 5 (test property managers/age…"
+    }
+  ],
   "pendingRequests": [
     {
       "id": "mode-change-a3dfd9de-dad0-45bd-adbe-df29eb069867",
