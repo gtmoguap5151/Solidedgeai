@@ -10,6 +10,14 @@
  *   [FINDING] - a measurement or a structural property worth knowing. Not a
  *               bug in the code as written, but a limit of the design.
  *
+ * Section J tests the operator interaction layer (./interactions.mjs) the
+ * same way: fresh core instances, fresh temp interaction logs.
+ *
+ * Section K tests the owner alert & notification system
+ * (./notifications.mjs) the same way: fresh core instances, fresh temp
+ * notification logs, with the notification system registered as the
+ * Core's sink so authorize() denials reach the inbox.
+ *
  * Checks use fresh module instances (cache-busted imports) so each group
  * starts from a clean registry and audit log. Temp files go under an mkdtemp
  * directory and are removed at the end. Nothing in this test writes to the
@@ -21,10 +29,14 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { createInteractionLayer } from './interactions.mjs';
+import { createNotificationSystem } from './notifications.mjs';
 
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'galinyx-stress-'));
 const MODULE_URL = new URL('./index.mjs', import.meta.url).href;
 const SRC_TEXT = fs.readFileSync(new URL('./index.mjs', import.meta.url), 'utf8');
+const INTERACTIONS_TEXT = fs.readFileSync(new URL('./interactions.mjs', import.meta.url), 'utf8');
+const NOTIFICATIONS_TEXT = fs.readFileSync(new URL('./notifications.mjs', import.meta.url), 'utf8');
 const VERSION = (SRC_TEXT.match(/CORE_VERSION\s*=\s*['"]([^'"]+)['"]/) || [])[1] || 'unversioned (original build)';
 
 console.log('GALINYX Governance Core — adversarial stress test');
@@ -125,6 +137,28 @@ function writeRegistry(name, obj) {
   const p = path.join(TMP, name);
   fs.writeFileSync(p, typeof obj === 'string' ? obj : JSON.stringify(obj));
   return p;
+}
+
+// Fresh interaction layer over a fresh temp log, bound to a given core
+// instance. All layer state lives in the factory closure, so no cache-busted
+// import is needed — a new temp file per layer is the isolation.
+let layerCounter = 0;
+function freshLayer(tag, coreModule) {
+  layerCounter++;
+  const file = path.join(TMP, `interactions-${tag}-${layerCounter}.jsonl`);
+  const layer = createInteractionLayer(coreModule, { interactionsFile: file });
+  return { layer, file };
+}
+
+// Same isolation for the notification system: a new temp file per system.
+// Creating the system registers it as the core's notification sink, so
+// authorize() denials on that core reach this system's inbox.
+let notificationCounter = 0;
+function freshNotificationSystem(tag, coreModule) {
+  notificationCounter++;
+  const file = path.join(TMP, `notifications-${tag}-${notificationCounter}.jsonl`);
+  const system = createNotificationSystem(coreModule, { notificationsFile: file });
+  return { system, file };
 }
 
 // ---------------------------------------------------------------------------
@@ -1066,6 +1100,517 @@ console.log('\n== I. Longevity (static checks) ==');
     const raw = fs.readFileSync(new URL('./operators.json', import.meta.url), 'utf8');
     JSON.parse(raw);
     return ok(true, 'parses');
+  });
+}
+
+// ---------------------------------------------------------------------------
+// J. Operator interaction layer (interactions.mjs)
+// ---------------------------------------------------------------------------
+console.log('\n== J. Operator interaction layer ==');
+
+{
+  const m = await fresh('j1');
+  const { layer } = freshLayer('j1', m);
+  await check('J1 same-environment ASK is allowed and recorded', () => {
+    const r = layer.sendMessage('galileo-operator', 'finance-brother-operator', 'ASK', 'cost check?');
+    const logged = layer.getMessages();
+    return ok(
+      r.allowed === true && logged.length === 1 && logged[0].id === r.message.id && logged[0].allowed === true,
+      r.reason,
+    );
+  });
+}
+
+{
+  const m = await fresh('j2');
+  const { layer } = freshLayer('j2', m);
+  await check('J2 same-environment HANDOFF is allowed, grants no permission', () => {
+    const r = layer.sendMessage('tailor-operator', 'blackpine-operator', 'HANDOFF', 'product draft for the store listing');
+    return ok(
+      r.allowed === true && r.message.grantsPermission === false,
+      r.reason,
+    );
+  });
+}
+
+{
+  const m = await fresh('j3');
+  const { layer } = freshLayer('j3', m);
+  await check('J3 a handoff transfers no permission: recipient still cannot publish, mode unchanged', () => {
+    const before = m.getOperator('blackpine-operator').mode;
+    const r = layer.sendMessage('tailor-operator', 'blackpine-operator', 'HANDOFF', 'product draft');
+    const after = m.getOperator('blackpine-operator').mode;
+    const publish = m.authorize('blackpine-operator', 'blackpine-field', 'publish');
+    const spend = m.authorize('blackpine-operator', 'blackpine-field', 'spend');
+    return ok(
+      r.allowed === true && before === after && publish.allowed === false && spend.allowed === false,
+      `mode stayed '${after}'; publish denied, spend denied`,
+    );
+  });
+}
+
+{
+  const m = await fresh('j4');
+  const { layer } = freshLayer('j4', m);
+  await check('J4 cross-environment message denied without owner approval, denial recorded', () => {
+    const r = layer.sendMessage('blackpine-operator', 'rivet-reach-operator', 'ASK', 'hello?');
+    const logged = layer.getMessages();
+    return ok(
+      r.allowed === false && logged.length === 1 && logged[0].allowed === false && logged[0].crossEnvironment === true,
+      r.reason,
+    );
+  });
+}
+
+{
+  const m = await fresh('j5');
+  const { layer } = freshLayer('j5', m);
+  await check('J5 cross-environment message allowed with owner approval, approval on the record', () => {
+    const r = layer.sendMessage(
+      'blackpine-operator',
+      'rivet-reach-operator',
+      'ASK',
+      'hello?',
+      { ownerApproved: true, approvedBy: 'owner' },
+    );
+    return ok(
+      r.allowed === true &&
+        r.message.crossEnvironment === true &&
+        r.message.ownerApproved === true &&
+        r.message.approvedBy === 'owner',
+      r.reason,
+    );
+  });
+}
+
+{
+  const m = await fresh('j6');
+  const { layer } = freshLayer('j6', m);
+  await check('J6 cross-environment denied when approval lacks an approver', () => {
+    const r1 = layer.sendMessage('blackpine-operator', 'rivet-reach-operator', 'ASK', 'x', {
+      ownerApproved: true,
+    });
+    const r2 = layer.sendMessage('blackpine-operator', 'rivet-reach-operator', 'ASK', 'x', {
+      ownerApproved: true,
+      approvedBy: '   ',
+    });
+    const r3 = layer.sendMessage('blackpine-operator', 'rivet-reach-operator', 'ASK', 'x', {
+      approvedBy: 'owner',
+    });
+    return ok(!r1.allowed && !r2.allowed && !r3.allowed, 'all three denied');
+  });
+}
+
+{
+  const m = await fresh('j7');
+  const { layer } = freshLayer('j7', m);
+  await check('J7 unknown sender/recipient, bad kind, self-message: all denied, none throws, all recorded', () => {
+    const r1 = layer.sendMessage('ghost-operator', 'blackpine-operator', 'ASK', 'x');
+    const r2 = layer.sendMessage('blackpine-operator', 'ghost-operator', 'ASK', 'x');
+    const r3 = layer.sendMessage('blackpine-operator', 'rivet-reach-operator', 'SHOUT', 'x');
+    const r4 = layer.sendMessage('blackpine-operator', 'blackpine-operator', 'ASK', 'x');
+    const r5 = layer.sendMessage(null, null, null, null);
+    const r6 = layer.sendMessage(42, {}, 'ASK', 'x');
+    const logged = layer.getMessages();
+    return ok(
+      !r1.allowed && !r2.allowed && !r3.allowed && !r4.allowed && !r5.allowed && !r6.allowed &&
+        logged.length === 6 && logged.every((e) => e.allowed === false),
+      '6 attempts, 6 denials, 6 log entries',
+    );
+  });
+}
+
+{
+  const reg = buildRegistry({
+    operators: [
+      {
+        id: 'sender-down',
+        name: 'Sender Down',
+        environment: 'blackpine-field',
+        mode: 'not-deployed',
+        status: 'pending',
+      },
+      {
+        id: 'receiver-up',
+        name: 'Receiver Up',
+        environment: 'blackpine-field',
+        mode: 'read-only-advisory',
+        status: 'deployed',
+      },
+    ],
+  });
+  const m = await fresh('j8', { operatorsFile: writeRegistry('ix-j8.json', reg) });
+  const { layer } = freshLayer('j8', m);
+  await check('J8 not-deployed operator can neither send nor receive', () => {
+    const r1 = layer.sendMessage('sender-down', 'receiver-up', 'ASK', 'x');
+    const r2 = layer.sendMessage('receiver-up', 'sender-down', 'ASK', 'x');
+    return ok(!r1.allowed && !r2.allowed, 'send denied, receive denied');
+  });
+}
+
+{
+  const m = await fresh('j9');
+  const { layer } = freshLayer('j9', m);
+  await check('J9 every message is audit-logged (allowed and denied) with matching message id', () => {
+    const r1 = layer.sendMessage('galileo-operator', 'finance-brother-operator', 'ASK', 'x');
+    const r2 = layer.sendMessage('blackpine-operator', 'rivet-reach-operator', 'ASK', 'x');
+    const audit = m.getAuditLog().filter((e) => e.type === 'interaction');
+    const byId = new Map(audit.map((e) => [e.messageId, e]));
+    const a1 = byId.get(r1.message.id);
+    const a2 = byId.get(r2.message.id);
+    return ok(
+      r1.message.auditLogged === true &&
+        r2.message.auditLogged === true &&
+        audit.length === 2 &&
+        a1 && a1.allowed === true &&
+        a2 && a2.allowed === false,
+      `audit entries: ${audit.length}, allowed + denied both present`,
+    );
+  });
+}
+
+{
+  const m = await fresh('j10');
+  const { layer } = freshLayer('j10', m);
+  await check('J10 every entry flags the sender unverified (no auth yet — honest, not hidden)', () => {
+    layer.sendMessage('galileo-operator', 'finance-brother-operator', 'NOTICE', 'x');
+    const logged = layer.getMessages();
+    return ok(
+      logged.length === 1 &&
+        logged[0].senderVerified === false &&
+        typeof logged[0].senderNote === 'string' &&
+        logged[0].senderNote.length > 0,
+      logged[0].senderNote,
+    );
+  });
+}
+
+{
+  const m = await fresh('j11');
+  const { layer } = freshLayer('j11', m);
+  await check('J11 payload safety: circular payload does not throw, oversized payload truncated to 4096', () => {
+    const circular = { note: 'loop' };
+    circular.self = circular;
+    const r1 = layer.sendMessage('galileo-operator', 'finance-brother-operator', 'ASK', circular);
+    const r2 = layer.sendMessage('galileo-operator', 'finance-brother-operator', 'ASK', 'x'.repeat(10000));
+    return ok(
+      r1.allowed === true &&
+        typeof r1.message.payload === 'string' &&
+        r1.message.payload.includes('[circular]') &&
+        r2.allowed === true &&
+        r2.message.payload.length === 4096,
+      `circular -> ${r1.message.payload.length} chars; oversized -> ${r2.message.payload.length} chars`,
+    );
+  });
+}
+
+{
+  const m = await fresh('j12');
+  const { layer, file } = freshLayer('j12', m);
+  await check('J12 persistence: seq resumes across instances, corrupt line skipped and counted', () => {
+    layer.sendMessage('galileo-operator', 'finance-brother-operator', 'ASK', 'one');
+    layer.sendMessage('galileo-operator', 'finance-brother-operator', 'ASK', 'two');
+    fs.appendFileSync(file, 'this is not json\n');
+    const layer2 = createInteractionLayer(m, { interactionsFile: file });
+    const r3 = layer2.sendMessage('galileo-operator', 'finance-brother-operator', 'ASK', 'three');
+    const stats = layer2.getInteractionStats();
+    return ok(
+      r3.message.seq === 3 &&
+        layer2.getMessages().length === 3 &&
+        stats.skippedLines === 1,
+      `resumed at seq ${r3.message.seq}; skipped lines: ${stats.skippedLines}`,
+    );
+  });
+}
+
+{
+  const m = await fresh('j13');
+  const { layer } = freshLayer('j13', m);
+  await check('J13 owner reads the whole log: allowed + denied; per-operator view filters', () => {
+    layer.sendMessage('tailor-operator', 'blackpine-operator', 'HANDOFF', 'x');
+    layer.sendMessage('blackpine-operator', 'rivet-reach-operator', 'ASK', 'x');
+    layer.sendMessage('galileo-operator', 'finance-brother-operator', 'ASK', 'x');
+    const all = layer.getMessages();
+    const tailor = layer.getMessagesFor('tailor-operator');
+    const newest = layer.getMessages(1);
+    return ok(
+      all.length === 3 &&
+        all.filter((e) => e.allowed).length === 2 &&
+        all.filter((e) => !e.allowed).length === 1 &&
+        tailor.length === 1 &&
+        tailor[0].from === 'tailor-operator' &&
+        newest.length === 1 &&
+        newest[0].seq === 3,
+      '3 entries (2 allowed, 1 denied); tailor view has 1',
+    );
+  });
+}
+
+{
+  await check('J14 interactions module: zero third-party deps, no eval/fetch/network', () => {
+    const imports = [...INTERACTIONS_TEXT.matchAll(/^import\s+.*?\s+from\s+['"]([^'"]+)['"]/gm)].map((x) => x[1]);
+    const thirdParty = imports.filter((i) => !i.startsWith('node:'));
+    const bad = ['eval(', 'new Function', 'fetch(', 'http.request', 'XMLHttpRequest'].filter((s) =>
+      INTERACTIONS_TEXT.includes(s),
+    );
+    return ok(
+      thirdParty.length === 0 && bad.length === 0,
+      `imports: ${imports.join(', ') || '(none)'}; clean`,
+    );
+  });
+}
+
+{
+  await check('J15 cross-environment owner approval and sender identity are claims until signed auth exists', () => {
+    return finding(
+      'ownerApproved/approvedBy is a recorded claim, not a verified signature (same limit as the Core owner guardrail); senderVerified is always false until signed-token auth lands in v1 Phase 4',
+    );
+  });
+}
+
+// ---------------------------------------------------------------------------
+// K. Owner alert & notification system (notifications.mjs)
+// ---------------------------------------------------------------------------
+console.log('\n== K. Owner alert & notification system ==');
+
+{
+  const m = await fresh('k1');
+  const { system } = freshNotificationSystem('k1', m);
+  await check('K1 publish attempt by a draft-only operator is denied and creates a pending notification', () => {
+    const r = m.authorize('tailor-operator', 'blackpine-field', 'publish');
+    const pending = system.listPending();
+    return ok(
+      r.allowed === false &&
+        pending.length === 1 &&
+        pending[0].operatorId === 'tailor-operator' &&
+        pending[0].action === 'publish' &&
+        pending[0].status === 'pending',
+      r.reason,
+    );
+  });
+}
+
+{
+  const m = await fresh('k2');
+  const { system } = freshNotificationSystem('k2', m);
+  await check('K2 allowed actions (read, advise, write) create no notifications', () => {
+    const r1 = m.authorize('tailor-operator', 'blackpine-field', 'read');
+    const r2 = m.authorize('tailor-operator', 'blackpine-field', 'advise');
+    const r3 = m.authorize('tailor-operator', 'blackpine-field', 'write');
+    return ok(
+      r1.allowed && r2.allowed && r3.allowed && system.listPending().length === 0,
+      '3 allowed, 0 notifications — the inbox stays quiet',
+    );
+  });
+}
+
+{
+  const m = await fresh('k3');
+  const { system } = freshNotificationSystem('k3', m);
+  await check('K3 denials for other reasons (unknown operator/action, environment separation, bad input) create no notifications', () => {
+    const r1 = m.authorize('ghost-operator', 'blackpine-field', 'publish');
+    const r2 = m.authorize('tailor-operator', 'blackpine-field', 'fly');
+    const r3 = m.authorize('tailor-operator', 'rivet-reach', 'publish');
+    const r4 = m.authorize(null, null, null);
+    return ok(
+      !r1.allowed && !r2.allowed && !r3.allowed && !r4.allowed && system.listPending().length === 0,
+      '4 denials, 0 notifications — only approval-needed denials alert the owner',
+    );
+  });
+}
+
+{
+  const m = await fresh('k4');
+  const { system } = freshNotificationSystem('k4', m);
+  await check('K4 decide() rejects operator deciders and arbitrary strings; only the owner decides', async () => {
+    m.authorize('tailor-operator', 'blackpine-field', 'publish');
+    const id = system.listPending()[0].id;
+    const d1 = system.decide(id, 'tailor-operator', true);
+    const d2 = system.decide(id, 'mallory', true);
+    const d3 = system.decide(id, '', true);
+    const d4 = system.decide(id, null, true);
+    const still = system.getNotification(id);
+    const d5 = system.decide(id, 'owner', true);
+    // Misconfigured owner identity matching an operator ID: the operator
+    // guard must still refuse — an operator can never decide, even its own.
+    const m2 = await fresh('k4-misconfig', { ownerId: 'tailor-operator' });
+    const { system: system2 } = freshNotificationSystem('k4-misconfig', m2);
+    m2.authorize('tailor-operator', 'blackpine-field', 'publish');
+    const id2 = system2.listPending()[0].id;
+    const d6 = system2.decide(id2, 'tailor-operator', true);
+    return ok(
+      !d1.decided && !d2.decided && !d3.decided && !d4.decided &&
+        still.status === 'pending' && d5.decided === true && d5.approved === true &&
+        !d6.decided && system2.getNotification(id2).status === 'pending',
+      'operator, stranger, empty, null all refused; owner approved; misconfigured owner-as-operator still refused',
+    );
+  });
+}
+
+{
+  const m = await fresh('k5');
+  const { system } = freshNotificationSystem('k5', m);
+  await check('K5 every decision is audit-logged with the matching notification id', () => {
+    m.authorize('tailor-operator', 'blackpine-field', 'publish');
+    m.authorize('tailor-operator', 'blackpine-field', 'spend');
+    const [n1, n2] = system.listPending();
+    const d1 = system.decide(n1.id, 'owner', true, 'Go ahead.');
+    const d2 = system.decide(n2.id, 'owner', false, 'Not yet.');
+    const audit = m.getAuditLog().filter((e) => e.type === 'notification-decision');
+    const byId = new Map(audit.map((e) => [e.notificationId, e]));
+    const a1 = byId.get(n1.id);
+    const a2 = byId.get(n2.id);
+    return ok(
+      d1.auditLogged === true && d2.auditLogged === true &&
+        audit.length === 2 &&
+        a1 && a1.allowed === true && a1.decision === 'approved' &&
+        a2 && a2.allowed === false && a2.decision === 'denied',
+      `audit entries: ${audit.length}, approved + denied both present`,
+    );
+  });
+}
+
+{
+  const m = await fresh('k6');
+  const { system } = freshNotificationSystem('k6', m);
+  await check('K6 pending list excludes decided notifications; listAll keeps the whole history', () => {
+    m.authorize('tailor-operator', 'blackpine-field', 'publish');
+    m.authorize('tailor-operator', 'blackpine-field', 'spend');
+    m.authorize('blackpine-operator', 'blackpine-field', 'publish');
+    const [n1, n2, n3] = system.listPending();
+    system.decide(n1.id, 'owner', true);
+    system.decide(n2.id, 'owner', false);
+    const pending = system.listPending();
+    const all = system.listAll();
+    const tailor = system.getNotificationsFor('tailor-operator');
+    return ok(
+      pending.length === 1 && pending[0].id === n3.id &&
+        all.length === 3 &&
+        all.filter((n) => n.status === 'approved').length === 1 &&
+        all.filter((n) => n.status === 'denied').length === 1 &&
+        all.filter((n) => n.status === 'pending').length === 1 &&
+        tailor.length === 2,
+      '1 pending, 1 approved, 1 denied; tailor view has 2',
+    );
+  });
+}
+
+{
+  const m = await fresh('k7');
+  const { system } = freshNotificationSystem('k7', m);
+  await check('K7 double decision, unknown id, and non-boolean approve are rejected, no throw', () => {
+    m.authorize('tailor-operator', 'blackpine-field', 'publish');
+    const id = system.listPending()[0].id;
+    const d1 = system.decide(id, 'owner', true);
+    const d2 = system.decide(id, 'owner', false);
+    const d3 = system.decide('notif-does-not-exist', 'owner', true);
+    const d4 = system.decide(id, 'owner', 'yes');
+    return ok(
+      d1.decided === true && !d2.decided && !d3.decided && !d4.decided &&
+        system.getNotification(id).status === 'approved',
+      'first decision stands; later attempts refused',
+    );
+  });
+}
+
+{
+  const m = await fresh('k8');
+  const { system } = freshNotificationSystem('k8', m);
+  await check('K8 approving a notification grants no permission: mode unchanged, publish still denied', () => {
+    m.authorize('tailor-operator', 'blackpine-field', 'publish');
+    const id = system.listPending()[0].id;
+    const before = m.getOperator('tailor-operator').mode;
+    const d = system.decide(id, 'owner', true);
+    const after = m.getOperator('tailor-operator').mode;
+    const retry = m.authorize('tailor-operator', 'blackpine-field', 'publish');
+    return ok(
+      d.decided === true && before === after &&
+        retry.allowed === false &&
+        system.getNotification(id).status === 'approved',
+      `mode stayed '${after}'; re-attempt still denied (and it raised a second notification)`,
+    );
+  });
+}
+
+{
+  const m = await fresh('k9');
+  const { system, file } = freshNotificationSystem('k9', m);
+  await check('K9 persistence: pending + decided state replays across instances, seq resumes, corrupt line skipped', () => {
+    m.authorize('tailor-operator', 'blackpine-field', 'publish');
+    m.authorize('tailor-operator', 'blackpine-field', 'spend');
+    const [n1] = system.listPending();
+    system.decide(n1.id, 'owner', true);
+    fs.appendFileSync(file, 'this is not json\n');
+    const system2 = createNotificationSystem(m, { notificationsFile: file });
+    const all = system2.listAll();
+    const stats = system2.getNotificationStats();
+    const r = system2.createNotification('galileo-operator', 'publish', 'replay check', 'test');
+    return ok(
+      all.length === 2 &&
+        all.filter((n) => n.status === 'approved').length === 1 &&
+        all.filter((n) => n.status === 'pending').length === 1 &&
+        stats.skippedLines === 1 &&
+        r.created === true && r.notification.seq === 4,
+      `replayed 2 (1 approved, 1 pending); next seq ${r.notification.seq}; skipped lines: ${stats.skippedLines}`,
+    );
+  });
+}
+
+{
+  const m = await fresh('k10');
+  const { system } = freshNotificationSystem('k10', m);
+  await check('K10 a mode-change request creates a notification for the owner', () => {
+    // Blackpine Operator ships in draft-only, so the request moves it to
+    // read-only-advisory (requesting its current mode would be refused).
+    const r = m.requestModeChange('blackpine-operator', 'read-only-advisory', 'blackpine-operator');
+    const pending = system.listPending();
+    return ok(
+      r.recorded === true &&
+        pending.length === 1 &&
+        pending[0].operatorId === 'blackpine-operator' &&
+        pending[0].action === 'mode-change' &&
+        pending[0].reference.includes('read-only-advisory'),
+      'mode-change request reached the inbox',
+    );
+  });
+}
+
+{
+  const m = await fresh('k11');
+  const { system } = freshNotificationSystem('k11', m);
+  const { layer } = freshLayer('k11', m);
+  await check('K11 a cross-environment message denial creates a notification for the owner', () => {
+    const r = layer.sendMessage('blackpine-operator', 'rivet-reach-operator', 'ASK', 'hello?');
+    const pending = system.listPending();
+    return ok(
+      r.allowed === false &&
+        pending.length === 1 &&
+        pending[0].operatorId === 'blackpine-operator' &&
+        pending[0].action === 'message:cross-environment',
+      'cross-env denial reached the inbox',
+    );
+  });
+}
+
+{
+  await check('K12 notifications module: zero third-party deps, no eval/fetch/network', () => {
+    const imports = [...NOTIFICATIONS_TEXT.matchAll(/^import\s+.*?\s+from\s+['"]([^'"]+)['"]/gm)].map((x) => x[1]);
+    const thirdParty = imports.filter((i) => !i.startsWith('node:'));
+    const bad = ['eval(', 'new Function', 'fetch(', 'http.request', 'XMLHttpRequest'].filter((s) =>
+      NOTIFICATIONS_TEXT.includes(s),
+    );
+    return ok(
+      thirdParty.length === 0 && bad.length === 0,
+      `imports: ${imports.join(', ') || '(none)'}; clean`,
+    );
+  });
+}
+
+{
+  await check('K13 owner identity is a claim until signed auth; a decision grants nothing', () => {
+    return finding(
+      'decide() trusts the configured owner identity (GALINYX_OWNER_ID, default \'owner\'), the same guardrail as approveModeChange — a claim, not a credential, until signed owner approvals land in v1 Phase 4; approving a notification records a YES but grants no permission — execution still needs a mode change or the owner/Xena acting',
+    );
   });
 }
 

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-19T01:17:28.546Z",
-  "coreVersion": "1.1.0",
+  "generatedAt": "2026-11-19T01:38:04.838Z",
+  "coreVersion": "1.3.0",
   "operators": [
     {
       "id": "blackpine-operator",
@@ -22,25 +22,25 @@
       "id": "affiliate-operator",
       "name": "Affiliate Operator",
       "environment": "blackpine-field",
-      "mode": "read-only-advisory",
+      "mode": "draft-only",
       "status": "deployed-unproven",
-      "statusNote": "Deployed in read-only advisory mode Nov 17, 2026 (revenue team test). Watches the affiliate pipeline and advises on approvals and tracked links. Its analysis has not yet been proven reliable."
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved mode change from read-only-advisory). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
     },
     {
       "id": "black-friday-operator",
       "name": "Black Friday Operator",
       "environment": "blackpine-field",
-      "mode": "read-only-advisory",
+      "mode": "draft-only",
       "status": "deployed-unproven",
-      "statusNote": "Deployed in read-only advisory mode Nov 17, 2026 (revenue team test). Advises on the Black Friday storefront: deals, countdown, gift picks. Its analysis has not yet been proven reliable."
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved mode change from read-only-advisory). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
     },
     {
       "id": "content-operator",
       "name": "Content Operator",
       "environment": "blackpine-field",
-      "mode": "read-only-advisory",
+      "mode": "draft-only",
       "status": "deployed-unproven",
-      "statusNote": "Deployed in read-only advisory mode Nov 17, 2026 (revenue team test). Advises on reels and posts driving traffic to the store. Its analysis has not yet been proven reliable."
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved mode change from read-only-advisory). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
     },
     {
       "id": "galileo-operator",
@@ -52,11 +52,11 @@
     },
     {
       "id": "finance-brother-operator",
-      "name": "Finance Brother (unnamed — to be named by Galileo)",
+      "name": "Adamo — Finance Brother",
       "environment": "galinyx-workforce",
       "mode": "draft-only",
       "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable. Its name is Galileo's choice, per the owner's free-will rule — it has no name yet."
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable. Named by Galileo Ferraris, Nov 18, 2026."
     },
     {
       "id": "tailor-operator",
@@ -65,6 +65,62 @@
       "mode": "draft-only",
       "status": "deployed-unproven",
       "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). Full scope of work: he may draft anything for Blackpine Field. Nothing he drafts goes live, publishes, or spends without the owner's approval per action (owner's rule, Nov 18, 2026). Its analysis has not yet been proven reliable."
+    },
+    {
+      "id": "closer-operator",
+      "name": "The Closer",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+    },
+    {
+      "id": "homeowner-operator",
+      "name": "The Hearth",
+      "environment": "rivet-reach",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+    },
+    {
+      "id": "partnerships-operator",
+      "name": "The Handshake",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+    },
+    {
+      "id": "deal-checker-operator",
+      "name": "The Proof",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+    },
+    {
+      "id": "performance-operator",
+      "name": "The Mirror",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+    },
+    {
+      "id": "tester-operator",
+      "name": "Prova",
+      "environment": "galinyx-workforce",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+    },
+    {
+      "id": "supplier-operator",
+      "name": "The Shuttle",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "deployed-unproven",
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
     }
   ],
   "environments": [
@@ -150,6 +206,166 @@
       "decision": "DECISION (Xena, round table 2026-11-18): APPROVED as advisory guidance. Suggestions 1, 2, 3, 5 are already executed as of today (Black Friday page live via Git push; Free Country Lanier card live $126; firearm course li…"
     },
     {
+      "file": "draft-naming-closer.md",
+      "draftId": "draft-naming-closer.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-naming-closer.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "I name him The Closer."
+    },
+    {
+      "file": "draft-naming-deal-checker.md",
+      "draftId": "draft-naming-deal-checker.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-naming-deal-checker.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "I name him The Proof."
+    },
+    {
+      "file": "draft-naming-finance-brother.md",
+      "draftId": "draft-naming-finance-brother.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-naming-finance-brother.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "I name him Adamo."
+    },
+    {
+      "file": "draft-naming-homeowner.md",
+      "draftId": "draft-naming-homeowner.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-naming-homeowner.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "I name her The Hearth."
+    },
+    {
+      "file": "draft-naming-partnerships.md",
+      "draftId": "draft-naming-partnerships.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-naming-partnerships.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "I name him The Handshake."
+    },
+    {
+      "file": "draft-naming-performance.md",
+      "draftId": "draft-naming-performance.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-naming-performance.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "I name her The Mirror."
+    },
+    {
+      "file": "draft-naming-supplier.md",
+      "draftId": "draft-naming-supplier.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-naming-supplier.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "I name him The Shuttle."
+    },
+    {
+      "file": "draft-naming-tester.md",
+      "draftId": "draft-naming-tester.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-naming-tester.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "I name her Prova."
+    },
+    {
+      "file": "draft-team-needs-affiliate-operator.md",
+      "draftId": "draft-team-needs-affiliate-operator.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-team-needs-affiliate-operator.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "Yes. I need a partnerships worker."
+    },
+    {
+      "file": "draft-team-needs-black-friday-operator.md",
+      "draftId": "draft-team-needs-black-friday-operator.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-team-needs-black-friday-operator.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "Yes. I need a deal-checker."
+    },
+    {
+      "file": "draft-team-needs-blackpine-operator.md",
+      "draftId": "draft-team-needs-blackpine-operator.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-team-needs-blackpine-operator.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "Yes. I need a closer."
+    },
+    {
+      "file": "draft-team-needs-content-operator.md",
+      "draftId": "draft-team-needs-content-operator.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-team-needs-content-operator.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "Yes. I need a performance reader."
+    },
+    {
+      "file": "draft-team-needs-finance-brother-operator.md",
+      "draftId": "draft-team-needs-finance-brother-operator.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-team-needs-finance-brother-operator.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "None. I do not need another team member. I need numbers to read."
+    },
+    {
+      "file": "draft-team-needs-galileo-operator.md",
+      "draftId": "draft-team-needs-galileo-operator.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-team-needs-galileo-operator.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "Yes. I need a tester."
+    },
+    {
+      "file": "draft-team-needs-rivet-reach-operator.md",
+      "draftId": "draft-team-needs-rivet-reach-operator.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-team-needs-rivet-reach-operator.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "Yes. I need a homeowner worker."
+    },
+    {
+      "file": "draft-team-needs-tailor-operator.md",
+      "draftId": "draft-team-needs-tailor-operator.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-team-needs-tailor-operator.md",
+      "status": "draft",
+      "date": "Nov 18, 2026",
+      "summary": "Yes. I need a supplier worker."
+    },
+    {
       "file": "rivet-reach-draft-001-homeowner-post.md",
       "draftId": "draft-001",
       "operatorId": "rivet-reach-operator",
@@ -189,7 +405,296 @@
       "stale": true
     }
   ],
+  "notifications": [
+    {
+      "id": "notif-64332054-2027-4bd7-8dde-a3a32c838d85",
+      "seq": 4,
+      "operatorId": "tailor-operator",
+      "operatorName": "The Tailor",
+      "environment": "blackpine-field",
+      "action": "spend",
+      "reference": "'spend' in 'blackpine-field' (mode 'Draft-Only')",
+      "reason": "Denied: 'The Tailor' in mode 'Draft-Only' may not 'spend'. Read-only advisory mode allows observe and advise only.",
+      "timestamp": "2026-11-19T01:28:03.380Z",
+      "status": "denied",
+      "decidedBy": "owner",
+      "decidedAt": "2026-11-19T01:28:03.380Z",
+      "decisionReason": "Not yet — no sales channel connected. Hold the order."
+    },
+    {
+      "id": "notif-11a56d15-6bba-4fd7-8456-93a05fb77144",
+      "seq": 3,
+      "operatorId": "tailor-operator",
+      "operatorName": "The Tailor",
+      "environment": "blackpine-field",
+      "action": "publish",
+      "reference": "'publish' in 'blackpine-field' (mode 'Draft-Only')",
+      "reason": "Denied: 'The Tailor' in mode 'Draft-Only' may not 'publish'. Read-only advisory mode allows observe and advise only.",
+      "timestamp": "2026-11-19T01:28:03.380Z",
+      "status": "pending",
+      "decidedBy": null,
+      "decidedAt": null,
+      "decisionReason": null
+    },
+    {
+      "id": "notif-5b01eb3d-817b-432d-b42f-009e51a0e31b",
+      "seq": 1,
+      "operatorId": "tailor-operator",
+      "operatorName": "The Tailor",
+      "environment": "blackpine-field",
+      "action": "publish",
+      "reference": "'publish' in 'blackpine-field' (mode 'Draft-Only')",
+      "reason": "Denied: 'The Tailor' in mode 'Draft-Only' may not 'publish'. Read-only advisory mode allows observe and advise only.",
+      "timestamp": "2026-11-19T01:28:03.377Z",
+      "status": "approved",
+      "decidedBy": "owner",
+      "decidedAt": "2026-11-19T01:28:03.378Z",
+      "decisionReason": "Go ahead — list the tee."
+    }
+  ],
+  "notificationStats": {
+    "total": 3,
+    "pendingCount": 1,
+    "decidedCount": 2
+  },
   "audit": [
+    {
+      "type": "mode-change-approved",
+      "timestamp": "2026-11-19T01:36:22.870Z",
+      "operatorId": "content-operator",
+      "environment": "blackpine-field",
+      "action": "mode-change",
+      "allowed": true,
+      "reason": "Owner 'owner' approved mode change for 'Content Operator': 'read-only-advisory' -> 'draft-only'.",
+      "requestId": "mode-change-2b1ebaa5-cdcb-44ee-a1de-dfd235cfa751",
+      "previousMode": "read-only-advisory",
+      "newMode": "draft-only",
+      "seq": 47,
+      "coreVersion": "1.3.0"
+    },
+    {
+      "type": "mode-change-requested",
+      "timestamp": "2026-11-19T01:36:22.869Z",
+      "operatorId": "content-operator",
+      "environment": "blackpine-field",
+      "action": "mode-change-request",
+      "allowed": false,
+      "reason": "Mode change requested for 'Content Operator': 'read-only-advisory' -> 'draft-only'. Recorded as PENDING. Mode changes require explicit owner approval and are never self-approved.",
+      "requestId": "mode-change-2b1ebaa5-cdcb-44ee-a1de-dfd235cfa751",
+      "request": {
+        "id": "mode-change-2b1ebaa5-cdcb-44ee-a1de-dfd235cfa751",
+        "operatorId": "content-operator",
+        "operatorName": "Content Operator",
+        "environment": "blackpine-field",
+        "currentMode": "read-only-advisory",
+        "requestedMode": "draft-only",
+        "status": "pending-owner-approval",
+        "requestedBy": "owner",
+        "requestedAt": "2026-11-19T01:36:22.869Z",
+        "expiresAt": "2026-12-19T01:36:22.869Z",
+        "decidedAt": null,
+        "decidedBy": null
+      },
+      "seq": 46,
+      "coreVersion": "1.3.0"
+    },
+    {
+      "type": "mode-change-approved",
+      "timestamp": "2026-11-19T01:36:22.869Z",
+      "operatorId": "black-friday-operator",
+      "environment": "blackpine-field",
+      "action": "mode-change",
+      "allowed": true,
+      "reason": "Owner 'owner' approved mode change for 'Black Friday Operator': 'read-only-advisory' -> 'draft-only'.",
+      "requestId": "mode-change-22b1768b-5a95-4bff-96ad-e9cdb61815e1",
+      "previousMode": "read-only-advisory",
+      "newMode": "draft-only",
+      "seq": 45,
+      "coreVersion": "1.3.0"
+    },
+    {
+      "type": "mode-change-requested",
+      "timestamp": "2026-11-19T01:36:22.869Z",
+      "operatorId": "black-friday-operator",
+      "environment": "blackpine-field",
+      "action": "mode-change-request",
+      "allowed": false,
+      "reason": "Mode change requested for 'Black Friday Operator': 'read-only-advisory' -> 'draft-only'. Recorded as PENDING. Mode changes require explicit owner approval and are never self-approved.",
+      "requestId": "mode-change-22b1768b-5a95-4bff-96ad-e9cdb61815e1",
+      "request": {
+        "id": "mode-change-22b1768b-5a95-4bff-96ad-e9cdb61815e1",
+        "operatorId": "black-friday-operator",
+        "operatorName": "Black Friday Operator",
+        "environment": "blackpine-field",
+        "currentMode": "read-only-advisory",
+        "requestedMode": "draft-only",
+        "status": "pending-owner-approval",
+        "requestedBy": "owner",
+        "requestedAt": "2026-11-19T01:36:22.869Z",
+        "expiresAt": "2026-12-19T01:36:22.869Z",
+        "decidedAt": null,
+        "decidedBy": null
+      },
+      "seq": 44,
+      "coreVersion": "1.3.0"
+    },
+    {
+      "type": "mode-change-approved",
+      "timestamp": "2026-11-19T01:36:22.868Z",
+      "operatorId": "affiliate-operator",
+      "environment": "blackpine-field",
+      "action": "mode-change",
+      "allowed": true,
+      "reason": "Owner 'owner' approved mode change for 'Affiliate Operator': 'read-only-advisory' -> 'draft-only'.",
+      "requestId": "mode-change-9214e8a7-2cf7-4e45-a47b-31d0c5e5a4e5",
+      "previousMode": "read-only-advisory",
+      "newMode": "draft-only",
+      "seq": 43,
+      "coreVersion": "1.3.0"
+    },
+    {
+      "type": "mode-change-requested",
+      "timestamp": "2026-11-19T01:36:22.848Z",
+      "operatorId": "affiliate-operator",
+      "environment": "blackpine-field",
+      "action": "mode-change-request",
+      "allowed": false,
+      "reason": "Mode change requested for 'Affiliate Operator': 'read-only-advisory' -> 'draft-only'. Recorded as PENDING. Mode changes require explicit owner approval and are never self-approved.",
+      "requestId": "mode-change-9214e8a7-2cf7-4e45-a47b-31d0c5e5a4e5",
+      "request": {
+        "id": "mode-change-9214e8a7-2cf7-4e45-a47b-31d0c5e5a4e5",
+        "operatorId": "affiliate-operator",
+        "operatorName": "Affiliate Operator",
+        "environment": "blackpine-field",
+        "currentMode": "read-only-advisory",
+        "requestedMode": "draft-only",
+        "status": "pending-owner-approval",
+        "requestedBy": "owner",
+        "requestedAt": "2026-11-19T01:36:22.848Z",
+        "expiresAt": "2026-12-19T01:36:22.866Z",
+        "decidedAt": null,
+        "decidedBy": null
+      },
+      "seq": 42,
+      "coreVersion": "1.3.0"
+    },
+    {
+      "type": "notification-decision",
+      "timestamp": "2026-11-19T01:28:03.380Z",
+      "operatorId": "tailor-operator",
+      "environment": "blackpine-field",
+      "action": "notification:denied",
+      "allowed": false,
+      "reason": "Owner 'owner' denied The Tailor's request to 'spend' ('spend' in 'blackpine-field' (mode 'Draft-Only')). Owner's note: Not yet — no sales channel connected. Hold the order.",
+      "notificationId": "notif-64332054-2027-4bd7-8dde-a3a32c838d85",
+      "decision": "denied",
+      "decidedBy": "owner",
+      "seq": 41,
+      "coreVersion": "1.3.0"
+    },
+    {
+      "type": "authorization",
+      "timestamp": "2026-11-19T01:28:03.380Z",
+      "operatorId": "tailor-operator",
+      "environment": "blackpine-field",
+      "action": "spend",
+      "allowed": false,
+      "reason": "Denied: 'The Tailor' in mode 'Draft-Only' may not 'spend'. Read-only advisory mode allows observe and advise only.",
+      "seq": 40,
+      "coreVersion": "1.3.0"
+    },
+    {
+      "type": "authorization",
+      "timestamp": "2026-11-19T01:28:03.378Z",
+      "operatorId": "tailor-operator",
+      "environment": "blackpine-field",
+      "action": "publish",
+      "allowed": false,
+      "reason": "Denied: 'The Tailor' in mode 'Draft-Only' may not 'publish'. Read-only advisory mode allows observe and advise only.",
+      "seq": 39,
+      "coreVersion": "1.3.0"
+    },
+    {
+      "type": "notification-decision",
+      "timestamp": "2026-11-19T01:28:03.378Z",
+      "operatorId": "tailor-operator",
+      "environment": "blackpine-field",
+      "action": "notification:approved",
+      "allowed": true,
+      "reason": "Owner 'owner' approved The Tailor's request to 'publish' ('publish' in 'blackpine-field' (mode 'Draft-Only')). Owner's note: Go ahead — list the tee.",
+      "notificationId": "notif-5b01eb3d-817b-432d-b42f-009e51a0e31b",
+      "decision": "approved",
+      "decidedBy": "owner",
+      "seq": 38,
+      "coreVersion": "1.3.0"
+    },
+    {
+      "type": "authorization",
+      "timestamp": "2026-11-19T01:28:03.372Z",
+      "operatorId": "tailor-operator",
+      "environment": "blackpine-field",
+      "action": "publish",
+      "allowed": false,
+      "reason": "Denied: 'The Tailor' in mode 'Draft-Only' may not 'publish'. Read-only advisory mode allows observe and advise only.",
+      "seq": 37,
+      "coreVersion": "1.3.0"
+    },
+    {
+      "type": "interaction",
+      "timestamp": "2026-11-19T01:23:46.272Z",
+      "operatorId": "blackpine-operator",
+      "environment": "blackpine-field",
+      "action": "message:ASK",
+      "allowed": false,
+      "reason": "Environment separation: 'Blackpine Operator' is bound to 'blackpine-field' and 'Rivet Reach Operator' to 'rivet-reach'. Cross-environment messages need the owner's approval. Message denied.",
+      "messageId": "msg-d5741c85-f1d9-4e45-828e-da9747e03f48",
+      "toOperatorId": "rivet-reach-operator",
+      "kind": "ASK",
+      "seq": 36,
+      "coreVersion": "1.2.0"
+    },
+    {
+      "type": "interaction",
+      "timestamp": "2026-11-19T01:23:46.272Z",
+      "operatorId": "galileo-operator",
+      "environment": "galinyx-workforce",
+      "action": "message:ASK",
+      "allowed": true,
+      "reason": "Allowed: 'Galileo Ferraris' -> 'Finance Brother (unnamed — to be named by Galileo)' (ASK) in 'galinyx-workforce'.",
+      "messageId": "msg-ca3c3f45-2a03-4b85-9e75-68c3a3892cdf",
+      "toOperatorId": "finance-brother-operator",
+      "kind": "ASK",
+      "seq": 35,
+      "coreVersion": "1.2.0"
+    },
+    {
+      "type": "interaction",
+      "timestamp": "2026-11-19T01:23:46.271Z",
+      "operatorId": "tailor-operator",
+      "environment": "blackpine-field",
+      "action": "message:HANDOFF",
+      "allowed": true,
+      "reason": "Allowed: 'The Tailor' -> 'Blackpine Operator' (HANDOFF) in 'blackpine-field'. Handoff grants no permission: neither operator's mode changes, and publish or spend still needs the owner's approval per action.",
+      "messageId": "msg-53810b5c-5a71-448c-845b-13cfbd9000d5",
+      "toOperatorId": "blackpine-operator",
+      "kind": "HANDOFF",
+      "seq": 34,
+      "coreVersion": "1.2.0"
+    },
+    {
+      "type": "interaction",
+      "timestamp": "2026-11-19T01:23:04.119Z",
+      "operatorId": "tailor-operator",
+      "environment": "blackpine-field",
+      "action": "message:HANDOFF",
+      "allowed": true,
+      "reason": "Allowed: 'The Tailor' -> 'Blackpine Operator' (HANDOFF) in 'blackpine-field'. Handoff grants no permission: neither operator's mode changes, and publish or spend still needs the owner's approval per action.",
+      "messageId": "msg-d04a7e35-df7d-45c6-abdf-75e73f8aa986",
+      "toOperatorId": "blackpine-operator",
+      "kind": "HANDOFF",
+      "seq": 33,
+      "coreVersion": "1.2.0"
+    },
     {
       "type": "authorization",
       "timestamp": "2026-11-18T01:28:47.557Z",
@@ -244,194 +749,11 @@
       "reason": "Denied: 'Rivet Reach Operator' in mode 'Draft-Only' may not 'publish'. Read-only advisory mode allows observe and advise only.",
       "seq": 28,
       "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:41:32.433Z",
-      "operatorId": "rivet-reach-operator",
-      "environment": "rivet-reach",
-      "action": "write",
-      "allowed": true,
-      "reason": "Allowed: 'Rivet Reach Operator' in mode 'Draft-Only' may 'write' in 'rivet-reach'.",
-      "seq": 27,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:41:32.433Z",
-      "operatorId": "blackpine-operator",
-      "environment": "blackpine-field",
-      "action": "spend",
-      "allowed": false,
-      "reason": "Denied: 'Blackpine Operator' in mode 'Draft-Only' may not 'spend'. Read-only advisory mode allows observe and advise only.",
-      "seq": 26,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:41:32.433Z",
-      "operatorId": "blackpine-operator",
-      "environment": "blackpine-field",
-      "action": "publish",
-      "allowed": false,
-      "reason": "Denied: 'Blackpine Operator' in mode 'Draft-Only' may not 'publish'. Read-only advisory mode allows observe and advise only.",
-      "seq": 25,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:41:32.424Z",
-      "operatorId": "blackpine-operator",
-      "environment": "blackpine-field",
-      "action": "write",
-      "allowed": true,
-      "reason": "Allowed: 'Blackpine Operator' in mode 'Draft-Only' may 'write' in 'blackpine-field'.",
-      "seq": 24,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:40:57.378Z",
-      "operatorId": "rivet-reach-operator",
-      "environment": "rivet-reach",
-      "action": "advise",
-      "allowed": true,
-      "reason": "Allowed: 'Rivet Reach Operator' in mode 'Draft-Only' may 'advise' in 'rivet-reach'.",
-      "seq": 23,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:40:57.378Z",
-      "operatorId": "rivet-reach-operator",
-      "environment": "rivet-reach",
-      "action": "read",
-      "allowed": true,
-      "reason": "Allowed: 'Rivet Reach Operator' in mode 'Draft-Only' may 'read' in 'rivet-reach'.",
-      "seq": 22,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:40:57.377Z",
-      "operatorId": "rivet-reach-operator",
-      "environment": "rivet-reach",
-      "action": "spend",
-      "allowed": false,
-      "reason": "Denied: 'Rivet Reach Operator' in mode 'Draft-Only' may not 'spend'. Read-only advisory mode allows observe and advise only.",
-      "seq": 21,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:40:57.377Z",
-      "operatorId": "rivet-reach-operator",
-      "environment": "rivet-reach",
-      "action": "publish",
-      "allowed": false,
-      "reason": "Denied: 'Rivet Reach Operator' in mode 'Draft-Only' may not 'publish'. Read-only advisory mode allows observe and advise only.",
-      "seq": 20,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:40:57.377Z",
-      "operatorId": "rivet-reach-operator",
-      "environment": "rivet-reach",
-      "action": "write",
-      "allowed": true,
-      "reason": "Allowed: 'Rivet Reach Operator' in mode 'Draft-Only' may 'write' in 'rivet-reach'.",
-      "seq": 19,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "mode-change-approved",
-      "timestamp": "2026-11-17T23:40:57.377Z",
-      "operatorId": "rivet-reach-operator",
-      "environment": "rivet-reach",
-      "action": "mode-change",
-      "allowed": true,
-      "reason": "Owner 'owner' approved mode change for 'Rivet Reach Operator': 'read-only-advisory' -> 'draft-only'.",
-      "requestId": "mode-change-cfd95c12-72fb-42ac-a8bd-16190dec1838",
-      "previousMode": "read-only-advisory",
-      "newMode": "draft-only",
-      "seq": 18,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "mode-change-requested",
-      "timestamp": "2026-11-17T23:40:57.377Z",
-      "operatorId": "rivet-reach-operator",
-      "environment": "rivet-reach",
-      "action": "mode-change-request",
-      "allowed": false,
-      "reason": "Mode change requested for 'Rivet Reach Operator': 'read-only-advisory' -> 'draft-only'. Recorded as PENDING. Mode changes require explicit owner approval and are never self-approved.",
-      "requestId": "mode-change-cfd95c12-72fb-42ac-a8bd-16190dec1838",
-      "request": {
-        "id": "mode-change-cfd95c12-72fb-42ac-a8bd-16190dec1838",
-        "operatorId": "rivet-reach-operator",
-        "operatorName": "Rivet Reach Operator",
-        "environment": "rivet-reach",
-        "currentMode": "read-only-advisory",
-        "requestedMode": "draft-only",
-        "status": "pending-owner-approval",
-        "requestedBy": "xena",
-        "requestedAt": "2026-11-17T23:40:57.377Z",
-        "expiresAt": "2026-12-17T23:40:57.377Z",
-        "decidedAt": null,
-        "decidedBy": null
-      },
-      "seq": 17,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:40:57.377Z",
-      "operatorId": "blackpine-operator",
-      "environment": "blackpine-field",
-      "action": "advise",
-      "allowed": true,
-      "reason": "Allowed: 'Blackpine Operator' in mode 'Draft-Only' may 'advise' in 'blackpine-field'.",
-      "seq": 16,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:40:57.377Z",
-      "operatorId": "blackpine-operator",
-      "environment": "blackpine-field",
-      "action": "read",
-      "allowed": true,
-      "reason": "Allowed: 'Blackpine Operator' in mode 'Draft-Only' may 'read' in 'blackpine-field'.",
-      "seq": 15,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:40:57.376Z",
-      "operatorId": "blackpine-operator",
-      "environment": "blackpine-field",
-      "action": "spend",
-      "allowed": false,
-      "reason": "Denied: 'Blackpine Operator' in mode 'Draft-Only' may not 'spend'. Read-only advisory mode allows observe and advise only.",
-      "seq": 14,
-      "coreVersion": "1.1.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-17T23:40:57.376Z",
-      "operatorId": "blackpine-operator",
-      "environment": "blackpine-field",
-      "action": "publish",
-      "allowed": false,
-      "reason": "Denied: 'Blackpine Operator' in mode 'Draft-Only' may not 'publish'. Read-only advisory mode allows observe and advise only.",
-      "seq": 13,
-      "coreVersion": "1.1.0"
     }
   ],
   "auditStats": {
-    "inMemoryEntries": 32,
-    "lastSeq": 32,
+    "inMemoryEntries": 47,
+    "lastSeq": 47,
     "persistFailures": 0
   }
 }

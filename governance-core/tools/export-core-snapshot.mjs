@@ -29,6 +29,8 @@ import {
   getAuditLog,
   getAuditStats,
 } from '../src/index.mjs';
+import * as coreModule from '../src/index.mjs';
+import { createNotificationSystem } from '../src/notifications.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const outPath = path.resolve(
@@ -132,6 +134,37 @@ const staging = readdirSync(stagingDir)
     return entry;
   });
 
+// Notifications: the owner's inbox. Replay the append-only log through the
+// notification module itself, so creation + decision entries merge exactly
+// as the live system sees them (a decision updates the record's status;
+// corrupt lines are skipped, never fatal). Read-only here: the exporter
+// creates no notifications and decides none — it only lists.
+const notificationSystem = createNotificationSystem(coreModule);
+const notifications = notificationSystem
+  .listAll()
+  .slice()
+  .reverse() // Newest first, so the page renders in file order.
+  .map((n) => ({
+    id: n.id,
+    seq: n.seq,
+    operatorId: n.operatorId,
+    operatorName: n.operatorName,
+    environment: n.environment,
+    action: n.action,
+    reference: n.reference,
+    reason: n.reason,
+    timestamp: n.timestamp,
+    status: n.status,
+    decidedBy: n.decidedBy,
+    decidedAt: n.decidedAt,
+    decisionReason: n.decisionReason,
+  }));
+const notificationStats = {
+  total: notifications.length,
+  pendingCount: notifications.filter((n) => n.status === 'pending').length,
+  decidedCount: notifications.filter((n) => n.status !== 'pending').length,
+};
+
 const snapshot = {
   generatedAt: new Date().toISOString(),
   coreVersion: CORE_VERSION,
@@ -148,6 +181,8 @@ const snapshot = {
   rules,
   staging,
   pendingRequests: pending,
+  notifications,
+  notificationStats,
   audit,
   auditStats,
 };
@@ -158,5 +193,7 @@ console.log(
   `operators: ${operators.length}, rules: ${rules.length}, ` +
     `staging drafts: ${staging.length}, pending: ${pending.length} ` +
     `(${pending.filter((r) => r.stale).length} stale), ` +
+    `notifications: ${notificationStats.total} ` +
+    `(${notificationStats.pendingCount} pending, ${notificationStats.decidedCount} decided), ` +
     `audit entries in snapshot: ${audit.length}, total in log: ${auditStats.inMemoryEntries}`,
 );

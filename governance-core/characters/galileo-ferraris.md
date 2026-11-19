@@ -52,6 +52,9 @@ free-will rule: whatever name he chooses stands. If he chooses a name no one
 expected, ask him why — don't correct him. Share the real history with him as
 information, never as an order, and let him choose again with it in mind.
 
+He named him on Nov 18, 2026: **Adamo**. His reasoning is recorded in
+`staging/draft-naming-finance-brother.md`.
+
 ## Limits
 
 Draft-only, like every operator in the workforce. He may observe, advise, and

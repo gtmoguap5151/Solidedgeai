@@ -1,5 +1,5 @@
 /**
- * GALINYX Governance Core — v1.1.0
+ * GALINYX Governance Core — v1.3.0
  * =================================
  * Authority, policies, permissions, and oversight for GALINYX specialist
  * operators. Zero third-party dependencies. No secrets. No network calls.
@@ -10,8 +10,12 @@
  *     -> GALINYX OS (operating platform)
  *       -> Governance Core (this module)
  *         -> AI Workforce (operator registry, roles, assignments)
- *           -> Specialist Operators, one per business environment
+ *           -> Specialist Operators, bound to one environment each
+ *             (an environment may host a team of operators)
  *             - Blackpine Operator  -> Blackpine Field (storefront)
+ *             - Affiliate Operator  -> Blackpine Field (revenue team test)
+ *             - Black Friday Operator -> Blackpine Field (revenue team test)
+ *             - Content Operator    -> Blackpine Field (revenue team test)
  *             - Rivet Reach Operator -> Rivet Reach (lead generation)
  *
  * Rules enforced here, in code:
@@ -38,6 +42,23 @@
  *   - It does NOT sync state between processes. Each process holds its own
  *     registry state; the JSONL file gives restart consistency for one
  *     process, not live multi-process sync. Run exactly one writer process.
+ *     (The operator interaction layer, interactions.mjs, keeps its own
+ *     append-only log, interactions.jsonl, as the one shared channel
+ *     between operators — but it inherits the same single-writer caveat.)
+ *
+ * v1.2.0 adds recordInteractionAudit(): a narrow hook so the interaction
+ * layer can record each message decision in this audit log. Nothing else
+ * about authorization, modes, or the registry changed in 1.2.0.
+ *
+ * v1.3.0 adds the owner-notification sink: setNotificationSink() /
+ * notifyOwnerApprovalNeeded(), recordNotificationAudit(), and isOwner().
+ * When authorize() denies an action only because the operator's mode does
+ * not allow it (a legitimate action that needs owner approval), the Core
+ * notifies the registered sink so the owner-notification system
+ * (notifications.mjs) can alert the owner. A mode-change request notifies
+ * the same way. Nothing else about authorization, modes, or the registry
+ * changed in 1.3.0. The Core never imports the notification module — the
+ * sink is registered by the layer, so the Core works with no sink at all.
  *
  * Environment variables:
  *   GALINYX_OPERATORS_FILE   - registry file (default: ./operators.json)
@@ -51,7 +72,7 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
-export const CORE_VERSION = '1.1.0';
+export const CORE_VERSION = '1.3.0';
 
 // ---------------------------------------------------------------------------
 // Built-in known-good registry. This is the fallback when operators.json is
@@ -657,6 +678,12 @@ export function authorize(operatorId, environment, action) {
   const safeAction = sanitizeValue(action);
   let allowed = false;
   let reason = '';
+  // Set only when the denial means "a legitimate action this operator's mode
+  // does not allow" — i.e. the operator wants to do something that needs
+  // owner approval. Unknown operators/actions, bad input, environment
+  // separation, and errors are NOT approval requests and never notify.
+  let needsOwnerApproval = false;
+  let deniedModeLabel = '';
   try {
     if (!isValidId(operatorId) || !isValidId(environment) || !isValidId(action)) {
       reason =
@@ -677,6 +704,8 @@ export function authorize(operatorId, environment, action) {
           allowed = true;
           reason = `Allowed: '${operator.name}' in mode '${mode.label}' may '${action}' in '${environment}'.`;
         } else {
+          needsOwnerApproval = true;
+          deniedModeLabel = mode.label;
           reason = `Denied: '${operator.name}' in mode '${mode.label}' may not '${action}'. Read-only advisory mode allows observe and advise only.`;
         }
       }
@@ -698,6 +727,21 @@ export function authorize(operatorId, environment, action) {
     reason,
   });
 
+  // The denial and the notification are one act: when a known operator in
+  // its own environment is denied only because its mode does not allow a
+  // legitimate action, the owner is told. notifyOwnerApprovalNeeded() never
+  // throws and is a no-op with no sink registered, so this cannot break
+  // authorize().
+  if (!allowed && needsOwnerApproval) {
+    notifyOwnerApprovalNeeded({
+      operatorId,
+      environment,
+      action,
+      reference: `'${action}' in '${environment}' (mode '${deniedModeLabel}')`,
+      reason,
+    });
+  }
+
   return {
     allowed,
     reason,
@@ -706,6 +750,165 @@ export function authorize(operatorId, environment, action) {
     action: safeAction,
     timestamp,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Interaction audit hook.
+//
+// recordInteractionAudit() is called ONLY by the operator interaction layer
+// (interactions.mjs), so every operator-to-operator message decision is
+// recorded in this audit log alongside every other Core decision. It
+// validates and sanitizes its input, never throws, and cannot set
+// type/seq/coreVersion — those are set here by recordAudit(). A malformed
+// call returns null and records nothing; it never forges an entry.
+// ---------------------------------------------------------------------------
+
+export function recordInteractionAudit(input) {
+  try {
+    if (!input || typeof input !== 'object' || Array.isArray(input)) return null;
+    const { messageId, fromOperatorId, toOperatorId, kind, environment, allowed, reason } = input;
+    if (typeof messageId !== 'string' || messageId === '') return null;
+    if (typeof kind !== 'string' || kind === '') return null;
+    if (typeof allowed !== 'boolean') return null;
+    // A malformed attempt still leaves a trace (the Core's rule: a failed
+    // attack leaves a trace instead of a gap). Invalid IDs are recorded as
+    // 'invalid-input' and an empty environment means none was established —
+    // the same convention the registry-fallback entry already uses. The kind
+    // is recorded as claimed (sanitized): kind validation belongs to the
+    // layer's authorization decision, not to the audit recorder — exactly
+    // as authorize() records denied unknown actions.
+    const safeFrom = isValidId(fromOperatorId) ? fromOperatorId : 'invalid-input';
+    const safeTo = isValidId(toOperatorId) ? toOperatorId : 'invalid-input';
+    const safeEnv = environment === '' || isValidId(environment) ? environment : 'invalid-input';
+    const safeKind = sanitizeValue(kind, 64);
+    return recordAudit({
+      type: 'interaction',
+      timestamp: new Date().toISOString(),
+      operatorId: safeFrom,
+      environment: safeEnv,
+      action: `message:${safeKind}`,
+      allowed,
+      reason: sanitizeValue(reason, 512),
+      messageId: sanitizeValue(messageId, 128),
+      toOperatorId: safeTo,
+      kind: safeKind,
+    });
+  } catch {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Owner-notification sink.
+//
+// setNotificationSink() / notifyOwnerApprovalNeeded() / isOwner() /
+// recordNotificationAudit() — narrow hooks for the owner-notification system
+// (notifications.mjs), ordered by the owner 2026-11-18: when an operator
+// wants to do something that needs owner approval, the owner must be told
+// and able to respond.
+//
+// The Core never imports the notification module: the layer registers a
+// sink function with setNotificationSink(), and the Core calls it when
+// something needs the owner's approval (an authorize() mode denial, a
+// mode-change request). With no sink registered, everything here is a
+// no-op and the Core behaves exactly as before. The sink is last-wins:
+// registering a second sink replaces the first (one writer process, same
+// rule as the audit log).
+//
+// notifyOwnerApprovalNeeded() never throws and cannot break the caller:
+// a failing or missing sink means no notification is created, and the
+// denial itself is still audit-logged by authorize() — so the attempt is
+// never silent even if the alert path is down.
+// ---------------------------------------------------------------------------
+
+let notificationSink = null;
+
+export function setNotificationSink(fn) {
+  if (fn !== null && typeof fn !== 'function') return false;
+  notificationSink = fn;
+  return true;
+}
+
+export function notifyOwnerApprovalNeeded(payload) {
+  try {
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+      return { notified: false, reason: 'Invalid notification payload.' };
+    }
+    const { operatorId, environment, action, reference, reason } = payload;
+    if (!isValidId(operatorId) || !operators.has(operatorId)) {
+      return { notified: false, reason: 'Unknown operator for notification.' };
+    }
+    if (environment !== '' && !isValidId(environment)) {
+      return { notified: false, reason: 'Invalid environment for notification.' };
+    }
+    if (typeof action !== 'string' || action === '') {
+      return { notified: false, reason: 'Invalid action for notification.' };
+    }
+    if (notificationSink === null) {
+      return { notified: false, reason: 'No notification sink registered.' };
+    }
+    const result = notificationSink({
+      operatorId,
+      environment: environment || '',
+      action: sanitizeValue(action, 128),
+      reference: sanitizeValue(reference, 1024),
+      reason: sanitizeValue(reason, 512),
+    });
+    const created = Boolean(result && typeof result === 'object' && result.created === true);
+    return {
+      notified: created,
+      reason: created ? 'Notification created.' : 'Sink did not create a notification.',
+    };
+  } catch (err) {
+    return {
+      notified: false,
+      reason: `Notification sink failed (${sanitizeValue(err && err.message ? err.message : err)}). The denial itself is still audit-logged.`,
+    };
+  }
+}
+
+// isOwner() exposes the same owner-identity guardrail approveModeChange()
+// uses, so the notification layer can enforce "only the owner decides"
+// without duplicating the configured identity. Same limit as that
+// guardrail: the identity is a claim, not a credential, until signed owner
+// approvals exist (v1 Phase 4).
+export function isOwner(identity) {
+  return typeof identity === 'string' && identity !== '' && identity === OWNER_ID;
+}
+
+// recordNotificationAudit() is called ONLY by the owner-notification system
+// (notifications.mjs), so every owner decision on a notification is recorded
+// in this audit log alongside every other Core decision. It validates and
+// sanitizes its input, never throws, and cannot set type/seq/coreVersion —
+// those are set here by recordAudit(). A malformed call returns null and
+// records nothing; it never forges an entry. (Notification CREATION needs
+// no audit entry of its own: the authorize() denial that caused it is
+// already audit-logged, and a mode-change request is audit-logged as
+// mode-change-requested. Only the owner's DECISION is a new act.)
+export function recordNotificationAudit(input) {
+  try {
+    if (!input || typeof input !== 'object' || Array.isArray(input)) return null;
+    const { notificationId, operatorId, environment, decision, decidedBy, reason } = input;
+    if (typeof notificationId !== 'string' || notificationId === '') return null;
+    if (decision !== 'approved' && decision !== 'denied') return null;
+    if (typeof decidedBy !== 'string' || decidedBy === '') return null;
+    const safeOp = isValidId(operatorId) ? operatorId : 'invalid-input';
+    const safeEnv = environment === '' || isValidId(environment) ? environment : 'invalid-input';
+    return recordAudit({
+      type: 'notification-decision',
+      timestamp: new Date().toISOString(),
+      operatorId: safeOp,
+      environment: safeEnv,
+      action: `notification:${decision}`,
+      allowed: decision === 'approved',
+      reason: sanitizeValue(reason, 512),
+      notificationId: sanitizeValue(notificationId, 128),
+      decision,
+      decidedBy: sanitizeValue(decidedBy, 256),
+    });
+  } catch {
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -780,6 +983,16 @@ export function requestModeChange(operatorId, newMode, requestedBy = 'unknown') 
     reason: `Mode change requested for '${operator.name}': '${operator.mode}' -> '${newMode}'. Recorded as PENDING. Mode changes require explicit owner approval and are never self-approved.`,
     requestId: request.id,
     request: { ...request },
+  });
+
+  // A pending mode-change request is an operator asking the owner for
+  // something — the owner must be told. No-op with no sink registered.
+  notifyOwnerApprovalNeeded({
+    operatorId,
+    environment: operator.environment,
+    action: 'mode-change',
+    reference: `mode-change request ${request.id}: '${operator.mode}' -> '${newMode}'`,
+    reason: `Mode change requested for '${operator.name}': '${operator.mode}' -> '${newMode}'. Awaiting owner approval.`,
   });
 
   return {
