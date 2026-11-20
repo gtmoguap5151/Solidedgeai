@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T14:08:36.139Z",
+  "generatedAt": "2026-11-20T14:42:44.463Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -504,6 +504,18 @@
       "decisionStatus": "approved",
       "date": "Nov 20, 2026",
       "summary": "## Every signal we have"
+    },
+    {
+      "file": "draft-content-operator-storefront-redesign.md",
+      "draftId": "draft-content-operator-storefront-redesign.md",
+      "operatorId": "content-operator",
+      "operatorName": "Content Operator",
+      "title": "draft-content-operator-storefront-redesign.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "Nov 20, 2026",
+      "summary": "Photo: ~/workspace/blackpine-field/brand/storefront/storefront-a-luxury-editorial.png",
+      "image": "~/workspace/blackpine-field/brand/storefront/storefront-a-luxury-editorial.png"
     },
     {
       "file": "draft-deadlock-d001-paperwork-checklist.md",
@@ -2035,7 +2047,7 @@
   ],
   "auditStats": {
     "inMemoryEntries": 91,
-    "lastSeq": 106,
+    "lastSeq": 110,
     "persistFailures": 0
   }
 }
