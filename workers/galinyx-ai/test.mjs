@@ -216,6 +216,70 @@ const postGenerate = (body, headers = {}) =>
   );
 }
 
+const postChat = (body, headers = {}) =>
+  req('/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Origin: ORIGIN, ...headers },
+    body: JSON.stringify(body),
+  });
+const upstreamSystem = () => {
+  try {
+    const payload = JSON.parse(lastUpstream?.init?.body || '{}');
+    return payload.systemInstruction?.parts?.[0]?.text || '';
+  } catch {
+    return '';
+  }
+};
+
+// 17. Chat with character 'franklin' -> Franklin's system instruction
+{
+  __resetRateLimits();
+  mockMode = 'ok';
+  lastUpstream = null;
+  const res = await worker.fetch(
+    postChat({ character: 'franklin', messages: [{ role: 'user', text: 'What venture should I start?' }] }),
+    { GEMINI_API_KEY: FAKE_KEY }
+  );
+  const system = upstreamSystem();
+  check(
+    'chat character franklin -> Franklin system prompt, draft-only',
+    res.status === 200 && system.includes('Benjamin Franklin') && system.includes('draft-only'),
+    'system starts: ' + system.slice(0, 60)
+  );
+}
+
+// 18. Chat with no character -> defaults to Galileo
+{
+  __resetRateLimits();
+  lastUpstream = null;
+  const res = await worker.fetch(
+    postChat({ messages: [{ role: 'user', text: 'Hello' }] }),
+    { GEMINI_API_KEY: FAKE_KEY }
+  );
+  const system = upstreamSystem();
+  check(
+    'chat no character -> defaults to Galileo',
+    res.status === 200 && system.includes('Galileo Ferraris'),
+    'system starts: ' + system.slice(0, 60)
+  );
+}
+
+// 19. Chat with unknown character -> defaults to Galileo (fail closed)
+{
+  __resetRateLimits();
+  lastUpstream = null;
+  const res = await worker.fetch(
+    postChat({ character: 'tesla', messages: [{ role: 'user', text: 'Hello' }] }),
+    { GEMINI_API_KEY: FAKE_KEY }
+  );
+  const system = upstreamSystem();
+  check(
+    'chat unknown character -> defaults to Galileo',
+    res.status === 200 && system.includes('Galileo Ferraris'),
+    'system starts: ' + system.slice(0, 60)
+  );
+}
+
 globalThis.fetch = realFetch;
 
 console.log(results.join('\n'));
