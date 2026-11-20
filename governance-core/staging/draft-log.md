@@ -13,7 +13,7 @@ the owner's authority, with a record for every draft. The package
 itself is ON HOLD until the system proves itself (owner's order,
 Nov 19, 2026) — this log is the evidence being gathered in the meantime.
 
-**Drafts on file:** 95 · **Last updated:** 2026-11-20 07:05 UTC · **Next update:** 2026-11-20 15:05 UTC · **Updates every 8 hours** · **Core:** v1.5.0
+**Drafts on file:** 99 · **Last updated:** 2026-11-20 08:33 UTC · **Next update:** 2026-11-20 16:33 UTC · **Updates every 8 hours** · **Core:** v1.5.0
 
 Status comes from each draft file's own header: an explicit `Status:`
 line, a `DECISION` line, or a first-line banner. Anything without an
@@ -52,6 +52,13 @@ the row (and the draft file's header) when it is decided.
 | Draft | Staged | Status | Title |
 |---|---|---|---|
 | `draft-content-mirror-tn1day-and-click-read.md` | 2026-11-20 | Approved | In plain English |
+
+## content-operator (2)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-content-operator-bf-deal-images.md` | 2026-11-20 | Staged — pending review | Black Friday Deal Pictures — Every Deal Gets One |
+| `draft-content-operator-marketing-gap.md` | 2026-11-20 | Approved | Close the Marketing Gap — What Moves, What Doesn't, and What We Push Next |
 
 ## customer-care (1)
 
@@ -94,6 +101,12 @@ the row (and the draft file's header) when it is decided.
 | Draft | Staged | Status | Title |
 |---|---|---|---|
 | `draft-franklin-first-grant.md` | 2026-11-20 | Staged — pending review | Franklin's First Grant — A Sample Application |
+
+## handshake-brand (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-handshake-brand-sponsors.md` | 2026-11-20 | Staged — pending review | Brand Sponsors for Blackpine Field — Outreach Draft |
 
 ## handshake-pending (1)
 
@@ -305,6 +318,12 @@ the row (and the draft file's header) when it is decided.
 | `draft-tailor-design-08.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 08 |
 | `draft-tailor-design-09.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 09 |
 | `draft-tailor-design-10.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 10 |
+
+## tailor-full (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-tailor-full-line.md` | 2026-11-20 | Approved — all designs, color picker ordered | In plain English |
 
 ## tailor-line (16)
 

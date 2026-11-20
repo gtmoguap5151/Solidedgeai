@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T07:05:41.683Z",
+  "generatedAt": "2026-11-20T14:08:36.139Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -484,6 +484,28 @@
       "summary": "## Part 1 — tn1day publish notes (Content Operator)"
     },
     {
+      "file": "draft-content-operator-bf-deal-images.md",
+      "draftId": "draft-content-operator-bf-deal-images.md",
+      "operatorId": "content-operator",
+      "operatorName": "Content Operator",
+      "title": "draft-content-operator-bf-deal-images.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "# Black Friday Deal Pictures — Every Deal Gets One"
+    },
+    {
+      "file": "draft-content-operator-marketing-gap.md",
+      "draftId": "draft-content-operator-marketing-gap.md",
+      "operatorId": "content-operator",
+      "operatorName": "Content Operator",
+      "title": "draft-content-operator-marketing-gap.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "Nov 20, 2026",
+      "summary": "## Every signal we have"
+    },
+    {
       "file": "draft-deadlock-d001-paperwork-checklist.md",
       "draftId": "draft-deadlock-d001-paperwork-checklist.md",
       "operatorId": "deadlock-operator",
@@ -504,6 +526,17 @@
       "decisionStatus": "pending",
       "date": "2026-11-20",
       "summary": "## The program — verified, not guessed"
+    },
+    {
+      "file": "draft-handshake-brand-sponsors.md",
+      "draftId": "draft-handshake-brand-sponsors.md",
+      "operatorId": "partnerships-operator",
+      "operatorName": "The Handshake",
+      "title": "draft-handshake-brand-sponsors.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "Nov 20, 2026",
+      "summary": "## The store today — honest numbers only"
     },
     {
       "file": "draft-handshake-pending-application-followups.md",
@@ -1179,6 +1212,18 @@
       "date": "Nov 19, 2026",
       "summary": "**Design 10 — Spring Drop — SPRING THUNDER CALLS**",
       "image": "https://blackpinefield.com/img/design-10.png"
+    },
+    {
+      "file": "draft-tailor-full-line.md",
+      "draftId": "draft-tailor-full-line.md",
+      "operatorId": "tailor-operator",
+      "operatorName": "The Tailor",
+      "title": "draft-tailor-full-line.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "Nov 20, 2026",
+      "summary": "## The design",
+      "image": "~/workspace/blackpine-field/brand/label/v2/tailor-full-line/pine-back-tee-black.png"
     },
     {
       "file": "draft-tailor-line-crewneck-01.md",
@@ -1990,7 +2035,7 @@
   ],
   "auditStats": {
     "inMemoryEntries": 91,
-    "lastSeq": 105,
+    "lastSeq": 106,
     "persistFailures": 0
   }
 }
