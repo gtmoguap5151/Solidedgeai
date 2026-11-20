@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T17:30:09.482Z",
+  "generatedAt": "2026-11-20T17:36:51.975Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -531,6 +531,28 @@
       "summary": "## The 13 buttons"
     },
     {
+      "file": "draft-chaser-civil-law-followup-templates.md",
+      "draftId": "draft-chaser-civil-law-followup-templates.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-chaser-civil-law-followup-templates.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "## How to use these templates"
+    },
+    {
+      "file": "draft-client-voice-civil-law-status-updates.md",
+      "draftId": "draft-client-voice-civil-law-status-updates.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-client-voice-civil-law-status-updates.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "## Case-status update template"
+    },
+    {
       "file": "draft-closer-visitor-to-sale.md",
       "draftId": "draft-closer-visitor-to-sale.md",
       "operatorId": "closer-operator",
@@ -607,6 +629,28 @@
       "decisionStatus": "pending",
       "date": "Nov 19, 2026.",
       "summary": "# Assignment Paperwork Checklist — Deal D-001"
+    },
+    {
+      "file": "draft-drafter-civil-law-template-set.md",
+      "draftId": "draft-drafter-civil-law-template-set.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-drafter-civil-law-template-set.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "## How to use this template set"
+    },
+    {
+      "file": "draft-file-keeper-civil-law-organization-scheme.md",
+      "draftId": "draft-file-keeper-civil-law-organization-scheme.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-file-keeper-civil-law-organization-scheme.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "## Folder structure"
     },
     {
       "file": "draft-franklin-first-grant.md",
@@ -730,6 +774,17 @@
       "summary": "*In-character draft from the operator's character file and recorded work — not a message from a live agent. Draft-only; nothing here changes anything live.*"
     },
     {
+      "file": "draft-intake-civil-law-script.md",
+      "draftId": "draft-intake-civil-law-script.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-intake-civil-law-script.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "## How to use this script"
+    },
+    {
       "file": "draft-interlock-d001-buyer-match.md",
       "draftId": "draft-interlock-d001-buyer-match.md",
       "operatorId": "interlock-operator",
@@ -739,6 +794,28 @@
       "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "## Deal summary — D-001"
+    },
+    {
+      "file": "draft-keeper-of-dates-civil-law-deadline-tracking.md",
+      "draftId": "draft-keeper-of-dates-civil-law-deadline-tracking.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-keeper-of-dates-civil-law-deadline-tracking.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "## What the tracker watches"
+    },
+    {
+      "file": "draft-ledger-hand-civil-law-billing-drafts.md",
+      "draftId": "draft-ledger-hand-civil-law-billing-drafts.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-ledger-hand-civil-law-billing-drafts.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "## Time-entry draft format"
     },
     {
       "file": "draft-log.md",
@@ -1172,6 +1249,17 @@
       "decisionStatus": "pending",
       "date": "2026-11-20",
       "summary": "## 1. Grant writing for small churches and nonprofits"
+    },
+    {
+      "file": "draft-setter-civil-law-booking-flow.md",
+      "draftId": "draft-setter-civil-law-booking-flow.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-setter-civil-law-booking-flow.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "## How to use this flow"
     },
     {
       "file": "draft-sherlock-jacksonville-leads.md",
@@ -2150,7 +2238,7 @@
   ],
   "auditStats": {
     "inMemoryEntries": 91,
-    "lastSeq": 126,
+    "lastSeq": 127,
     "persistFailures": 0
   }
 }

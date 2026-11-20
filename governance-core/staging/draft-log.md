@@ -13,7 +13,7 @@ the owner's authority, with a record for every draft. The package
 itself is ON HOLD until the system proves itself (owner's order,
 Nov 19, 2026) — this log is the evidence being gathered in the meantime.
 
-**Drafts on file:** 103 · **Last updated:** 2026-11-20 17:30 UTC · **Next update:** 2026-11-21 01:30 UTC · **Updates every 8 hours** · **Core:** v1.5.0
+**Drafts on file:** 111 · **Last updated:** 2026-11-20 17:36 UTC · **Next update:** 2026-11-21 01:36 UTC · **Updates every 8 hours** · **Core:** v1.5.0
 
 Status comes from each draft file's own header: an explicit `Status:`
 line, a `DECISION` line, or a first-line banner. Anything without an
@@ -34,6 +34,18 @@ the row (and the draft file's header) when it is decided.
 | `draft-catalog-worker-cheap-stocking-stuffers.md` | 2026-11-20 | Staged — pending review | In plain English |
 | `draft-catalog-worker-christmas-childrens-price-buttons.md` | 2026-11-20 | Approved | In plain English |
 | `draft-new-catalog-worker.md` | 2026-11-20 | Approved | In plain English |
+
+## chaser-civil (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-chaser-civil-law-followup-templates.md` | 2026-11-20 | Staged — pending review | Civil Law Firm — Follow-Up Templates |
+
+## client-voice (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-client-voice-civil-law-status-updates.md` | 2026-11-20 | Staged — pending review | The Client Voice — Civil Law Status Updates |
 
 ## closer-visitor (1)
 
@@ -85,6 +97,12 @@ the row (and the draft file's header) when it is decided.
 |---|---|---|---|
 | `draft-deadlock-d001-paperwork-checklist.md` | 2026-11-19 | Staged — pending review | In plain English |
 
+## drafter-civil (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-drafter-civil-law-template-set.md` | 2026-11-20 | Staged — pending review | Civil Law Firm — Template Set |
+
 ## ev-packet (1)
 
 | Draft | Staged | Status | Title |
@@ -102,6 +120,12 @@ the row (and the draft file's header) when it is decided.
 | Draft | Staged | Status | Title |
 |---|---|---|---|
 | `draft-new-ev-record-builder.md` | 2026-11-20 | Approved | In plain English |
+
+## file-keeper (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-file-keeper-civil-law-organization-scheme.md` | 2026-11-20 | Staged — pending review | The File Keeper — Civil Law Case-File Organization Scheme |
 
 ## franklin-first (1)
 
@@ -139,11 +163,29 @@ the row (and the draft file's header) when it is decided.
 | `draft-helper-needs-prova.md` | 2026-11-19 | Staged — pending review | Check-in — Prova (tester-operator) |
 | `draft-helper-needs-shuttle.md` | 2026-11-19 | Staged — pending review | Check-in — The Shuttle (supplier-operator) |
 
+## intake-civil (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-intake-civil-law-script.md` | 2026-11-20 | Staged — pending review | Civil Law Firm — Dry-Run Intake Script |
+
 ## interlock-d001 (1)
 
 | Draft | Staged | Status | Title |
 |---|---|---|---|
 | `draft-interlock-d001-buyer-match.md` | 2026-11-19 | Staged — pending review | In plain English |
+
+## keeper-of (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-keeper-of-dates-civil-law-deadline-tracking.md` | 2026-11-20 | Staged — pending review | Keeper of Dates — Civil Law Deadline Tracking |
+
+## ledger-hand (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-ledger-hand-civil-law-billing-drafts.md` | 2026-11-20 | Staged — pending review | The Ledger Hand — Civil Law Billing Drafts |
 
 ## listings-worker (1)
 
@@ -298,6 +340,12 @@ the row (and the draft file's header) when it is decided.
 | Draft | Staged | Status | Title |
 |---|---|---|---|
 | `draft-new-security-engineer.md` | 2026-11-20 | Approved | In plain English |
+
+## setter-civil (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-setter-civil-law-booking-flow.md` | 2026-11-20 | Staged — pending review | Civil Law Firm — Consultation Booking Flow |
 
 ## sherlock-jacksonville (1)
 
