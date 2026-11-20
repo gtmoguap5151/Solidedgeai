@@ -13,7 +13,7 @@ the owner's authority, with a record for every draft. The package
 itself is ON HOLD until the system proves itself (owner's order,
 Nov 19, 2026) — this log is the evidence being gathered in the meantime.
 
-**Drafts on file:** 74 · **Last updated:** 2026-11-19 21:51 UTC · **Next update:** 2026-11-20 05:51 UTC · **Updates every 8 hours** · **Core:** v1.5.0
+**Drafts on file:** 74 · **Last updated:** 2026-11-20 00:33 UTC · **Next update:** 2026-11-20 08:33 UTC · **Updates every 8 hours** · **Core:** v1.5.0
 
 Status comes from each draft file's own header: an explicit `Status:`
 line, a `DECISION` line, or a first-line banner. Anything without an
@@ -21,251 +21,246 @@ explicit decision is `Staged — pending review` — the log never guesses
 a decision. Maintenance: append a row when a draft is staged; update
 the row (and the draft file's header) when it is decided.
 
-**Design rule (owner's order, Nov 19, 2026):** a draft that suggests a
-design carries its photo. The draft file holds a `Photo:` line with the
-live image URL, the log links it in the Photo column, and the app shows
-it when the draft is opened. No design draft ships without its picture.
-
 ## blackpine-operator (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-blackpine-operator-store-improvements.md` | 2026-11-19 | Approved | Where the store stands (honest numbers, Nov 19, 2026) | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-blackpine-operator-store-improvements.md` | 2026-11-19 | Approved | In plain English |
 
 ## closer-visitor (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-closer-visitor-to-sale.md` | 2026-11-19 | Staged — pending review | The Visitor-to-Sale Fix — blackpinefield.com | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-closer-visitor-to-sale.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## content-mirror (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-content-mirror-tn1day-and-click-read.md` | 2026-11-19 | Staged — pending review | Part 1 — tn1day publish notes (Content Operator) | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-content-mirror-tn1day-and-click-read.md` | 2026-11-19 | Approved | In plain English |
 
 ## customer-care (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-new-customer-care-worker.md` | 2026-11-19 | Staged — pending review | Draft New Customer Care Worker | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-new-customer-care-worker.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## deadlock-d001 (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-deadlock-d001-paperwork-checklist.md` | 2026-11-19 | Staged — pending review | Assignment Paperwork Checklist — Deal D-001 | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-deadlock-d001-paperwork-checklist.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## handshake-pending (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-handshake-pending-application-followups.md` | 2026-11-19 | Staged — pending review | Account facts (for reference in every follow-up) | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-handshake-pending-application-followups.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## hearth-homeowner (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-hearth-homeowner-posts.md` | 2026-11-19 | Staged — pending review | POST 1 — Personal profile (Matt Jeremiah) | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-hearth-homeowner-posts.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## helper-needs (7)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-helper-needs-closer.md` | 2026-11-19 | Staged — pending review | Check-in — The Closer (closer-operator) | — |
-| `draft-helper-needs-handshake.md` | 2026-11-19 | Staged — pending review | Check-in — The Handshake (partnerships-operator) | — |
-| `draft-helper-needs-hearth.md` | 2026-11-19 | Staged — pending review | Check-in — The Hearth (homeowner-operator) | — |
-| `draft-helper-needs-mirror.md` | 2026-11-19 | Staged — pending review | Check-in — The Mirror (performance-operator) | — |
-| `draft-helper-needs-proof.md` | 2026-11-19 | Staged — pending review | Check-in — The Proof (deal-checker-operator) | — |
-| `draft-helper-needs-prova.md` | 2026-11-19 | Staged — pending review | Check-in — Prova (tester-operator) | — |
-| `draft-helper-needs-shuttle.md` | 2026-11-19 | Staged — pending review | Check-in — The Shuttle (supplier-operator) | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-helper-needs-closer.md` | 2026-11-19 | Staged — pending review | Check-in — The Closer (closer-operator) |
+| `draft-helper-needs-handshake.md` | 2026-11-19 | Staged — pending review | Check-in — The Handshake (partnerships-operator) |
+| `draft-helper-needs-hearth.md` | 2026-11-19 | Staged — pending review | Check-in — The Hearth (homeowner-operator) |
+| `draft-helper-needs-mirror.md` | 2026-11-19 | Staged — pending review | Check-in — The Mirror (performance-operator) |
+| `draft-helper-needs-proof.md` | 2026-11-19 | Staged — pending review | Check-in — The Proof (deal-checker-operator) |
+| `draft-helper-needs-prova.md` | 2026-11-19 | Staged — pending review | Check-in — Prova (tester-operator) |
+| `draft-helper-needs-shuttle.md` | 2026-11-19 | Staged — pending review | Check-in — The Shuttle (supplier-operator) |
 
 ## interlock-d001 (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-interlock-d001-buyer-match.md` | 2026-11-19 | Staged — pending review | Deal summary — D-001 | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-interlock-d001-buyer-match.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## listings-worker (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-new-listings-worker.md` | 2026-11-19 | Staged — pending review | Draft New Listings Worker | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-new-listings-worker.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## matlock-verification (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-matlock-verification-plan.md` | 2026-11-19 | Staged — pending review | Scope and method | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-matlock-verification-plan.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## naming-closer (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-naming-closer.md` | 2026-11-19 | Staged — pending review | Draft Naming Closer | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-naming-closer.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## naming-deal (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-naming-deal-checker.md` | 2026-11-19 | Staged — pending review | Draft Naming Deal Checker | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-naming-deal-checker.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## naming-finance (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-naming-finance-brother.md` | 2026-11-19 | Staged — pending review | Draft Naming Finance Brother | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-naming-finance-brother.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## naming-homeowner (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-naming-homeowner.md` | 2026-11-19 | Staged — pending review | Draft Naming Homeowner | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-naming-homeowner.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## naming-partnerships (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-naming-partnerships.md` | 2026-11-19 | Staged — pending review | Draft Naming Partnerships | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-naming-partnerships.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## naming-performance (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-naming-performance.md` | 2026-11-19 | Staged — pending review | Draft Naming Performance | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-naming-performance.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## naming-supplier (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-naming-supplier.md` | 2026-11-19 | Staged — pending review | Draft Naming Supplier | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-naming-supplier.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## naming-tester (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-naming-tester.md` | 2026-11-19 | Staged — pending review | Draft Naming Tester | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-naming-tester.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## orders-worker (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-new-orders-worker.md` | 2026-11-19 | Staged — pending review | Draft New Orders Worker | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-new-orders-worker.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## pricing-promotions (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-new-pricing-promotions-worker.md` | 2026-11-19 | Staged — pending review | Draft New Pricing Promotions Worker | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-new-pricing-promotions-worker.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## printify-department (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-printify-department-product-setup.md` | 2026-11-19 | Staged — pending review | Ground truth this draft stands on | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-printify-department-product-setup.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## product-promotion (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-new-product-promotion-worker.md` | 2026-11-19 | Staged — pending review | Draft New Product Promotion Worker | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-new-product-promotion-worker.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## proof-black (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-proof-black-friday-price-check.md` | 2026-11-19 | Staged — pending review | Method and limits | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-proof-black-friday-price-check.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## prova-phase3 (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-prova-phase3-shell-test.md` | 2026-11-19 | Staged — pending review | 1. What I checked and how | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-prova-phase3-shell-test.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## repeat-buyer (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-new-repeat-buyer-worker.md` | 2026-11-19 | Staged — pending review | Draft New Repeat Buyer Worker | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-new-repeat-buyer-worker.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## rivet-reach (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-rivet-reach-operator-next-wave.md` | 2026-11-19 | Staged — pending review | Refreshed Next Contractor Wave — Rivet Reach | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-rivet-reach-operator-next-wave.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## sherlock-jacksonville (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-sherlock-jacksonville-leads.md` | 2026-11-19 | Staged — pending review | Method and honesty note | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-sherlock-jacksonville-leads.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## shuttle-supplier (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-shuttle-supplier-plan.md` | 2026-11-19 | Staged — pending review | Where things stand | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-shuttle-supplier-plan.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## tailor-design (10)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-tailor-design-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 01 | [Photo](https://blackpinefield.com/img/design-01.png) |
-| `draft-tailor-design-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 02 | [Photo](https://blackpinefield.com/img/design-02.png) |
-| `draft-tailor-design-03.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 03 | [Photo](https://blackpinefield.com/img/design-03.png) |
-| `draft-tailor-design-04.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 04 | [Photo](https://blackpinefield.com/img/design-04.png) |
-| `draft-tailor-design-05.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 05 | [Photo](https://blackpinefield.com/img/design-05.png) |
-| `draft-tailor-design-06.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 06 | [Photo](https://blackpinefield.com/img/design-06.png) |
-| `draft-tailor-design-07.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 07 | [Photo](https://blackpinefield.com/img/design-07.png) |
-| `draft-tailor-design-08.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 08 | [Photo](https://blackpinefield.com/img/design-08.png) |
-| `draft-tailor-design-09.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 09 | [Photo](https://blackpinefield.com/img/design-09.png) |
-| `draft-tailor-design-10.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 10 | [Photo](https://blackpinefield.com/img/design-10.png) |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-tailor-design-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 01 |
+| `draft-tailor-design-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 02 |
+| `draft-tailor-design-03.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 03 |
+| `draft-tailor-design-04.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 04 |
+| `draft-tailor-design-05.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 05 |
+| `draft-tailor-design-06.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 06 |
+| `draft-tailor-design-07.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 07 |
+| `draft-tailor-design-08.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 08 |
+| `draft-tailor-design-09.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 09 |
+| `draft-tailor-design-10.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Design 10 |
 
 ## tailor-line (16)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-tailor-line-crewneck-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Crewneck 01 | [Photo](https://blackpinefield.com/img/crewneck-01.png) |
-| `draft-tailor-line-crewneck-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Crewneck 02 | [Photo](https://blackpinefield.com/img/crewneck-02.png) |
-| `draft-tailor-line-crewneck-03.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Crewneck 03 | [Photo](https://blackpinefield.com/img/crewneck-03.png) |
-| `draft-tailor-line-dadcap-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Dadcap 01 | [Photo](https://blackpinefield.com/img/dadcap-01.png) |
-| `draft-tailor-line-dadcap-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Dadcap 02 | [Photo](https://blackpinefield.com/img/dadcap-02.png) |
-| `draft-tailor-line-hoodie-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Hoodie 01 | [Photo](https://blackpinefield.com/img/hoodie-01.png) |
-| `draft-tailor-line-hoodie-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Hoodie 02 | [Photo](https://blackpinefield.com/img/hoodie-02.png) |
-| `draft-tailor-line-hoodie-03.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Hoodie 03 | [Photo](https://blackpinefield.com/img/hoodie-03.png) |
-| `draft-tailor-line-longsleeve-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Longsleeve 01 | [Photo](https://blackpinefield.com/img/longsleeve-01.png) |
-| `draft-tailor-line-longsleeve-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Longsleeve 02 | [Photo](https://blackpinefield.com/img/longsleeve-02.png) |
-| `draft-tailor-line-longsleeve-03.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Longsleeve 03 | [Photo](https://blackpinefield.com/img/longsleeve-03.png) |
-| `draft-tailor-line-mug-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Mug 01 | [Photo](https://blackpinefield.com/img/mug-01.png) |
-| `draft-tailor-line-mug-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Mug 02 | [Photo](https://blackpinefield.com/img/mug-02.png) |
-| `draft-tailor-line-mug-03.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Mug 03 | [Photo](https://blackpinefield.com/img/mug-03.png) |
-| `draft-tailor-line-trucker-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Trucker 01 | [Photo](https://blackpinefield.com/img/trucker-01.png) |
-| `draft-tailor-line-trucker-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Trucker 02 | [Photo](https://blackpinefield.com/img/trucker-02.png) |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-tailor-line-crewneck-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Crewneck 01 |
+| `draft-tailor-line-crewneck-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Crewneck 02 |
+| `draft-tailor-line-crewneck-03.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Crewneck 03 |
+| `draft-tailor-line-dadcap-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Dadcap 01 |
+| `draft-tailor-line-dadcap-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Dadcap 02 |
+| `draft-tailor-line-hoodie-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Hoodie 01 |
+| `draft-tailor-line-hoodie-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Hoodie 02 |
+| `draft-tailor-line-hoodie-03.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Hoodie 03 |
+| `draft-tailor-line-longsleeve-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Longsleeve 01 |
+| `draft-tailor-line-longsleeve-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Longsleeve 02 |
+| `draft-tailor-line-longsleeve-03.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Longsleeve 03 |
+| `draft-tailor-line-mug-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Mug 01 |
+| `draft-tailor-line-mug-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Mug 02 |
+| `draft-tailor-line-mug-03.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Mug 03 |
+| `draft-tailor-line-trucker-01.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Trucker 01 |
+| `draft-tailor-line-trucker-02.md` | 2026-11-19 | Approved — listed on store | Draft Tailor Line Trucker 02 |
 
 ## tailor-mark (1)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-tailor-mark-reconciliation.md` | 2026-11-19 | Staged — pending review | The conflict, plainly | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-tailor-mark-reconciliation.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## team-needs (8)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `draft-team-needs-affiliate-operator.md` | 2026-11-19 | Staged — pending review | Draft Team Needs Affiliate Operator | — |
-| `draft-team-needs-black-friday-operator.md` | 2026-11-19 | Staged — pending review | Draft Team Needs Black Friday Operator | — |
-| `draft-team-needs-blackpine-operator.md` | 2026-11-19 | Staged — pending review | Draft Team Needs Blackpine Operator | — |
-| `draft-team-needs-content-operator.md` | 2026-11-19 | Staged — pending review | Draft Team Needs Content Operator | — |
-| `draft-team-needs-finance-brother-operator.md` | 2026-11-19 | Staged — pending review | Draft Team Needs Finance Brother Operator | — |
-| `draft-team-needs-galileo-operator.md` | 2026-11-19 | Staged — pending review | Draft Team Needs Galileo Operator | — |
-| `draft-team-needs-rivet-reach-operator.md` | 2026-11-19 | Staged — pending review | Draft Team Needs Rivet Reach Operator | — |
-| `draft-team-needs-tailor-operator.md` | 2026-11-19 | Staged — pending review | Draft Team Needs Tailor Operator | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-team-needs-affiliate-operator.md` | 2026-11-19 | Staged — pending review | In plain English |
+| `draft-team-needs-black-friday-operator.md` | 2026-11-19 | Staged — pending review | In plain English |
+| `draft-team-needs-blackpine-operator.md` | 2026-11-19 | Staged — pending review | In plain English |
+| `draft-team-needs-content-operator.md` | 2026-11-19 | Staged — pending review | In plain English |
+| `draft-team-needs-finance-brother-operator.md` | 2026-11-19 | Staged — pending review | In plain English |
+| `draft-team-needs-galileo-operator.md` | 2026-11-19 | Staged — pending review | In plain English |
+| `draft-team-needs-rivet-reach-operator.md` | 2026-11-19 | Staged — pending review | In plain English |
+| `draft-team-needs-tailor-operator.md` | 2026-11-19 | Staged — pending review | In plain English |
 
 ## unassigned (4)
 
-| Draft | Staged | Status | Title | Photo |
-|---|---|---|---|---|
-| `blackpine-draft-001-black-friday-post.md` | 2026-11-18 | Published | Blackpine Draft 001 Black Friday Post | — |
-| `rivet-reach-draft-001-homeowner-post.md` | 2026-11-18 | Published | Rivet Reach Draft 001 Homeowner Post | — |
-| `blackpine-draft-002-revenue-boost-ideas.md` | 2026-11-19 | Approved (advisory) | Blackpine Draft 002 Revenue Boost Ideas | — |
-| `rivet-reach-draft-002-alternate-routes.md` | 2026-11-19 | Approved (advisory) | Rivet Reach Draft 002 Alternate Routes | — |
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `blackpine-draft-001-black-friday-post.md` | 2026-11-18 | Published | Blackpine Draft 001 Black Friday Post |
+| `rivet-reach-draft-001-homeowner-post.md` | 2026-11-18 | Published | Rivet Reach Draft 001 Homeowner Post |
+| `blackpine-draft-002-revenue-boost-ideas.md` | 2026-11-19 | Approved (advisory) | Blackpine Draft 002 Revenue Boost Ideas |
+| `rivet-reach-draft-002-alternate-routes.md` | 2026-11-19 | Approved (advisory) | Rivet Reach Draft 002 Alternate Routes |

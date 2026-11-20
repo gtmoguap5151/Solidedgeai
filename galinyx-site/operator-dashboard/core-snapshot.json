@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T02:24:00.281Z",
+  "generatedAt": "2026-11-20T02:29:30.310Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -332,7 +332,7 @@
       "operatorName": "",
       "title": "draft-content-mirror-tn1day-and-click-read.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "## Part 1 — tn1day publish notes (Content Operator)"
     },
@@ -1526,7 +1526,7 @@
   ],
   "auditStats": {
     "inMemoryEntries": 69,
-    "lastSeq": 75,
+    "lastSeq": 76,
     "persistFailures": 0
   }
 }
