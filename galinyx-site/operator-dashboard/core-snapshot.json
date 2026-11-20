@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T06:45:57.481Z",
+  "generatedAt": "2026-11-20T06:51:44.393Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -482,6 +482,17 @@
       "decisionStatus": "pending",
       "date": "Nov 19, 2026.",
       "summary": "# Assignment Paperwork Checklist — Deal D-001"
+    },
+    {
+      "file": "draft-franklin-first-grant.md",
+      "draftId": "draft-franklin-first-grant.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-franklin-first-grant.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "## The program — verified, not guessed"
     },
     {
       "file": "draft-handshake-pending-application-followups.md",

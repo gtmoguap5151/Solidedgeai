@@ -13,7 +13,7 @@ the owner's authority, with a record for every draft. The package
 itself is ON HOLD until the system proves itself (owner's order,
 Nov 19, 2026) — this log is the evidence being gathered in the meantime.
 
-**Drafts on file:** 92 · **Last updated:** 2026-11-20 06:45 UTC · **Next update:** 2026-11-20 14:45 UTC · **Updates every 8 hours** · **Core:** v1.5.0
+**Drafts on file:** 93 · **Last updated:** 2026-11-20 06:51 UTC · **Next update:** 2026-11-20 14:51 UTC · **Updates every 8 hours** · **Core:** v1.5.0
 
 Status comes from each draft file's own header: an explicit `Status:`
 line, a `DECISION` line, or a first-line banner. Anything without an
@@ -87,6 +87,12 @@ the row (and the draft file's header) when it is decided.
 | Draft | Staged | Status | Title |
 |---|---|---|---|
 | `draft-new-ev-record-builder.md` | 2026-11-20 | Approved | In plain English |
+
+## franklin-first (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-franklin-first-grant.md` | 2026-11-20 | Staged — pending review | Franklin's First Grant — A Sample Application |
 
 ## handshake-pending (1)
 
