@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T17:36:51.975Z",
+  "generatedAt": "2026-11-20T17:44:04.543Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -496,6 +496,28 @@
       "date": "Nov 17, 2026",
       "summary": "Current state (verified live Nov 17): 12 affiliate clicks ever (Awin 8, CJ 4), 0 sales, $0.00.",
       "decision": "DECISION (Xena, round table 2026-11-18): APPROVED as advisory guidance. Suggestions 1, 2, 3, 5 are already executed as of today (Black Friday page live via Git push; Free Country Lanier card live $126; firearm course li…"
+    },
+    {
+      "file": "draft-adamo-money-check-civil-law-package.md",
+      "draftId": "draft-adamo-money-check-civil-law-package.md",
+      "operatorId": "finance-brother-operator",
+      "operatorName": "Adamo — Finance Brother",
+      "title": "draft-adamo-money-check-civil-law-package.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "# Adamo's money check — Civil Law Firm Workforce Package"
+    },
+    {
+      "file": "draft-adamo-money-check-five-ventures.md",
+      "draftId": "draft-adamo-money-check-five-ventures.md",
+      "operatorId": "finance-brother-operator",
+      "operatorName": "Adamo — Finance Brother",
+      "title": "draft-adamo-money-check-five-ventures.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "## 1. Grant writing for small churches and nonprofits"
     },
     {
       "file": "draft-blackpine-operator-store-improvements.md",
@@ -2238,7 +2260,7 @@
   ],
   "auditStats": {
     "inMemoryEntries": 91,
-    "lastSeq": 127,
+    "lastSeq": 128,
     "persistFailures": 0
   }
 }
