@@ -13,7 +13,7 @@
  *   clean error responses that never forward upstream bodies.
  *
  * Endpoints:
- *   GET  /health    -> {"ok":true,"configured":true|false}
+ *   GET  /health    -> {"ok":true,"configured":true|false}  (public)
  *   POST /generate  -> {"text":"..."}  (body: {"prompt":"..."})
  *   POST /chat      -> {"text":"..."}  (body: {"character":"galileo"|"franklin",
  *                      "messages":[{"role":"user"|"model","text":"..."}]})
@@ -24,6 +24,13 @@
  *                      defaults to Galileo; only 'franklin' selects
  *                      Franklin. Keep the prompts in step when the
  *                      character files change.
+ *
+ * Sign-in gate (owner's order, Nov 20, 2026): /generate and /chat answer
+ * only to a signed-in GALINYX OS account. The shell sends the Supabase
+ * session's access token as Authorization: Bearer <token>; the Worker
+ * verifies it against the Supabase Auth API before any Gemini call. No
+ * token or an invalid one gets a 401 and no quota is burned. /health
+ * stays public.
  */
 
 // ---------------------------------------------------------------- config
@@ -47,6 +54,13 @@ const CHAT_TEMPERATURE = 0.5;       // steadier than /generate: Galileo is direc
 const PER_IP_PER_MINUTE = 10;       // matches the free tier's 10 RPM ceiling
 const GLOBAL_PER_MINUTE = 60;       // protects the 250/day project quota
 const WINDOW_MS = 60_000;
+
+// Sign-in gate: the shell's Supabase project. The publishable key below
+// is designed for frontend use — it is not a secret and already ships in
+// the shell. The service_role key is never used here.
+const SUPABASE_URL = 'https://sebcnrlexkcuuyfmigoq.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_Vh1NqPKKxLSYh3YoBaTAzw_UJEK6UAB';
+const AUTH_CACHE_TTL_MS = 5 * 60_000; // re-verify a token at most every 5 minutes
 
 // Galileo's character, from governance-core/characters/galileo-ferraris.md
 // (owner's order, Nov 19, 2026). He speaks to Matt Johnson — the man who
@@ -200,13 +214,57 @@ export function __resetRateLimits() {
   windows.clear();
 }
 
+// ------------------------------------------------------- auth (sign-in gate)
+// Verified tokens are cached briefly per isolate so a chat turn does not
+// cost a Supabase round-trip every time. The cache holds only the token
+// string and the user id it proved — never anything else, never logged.
+const verifiedTokens = new Map(); // token -> { userId, expiresAt }
+
+async function verifySupabaseToken(token) {
+  const cached = verifiedTokens.get(token);
+  if (cached && Date.now() < cached.expiresAt) return cached.userId;
+  verifiedTokens.delete(token);
+  let res;
+  try {
+    res = await fetch(SUPABASE_URL + '/auth/v1/user', {
+      headers: {
+        apikey: SUPABASE_PUBLISHABLE_KEY,
+        Authorization: 'Bearer ' + token,
+      },
+    });
+  } catch {
+    return null;
+  }
+  if (!res.ok) return null;
+  let user;
+  try {
+    user = await res.json();
+  } catch {
+    return null;
+  }
+  if (!user || typeof user.id !== 'string' || !user.id) return null;
+  verifiedTokens.set(token, {
+    userId: user.id,
+    expiresAt: Date.now() + AUTH_CACHE_TTL_MS,
+  });
+  return user.id;
+}
+
+// Test-only reset. Cloudflare ignores extra exports.
+export function __resetAuthCache() {
+  verifiedTokens.clear();
+}
+
 // ------------------------------------------------------------ responses
 
 function corsHeaders() {
   return {
     'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    // Authorization: the shell sends its Supabase session token with
+    // every /generate and /chat call. Without this the browser blocks
+    // the request before it ever leaves the page.
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Max-Age': '86400',
   };
 }
@@ -228,6 +286,8 @@ const ERRORS = {
   notFound: () => json({ error: 'Not found.' }, 404),
   methodNotAllowed: () => json({ error: 'Method not allowed.' }, 405),
   forbidden: () => json({ error: 'Forbidden.' }, 403),
+  unauthorized: () =>
+    json({ error: 'Sign in to use GALINYX AI.' }, 401),
   badRequest: (message) => json({ error: message }, 400),
   tooLarge: () =>
     json({ error: 'That idea is too long. Keep it under 8,000 characters.' }, 413),
@@ -386,9 +446,21 @@ export default {
     if (request.method !== 'POST') return ERRORS.methodNotAllowed();
 
     // Origin check: a browser always sends Origin on a cross-origin POST.
-    // Requests with no Origin (curl, tests) pass through to the key gate.
+    // Requests with no Origin (curl, tests) pass through to the sign-in gate.
     const origin = request.headers.get('Origin');
     if (origin && origin !== ALLOWED_ORIGIN) return ERRORS.forbidden();
+
+    // Sign-in gate: /generate and /chat answer only to a signed-in
+    // GALINYX OS account. No token or an invalid one gets a 401 and no
+    // Gemini call — no quota is burned on strangers. Checked before the
+    // rate limits so failed sign-ins never eat the IP budget.
+    const authHeader = request.headers.get('Authorization') || '';
+    const token = authHeader.startsWith('Bearer ')
+      ? authHeader.slice('Bearer '.length).trim()
+      : '';
+    if (!token) return ERRORS.unauthorized();
+    const userId = await verifySupabaseToken(token);
+    if (!userId) return ERRORS.unauthorized();
 
     // Rate limits, before any paid/free quota is spent.
     const ip =

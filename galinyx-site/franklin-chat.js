@@ -585,9 +585,15 @@ async function sendFranklinMessage() {
     .map((m) => ({ role: m.role, text: m.text }));
 
   try {
+    // Sign-in gate: the Worker verifies the Supabase session token
+    // before answering. No token -> the Worker returns 401 and the
+    // error below tells Matt to sign in.
+    const token = typeof sbAccessToken === 'function' ? await sbAccessToken() : null;
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers.Authorization = 'Bearer ' + token;
     const response = await fetch(FRANKLIN_AI_BASE + '/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ character: 'franklin', messages: payloadMessages }),
     });
     const result = await response.json().catch(() => ({}));

@@ -1,9 +1,11 @@
 // Local tests for the galinyx-ai Worker. No real key, no live Gemini call:
 // global fetch is stubbed with a mock. Run: node test.mjs
-import worker, { __resetRateLimits } from './worker.js';
+import worker, { __resetRateLimits, __resetAuthCache } from './worker.js';
 
 const ORIGIN = 'https://gtmoguap5151.github.io';
 const FAKE_KEY = 'test-key-not-real'; // fake value for tests only, never a real key
+const AUTH_TOKEN = 'test-token-not-real';
+const SB_AUTH_URL = 'https://sebcnrlexkcuuyfmigoq.supabase.co/auth/v1/user';
 
 let passed = 0;
 let failed = 0;
@@ -19,12 +21,31 @@ function check(name, ok, detail = '') {
   }
 }
 
-// Mock Gemini: captures the upstream request, returns canned text.
+// Mock Gemini + mock Supabase Auth: the Worker verifies every /generate
+// and /chat token against the Auth API, so the mock routes that URL to a
+// canned user (or a 401 when mockAuth is 'invalid') and everything else
+// to the canned Gemini reply.
 let mockMode = 'ok'; // ok | error500 | rate429 | empty
+let mockAuth = 'valid'; // valid | invalid
 let lastUpstream = null;
+let lastAuthCheck = null;
 const realFetch = globalThis.fetch;
 globalThis.fetch = async (url, init) => {
-  lastUpstream = { url, init };
+  const urlStr = String(url);
+  if (urlStr.startsWith(SB_AUTH_URL)) {
+    lastAuthCheck = { url: urlStr, init };
+    if (mockAuth === 'invalid') {
+      return new Response(JSON.stringify({ msg: 'invalid token' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return new Response(
+      JSON.stringify({ id: 'test-user-id', email: 'test@example.com' }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+  lastUpstream = { url: urlStr, init };
   if (mockMode === 'error500') {
     return new Response(
       JSON.stringify({ error: { message: 'INTERNAL SECRET DETAILS 12345' } }),
@@ -32,7 +53,9 @@ globalThis.fetch = async (url, init) => {
     );
   }
   if (mockMode === 'rate429') {
-    return new Response(JSON.stringify({ error: { message: 'quota' } }), {
+    // Message mentions the daily quota, so the Worker upgrades the 429
+    // to the daily-limit wording (a plain 'quota' 429 stays per-minute).
+    return new Response(JSON.stringify({ error: { message: 'daily quota exceeded' } }), {
       status: 429,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -58,7 +81,12 @@ const req = (path, opts = {}) =>
 const postGenerate = (body, headers = {}) =>
   req('/generate', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Origin: ORIGIN, ...headers },
+    headers: {
+      'Content-Type': 'application/json',
+      Origin: ORIGIN,
+      Authorization: 'Bearer ' + AUTH_TOKEN,
+      ...headers,
+    },
     body: JSON.stringify(body),
   });
 
@@ -118,9 +146,13 @@ const postGenerate = (body, headers = {}) =>
 // 6. No Origin (curl) passes the origin check and reaches the key gate
 {
   __resetRateLimits();
+  __resetAuthCache();
   const r = req('/generate', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + AUTH_TOKEN,
+    },
     body: JSON.stringify({ prompt: 'hi' }),
   });
   const res = await worker.fetch(r, {});
@@ -219,7 +251,12 @@ const postGenerate = (body, headers = {}) =>
 const postChat = (body, headers = {}) =>
   req('/chat', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Origin: ORIGIN, ...headers },
+    headers: {
+      'Content-Type': 'application/json',
+      Origin: ORIGIN,
+      Authorization: 'Bearer ' + AUTH_TOKEN,
+      ...headers,
+    },
     body: JSON.stringify(body),
   });
 const upstreamSystem = () => {
@@ -278,6 +315,73 @@ const upstreamSystem = () => {
     res.status === 200 && system.includes('Galileo Ferraris'),
     'system starts: ' + system.slice(0, 60)
   );
+}
+
+// 20. No token -> 401, no Gemini call
+{
+  __resetRateLimits();
+  __resetAuthCache();
+  lastUpstream = null;
+  const r = req('/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Origin: ORIGIN },
+    body: JSON.stringify({ prompt: 'hi' }),
+  });
+  const res = await worker.fetch(r, { GEMINI_API_KEY: FAKE_KEY });
+  check(
+    'no token -> 401, no Gemini call',
+    res.status === 401 && lastUpstream === null,
+    'got ' + res.status
+  );
+}
+
+// 21. Invalid token -> 401, no Gemini call
+{
+  __resetRateLimits();
+  __resetAuthCache();
+  mockAuth = 'invalid';
+  lastUpstream = null;
+  const res = await worker.fetch(
+    postGenerate({ prompt: 'hi' }, { Authorization: 'Bearer bad-token-not-real' }),
+    { GEMINI_API_KEY: FAKE_KEY }
+  );
+  mockAuth = 'valid';
+  check(
+    'invalid token -> 401, no Gemini call',
+    res.status === 401 && lastUpstream === null,
+    'got ' + res.status
+  );
+}
+
+// 22. Valid token -> Auth API called with apikey + Bearer headers
+{
+  __resetRateLimits();
+  __resetAuthCache();
+  lastAuthCheck = null;
+  const res = await worker.fetch(postGenerate({ prompt: 'hi' }), { GEMINI_API_KEY: FAKE_KEY });
+  const authHeaders = lastAuthCheck?.init?.headers || {};
+  check(
+    'valid token -> Auth API verified with apikey + Bearer',
+    res.status === 200 &&
+      lastAuthCheck !== null &&
+      typeof authHeaders.apikey === 'string' &&
+      authHeaders.apikey.length > 0 &&
+      authHeaders.Authorization === 'Bearer ' + AUTH_TOKEN,
+    'auth check: ' + JSON.stringify(lastAuthCheck)
+  );
+}
+
+// 23. Chat with no token -> 401
+{
+  __resetRateLimits();
+  __resetAuthCache();
+  const r = req('/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Origin: ORIGIN },
+    body: JSON.stringify({ messages: [{ role: 'user', text: 'Hello' }] }),
+  });
+  const res = await worker.fetch(r, { GEMINI_API_KEY: FAKE_KEY });
+  check('chat no token -> 401', res.status === 401, 'got ' + res.status);
 }
 
 globalThis.fetch = realFetch;

@@ -96,9 +96,15 @@ async function generateWithAI() {
   if (buttonEl) buttonEl.disabled = true;
 
   try {
+    // Sign-in gate: the Worker verifies the Supabase session token
+    // before answering. No token -> the Worker returns 401 and the
+    // error below tells Matt to sign in.
+    const token = typeof sbAccessToken === 'function' ? await sbAccessToken() : null;
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers.Authorization = 'Bearer ' + token;
     const response = await fetch(STUDIO_AI_BASE + '/generate', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ prompt }),
     });
     const result = await response.json().catch(() => ({}));

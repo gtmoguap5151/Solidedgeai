@@ -43,9 +43,29 @@
 .btn.listening{border-color:#7dc69b!important;color:#b9d5bf}
 .btn.voice-on{border-color:var(--gold)!important;color:#e9c77a}
 @media(max-width:780px){.chat-presence{flex-wrap:wrap}.chat-xena{margin-left:0}}
+/* Sign-in gate (owner's order, Nov 20, 2026): the whole app sits behind
+   the owner's sign-in. The gate is the default state — the app only
+   appears once a session is confirmed. */
+#auth-gate{display:none;min-height:100vh;align-items:center;justify-content:center;padding:24px}
+body.gated #auth-gate{display:flex}
+body.gated header,body.gated .layout,body.gated footer{display:none!important}
+.gate-card{width:100%;max-width:430px;background:linear-gradient(145deg,#121d33,#0e1628);border:1px solid var(--line);border-radius:14px;padding:28px 24px;text-align:center}
+.gate-card .brand{font-size:22px}
+.gate-card h1{font-size:24px;letter-spacing:-.02em;margin:14px 0 8px}
+.gate-card p{color:var(--muted);font-size:13px;line-height:1.6;margin:0 0 6px}
+.gate-card .field{text-align:left}
 </style>
 </head>
-<body><div class="app">
+<body class="gated"><div class="app">
+<div id="auth-gate"><div class="gate-card">
+<div class="brand">GALI<span>NYX OS™</span></div>
+<h1>Sign in to open GALINYX OS</h1>
+<p>The workforce, Galileo, and Franklin are private — they open only for the owner's sign-in.</p>
+<div class="field"><label for="gate-email">Email</label><input id="gate-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+<div class="field"><label for="gate-password">Password</label><input id="gate-password" type="password" autocomplete="current-password" placeholder="Your password"></div>
+<div class="row" style="justify-content:center"><button class="btn" onclick="gateSignIn()">Sign in</button><button class="btn secondary" onclick="gateSignUp()">Create account</button></div>
+<div class="tiny" id="gate-message" style="margin-top:14px">Your password goes to Supabase only — it is never stored in this browser.</div>
+</div></div>
 <header><a class="brand" href="#" aria-label="GALINYX OS home">GALI<span>NYX OS™</span></a><div class="header-right"><button class="whoami" id="whoami" title="Not signed in — open Account to sign in." onclick="showView('account')">Signed out</button><div class="status" id="auth-status">Workspace · Local only</div></div></header>
 <div class="layout">
 <aside class="sidebar" aria-label="Workspace navigation">
@@ -71,7 +91,7 @@
 <article class="panel"><h2>Open tasks</h2><div class="metric" id="metric-tasks">0</div><div class="sub">Planned work not yet completed</div></article>
 <article class="panel wide"><div class="section-title"><h2>Workspace activity</h2><button class="btn ghost" onclick="showView('activity')">View log</button></div><div id="home-activity" class="list"></div></article>
 <article class="panel"><h2>Operating principle</h2><div class="metric" style="font-size:20px">Human-directed.</div><div class="sub">You choose what to save, what to do next, and what leaves the workspace.</div><div class="divider"></div><span class="chip">Review before action</span></article>
-<article class="panel full"><div class="section-title"><h2>Choose a workspace tool</h2><span class="tiny">Sign in from Account — it shows who you are. The tools still work signed out, local-only.</span></div><div class="grid"><button class="panel" onclick="showView('creator')" style="text-align:left;color:inherit;cursor:pointer"><h2>✳ Creator Studio</h2><div class="sub">Build a project brief, story premise, or character outline.</div></button><button class="panel" onclick="showView('memory')" style="text-align:left;color:inherit;cursor:pointer"><h2>▤ Project Memory</h2><div class="sub">Store notes with a project name and category.</div></button><button class="panel" onclick="showView('tasks')" style="text-align:left;color:inherit;cursor:pointer"><h2>✓ Task Planner</h2><div class="sub">Create tasks and track their status.</div></button><button class="panel" onclick="showView('workforce')" style="text-align:left;color:inherit;cursor:pointer"><h2>⚙ Workforce</h2><div class="sub">Meet the operators — and the Core that governs them.</div></button><button class="panel" onclick="showView('galileo')" style="text-align:left;color:inherit;cursor:pointer"><h2>◐ Galileo</h2><div class="sub">Talk to Galileo — he greets you first. Type, or speak and hear him answer.</div></button><button class="panel" onclick="showView('franklin')" style="text-align:left;color:inherit;cursor:pointer"><h2>⚡ Franklin</h2><div class="sub">Talk to Benjamin Franklin — new ventures, plain talk. He greets you first.</div></button></div></article>
+<article class="panel full"><div class="section-title"><h2>Choose a workspace tool</h2><span class="tiny">Signed in as the owner — the workforce, Galileo, and Franklin open only behind your sign-in.</span></div><div class="grid"><button class="panel" onclick="showView('creator')" style="text-align:left;color:inherit;cursor:pointer"><h2>✳ Creator Studio</h2><div class="sub">Build a project brief, story premise, or character outline.</div></button><button class="panel" onclick="showView('memory')" style="text-align:left;color:inherit;cursor:pointer"><h2>▤ Project Memory</h2><div class="sub">Store notes with a project name and category.</div></button><button class="panel" onclick="showView('tasks')" style="text-align:left;color:inherit;cursor:pointer"><h2>✓ Task Planner</h2><div class="sub">Create tasks and track their status.</div></button><button class="panel" onclick="showView('workforce')" style="text-align:left;color:inherit;cursor:pointer"><h2>⚙ Workforce</h2><div class="sub">Meet the operators — and the Core that governs them.</div></button><button class="panel" onclick="showView('galileo')" style="text-align:left;color:inherit;cursor:pointer"><h2>◐ Galileo</h2><div class="sub">Talk to Galileo — he greets you first. Type, or speak and hear him answer.</div></button><button class="panel" onclick="showView('franklin')" style="text-align:left;color:inherit;cursor:pointer"><h2>⚡ Franklin</h2><div class="sub">Talk to Benjamin Franklin — new ventures, plain talk. He greets you first.</div></button></div></article>
 </div></section>
 <section id="view-creator" class="view hidden">
 <div class="heading"><div><div class="eyebrow">Tool 01 / Create</div><h1>Creator Studio</h1><p>Turn a rough idea into a structured starting draft you can revise.</p></div></div>
@@ -127,7 +147,7 @@
 <div class="panel"><div id="franklin-messages" class="chat-log"></div><div class="chat-input-row"><input id="franklin-input" placeholder="Talk to Franklin…" autocomplete="off"><button class="btn secondary" id="franklin-mic" onclick="franklinToggleMic()">Speak</button><button class="btn secondary" id="franklin-talk" onclick="franklinToggleTalk()">Talk</button><button class="btn secondary" id="franklin-voice" onclick="franklinToggleVoice()">Voice: Off</button><button class="btn" id="franklin-send" onclick="sendFranklinMessage()">Send</button><button class="btn secondary" onclick="clearFranklinChat()">Clear</button></div><div class="tiny" style="margin-top:10px">Franklin is draft-only: he advises and drafts — he never publishes, spends, or changes anything live. Every idea goes to Adamo for the money check before it reaches you. Tap Talk once to keep talking like a phone call — tap it again to stop. Speak sends one message at a time. Voice uses this browser's own speech — no call, no recording kept.</div></div>
 </section>
 <section id="view-account" class="view hidden">
-<div class="heading"><div><div class="eyebrow">System / Account</div><h1>Account</h1><p>Sign in to sync your projects, memory, and tasks across devices. Everything still works signed out — your work stays in this browser.</p></div></div>
+<div class="heading"><div><div class="eyebrow">System / Account</div><h1>Account</h1><p>Your sign-in opens the whole app and syncs your projects, memory, and tasks across devices. Sign out and the app closes behind the sign-in screen — your local copy stays in this browser.</p></div></div>
 <div class="grid">
 <article class="panel" id="account-signed-out">
 <h2>Sign in or create an account</h2>
@@ -408,9 +428,60 @@ if(sbUser){sbEnsureProfile();sbSyncNow()}
 }
 async function sbEnsureProfile(){if(!sbClient||!sbUser)return;try{await sbClient.from('profiles').upsert({id:sbUser.id,email:sbUser.email},{onConflict:'id'})}catch(e){/* tables may not exist yet — sync reports that */}
 }
-function sbAuthMessage(text){const el=sbEl('auth-message');if(el)el.textContent=text}
+function sbAuthMessage(text){const el=sbEl('auth-message');if(el)el.textContent=text;const g=sbEl('gate-message');if(g)g.textContent=text}
+/* Sign-in gate (owner's order, Nov 20, 2026): the whole app — workforce,
+   drafts, Galileo, Franklin — sits behind the owner's sign-in. The gate
+   is the default state (body starts with class "gated" in the HTML) and
+   only opens once a session is confirmed. When the account library
+   cannot load (offline), a still-valid session saved on this device
+   opens the gate — a stranger's browser has no such session. */
+const SB_STORAGE_KEY='sb-sebcnrlexkcuuyfmigoq-auth-token';
+let sbOfflineSession=false;
+function sbStoredSessionValid(){
+try{
+const raw=localStorage.getItem(SB_STORAGE_KEY);
+if(!raw)return false;
+const s=JSON.parse(raw);
+if(!s||typeof s.access_token!=='string'||!s.access_token)return false;
+const exp=Number(s.expires_at);
+if(!exp)return false;
+return exp*1000>Date.now()+30000;
+}catch(e){return false}
+}
+function sbUpdateGate(){
+let open=false;
+if(sbUser){open=true;sbOfflineSession=false}
+else if(sbState==='unavailable'&&sbStoredSessionValid()){open=true;sbOfflineSession=true}
+else{open=false;sbOfflineSession=false}
+document.body.classList.toggle('gated',!open);
+const gm=sbEl('gate-message');
+if(gm&&!open&&sbState==='unavailable')gm.textContent='Sign-in is unavailable right now — the account library could not load. Check your connection and reload.';
+}
+/* The Worker calls (Galileo/Franklin chat, Creator Studio AI) send the
+   session's access token so the Worker can verify the sign-in. */
+async function sbAccessToken(){
+if(!sbClient)return null;
+try{
+const res=await sbClient.auth.getSession();
+return res.data&&res.data.session?res.data.session.access_token:null;
+}catch(e){return null}
+}
+function gateSignIn(){
+const e=sbEl('gate-email'),p=sbEl('gate-password');
+const ae=sbEl('auth-email'),ap=sbEl('auth-password');
+if(ae&&e)ae.value=e.value;
+if(ap&&p)ap.value=p.value;
+sbSignIn();
+}
+function gateSignUp(){
+const e=sbEl('gate-email'),p=sbEl('gate-password');
+const ae=sbEl('auth-email'),ap=sbEl('auth-password');
+if(ae&&e)ae.value=e.value;
+if(ap&&p)ap.value=p.value;
+sbSignUp();
+}
 async function sbSignUp(){
-if(sbState!=='ready'){sbAuthMessage('Sign-in is unavailable right now — the account library could not load. Your local workspace still works.');return}
+if(sbState!=='ready'){sbAuthMessage('Sign-in is unavailable right now — the account library could not load. Check your connection and reload.');return}
 const email=sbEl('auth-email').value.trim(),password=sbEl('auth-password').value;
 if(!email||password.length<6){sbAuthMessage('Enter an email and a password of at least 6 characters.');return}
 sbAuthMessage('Creating your account…');
@@ -420,7 +491,7 @@ if(res.data&&res.data.session){sbAuthMessage('Account created — you are signed
 log('Account created',email);
 }
 async function sbSignIn(){
-if(sbState!=='ready'){sbAuthMessage('Sign-in is unavailable right now — the account library could not load. Your local workspace still works.');return}
+if(sbState!=='ready'){sbAuthMessage('Sign-in is unavailable right now — the account library could not load. Check your connection and reload.');return}
 const email=sbEl('auth-email').value.trim(),password=sbEl('auth-password').value;
 if(!email||!password){sbAuthMessage('Enter your email and password.');return}
 sbAuthMessage('Signing in…');
@@ -481,6 +552,7 @@ else{sbSyncState='error';sbSyncError=(e&&e.message)||'Sync failed.'}
 function sbScheduleSync(){if(!sbClient||!sbUser||sbSyncRunning)return;if(sbSyncTimer)clearTimeout(sbSyncTimer);sbSyncTimer=setTimeout(()=>sbSyncNow(),1500)}
 function renderAccount(){sbUpdateAccountUI()}
 function sbUpdateAccountUI(){
+sbUpdateGate();
 const signedIn=!!sbUser;
 const outEl=sbEl('account-signed-out'),inEl=sbEl('account-signed-in');
 if(outEl)outEl.classList.toggle('hidden',signedIn);
@@ -499,8 +571,9 @@ else syncEl.textContent='Sync ready.';
 const note=sbEl('account-setup-note');
 if(note){let ok=false;try{ok=localStorage.getItem(SB_SYNC_OK_KEY)==='1'}catch(e){}note.classList.toggle('hidden',ok)}
 const side=sbEl('side-note');
-if(side)side.textContent=signedIn?('Signed in as '+sbUser.email+'. Your work saves here first, then syncs to your account.'):'Your workspace entries are saved in this browser on this device. Sign in from Account to sync them across devices.';
-if(sbState==='unavailable')sbSetStatus('Workspace · Local only');
+if(side)side.textContent=signedIn?('Signed in as '+sbUser.email+'. Your work saves here first, then syncs to your account.'):'Sign in to open the app — the workforce and chats stay behind your sign-in.';
+if(sbOfflineSession)sbSetStatus('Workspace · Offline — signed in');
+else if(sbState==='unavailable')sbSetStatus('Workspace · Local only');
 else if(!signedIn)sbSetStatus('Workspace · Signed out');
 else if(sbSyncState==='syncing')sbSetStatus('Workspace · Syncing…');
 else if(sbSyncState==='setup-pending')sbSetStatus('Workspace · Sync setup pending');
