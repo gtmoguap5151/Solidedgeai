@@ -40,6 +40,23 @@
  * asked for and the rented voice answered instead, the chat says so
  * plainly instead of pretending.
  *
+ * Call screen (owner's order, Nov 20, 2026): Talk opens a full-screen
+ * call view like the Muse app's voice call / a regular phone video
+ * call — Galileo big on screen, speaking live, speaker audio like a
+ * phone call on speaker. The live canvas itself moves onto the call
+ * screen (no second avatar is built); if the canvas never started,
+ * the still portrait stands in big instead. End Talk closes it; Back
+ * to chat hides it and Talk keeps running, and a Call screen button
+ * in the input row reopens it. The Brain toggle is on the call
+ * screen too, and stays in sync with the chat one.
+ *
+ * Voice (owner's order, Nov 20, 2026): Galileo speaks in a male voice
+ * suited to his background — an Italian male voice first, then a
+ * mature male English voice. Browser voices depend on what is
+ * installed on the phone and the API exposes no gender, so the picker
+ * reads voice names; if no male voice is installed, the default
+ * voice stands at low pitch, exactly as before.
+ *
  * Wiring: this file loads AFTER the shell's inline script and the avatar
  * files (galileo-avatar.js, xena-avatar.js), so it can use the shell's
  * showView hook and the GALILEO_AVATAR / XENA_AVATAR constants. Every use
@@ -191,14 +208,16 @@ function galileoSetState(state) {
   }
   if (state === 'speaking') galileoSetVideoLoop('speaking');
   else galileoSetVideoLoop('idle');
-  if (!status) return;
   const label = {
     idle: 'Here — tap his portrait to say hello, or type below.',
     listening: 'Listening… speak now.',
     thinking: 'Galileo is thinking…',
     speaking: 'Galileo is speaking…',
   }[state] || 'Here.';
-  status.textContent = label;
+  if (status) status.textContent = label;
+  // The call screen carries the same status line.
+  const callStatus = galileoCallEl('galileo-call-status');
+  if (callStatus) callStatus.textContent = label;
 }
 
 // ------------------------------------------------------------ history
@@ -265,9 +284,69 @@ function galileoAddMessage(role, text, save) {
   galileoHistory.push({ role, text });
   if (save !== false) galileoSave();
   galileoRender();
+  if (role === 'model') {
+    // The call screen captions his latest reply.
+    const caption = galileoCallEl('galileo-call-caption');
+    if (caption) caption.textContent = text;
+  }
 }
 
 // ------------------------------------------------------------ voice
+
+// ------------------------------------------------------------ voice picking
+//
+// Galileo's voice: male, suited to a 19th-century Piedmontese
+// professor. Browser speech voices depend on what is installed on
+// the phone, and the API exposes no gender, so the picker reads
+// voice names. Preference: an Italian male voice (it-IT) first, then
+// a mature male English voice — British first (it reads older and
+// plainer), then American. If no male voice is installed, this
+// returns null and the default voice stands at pitch 0.9, exactly
+// as before — never a voice that may not be there.
+const GALILEO_MALE_IT = ['luca', 'giorgio', 'diego', 'marco', 'paolo', 'andrea', 'matteo', 'alessandro', 'francesco', 'giovanni', 'roberto', 'stefano', 'antonio', 'giuseppe', 'uomo'];
+const GALILEO_MALE_EN = ['daniel', 'david', 'james', 'george', 'guy', 'aaron', 'fred', 'ryan', 'mark', 'thomas', 'henry', 'arthur', 'albert', 'edward', 'christopher', 'brian', 'eric', 'davis', 'liam', 'andrew', 'william', 'michael', 'joseph', 'charles', 'richard', 'samuel', 'oliver'];
+
+function galileoPickVoice() {
+  if (!('speechSynthesis' in window)) return null;
+  let voices = [];
+  try {
+    voices = window.speechSynthesis.getVoices() || [];
+  } catch (e) {
+    return null;
+  }
+  if (!voices.length) return null;
+  function isMale(voice) {
+    const name = (voice.name || '').toLowerCase();
+    // Some engines label the gender outright ("Google UK English Male").
+    // Word-boundary match: "female" must NOT count as male.
+    if (/\bmale\b/.test(name)) return true;
+    const lang = (voice.lang || '').toLowerCase();
+    const list = lang.indexOf('it') === 0
+      ? GALILEO_MALE_IT
+      : (lang.indexOf('en') === 0 ? GALILEO_MALE_EN : []);
+    // Token match, not substring: "Erica" must not match "eric".
+    const tokens = name.split(/[^a-z]+/).filter(Boolean);
+    return list.some((n) => tokens.indexOf(n) !== -1);
+  }
+  function score(voice) {
+    const lang = (voice.lang || '').toLowerCase();
+    let s = 0;
+    if (lang.indexOf('it') === 0) s += 100;
+    else if (lang.indexOf('en-gb') === 0) s += 60;
+    else if (lang.indexOf('en') === 0) s += 40;
+    else s += 10;
+    if (voice.localService) s += 5; // on-device: works offline
+    return s;
+  }
+  let best = null;
+  let bestScore = -1;
+  voices.forEach((voice) => {
+    if (!isMale(voice)) return;
+    const s = score(voice);
+    if (s > bestScore) { best = voice; bestScore = s; }
+  });
+  return best;
+}
 
 function galileoSpeak(text, who) {
   if (!('speechSynthesis' in window)) return;
@@ -277,6 +356,17 @@ function galileoSpeak(text, who) {
     utterance.rate = 1.0;
     // Galileo lower, Xena higher — the two voices stay distinguishable.
     utterance.pitch = who === 'xena' ? 1.3 : 0.9;
+    if (who !== 'xena') {
+      // A male voice suited to his background — Italian first, then a
+      // mature English voice. Null means no male voice is installed on
+      // this phone and the default voice stands at pitch 0.9, as before.
+      const voice = galileoPickVoice();
+      if (voice) {
+        utterance.voice = voice;
+        utterance.pitch = 0.85; // lower still — a grown man's register
+        if ((voice.lang || '').toLowerCase().indexOf('it') === 0) utterance.rate = 0.95;
+      }
+    }
     utterance.onstart = () => {
       galileoSpeakingNow = true;
       // Talk mode: stop listening while he speaks, so he never hears himself.
@@ -338,6 +428,8 @@ function galileoBrainSetButton() {
     : 'Brain: Rented (Gemini)';
   // Gold border when the trained brain is on, like Voice: On.
   button.classList.toggle('voice-on', galileoBrain === 'galinyx');
+  // The call screen carries its own Brain button — keep it in sync.
+  galileoCallSyncBrain();
 }
 
 function galileoToggleBrain() {
@@ -447,6 +539,7 @@ function galileoTalkSetButton() {
     button.textContent = 'Talk';
     button.classList.remove('listening', 'voice-on');
   }
+  galileoCallSetOpenButton();
 }
 
 function galileoTalkSavePreference() {
@@ -483,7 +576,10 @@ function galileoTalkStartRecognition() {
       if (interim && !finalText) {
         // Live feedback only — interim text is never sent.
         const status = galileoEl('galileo-status');
-        if (status) status.textContent = 'Hearing: "' + interim.trim().slice(0, 60) + '"';
+        const heard = 'Hearing: "' + interim.trim().slice(0, 60) + '"';
+        if (status) status.textContent = heard;
+        const callStatus = galileoCallEl('galileo-call-status');
+        if (callStatus) callStatus.textContent = heard;
         return;
       }
       if (finalText && finalText.trim()) {
@@ -584,10 +680,12 @@ function galileoStartTalkSession() {
   // when that greeting finishes (the utterance's onend resumes it).
   if (!galileoVoiceOn) galileoToggleVoice();
   galileoTalkSetButton();
+  galileoCallShow();
   galileoTalkStartRecognition();
 }
 
 function galileoStopTalkSession(keepPreference) {
+  galileoCallHide();
   const wasActive = galileoTalkActive;
   galileoTalkActive = false;
   galileoTalkPaused = false;
@@ -615,6 +713,100 @@ function galileoToggleTalk() {
   } else {
     galileoStartTalkSession();
   }
+}
+
+// ------------------------------------------------------------ call screen
+//
+// Owner's order, Nov 20, 2026: Talk opens a full-screen call view
+// like the Muse app's voice call / a regular phone video call —
+// Galileo big on screen, speaking live, speaker audio like a phone
+// call on speaker. The live canvas itself moves onto the call screen
+// (no second avatar is built); if the canvas never started, the
+// still portrait stands in big instead. End Talk closes the screen;
+// Back to chat hides it and Talk keeps running, and the Call screen
+// button in the input row reopens it. Audio needs no routing: a web
+// page cannot choose the earpiece — speech plays through the phone's
+// speaker, which is what was asked for.
+
+let galileoCallOpen = false;
+let galileoCallCanvasMoved = false;
+
+function galileoCallEl(id) {
+  return document.getElementById(id);
+}
+
+function galileoCallSyncBrain() {
+  const button = galileoCallEl('galileo-call-brain');
+  if (!button) return;
+  button.textContent = galileoBrain === 'galinyx'
+    ? 'Brain: Trained (GALINYX)'
+    : 'Brain: Rented (Gemini)';
+  button.classList.toggle('voice-on', galileoBrain === 'galinyx');
+}
+
+// The Call screen button shows only while Talk runs in the
+// background with the call screen hidden — that is the one moment
+// it is useful.
+function galileoCallSetOpenButton() {
+  const button = galileoCallEl('galileo-call-open');
+  if (!button) return;
+  button.classList.toggle('hidden', !(galileoTalkActive && !galileoCallOpen));
+}
+
+function galileoCallShow() {
+  if (galileoCallOpen) return;
+  const screen = galileoCallEl('galileo-call');
+  if (!screen) return;
+  // Never open on top of the sign-in gate.
+  if (document.body && document.body.classList.contains('gated')) return;
+  const slot = galileoCallEl('galileo-call-avatar');
+  const fallbackImg = galileoCallEl('galileo-call-img');
+  const canvas = galileoCallEl('galileo-avatar-canvas');
+  galileoCallCanvasMoved = false;
+  if (canvas && slot && canvas.classList && !canvas.classList.contains('hidden')) {
+    // Moving the node keeps its 2D context and animation state — the
+    // same live avatar, now on the big stage.
+    slot.appendChild(canvas);
+    galileoCallCanvasMoved = true;
+    if (fallbackImg) fallbackImg.classList.add('hidden');
+  } else if (fallbackImg) {
+    fallbackImg.src = galileoAvatarSrc();
+    fallbackImg.classList.remove('hidden');
+  }
+  screen.classList.add('open');
+  galileoCallOpen = true;
+  galileoCallSyncBrain();
+  galileoCallSetOpenButton();
+  const status = galileoEl('galileo-status');
+  const callStatus = galileoCallEl('galileo-call-status');
+  if (status && callStatus) callStatus.textContent = status.textContent;
+}
+
+function galileoCallHide() {
+  if (!galileoCallOpen) return;
+  const screen = galileoCallEl('galileo-call');
+  const canvas = galileoCallEl('galileo-avatar-canvas');
+  const img = galileoEl('galileo-avatar-img');
+  // The canvas goes home so the small avatar keeps animating while
+  // Talk runs in the background.
+  if (galileoCallCanvasMoved && canvas && img && img.parentNode) {
+    img.parentNode.insertBefore(canvas, img);
+    galileoCallCanvasMoved = false;
+  }
+  const fallbackImg = galileoCallEl('galileo-call-img');
+  if (fallbackImg) fallbackImg.classList.add('hidden');
+  if (screen) screen.classList.remove('open');
+  galileoCallOpen = false;
+  galileoCallSetOpenButton();
+}
+
+function galileoCallEnd() {
+  galileoCallHide();
+  galileoStopTalkSession(false);
+}
+
+function galileoCallReopen() {
+  if (galileoTalkActive) galileoCallShow();
 }
 
 // The session ends when Matt leaves the Galileo view or the app goes to
@@ -851,6 +1043,11 @@ async function initGalileoChat() {
       if (brainButton) {
         brainButton.disabled = true;
         brainButton.textContent = 'Brain: Trained unavailable';
+      }
+      const callBrainButton = galileoCallEl('galileo-call-brain');
+      if (callBrainButton) {
+        callBrainButton.disabled = true;
+        callBrainButton.textContent = 'Brain: Trained unavailable';
       }
     }
     if (!response.ok) throw new Error('unreachable');

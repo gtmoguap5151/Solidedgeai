@@ -24,9 +24,10 @@
  *    fires no boundary events, a syllable-rate fallback clock drives
  *    the jaw while the utterance is speaking. The jaw is never a
  *    pre-baked loop; it follows the words being spoken, live.
- * 3. The stage is the existing 64px presence circle. The movement is
- *    visible at that size (blink, jaw, sway), but it is small — a
- *    bigger stage is a layout change, not part of this build.
+ * 3. The stage is the existing 64px presence circle in chat — and the
+ *    big call screen when Talk is active (galileo-chat.js moves this
+ *    same canvas onto it; the backing store is 512px so the big stage
+ *    stays crisp). The movement is visible at both sizes.
  *
  * Wiring: this file is ADDITIVE. It does not edit galileo-chat.js,
  * galileo-avatar.js, or galileo-avatar-video.js. It loads after the
@@ -57,7 +58,8 @@
   var SKIN_A = { x: 452, y: 285 };
   var SKIN_B = { x: 452, y: 335 };
 
-  var CANVAS_SIZE = 256;   // backing store (CSS shows it at 64px)
+  var CANVAS_SIZE = 512;   // backing store (CSS shows it at 64px in
+                           // chat, up to 360px on the call screen)
   var OVERSCAN = 1.08;     // image drawn slightly oversized so head
                            // rotation never reveals the canvas edge
   var FRAME_MS = 33;       // ~30fps — smooth enough, kind to battery

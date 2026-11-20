@@ -43,6 +43,20 @@
 .btn.listening{border-color:#7dc69b!important;color:#b9d5bf}
 .btn.voice-on{border-color:var(--gold)!important;color:#e9c77a}
 @media(max-width:780px){.chat-presence{flex-wrap:wrap}.chat-xena{margin-left:0}}
+/* Galileo call screen (owner's order, Nov 20, 2026): Talk opens a
+   full-screen video-call view — Galileo big on screen, speaking
+   live, speaker audio like a regular phone call on speaker. The
+   live canvas moves onto this screen; no second avatar is built. */
+#galileo-call{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:space-between;padding:34px 18px 26px;background:radial-gradient(ellipse at 50% 0%,#1d2a4d 0,#080c18 62%);text-align:center}
+#galileo-call.open{display:flex}
+.galileo-call-top{display:grid;gap:6px}
+.galileo-call-name{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.galileo-call-status{font-size:13px;color:var(--muted);min-height:20px}
+#galileo-call-avatar{display:flex;align-items:center;justify-content:center;flex:1;min-height:0;width:100%}
+#galileo-call .chat-avatar{width:min(78vw,360px);height:min(78vw,360px);border-width:3px}
+.galileo-call-caption{font-size:14px;line-height:1.6;color:#dce5f9;max-width:560px;min-height:44px}
+.galileo-call-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.galileo-call-end{background:#7a2b2b!important;border-color:#a84a4a!important;color:#ffe1e1!important}
 /* Sign-in gate (owner's order, Nov 20, 2026): the whole app sits behind
    the owner's sign-in. The gate is the default state — the app only
    appears once a session is confirmed. */
@@ -137,9 +151,9 @@ body.gated header,body.gated .layout,body.gated footer{display:none!important}
 </div>
 </section>
 <section id="view-galileo" class="view hidden">
-<div class="heading"><div><div class="eyebrow">Talk to Galileo</div><h1>Galileo Ferraris.</h1><p>Electrical engineer and physicist. He greets you first — you built him, and he knows it. His avatar is live: he moves, and when Voice is on he speaks out loud. This chat runs on the GALINYX shell, independent of the Muse app. Type, or tap Speak to talk.</p></div></div>
+<div class="heading"><div><div class="eyebrow">Talk to Galileo</div><h1>Galileo Ferraris.</h1><p>Electrical engineer and physicist. He greets you first — you built him, and he knows it. His avatar is live: he moves, and when Voice is on he speaks out loud. Tap Talk and he comes up big on a call screen, like a video call. This chat runs on the GALINYX shell, independent of the Muse app. Type, or tap Speak to talk.</p></div></div>
 <div class="panel chat-presence"><video id="galileo-avatar-video" class="chat-avatar hidden" autoplay muted loop playsinline title="Tap to say hello" onclick="galileoTap()"></video><img id="galileo-avatar-img" class="chat-avatar" alt="Galileo Ferraris" title="Tap to say hello" onclick="galileoTap()"><div class="chat-presence-main"><strong>Galileo Ferraris</strong><span class="tiny" id="galileo-status">Here.</span></div><div class="chat-xena"><div><strong>Xena</strong><span class="tiny">Here in the system</span></div><img id="xena-avatar-img" class="chat-avatar small" alt="Xena" title="Tap to say hello" onclick="xenaTap()"></div></div>
-<div class="panel"><div id="galileo-messages" class="chat-log"></div><div class="chat-input-row"><input id="galileo-input" placeholder="Talk to Galileo…" autocomplete="off"><button class="btn secondary" id="galileo-mic" onclick="galileoToggleMic()">Speak</button><button class="btn secondary" id="galileo-talk" onclick="galileoToggleTalk()">Talk</button><button class="btn secondary" id="galileo-voice" onclick="galileoToggleVoice()">Voice: Off</button><button class="btn secondary" id="galileo-brain" onclick="galileoToggleBrain()">Brain: Rented (Gemini)</button><button class="btn" id="galileo-send" onclick="sendGalileoMessage()">Send</button><button class="btn secondary" onclick="clearGalileoChat()">Clear</button></div><div class="tiny" style="margin-top:10px">Galileo has full permission except spending, on a one-week trial to Nov 27. He may publish and change things live — he never spends. Brain switches whose mind answers: Rented is Google's Gemini; Trained is your own GALINYX model (run 5). Tap Talk once to keep talking like a phone call — tap it again to stop. Speak sends one message at a time. Voice uses this browser's own speech — no call, no recording kept.</div></div>
+<div class="panel"><div id="galileo-messages" class="chat-log"></div><div class="chat-input-row"><input id="galileo-input" placeholder="Talk to Galileo…" autocomplete="off"><button class="btn secondary" id="galileo-mic" onclick="galileoToggleMic()">Speak</button><button class="btn secondary" id="galileo-talk" onclick="galileoToggleTalk()">Talk</button><button class="btn secondary hidden" id="galileo-call-open" onclick="galileoCallReopen()">Call screen</button><button class="btn secondary" id="galileo-voice" onclick="galileoToggleVoice()">Voice: Off</button><button class="btn secondary" id="galileo-brain" onclick="galileoToggleBrain()">Brain: Rented (Gemini)</button><button class="btn" id="galileo-send" onclick="sendGalileoMessage()">Send</button><button class="btn secondary" onclick="clearGalileoChat()">Clear</button></div><div class="tiny" style="margin-top:10px">Galileo has full permission except spending, on a one-week trial to Nov 27. He may publish and change things live — he never spends. Brain switches whose mind answers: Rented is Google's Gemini; Trained is your own GALINYX model (run 5). Tap Talk once and Galileo comes up big on a call screen, like a video call — End Talk stops it, Back to chat keeps talking from here. Speak sends one message at a time. Voice uses this browser's own speech — no call, no recording kept.</div></div>
 </section>
 <section id="view-franklin" class="view hidden">
 <div class="heading"><div><div class="eyebrow">Talk to Franklin</div><h1>Benjamin Franklin.</h1><p>Printer, inventor, founder — and your new-ventures advisor. He starts the conversation: five ventures, plain talk, and an honest word on which is strongest. This chat runs on the GALINYX shell, independent of the Muse app. Type, or tap Speak to talk.</p></div></div>
@@ -172,6 +186,13 @@ body.gated header,body.gated .layout,body.gated footer{display:none!important}
 </section>
 </main></div>
 <footer><span>GALINYX OS™ · Workspace</span><span>Local-first · Account sync available · AI connected</span></footer>
+</div>
+<div id="galileo-call" aria-label="Galileo call screen">
+<div class="galileo-call-top"><div class="galileo-call-name">Galileo Ferraris</div><div class="galileo-call-status" id="galileo-call-status">Talking — like a phone call.</div></div>
+<div id="galileo-call-avatar"><img id="galileo-call-img" class="chat-avatar hidden" alt="Galileo Ferraris"></div>
+<div class="galileo-call-caption" id="galileo-call-caption"></div>
+<div class="galileo-call-controls"><button class="btn galileo-call-end" id="galileo-call-end" onclick="galileoCallEnd()">End Talk</button><button class="btn secondary" id="galileo-call-brain" onclick="galileoToggleBrain()">Brain: Rented (Gemini)</button><button class="btn secondary" id="galileo-call-chat" onclick="galileoCallHide()">Back to chat</button></div>
+<div class="tiny">Speaker on — like a regular phone call on speaker. His voice is this phone's own speech.</div>
 </div>
 <script>
 const KEY='galinyx-os-workspace-v1';
