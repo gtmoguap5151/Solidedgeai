@@ -32,6 +32,14 @@
  * welcoming reply. Xena's portrait sits beside his — she is present in
  * the system too.
  *
+ * Brain toggle (owner's order, Nov 20, 2026): the Brain button switches
+ * whose mind answers — Rented (Google's Gemini, the default) or Trained
+ * (Matt's own GALINYX model, run 5 LoRA on Workers AI). The choice is
+ * saved, so it sticks between opens. The Worker answers with a "brain"
+ * field naming which brain actually replied; if the trained voice was
+ * asked for and the rented voice answered instead, the chat says so
+ * plainly instead of pretending.
+ *
  * Wiring: this file loads AFTER the shell's inline script and the avatar
  * files (galileo-avatar.js, xena-avatar.js), so it can use the shell's
  * showView hook and the GALILEO_AVATAR / XENA_AVATAR constants. Every use
@@ -43,6 +51,7 @@ const GALILEO_AI_BASE = 'https://galinyx-ai.gtmoguap5151.workers.dev';
 const GALILEO_CHAT_KEY = 'galinyx-galileo-chat-v1';
 const GALILEO_VOICE_KEY = 'galinyx-galileo-voice-v1';
 const GALILEO_TALK_KEY = 'galinyx-galileo-talk-v1';
+const GALILEO_BRAIN_KEY = 'galinyx-galileo-brain-v1';
 const GALILEO_MAX_SEND = 12; // turns of history sent per request
 
 // Galileo greets first, as the builder greeting the man who built him —
@@ -78,6 +87,9 @@ const XENA_FALLBACK_AVATAR =
 let galileoHistory = []; // {role:'user'|'model'|'xena'|'system', text}
 let galileoBusy = false;
 let galileoVoiceOn = false;
+// Brain: 'gemini' (rented, the default) or 'galinyx' (Matt's own
+// trained model, run 5). Saved, so the choice sticks between opens.
+let galileoBrain = 'gemini';
 let galileoRecognition = null;
 let galileoListening = false;
 let galileoTapIndex = 0;
@@ -211,6 +223,12 @@ function galileoLoad() {
   } catch (e) {
     galileoTalkWanted = false;
   }
+  try {
+    // Only the exact trained value sticks; anything else is the default.
+    galileoBrain = localStorage.getItem(GALILEO_BRAIN_KEY) === 'galinyx' ? 'galinyx' : 'gemini';
+  } catch (e) {
+    galileoBrain = 'gemini';
+  }
 }
 
 function galileoSave() {
@@ -308,6 +326,32 @@ function galileoToggleVoice() {
     galileoStopSpeaking();
     if (!galileoBusy) galileoSetState('idle');
   }
+}
+
+// ------------------------------------------------------------ brain toggle
+
+function galileoBrainSetButton() {
+  const button = galileoEl('galileo-brain');
+  if (!button) return;
+  button.textContent = galileoBrain === 'galinyx'
+    ? 'Brain: Trained (GALINYX)'
+    : 'Brain: Rented (Gemini)';
+  // Gold border when the trained brain is on, like Voice: On.
+  button.classList.toggle('voice-on', galileoBrain === 'galinyx');
+}
+
+function galileoToggleBrain() {
+  galileoBrain = galileoBrain === 'galinyx' ? 'gemini' : 'galinyx';
+  try {
+    localStorage.setItem(GALILEO_BRAIN_KEY, galileoBrain);
+  } catch (e) { /* ignore */ }
+  galileoBrainSetButton();
+  galileoAddMessage(
+    'system',
+    galileoBrain === 'galinyx'
+      ? 'Now talking to the trained voice — your own GALINYX model (run 5). Ask him anything; judge the voice yourself.'
+      : 'Back to the rented voice (Gemini).'
+  );
 }
 
 function galileoToggleMic() {
@@ -668,7 +712,7 @@ async function sendGalileoMessage() {
     const response = await fetch(GALILEO_AI_BASE + '/chat', {
       method: 'POST',
       headers,
-      body: JSON.stringify({ messages: payloadMessages }),
+      body: JSON.stringify({ messages: payloadMessages, brain: galileoBrain }),
     });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) {
@@ -681,6 +725,12 @@ async function sendGalileoMessage() {
     const reply = typeof result.text === 'string' ? result.text.trim() : '';
     if (!reply) throw new Error('Galileo came back empty — try again.');
     if (typingRow) typingRow.remove();
+    // The Worker names the brain that actually answered. If the trained
+    // voice was asked for and the rented voice answered instead (the
+    // trained path was unavailable), say so plainly — never pretend.
+    if (galileoBrain === 'galinyx' && result.brain === 'gemini') {
+      galileoAddMessage('system', 'The trained voice was not available for that reply — the rented voice (Gemini) answered instead.');
+    }
     galileoAddMessage('model', reply);
     if (galileoVoiceOn) {
       galileoSpeak(reply, 'galileo');
@@ -762,6 +812,9 @@ async function initGalileoChat() {
     voiceButton.classList.toggle('voice-on', galileoVoiceOn);
   }
 
+  // Brain button reflects the saved choice (Rented by default).
+  galileoBrainSetButton();
+
   // Talk button reflects the saved preference (primed, not listening —
   // the mic needs a tap to start). View hooks stop the session when
   // Matt navigates away or the app goes to the background.
@@ -790,6 +843,15 @@ async function initGalileoChat() {
       if (status) status.textContent = 'AI not set up yet — the owner needs to set the API key.';
       galileoAddMessage('system', 'AI is not configured yet. The owner needs to set the API key before Galileo can answer.');
       return;
+    }
+    if (response.ok && data && data.trained === false) {
+      // The trained brain is not wired on the Worker — the toggle
+      // would silently fall back to Gemini, so disable it and say so.
+      const brainButton = galileoEl('galileo-brain');
+      if (brainButton) {
+        brainButton.disabled = true;
+        brainButton.textContent = 'Brain: Trained unavailable';
+      }
     }
     if (!response.ok) throw new Error('unreachable');
   } catch (e) {

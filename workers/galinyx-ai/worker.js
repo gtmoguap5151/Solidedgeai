@@ -24,6 +24,14 @@
  *                      defaults to Galileo; only 'franklin' selects
  *                      Franklin. Keep the prompts in step when the
  *                      character files change.
+ *                      "brain" is optional: "galinyx" sends a Galileo
+ *                      chat to the trained GALINYX model (run 5 LoRA on
+ *                      Workers AI) instead of Gemini; anything else —
+ *                      including a missing value — uses Gemini, the
+ *                      default. The trained path is Galileo-only: a
+ *                      Franklin call with brain:"galinyx" falls back to
+ *                      Gemini. Replies carry "brain":"galinyx" or
+ *                      "gemini" so the shell knows which brain answered.
  *
  * Sign-in gate (owner's order, Nov 20, 2026): /generate and /chat answer
  * only to a signed-in GALINYX OS account. The shell sends the Supabase
@@ -40,6 +48,35 @@ const MODEL = 'gemini-3.5-flash';
 const GEMINI_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/' +
   MODEL + ':generateContent';
+
+// Trained brain (GALINYX v1 run 5, Nov 20, 2026): the run-5 LoRA adapter
+// (Mistral-7B-Instruct-v0.2, rank 8, 272 examples, 26/26 in the notebook
+// test) uploaded to Workers AI as finetune galinyx-v1-run5. The Worker
+// calls it through the Workers AI binding (env.AI) — no API token, no
+// secret. Gemini stays the default; the trained path answers only when
+// the shell asks for it with brain:"galinyx" (Galileo only).
+const TRAINED_MODEL = '@cf/mistral/mistral-7b-instruct-v0.2-lora';
+const TRAINED_FINETUNE = 'a158ef52-d47e-4abf-bc5e-dcfb3a0f2cff';
+const TRAINED_MAX_OUTPUT_TOKENS = 200; // matches the notebook test
+const TRAINED_TEMPERATURE = 0.7;       // matches the notebook test
+const TRAINED_TOP_P = 0.9;             // matches the notebook test
+
+// The system prompt for the trained path is the SHORT one from the
+// notebook's inference test — the adapter was trained on it, and the
+// long GALILEO_SYSTEM above would fight the weights. One line was
+// added after live testing on Nov 20: on Cloudflare's full-precision
+// base (the adapter trained on a 4-bit base), the sunspot denial
+// failed 6/6 with the bare prompt and passed with "You are not an
+// astronomer. You never looked through a telescope." appended —
+// verified live against the telescope, Moon, sunspots, discoveries,
+// Tesla, greeting, and teaching prompts before this shipped. A longer
+// reinforcement was tried and dropped: it made greetings answer with
+// an identity denial.
+const TRAINED_SYSTEM =
+  'You are Galileo Ferraris, electrical engineer and physicist, an ' +
+  'operator in the GALINYX workforce. You answer Matt Johnson, the ' +
+  'man who built you. You are not an astronomer. You never looked ' +
+  'through a telescope.';
 
 const MAX_PROMPT_CHARS = 8000;      // hard cap on what the shell may send
 const MAX_OUTPUT_TOKENS = 1024;     // cap on what Gemini may return
@@ -388,6 +425,41 @@ function looksTruncated(text) {
   return !/[.!?…"'”’)\]]$/.test(trimmed);
 }
 
+// ------------------------------------------------------- trained brain
+
+// One Workers AI call for the trained GALINYX path. `messages` is the
+// Workers AI shape: [{role:'system'|'user'|'assistant', content}].
+// Throws an Error with .kind 'upstream' on any failure — the handler
+// maps it to a clean 502, same as a Gemini failure.
+async function callTrained(env, messages) {
+  let data;
+  try {
+    data = await env.AI.run(TRAINED_MODEL, {
+      messages,
+      lora: TRAINED_FINETUNE,
+      max_tokens: TRAINED_MAX_OUTPUT_TOKENS,
+      temperature: TRAINED_TEMPERATURE,
+      top_p: TRAINED_TOP_P,
+    });
+  } catch {
+    const error = new Error('upstream');
+    error.kind = 'upstream';
+    throw error;
+  }
+  // Workers AI answers with `response` (classic shape) or an
+  // OpenAI-compatible `choices` array — take whichever is present.
+  const text =
+    typeof data?.response === 'string'
+      ? data.response
+      : data?.choices?.[0]?.message?.content;
+  if (typeof text !== 'string' || !text.trim()) {
+    const error = new Error('upstream');
+    error.kind = 'upstream';
+    throw error;
+  }
+  return text;
+}
+
 // ------------------------------------------------------------ chat body
 
 // Validate and normalize the shell's chat history for Gemini:
@@ -435,9 +507,15 @@ export default {
 
     // Health check: tells the shell whether AI is ready. It reports only
     // whether a key is set — never anything about the key itself.
+    // `trained` says whether the Workers AI binding is present, i.e.
+    // whether the trained GALINYX brain can answer.
     if (url.pathname === '/health') {
       if (request.method !== 'GET') return ERRORS.methodNotAllowed();
-      return json({ ok: true, configured: Boolean(env.GEMINI_API_KEY) });
+      return json({
+        ok: true,
+        configured: Boolean(env.GEMINI_API_KEY),
+        trained: Boolean(env.AI),
+      });
     }
 
     if (url.pathname !== '/generate' && url.pathname !== '/chat') {
@@ -478,12 +556,27 @@ export default {
       return ERRORS.badRequest('Send a JSON body.');
     }
 
-    // Key gate: without a key the Worker is live but cannot generate.
-    const apiKey = env.GEMINI_API_KEY;
-    if (!apiKey) return ERRORS.notConfigured();
+    // Trained-brain request: the shell asks for the trained GALINYX
+    // model with brain:"galinyx" on a /chat call. Galileo only — the
+    // adapter IS Galileo, so a Franklin call with brain:"galinyx"
+    // falls back to Gemini, and so does any call when the Workers AI
+    // binding is not present. Gemini is the default for every call
+    // that does not ask for the trained brain.
+    const wantsTrained =
+      url.pathname === '/chat' &&
+      body?.brain === 'galinyx' &&
+      body?.character !== 'franklin';
+    const useTrained = wantsTrained && Boolean(env.AI);
 
-    // Build the Gemini payload for the route.
+    // Key gate: without a key the Worker is live but cannot generate
+    // on the Gemini path. The trained path needs the Workers AI
+    // binding, not the Gemini key, so it is not gated here.
+    const apiKey = env.GEMINI_API_KEY;
+    if (!useTrained && !apiKey) return ERRORS.notConfigured();
+
+    // Build the payload for the route and the brain.
     let payload;
+    let trainedMessages = null;
     if (url.pathname === '/generate') {
       const prompt = typeof body?.prompt === 'string' ? body.prompt : '';
       if (!prompt.trim()) return ERRORS.badRequest('Add your idea first.');
@@ -502,36 +595,57 @@ export default {
           'Send a "messages" array ending with your message.'
         );
       }
-      // Character choice: 'franklin' answers as Benjamin Franklin, the
-      // new-ventures advisor. Anything else — including a missing or
-      // unknown value — defaults to Galileo.
-      const system =
-        body?.character === 'franklin' ? FRANKLIN_SYSTEM : GALILEO_SYSTEM;
-      payload = {
-        systemInstruction: { parts: [{ text: system }] },
-        contents,
-        generationConfig: {
-          maxOutputTokens: MAX_CHAT_OUTPUT_TOKENS,
-          temperature: CHAT_TEMPERATURE,
-        },
-      };
+      if (useTrained) {
+        // Workers AI shape: system first, then the turns — 'model'
+        // becomes 'assistant', the parts collapse to one content string.
+        trainedMessages = [
+          { role: 'system', content: TRAINED_SYSTEM },
+          ...contents.map((turn) => ({
+            role: turn.role === 'model' ? 'assistant' : 'user',
+            content: turn.parts.map((p) => p.text).join('\n'),
+          })),
+        ];
+      } else {
+        // Character choice: 'franklin' answers as Benjamin Franklin, the
+        // new-ventures advisor. Anything else — including a missing or
+        // unknown value — defaults to Galileo.
+        const system =
+          body?.character === 'franklin' ? FRANKLIN_SYSTEM : GALILEO_SYSTEM;
+        payload = {
+          systemInstruction: { parts: [{ text: system }] },
+          contents,
+          generationConfig: {
+            maxOutputTokens: MAX_CHAT_OUTPUT_TOKENS,
+            temperature: CHAT_TEMPERATURE,
+          },
+        };
+      }
     }
 
-    // Call Gemini. The key travels only in this server-to-server header.
+    // Call the brain. The Gemini key travels only in its
+    // server-to-server header; the trained path needs no key at all.
     let text;
+    let brain = 'gemini';
     try {
-      text = await callGemini(apiKey, payload);
-      // Chat guard: gemini-3.5-flash sometimes stops mid-sentence
-      // (verified Nov 19: same prompt, one complete reply, two cut off
-      // mid-sentence). A reply that does not end with terminal
-      // punctuation was cut short — generate once more from scratch and
-      // keep the complete reply, or the longer of the two. (A
-      // "continue from where you stopped" approach was tried and
-      // dropped the same day: the model answered with meta-commentary
-      // about the instruction instead of continuing.)
+      if (useTrained) {
+        brain = 'galinyx';
+        text = await callTrained(env, trainedMessages);
+      } else {
+        text = await callGemini(apiKey, payload);
+      }
+      // Chat guard: a reply that does not end with terminal
+      // punctuation was cut short — generate once more from scratch
+      // and keep the complete reply, or the longer of the two. (For
+      // Gemini this was verified Nov 19: same prompt, one complete
+      // reply, two cut off mid-sentence. A "continue from where you
+      // stopped" approach was tried and dropped the same day: the
+      // model answered with meta-commentary about the instruction
+      // instead of continuing.)
       if (url.pathname === '/chat' && looksTruncated(text)) {
         try {
-          const retry = await callGemini(apiKey, payload);
+          const retry = useTrained
+            ? await callTrained(env, trainedMessages)
+            : await callGemini(apiKey, payload);
           if (!looksTruncated(retry) || retry.length > text.length) text = retry;
         } catch {
           // Retry failed — the partial reply stands; it beats an error.
@@ -543,6 +657,6 @@ export default {
       return ERRORS.upstreamFailed();
     }
 
-    return json({ text });
+    return json({ text, brain });
   },
 };

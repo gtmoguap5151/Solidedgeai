@@ -384,6 +384,132 @@ const upstreamSystem = () => {
   check('chat no token -> 401', res.status === 401, 'got ' + res.status);
 }
 
+// ------------------------------------------------------------ trained brain
+// The Workers AI binding is mocked here: env.AI.run records its call
+// and returns a canned trained reply. No live Workers AI call.
+
+let lastAIRun = null;
+const mockAI = {
+  run: async (model, opts) => {
+    lastAIRun = { model, opts };
+    return { response: 'MOCK TRAINED: I have no telescope, Matt.' };
+  },
+};
+const envWithAI = { GEMINI_API_KEY: FAKE_KEY, AI: mockAI };
+
+// 24. Health reports trained:true with the AI binding, false without
+{
+  const withAI = await worker.fetch(req('/health'), envWithAI);
+  const withAIData = await withAI.json();
+  const withoutAI = await worker.fetch(req('/health'), { GEMINI_API_KEY: FAKE_KEY });
+  const withoutAIData = await withoutAI.json();
+  check(
+    'health trained flag follows the AI binding',
+    withAIData.trained === true && withoutAIData.trained === false,
+    'with AI: ' + withAIData.trained + ', without: ' + withoutAIData.trained
+  );
+}
+
+// 25. Chat brain:'galinyx' -> Workers AI with the run-5 LoRA, no Gemini call
+{
+  __resetRateLimits();
+  lastUpstream = null;
+  lastAIRun = null;
+  const res = await worker.fetch(
+    postChat({ brain: 'galinyx', messages: [{ role: 'user', text: 'Where do you keep your telescope?' }] }),
+    envWithAI
+  );
+  const data = await res.json();
+  const msgs = lastAIRun?.opts?.messages || [];
+  check(
+    'chat brain galinyx -> trained path, lora model + finetune, no Gemini',
+    res.status === 200 &&
+      data.brain === 'galinyx' &&
+      data.text === 'MOCK TRAINED: I have no telescope, Matt.' &&
+      lastAIRun?.model === '@cf/mistral/mistral-7b-instruct-v0.2-lora' &&
+      lastAIRun?.opts?.lora === 'a158ef52-d47e-4abf-bc5e-dcfb3a0f2cff' &&
+      msgs[0]?.role === 'system' &&
+      msgs[0]?.content.includes('Galileo Ferraris') &&
+      msgs[1]?.role === 'user' &&
+      msgs[1]?.content === 'Where do you keep your telescope?' &&
+      lastUpstream === null,
+    'data: ' + JSON.stringify(data) + ', aiRun: ' + JSON.stringify(lastAIRun)
+  );
+}
+
+// 26. Chat brain:'galinyx' + character:'franklin' -> falls back to Gemini
+{
+  __resetRateLimits();
+  lastUpstream = null;
+  lastAIRun = null;
+  const res = await worker.fetch(
+    postChat({ brain: 'galinyx', character: 'franklin', messages: [{ role: 'user', text: 'What venture should I start?' }] }),
+    envWithAI
+  );
+  const data = await res.json();
+  const system = upstreamSystem();
+  check(
+    'chat brain galinyx + franklin -> Gemini fallback, Franklin system',
+    res.status === 200 &&
+      data.brain === 'gemini' &&
+      lastAIRun === null &&
+      lastUpstream !== null &&
+      system.includes('Benjamin Franklin'),
+    'data: ' + JSON.stringify(data)
+  );
+}
+
+// 27. Chat brain:'galinyx' with no AI binding -> falls back to Gemini
+{
+  __resetRateLimits();
+  lastUpstream = null;
+  lastAIRun = null;
+  const res = await worker.fetch(
+    postChat({ brain: 'galinyx', messages: [{ role: 'user', text: 'Hello' }] }),
+    { GEMINI_API_KEY: FAKE_KEY }
+  );
+  const data = await res.json();
+  check(
+    'chat brain galinyx without binding -> Gemini fallback',
+    res.status === 200 && data.brain === 'gemini' && lastAIRun === null && lastUpstream !== null,
+    'data: ' + JSON.stringify(data)
+  );
+}
+
+// 28. Chat brain:'galinyx' with AI binding but NO Gemini key -> trained path, no 503
+{
+  __resetRateLimits();
+  lastUpstream = null;
+  lastAIRun = null;
+  const res = await worker.fetch(
+    postChat({ brain: 'galinyx', messages: [{ role: 'user', text: 'Hello' }] }),
+    { AI: mockAI }
+  );
+  const data = await res.json();
+  check(
+    'chat brain galinyx without Gemini key -> trained path still answers',
+    res.status === 200 && data.brain === 'galinyx' && lastAIRun !== null && lastUpstream === null,
+    'got ' + res.status + ' ' + JSON.stringify(data)
+  );
+}
+
+// 29. Chat with no brain + AI binding present -> Gemini default, no AI call
+{
+  __resetRateLimits();
+  lastUpstream = null;
+  lastAIRun = null;
+  const res = await worker.fetch(
+    postChat({ messages: [{ role: 'user', text: 'Hello' }] }),
+    envWithAI
+  );
+  const data = await res.json();
+  check(
+    'chat no brain -> Gemini default even with binding present',
+    res.status === 200 && data.brain === 'gemini' && lastAIRun === null && lastUpstream !== null,
+    'data: ' + JSON.stringify(data)
+  );
+}
+
 globalThis.fetch = realFetch;
 
 console.log(results.join('\n'));

@@ -6,3 +6,10 @@ compatibility_date = "2026-11-19"
 # Set it with:  wrangler secret put GEMINI_API_KEY
 # Or in the Cloudflare dashboard: Workers & Pages → galinyx-ai →
 # Settings → Variables → Add variable (mark it Encrypted).
+
+# The trained GALINYX brain (run 5 LoRA) is called through the Workers
+# AI binding — no token, no secret. The API deploy sets the same
+# binding in the upload metadata (cloudflare.py deploy-worker-module
+# <name> <file> ai).
+[ai]
+binding = "AI"
