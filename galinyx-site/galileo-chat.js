@@ -730,6 +730,7 @@ function galileoToggleTalk() {
 
 let galileoCallOpen = false;
 let galileoCallCanvasMoved = false;
+let galileoCallWatch = null;
 
 function galileoCallEl(id) {
   return document.getElementById(id);
@@ -751,6 +752,42 @@ function galileoCallSetOpenButton() {
   const button = galileoCallEl('galileo-call-open');
   if (!button) return;
   button.classList.toggle('hidden', !(galileoTalkActive && !galileoCallOpen));
+}
+
+// The live canvas stays hidden until its portrait finishes loading
+// (galileo-live-avatar.js unhides it in portrait.onload). If Matt taps
+// Talk before that, the call screen opens on the still image — so watch
+// the canvas's class and move it onto the big stage the moment it goes
+// live. If there is no canvas at all (portrait failed, so the avatar
+// removed it; or no portrait), there is nothing to watch for and the
+// still image stays — no polling, no retries.
+function galileoCallWatchCanvas() {
+  galileoCallStopWatch();
+  const canvas = galileoCallEl('galileo-avatar-canvas');
+  if (!canvas || typeof MutationObserver !== 'function') return;
+  const observer = new MutationObserver(() => {
+    if (!galileoCallOpen || galileoCallCanvasMoved) return;
+    if (!canvas.isConnected) return;
+    if (canvas.classList && canvas.classList.contains('hidden')) return;
+    const slot = galileoCallEl('galileo-call-avatar');
+    const fallbackImg = galileoCallEl('galileo-call-img');
+    if (slot) {
+      slot.appendChild(canvas);
+      galileoCallCanvasMoved = true;
+      if (fallbackImg) fallbackImg.classList.add('hidden');
+    }
+    galileoCallStopWatch();
+  });
+  try {
+    observer.observe(canvas, { attributes: true, attributeFilter: ['class'] });
+    galileoCallWatch = observer;
+  } catch (e) { /* no watcher — the still image stays */ }
+}
+
+function galileoCallStopWatch() {
+  if (!galileoCallWatch) return;
+  try { galileoCallWatch.disconnect(); } catch (e) { /* ignore */ }
+  galileoCallWatch = null;
 }
 
 function galileoCallShow() {
@@ -775,6 +812,10 @@ function galileoCallShow() {
   }
   screen.classList.add('open');
   galileoCallOpen = true;
+  // Canvas still hidden (portrait loading)? Watch for it going live
+  // and move it onto the stage when it does — the screen must not
+  // stay on the still image after the avatar wakes up.
+  if (!galileoCallCanvasMoved) galileoCallWatchCanvas();
   galileoCallSyncBrain();
   galileoCallSetOpenButton();
   const status = galileoEl('galileo-status');
@@ -784,6 +825,7 @@ function galileoCallShow() {
 
 function galileoCallHide() {
   if (!galileoCallOpen) return;
+  galileoCallStopWatch();
   const screen = galileoCallEl('galileo-call');
   const canvas = galileoCallEl('galileo-avatar-canvas');
   const img = galileoEl('galileo-avatar-img');
