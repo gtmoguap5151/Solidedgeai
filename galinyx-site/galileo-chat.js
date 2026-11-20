@@ -57,6 +57,14 @@
  * reads voice names; if no male voice is installed, the default
  * voice stands at low pitch, exactly as before.
  *
+ * Web-browsing sources (owner's order, Nov 20, 2026 — mockup C):
+ * when Galileo's answer carries web sources, they show under his
+ * bubble as a horizontal swipeable strip of tappable cards — "Pages
+ * he read", one card per source, tap to open in a new tab. The strip
+ * only appears when the /chat reply carries a `sources` array; the
+ * Worker sends none yet, so this stays dormant until the search
+ * backend lands. No sources → no strip, nothing else changes.
+ *
  * Wiring: this file loads AFTER the shell's inline script and the avatar
  * files (galileo-avatar.js, xena-avatar.js), so it can use the shell's
  * showView hook and the GALILEO_AVATAR / XENA_AVATAR constants. Every use
@@ -276,12 +284,26 @@ function galileoRender() {
     bubble.textContent = message.text;
     row.appendChild(bubble);
     log.appendChild(row);
+    // Web sources (mockup C): a reply that carries sources gets its
+    // swipe strip directly under the bubble. Re-validated here — a
+    // stored message's sources are never trusted blind.
+    if (message.role === 'model') {
+      const sources = galileoCleanSources(message.sources);
+      if (sources) log.appendChild(galileoBuildSourcesStrip(sources));
+    }
   });
   log.scrollTop = log.scrollHeight;
 }
 
-function galileoAddMessage(role, text, save) {
-  galileoHistory.push({ role, text });
+function galileoAddMessage(role, text, save, sources) {
+  const entry = { role, text };
+  // Sources ride on the message so the strip survives a reload — but
+  // only on Galileo's own replies, and only after validation.
+  if (role === 'model') {
+    const clean = galileoCleanSources(sources);
+    if (clean) entry.sources = clean;
+  }
+  galileoHistory.push(entry);
   if (save !== false) galileoSave();
   galileoRender();
   if (role === 'model') {
@@ -289,6 +311,100 @@ function galileoAddMessage(role, text, save) {
     const caption = galileoCallEl('galileo-call-caption');
     if (caption) caption.textContent = text;
   }
+}
+
+// ------------------------------------------------------------ web sources
+//
+// Mockup C (owner's order, Nov 20, 2026): sources arrive on the /chat
+// reply as a `sources` array of {title, site, url} and render as a
+// horizontal swipeable strip under Galileo's answer. The Worker sends
+// no sources yet — everything here is dormant until the search
+// backend lands. Validation is strict: a source needs all three
+// fields as non-empty strings and a real http(s) link, so a bad
+// payload can never plant a javascript: link or a broken card.
+
+// Header-band colours, one per card in turn (mockup C: blue, red,
+// green, purple, then gold and teal for longer strips).
+const GALILEO_SOURCE_COLORS = ['#2e6da4', '#a4443c', '#2e7d5b', '#6b5b9e', '#8a6d2f', '#3a7d8c'];
+
+function galileoCleanSources(raw) {
+  if (!Array.isArray(raw) || !raw.length) return null;
+  const clean = [];
+  raw.forEach((s) => {
+    if (!s || typeof s !== 'object') return;
+    const title = typeof s.title === 'string' ? s.title.trim() : '';
+    const site = typeof s.site === 'string' ? s.site.trim() : '';
+    const url = typeof s.url === 'string' ? s.url.trim() : '';
+    if (!title || !site || !url) return;
+    // Only real web links — never javascript: or data: URLs.
+    if (url.indexOf('http://') !== 0 && url.indexOf('https://') !== 0) return;
+    clean.push({ title, site, url });
+  });
+  return clean.length ? clean : null;
+}
+
+function galileoBuildSourcesStrip(sources) {
+  const wrap = document.createElement('div');
+  wrap.className = 'galileo-sources';
+  const head = document.createElement('div');
+  head.className = 'galileo-sources-head';
+  const label = document.createElement('span');
+  label.className = 'galileo-sources-label';
+  label.textContent = 'Pages he read';
+  head.appendChild(label);
+  if (sources.length > 3) {
+    const more = document.createElement('span');
+    more.className = 'galileo-sources-more';
+    more.textContent = 'Swipe for more \u203A';
+    head.appendChild(more);
+  }
+  wrap.appendChild(head);
+  const strip = document.createElement('div');
+  strip.className = 'galileo-sources-strip';
+  sources.forEach((s, i) => {
+    const card = document.createElement('a');
+    card.className = 'galileo-source-card';
+    card.href = s.url;
+    card.target = '_blank';
+    card.rel = 'noopener noreferrer';
+    const site = document.createElement('div');
+    site.className = 'galileo-source-site';
+    site.style.background = GALILEO_SOURCE_COLORS[i % GALILEO_SOURCE_COLORS.length];
+    site.textContent = s.site;
+    const title = document.createElement('div');
+    title.className = 'galileo-source-title';
+    title.textContent = s.title;
+    const open = document.createElement('div');
+    open.className = 'galileo-source-open';
+    open.textContent = 'Open \u203A';
+    card.appendChild(site);
+    card.appendChild(title);
+    card.appendChild(open);
+    strip.appendChild(card);
+  });
+  wrap.appendChild(strip);
+  // Dots under the strip — one per source, gold marks the first card
+  // in view; they follow the scroll so Matt always knows where he is.
+  // A single source needs no dots.
+  if (sources.length > 1) {
+    const dots = document.createElement('div');
+    dots.className = 'galileo-sources-dots';
+    const dotEls = [];
+    sources.forEach((s, i) => {
+      const d = document.createElement('i');
+      if (i === 0) d.className = 'on';
+      dots.appendChild(d);
+      dotEls.push(d);
+    });
+    wrap.appendChild(dots);
+    strip.addEventListener('scroll', () => {
+      const first = strip.firstElementChild;
+      const w = first ? first.offsetWidth + 10 : 1;
+      const idx = Math.min(sources.length - 1, Math.max(0, Math.round(strip.scrollLeft / w)));
+      dotEls.forEach((d, i) => { d.className = i === idx ? 'on' : ''; });
+    });
+  }
+  return wrap;
 }
 
 // ------------------------------------------------------------ voice
@@ -965,7 +1081,7 @@ async function sendGalileoMessage() {
     if (galileoBrain === 'galinyx' && result.brain === 'gemini') {
       galileoAddMessage('system', 'The trained voice was not available for that reply — the rented voice (Gemini) answered instead.');
     }
-    galileoAddMessage('model', reply);
+    galileoAddMessage('model', reply, undefined, result.sources);
     if (galileoVoiceOn) {
       galileoSpeak(reply, 'galileo');
     } else {

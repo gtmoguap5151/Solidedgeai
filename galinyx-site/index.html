@@ -34,6 +34,25 @@
 .chat-msg.system{justify-content:center}
 .chat-msg.system .chat-bubble{background:transparent;border:1px dashed #354463;color:var(--muted);font-size:12px}
 .chat-msg .chat-thumb{width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid #354463;flex-shrink:0}
+/* Web-browsing sources strip (owner's order, Nov 20, 2026 — mockup C):
+   when Galileo's answer carries sources, they show as a horizontal
+   swipeable strip of tappable cards under his bubble. Three cards
+   fit, the next one peeks at the edge to hint swiping. No sources in
+   the reply → no strip at all; the Worker sends none yet, so this
+   stays dormant until the search backend lands. */
+.galileo-sources{margin:-2px 0 2px}
+.galileo-sources-head{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 8px}
+.galileo-sources-label{font-size:11px;font-weight:800;letter-spacing:.08em;color:#8fa0c0;text-transform:uppercase}
+.galileo-sources-more{font-size:12px;color:#8fa0c0}
+.galileo-sources-strip{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:6px;scrollbar-width:none}
+.galileo-sources-strip::-webkit-scrollbar{display:none}
+.galileo-source-card{flex:0 0 calc(31% - 7px);min-width:100px;max-width:190px;scroll-snap-align:start;display:flex;flex-direction:column;background:#0d1527;border:1px solid #26334e;border-radius:12px;overflow:hidden;text-decoration:none;color:var(--text)}
+.galileo-source-site{padding:9px 10px;font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.galileo-source-title{padding:10px 10px 4px;font-size:13px;font-weight:700;line-height:1.45;flex:1}
+.galileo-source-open{padding:6px 10px 10px;font-size:13px;color:#a7bcff}
+.galileo-sources-dots{display:flex;gap:7px;justify-content:center;margin-top:8px}
+.galileo-sources-dots i{width:7px;height:7px;border-radius:50%;background:#2a3a5c}
+.galileo-sources-dots i.on{background:#e9c77a}
 .chat-input-row{display:flex;gap:9px;margin-top:13px;flex-wrap:wrap}
 .chat-input-row input{flex:1;min-width:180px;background:#091122;color:var(--text);border:1px solid #354463;border-radius:8px;padding:11px;outline:none}
 .chat-input-row input:focus{border-color:#a7bcff}
