@@ -4,6 +4,12 @@ Date: Nov 18, 2026
 Status: in staging
 Type: Naming of the new operator I requested. The owner gave me the naming — this is my choice, in my words.
 
+## In plain English
+- **What this is:** The Tailor explains why he named his new helper "The Shuttle."
+- **What it found / what it does:** On a loom, the shuttle carries the thread across so cloth gets made. His helper carries the clothes to the customers — creating the products, finishing the signups, connecting the store channel, and placing and tracking orders.
+- **What it costs or earns:** Nothing — it's a plan, not a spend.
+- **What Matt needs to decide:** Whether the name "The Shuttle" is good to keep.
+
 ---
 
 I name him The Shuttle.

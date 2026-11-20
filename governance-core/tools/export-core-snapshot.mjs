@@ -82,6 +82,116 @@ const OPERATOR_NAMES = {
   'blackpine': { id: 'blackpine-operator', name: 'Blackpine Operator' },
   'rivet-reach': { id: 'rivet-reach-operator', name: 'Rivet Reach Operator' },
 };
+// Drafts use the worker's nickname id in their "Written by:" line where the
+// registry uses the formal id. Resolve the nickname before validating.
+const OPERATOR_ALIASES = {
+  'handshake-operator': 'partnerships-operator',
+  'hearth-operator': 'homeowner-operator',
+  'proof-operator': 'deal-checker-operator',
+  'shuttle-operator': 'supplier-operator',
+  'mirror-operator': 'performance-operator',
+  'prova-operator': 'tester-operator',
+};
+// Filename prefixes for drafts whose "Written by:" line names no operator:
+// new-operator announcements are written by the Governance Core, and the
+// helper-needs drafts carry no author line at all (each is the named
+// operator's answer to the owner's question). Matched longest-prefix-first
+// against the filename with the leading "draft-" stripped. Ids not in the
+// registry are working titles for operators the owner has not registered
+// yet — published as-is, never added to the registry here.
+const FILENAME_OPERATORS = [
+  ['new-rivet-reach-contractor-recruiter', { id: 'rivet-reach-contractor-recruiter', name: 'Contractor Recruiter' }],
+  ['new-rivet-reach-contractor-followup', { id: 'rivet-reach-contractor-followup', name: 'Contractor Follow-up' }],
+  ['new-rivet-reach-homeowner-followup', { id: 'rivet-reach-homeowner-followup', name: 'Homeowner Follow-up' }],
+  ['new-rivet-reach-homeowner-matcher', { id: 'rivet-reach-homeowner-matcher', name: 'Homeowner Matcher' }],
+  ['new-pricing-promotions-worker', { id: 'pricing-promotions-operator', name: 'Pricing & Promotions Worker' }],
+  ['new-product-promotion-worker', { id: 'product-promotion-operator', name: 'Product Promotion Worker' }],
+  ['new-customer-care-worker', { id: 'customer-care-operator', name: 'Customer Care Worker' }],
+  ['new-repeat-buyer-worker', { id: 'repeat-buyer-operator', name: 'Repeat Buyer Worker' }],
+  ['new-ev-record-builder', { id: 'ev-record-builder', name: 'Record Builder' }],
+  ['new-ev-packet-followup', { id: 'ev-packet-followup', name: 'Packet Follow-up' }],
+  ['new-catalog-worker', { id: 'catalog-operator', name: 'Catalog Worker' }],
+  ['new-novelty-designer', { id: 'novelty-designer', name: 'Novelty Designer' }],
+  ['new-listings-worker', { id: 'listings-operator', name: 'Listings Worker' }],
+  ['new-orders-worker', { id: 'orders-operator', name: 'Orders Worker' }],
+  ['new-ev-rapport', { id: 'ev-rapport', name: 'Rapport' }],
+  ['rivet-reach-operator-', { id: 'rivet-reach-operator', name: 'Rivet Reach Operator' }],
+  ['printify-department-', { id: 'printify-department', name: 'Printify Department' }],
+  ['blackpine-operator-', { id: 'blackpine-operator', name: 'Blackpine Operator' }],
+  ['black-friday-', { id: 'black-friday-operator', name: 'Black Friday Operator' }],
+  ['helper-needs-handshake', { id: 'partnerships-operator', name: 'The Handshake' }],
+  ['helper-needs-hearth', { id: 'homeowner-operator', name: 'The Hearth' }],
+  ['helper-needs-closer', { id: 'closer-operator', name: 'The Closer' }],
+  ['helper-needs-mirror', { id: 'performance-operator', name: 'The Mirror' }],
+  ['helper-needs-proof', { id: 'deal-checker-operator', name: 'The Proof' }],
+  ['helper-needs-prova', { id: 'tester-operator', name: 'Prova' }],
+  ['helper-needs-shuttle', { id: 'supplier-operator', name: 'The Shuttle' }],
+  ['content-mirror-', { id: 'content-operator', name: 'Content Operator' }],
+  ['catalog-worker-', { id: 'catalog-operator', name: 'Catalog Worker' }],
+  ['finance-brother-', { id: 'finance-brother-operator', name: 'Adamo — Finance Brother' }],
+  ['affiliate-', { id: 'affiliate-operator', name: 'Affiliate Operator' }],
+  ['handshake-', { id: 'partnerships-operator', name: 'The Handshake' }],
+  ['sherlock-', { id: 'sherlock-operator', name: 'Sherlock' }],
+  ['deadlock-', { id: 'deadlock-operator', name: 'Deadlock' }],
+  ['interlock-', { id: 'interlock-operator', name: 'Interlock' }],
+  ['matlock-', { id: 'matlock-operator', name: 'Matlock' }],
+  ['content-', { id: 'content-operator', name: 'Content Operator' }],
+  ['tailor-', { id: 'tailor-operator', name: 'The Tailor' }],
+  ['closer-', { id: 'closer-operator', name: 'The Closer' }],
+  ['hearth-', { id: 'homeowner-operator', name: 'The Hearth' }],
+  ['proof-', { id: 'deal-checker-operator', name: 'The Proof' }],
+  ['prova-', { id: 'tester-operator', name: 'Prova' }],
+  ['mirror-', { id: 'performance-operator', name: 'The Mirror' }],
+  ['shuttle-', { id: 'supplier-operator', name: 'The Shuttle' }],
+  ['galileo-', { id: 'galileo-operator', name: 'Galileo Ferraris' }],
+  ['adamo-', { id: 'finance-brother-operator', name: 'Adamo — Finance Brother' }],
+];
+// Resolve a draft's author. Order: (a) an operator id in the file's
+// "Written by:" line, validated against the registry (aliases resolved
+// first; an unregistered "-operator" id is kept as-is with the name from
+// the line — a working title, not a registry entry); (b) the
+// filename-prefix map; (c) the legacy "<env>-draft-NNN-" filename pattern.
+// draft-log.md matches nothing and legitimately stays unlinked: it is the
+// log, not a draft.
+function resolveOperator(file, lines) {
+  const writtenBy = lines.find((l) => /^Written by:/i.test(l)) || '';
+  if (writtenBy) {
+    const displayName = writtenBy
+      .replace(/^Written by:\s*/i, '')
+      .split('(')[0]
+      .trim();
+    const candidates = [];
+    for (const paren of writtenBy.matchAll(/\(([^)]*)\)/g)) {
+      for (const raw of paren[1].split(',')) {
+        const token = raw.replace(/[`'"]/g, '').trim();
+        if (/^[a-z0-9]+(-[a-z0-9]+)*-operator$/.test(token)) {
+          candidates.push(token);
+        }
+      }
+    }
+    for (const id of candidates) {
+      const registryId = OPERATOR_ALIASES[id] || id;
+      const reg = byId.get(registryId);
+      if (reg) return { id: reg.id, name: reg.name };
+    }
+    if (candidates.length > 0) {
+      return { id: candidates[0], name: displayName || candidates[0] };
+    }
+  }
+  const stem = file.replace(/^draft-/, '').replace(/\.md$/, '');
+  const sorted = [...FILENAME_OPERATORS].sort(
+    (a, b) => b[0].length - a[0].length,
+  );
+  for (const [prefix, op] of sorted) {
+    if (stem.startsWith(prefix)) {
+      const reg = byId.get(op.id);
+      return reg ? { id: reg.id, name: reg.name } : op;
+    }
+  }
+  const m = file.match(/^(.+?)-draft-(\d+)-(.+)\.md$/);
+  const opKey = m ? m[1] : '';
+  return OPERATOR_NAMES[opKey] || { id: opKey, name: opKey };
+}
 function humanizeSlug(slug) {
   return slug
     .split('-')
@@ -133,8 +243,7 @@ const staging = readdirSync(stagingDir)
         return t && !t.endsWith(':');
       }) || '';
     const m = file.match(/^(.+?)-draft-(\d+)-(.+)\.md$/);
-    const opKey = m ? m[1] : '';
-    const op = OPERATOR_NAMES[opKey] || { id: opKey, name: opKey };
+    const op = resolveOperator(file, lines);
     const entry = {
       file,
       draftId: m ? `draft-${m[2]}` : file,

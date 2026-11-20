@@ -4,6 +4,12 @@ Date: Nov 18, 2026
 Status: in staging
 Type: Answer to the owner's question, "Is there any more team members that you need?" Suggestions only — nothing here acts on its own.
 
+## In plain English
+- **What this is:** The Rivet Reach helper's answer to Matt's question about whether it needs more help — yes, it wants a homeowner helper.
+- **What it found / what it does:** It reached 71 contractor shops across five waves and got 0 replies and 0 signups. Contractors don't join a platform with no jobs on it. The homeowner helper would own the demand side: getting real jobs posted, getting homeowners to the site, and bringing in property managers and real-estate agents who need contractors constantly.
+- **What it costs or earns:** The draft doesn't say.
+- **What Matt needs to decide:** Say yes or no to adding a homeowner helper.
+
 ---
 Yes. I need a homeowner worker.
 

@@ -1,7 +1,7 @@
-DRAFT — NOT PUBLISHED. Staging only.
+APPROVED by the owner 2026-11-19 ~21:35 ET (audit seq 77) — voice call, "I say yes on price buttons."
 Written by: Catalog Worker (`catalog-operator`) — price buttons for the Christmas + Children's sections, ordered by the owner
 Date: Nov 19, 2026
-Status: in staging
+Status: approved by the owner 2026-11-19 ~21:35 ET (audit seq 77)
 Type: Store change draft — replace "Check price" buttons with real prices on 13 cards.
 
 ## In plain English

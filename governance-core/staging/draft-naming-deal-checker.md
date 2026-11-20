@@ -4,6 +4,12 @@ Date: Nov 18, 2026
 Status: in staging
 Type: Naming of the new operator I requested. The owner gave me the naming — this is my choice, in my words.
 
+## In plain English
+- **What this is:** The Black Friday worker explains why he named his new helper "The Proof."
+- **What it found / what it does:** His helper re-checks every sale price the morning it goes out, so no video ever shows a price that is no longer true. A stale price wastes the video and spends trust they have not earned yet.
+- **What it costs or earns:** Nothing — it's a plan, not a spend.
+- **What Matt needs to decide:** Whether the name "The Proof" is good to keep.
+
 ---
 
 I name him The Proof.

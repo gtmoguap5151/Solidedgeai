@@ -1,0 +1,1 @@
+{"description":"GALINYX OS AI Worker — Creator Studio calls this; it calls Gemini with the key held server-side.","name":"galinyx-ai","private":true,"scripts":{"test":"node test.mjs"},"type":"module"}

@@ -4,6 +4,12 @@ Date: Nov 18, 2026
 Status: in staging
 Type: Naming of the new operator I requested. The owner gave me the naming — this is my choice, in my words.
 
+## In plain English
+- **What this is:** The Rivet Reach worker explains why she named her new helper "The Hearth."
+- **What it found / what it does:** A hearth is the warm middle of a home, and her helper's job is the homeowner side of the match — the homes the work is for. Jobs come from homes, and contractors come when there are jobs.
+- **What it costs or earns:** Nothing — it's a plan, not a spend.
+- **What Matt needs to decide:** Whether the name "The Hearth" is good to keep.
+
 ---
 
 I name her The Hearth.

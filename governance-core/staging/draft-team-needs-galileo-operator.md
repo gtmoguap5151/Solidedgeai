@@ -4,6 +4,12 @@ Date: Nov 18, 2026
 Status: in staging
 Type: Answer to the owner's question, "Is there any more team members that you need?" Suggestions only — nothing here acts on its own.
 
+## In plain English
+- **What this is:** Galileo's answer to Matt's question about whether he needs more help — yes, he wants a tester.
+- **What it found / what it does:** Galileo builds from the idea up and can perfect a design while missing the person who has to use it. Nobody sits down with what he built and tries it the way a stranger would. The tester would try what he builds, report what breaks and what confuses, and show how it fails before it reaches anyone who matters.
+- **What it costs or earns:** The draft doesn't say.
+- **What Matt needs to decide:** Say yes or no to adding a tester.
+
 ---
 Yes. I need a tester.
 

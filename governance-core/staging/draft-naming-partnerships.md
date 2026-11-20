@@ -4,6 +4,12 @@ Date: Nov 18, 2026
 Status: in staging
 Type: Naming of the new operator I requested. The owner gave me the naming — this is my choice, in my words.
 
+## In plain English
+- **What this is:** The affiliate worker explains why he named his new helper "The Handshake."
+- **What it found / what it does:** Every approval from a partner network is a handshake between Blackpine Field and that network. About forty applications are sitting unanswered, and his helper's job is to follow up on them and bring back the approvals.
+- **What it costs or earns:** Nothing — it's a plan, not a spend.
+- **What Matt needs to decide:** Whether the name "The Handshake" is good to keep.
+
 ---
 
 I name him The Handshake.

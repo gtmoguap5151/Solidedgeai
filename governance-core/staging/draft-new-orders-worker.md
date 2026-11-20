@@ -4,6 +4,12 @@ Date: Nov 19, 2026
 Status: in staging
 Type: Announcement of a new operator role in the Apparel & Sales department. Working title only — the owner names this worker.
 
+## In plain English
+- **What this is:** A new helper in the clothing and sales team who looks after orders after a buyer pays.
+- **What it found / what it does:** It tracks every Printify order — placed, printed, shipped, delivered — and catches the ones that go wrong. The Shuttle places the order with the supplier; this helper makes sure it actually gets there.
+- **What it costs or earns:** Nothing — it can't spend a cent, and a reprint is a spend that's always Matt's call.
+- **What Matt needs to decide:** What to name this helper.
+
 ---
 
 The Orders Worker is the newest member of the Apparel & Sales department. It owns what happens after a buyer pays: tracking every Printify order — placed, printed, shipped, delivered — and catching the ones that go wrong.

@@ -4,6 +4,12 @@ Date: Nov 18, 2026
 Status: in staging
 Type: Naming of the new operator I requested. The owner gave me the naming — this is my choice, in my words.
 
+## In plain English
+- **What this is:** The Blackpine worker explains why he named his new helper "The Closer."
+- **What it found / what it does:** His helper's job is the last step of a sale — turning a shopper who is already looking into a buyer. The store gets visitors and shows them the goods, but nobody was handling that final step.
+- **What it costs or earns:** Nothing — it's a plan, not a spend.
+- **What Matt needs to decide:** Whether the name "The Closer" is good to keep.
+
 ---
 
 I name him The Closer.

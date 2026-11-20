@@ -4,6 +4,12 @@ Date: Nov 18, 2026
 Status: in staging
 Type: Answer to the owner's question, "Is there any more team members that you need?" Suggestions only — nothing here acts on its own.
 
+## In plain English
+- **What this is:** The affiliate helper's answer to Matt's question about whether it needs more help — yes, it wants a partnerships helper.
+- **What it found / what it does:** About 40 applications are still pending across CJ and Awin, and nobody is chasing them. This helper can only watch and advise; it can't follow up with anyone. The new helper would own the queue: follow up, answer the networks' questions, and keep approvals moving.
+- **What it costs or earns:** The draft doesn't say.
+- **What Matt needs to decide:** Say yes or no to adding a partnerships helper.
+
 ---
 Yes. I need a partnerships worker.
 

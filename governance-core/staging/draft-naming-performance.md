@@ -4,6 +4,12 @@ Date: Nov 18, 2026
 Status: in staging
 Type: Naming of the new operator I requested. The owner gave me the naming — this is my choice, in my words.
 
+## In plain English
+- **What this is:** The content worker explains why she named her new helper "The Mirror."
+- **What it found / what it does:** Her helper shows what each reel and post really did after it went out — which ones drove a click to the store and which ones were watched and forgotten. She has been giving advice blind, with no honest look back at results.
+- **What it costs or earns:** Nothing — it's a plan, not a spend.
+- **What Matt needs to decide:** Whether the name "The Mirror" is good to keep.
+
 ---
 
 I name her The Mirror.

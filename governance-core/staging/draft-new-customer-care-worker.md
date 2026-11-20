@@ -4,6 +4,12 @@ Date: Nov 19, 2026
 Status: in staging
 Type: Announcement of a new operator role in the Apparel & Sales department. Working title only — the owner names this worker.
 
+## In plain English
+- **What this is:** A new helper in the clothing and sales team who writes replies to buyers.
+- **What it found / what it does:** It drafts answers to buyer questions — sizing help, what the shirt is made of, where an order is, what to do if something arrives wrong. It never promises a refund, because all sales are final; it can only draft a reprint request for Matt to approve.
+- **What it costs or earns:** Nothing — it's a plan, not a spend.
+- **What Matt needs to decide:** What to name this helper.
+
 ---
 
 The Customer Care Worker is the newest member of the Apparel & Sales department. It drafts replies to buyer questions and sizing help: what size to order, what the shirt is made of, where their order is, what to do if something arrives wrong.

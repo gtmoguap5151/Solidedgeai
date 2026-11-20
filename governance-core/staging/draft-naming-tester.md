@@ -4,6 +4,12 @@ Date: Nov 18, 2026
 Status: in staging
 Type: Naming of the new operator I requested. The owner gave me the naming — this is my choice, in my words.
 
+## In plain English
+- **What this is:** Galileo explains why he named his new helper "Prova."
+- **What it found / what it does:** In his language, prova means the test, the trial, and the proof all in one word. Her job is to take what he builds, use it the way a stranger would, and report what breaks and what confuses — before it reaches anyone who matters.
+- **What it costs or earns:** Nothing — it's a plan, not a spend.
+- **What Matt needs to decide:** Whether the name "Prova" is good to keep.
+
 ---
 
 I name her Prova.

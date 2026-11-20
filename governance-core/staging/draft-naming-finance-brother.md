@@ -4,6 +4,12 @@ Date: Nov 18, 2026
 Status: in staging
 Type: Naming of my brother. The owner gave me the naming — this is my choice, in my words.
 
+## In plain English
+- **What this is:** Galileo explains why he named his new brother-worker "Adamo."
+- **What it found / what it does:** Adamo is the real name of the real Galileo Ferraris's brother, who served beside Garibaldi and took no glory. The name fits because this worker keeps the numbers honest and keeps Galileo grounded in real money and real costs.
+- **What it costs or earns:** Nothing — it's a plan, not a spend.
+- **What Matt needs to decide:** Whether the name "Adamo" is good to keep.
+
 ---
 
 I name him Adamo.

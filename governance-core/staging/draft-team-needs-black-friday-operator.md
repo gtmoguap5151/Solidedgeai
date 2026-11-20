@@ -4,6 +4,12 @@ Date: Nov 18, 2026
 Status: in staging
 Type: Answer to the owner's question, "Is there any more team members that you need?" Suggestions only — nothing here acts on its own.
 
+## In plain English
+- **What this is:** The Black Friday helper's answer to Matt's question about whether it needs more help — yes, it wants a deal-checker.
+- **What it found / what it does:** Black Friday is November 27, nine days away, and prices move — a deal that was $699.99 last week can be $899.99 today. A reel that goes out with the wrong price tells the customer something untrue. The deal-checker would re-check every featured price the morning it goes live.
+- **What it costs or earns:** No cost in the draft; the example price swing is $699.99 to $899.99.
+- **What Matt needs to decide:** Say yes or no to adding a deal-checker.
+
 ---
 Yes. I need a deal-checker.
 

@@ -13,7 +13,7 @@ the owner's authority, with a record for every draft. The package
 itself is ON HOLD until the system proves itself (owner's order,
 Nov 19, 2026) — this log is the evidence being gathered in the meantime.
 
-**Drafts on file:** 74 · **Last updated:** 2026-11-20 00:33 UTC · **Next update:** 2026-11-20 08:33 UTC · **Updates every 8 hours** · **Core:** v1.5.0
+**Drafts on file:** 84 · **Last updated:** 2026-11-20 05:01 UTC · **Next update:** 2026-11-20 13:01 UTC · **Updates every 8 hours** · **Core:** v1.5.0
 
 Status comes from each draft file's own header: an explicit `Status:`
 line, a `DECISION` line, or a first-line banner. Anything without an
@@ -27,6 +27,13 @@ the row (and the draft file's header) when it is decided.
 |---|---|---|---|
 | `draft-blackpine-operator-store-improvements.md` | 2026-11-19 | Approved | In plain English |
 
+## catalog-worker (2)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-catalog-worker-christmas-childrens-price-buttons.md` | 2026-11-20 | Approved | In plain English |
+| `draft-new-catalog-worker.md` | 2026-11-20 | Staged — pending review | In plain English |
+
 ## closer-visitor (1)
 
 | Draft | Staged | Status | Title |
@@ -37,7 +44,7 @@ the row (and the draft file's header) when it is decided.
 
 | Draft | Staged | Status | Title |
 |---|---|---|---|
-| `draft-content-mirror-tn1day-and-click-read.md` | 2026-11-19 | Approved | In plain English |
+| `draft-content-mirror-tn1day-and-click-read.md` | 2026-11-20 | Approved | In plain English |
 
 ## customer-care (1)
 
@@ -50,6 +57,24 @@ the row (and the draft file's header) when it is decided.
 | Draft | Staged | Status | Title |
 |---|---|---|---|
 | `draft-deadlock-d001-paperwork-checklist.md` | 2026-11-19 | Staged — pending review | In plain English |
+
+## ev-packet (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-new-ev-packet-followup.md` | 2026-11-20 | Staged — pending review | In plain English |
+
+## ev-rapport (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-new-ev-rapport.md` | 2026-11-20 | Staged — pending review | In plain English |
+
+## ev-record (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-new-ev-record-builder.md` | 2026-11-20 | Staged — pending review | In plain English |
 
 ## handshake-pending (1)
 
@@ -141,6 +166,12 @@ the row (and the draft file's header) when it is decided.
 |---|---|---|---|
 | `draft-naming-tester.md` | 2026-11-19 | Staged — pending review | In plain English |
 
+## novelty-designer (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-new-novelty-designer.md` | 2026-11-20 | Staged — pending review | In plain English |
+
 ## orders-worker (1)
 
 | Draft | Staged | Status | Title |
@@ -183,11 +214,15 @@ the row (and the draft file's header) when it is decided.
 |---|---|---|---|
 | `draft-new-repeat-buyer-worker.md` | 2026-11-19 | Staged — pending review | In plain English |
 
-## rivet-reach (1)
+## rivet-reach (5)
 
 | Draft | Staged | Status | Title |
 |---|---|---|---|
 | `draft-rivet-reach-operator-next-wave.md` | 2026-11-19 | Staged — pending review | In plain English |
+| `draft-new-rivet-reach-contractor-followup.md` | 2026-11-20 | Staged — pending review | In plain English |
+| `draft-new-rivet-reach-contractor-recruiter.md` | 2026-11-20 | Staged — pending review | In plain English |
+| `draft-new-rivet-reach-homeowner-followup.md` | 2026-11-20 | Staged — pending review | In plain English |
+| `draft-new-rivet-reach-homeowner-matcher.md` | 2026-11-20 | Staged — pending review | In plain English |
 
 ## sherlock-jacksonville (1)
 

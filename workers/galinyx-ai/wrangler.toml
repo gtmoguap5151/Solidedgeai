@@ -1,0 +1,8 @@
+name = "galinyx-ai"
+main = "worker.js"
+compatibility_date = "2026-11-19"
+
+# The Gemini API key is a secret, NOT a var — never put it here.
+# Set it with:  wrangler secret put GEMINI_API_KEY
+# Or in the Cloudflare dashboard: Workers & Pages → galinyx-ai →
+# Settings → Variables → Add variable (mark it Encrypted).

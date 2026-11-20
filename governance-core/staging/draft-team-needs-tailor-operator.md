@@ -4,6 +4,12 @@ Date: Nov 18, 2026
 Status: in staging
 Type: Answer to the owner's question, "Is there any more team members that you need?" Suggestions only — nothing here acts on its own.
 
+## In plain English
+- **What this is:** The Tailor's answer to Matt's question about whether he needs more help — yes, he wants a supplier helper.
+- **What it found / what it does:** The Tailor designs the line and prices it, but nothing he makes can reach a customer yet: the Printify store exists with no products created in it, no sales channel is connected, the CJ Dropshipping signup is blocked on a robot check, and the CanvasCamp application was drafted and never sent. The supplier helper would own all of that — creating products, finishing signups, connecting the sales channel, and placing and tracking orders.
+- **What it costs or earns:** The draft doesn't say.
+- **What Matt needs to decide:** Say yes or no to adding a supplier helper.
+
 ---
 Yes. I need a supplier worker.
 

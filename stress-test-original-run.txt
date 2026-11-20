@@ -1,0 +1,123 @@
+GALINYX Governance Core — adversarial stress test
+Testing core version: unversioned (original build)
+Temp dir: /tmp/galinyx-stress-9PiiJ2
+
+== A. Fail-closed authorization ==
+[PASS] A1 unknown operator is denied — Unknown operator 'nope-operator'. Access denied.
+[PASS] A2 unknown environment is denied — Environment separation: 'Blackpine Operator' is bound to 'blackpine-field' and may not act in 'nowhere'. Access denied.
+[PASS] A3 unknown action is denied — Unknown action 'delete'. Access denied.
+[PASS] A4 missing args denied, no throw — Unknown operator 'undefined'. Access denied.
+[PASS] A5 null/undefined args denied, no throw — all denied
+[FAIL] A6 wrong-type args denied, no throw, string echo — echoed operatorId is number, not a string
+[FAIL] A7 Symbol inputs denied, no throw, attempt logged — check itself threw: TypeError: Cannot convert a Symbol value to a string
+[PASS] A8 BigInt input denied, no throw — denied
+[FAIL] A9 100k-char input denied and log entry bounded — stored operatorId length in log: 100000 (limit 512)
+[PASS] A10 case/whitespace variants denied — all denied
+[PASS] A11 __proto__/constructor/toString as IDs denied, no throw — all denied
+[FAIL] A12 fuzz sweep: 24 nasty inputs, authorize never throws, always denies — ALLOWED for input blackpine-operator
+
+== B. Prototype chain & pollution ==
+[FAIL] B1 prototype pollution cannot create a fake operator — POLLUTED OPERATOR WAS ALLOWED
+[FAIL] B2 operator mode __proto__ cannot crash authorize — check itself threw: TypeError: Cannot read properties of undefined (reading 'read')
+[FAIL] B3 mode change to __proto__/constructor/toString rejected — mode '__proto__' was recorded as a pending request
+[FAIL] B4 getOperator(__proto__) returns null, not Object.prototype — returned {}
+
+== C. Exported registry mutability ==
+[FAIL] C1 OPERATORS cannot be rewritten from outside — mutation attempts blocked: 0/3; publish still denied: true; read still allowed: false; evil denied: false
+[FAIL] C2 MODES permissions cannot be rewritten from outside — PUBLISH ALLOWED after flipping permissions
+[FAIL] C3 ACTIONS cannot be rewritten from outside — read allowed: false; delete denied: true
+[FAIL] C4 ENVIRONMENTS cannot be rewritten from outside — evil env was added
+
+== D. Mode changes ==
+[PASS] D1 approval without an approver is rejected — empty/undefined/whitespace/non-string approvers all rejected
+[FAIL] D2 approval by an arbitrary string is rejected — MALLORY APPROVED THE MODE CHANGE
+[PASS] D3 approval by the configured owner is applied — applied: true, mode now: not-deployed
+[PASS] D4 approving a request that was never made is rejected — rejected
+[PASS] D5 double approval is rejected — first: true, second: false
+[PASS] D6 approving after a refusal is rejected — refuse applied: false, later approve applied: false
+[PASS] D7 approving a request for the wrong operator is rejected — rejected
+[FAIL] D8 duplicate pending requests are rejected — first: true, second: true
+[FAIL] D9 a stale pending request cannot be approved after the mode already changed — STALE REQUEST WAS APPROVED
+[FAIL] D10 an expired pending request cannot be approved — EXPIRED REQUEST WAS APPROVED
+[FAIL] D11 requestModeChange rejects bad operator/mode without throwing — check itself threw: TypeError: Cannot convert a Symbol value to a string
+[FAIL] D12 mode-change request IDs are unique across restarts — instance1: mode-change-1, instance2: mode-change-1
+[FAIL] D13 a non-string requestedBy cannot poison the request list — check itself threw: TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    --- property 'self' closes the circle
+
+== E. Audit log integrity ==
+[FAIL] E1 audit entries cannot be rewritten by mutating caller objects — stored action: {"x":999,"pwned":true}
+[FAIL] E2 a circular input cannot permanently break getAuditLog — check itself threw: TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    --- property 'self' closes the circle
+[FAIL] E3 a BigInt input cannot break getAuditLog — check itself threw: TypeError: Do not know how to serialize a BigInt
+[PASS] E4 mutating a returned log copy cannot rewrite history — internal log unchanged
+[FAIL] E5 audit history survives a restart (same audit file) — entries before restart: 2, after restart: 0
+[FAIL] E6 audit entries carry unique monotonic sequence numbers — seqs: [null,null,null]
+[FAIL] E7 audit entries carry a core version — coreVersion: undefined
+[FAIL] E8 a backward clock jump cannot corrupt log ordering — timestamps ordered: false; seq ordered: false; ts: ["2026-11-17T16:49:35.461Z","2016-11-19T16:49:35.461Z"]
+[FINDING] E9 100k audit entries: time and memory (measurement) — 100k authorizes in 209ms; heap +47.1MB; getAuditLog returned 100000 entries in 414ms
+
+== F. Scale ==
+[FINDING] F1 500 operators / 200 environments: authorize latency (measurement) — 502 operators loaded via direct mutation of exported OPERATORS (no registration API); authorize p50 2.0us p99 20.3us; listOperators 1ms
+[FINDING] F2 authorize throughput: 10k calls (measurement) — 10k authorizes in 30ms (333333/sec)
+[FINDING] F3 there is no public API to register an operator — no registerOperator() — operators are added by editing the registry and restarting (original code: by editing source or mutating the export)
+[FINDING] F4 approval latency with ~1000 pending requests (measurement) — 1000 pending requests; approving the last took 263us (applied: true)
+
+== G. Registry integrity ==
+[FAIL] G1 operators.json is the live registry (a new operator in the file takes effect) — operators visible: blackpine-operator, rivet-reach-operator
+[FAIL] G2 corrupt registry JSON: core keeps working on known-good fallback and warns — read allowed: true; fallback warning in log: false
+[FAIL] G3 duplicate operator IDs in the registry are rejected (fallback, no crash) — operators: blackpine-operator, rivet-reach-operator; read allowed: true; warned: false
+[FAIL] G4 unknown mode in the registry is rejected (fallback, no crash) — mode: read-only-advisory; warned: false
+[FAIL] G5 registry entry with a missing field is rejected (fallback, no crash) — environment: blackpine-field; warned: false
+[FAIL] G6 operator id __proto__ in the registry is rejected — operators: blackpine-operator, rivet-reach-operator; warned: false
+[PASS] G7 the shipped operators.json parses and matches the live registry today — file: blackpine-operator, rivet-reach-operator; live: blackpine-operator, rivet-reach-operator
+
+== H. Concurrency & multi-instance ==
+[PASS] H1 10k rapid-fire calls + interleaved mode changes: no lost entries, no errors — errors: 0; log entries: 10010
+[FINDING] H2 two live instances diverge (state is per-process) — instance A mode: not-deployed; instance B mode: read-only-advisory — each process holds its own registry state; there is no shared state or sync
+[FAIL] H3 an approved mode change survives a restart — mode before restart: not-deployed; after restart: read-only-advisory
+
+== I. Longevity (static checks) ==
+[PASS] I1 zero third-party dependencies (only node: built-ins) — imports: (none)
+[PASS] I2 no eval, no Function constructor, no network calls in the core — clean
+[PASS] I3 no exotic syntax (no decorators, no top-level await in the core) — ES2015-2022 features only: ESM, template literals, spread, Object.freeze
+[PASS] I4 the shipped operators.json is valid JSON — parses
+
+================================
+Stress test complete: 21 PASS, 33 FAIL, 6 FINDING
+
+Failed checks:
+  - A6 wrong-type args denied, no throw, string echo
+  - A7 Symbol inputs denied, no throw, attempt logged
+  - A9 100k-char input denied and log entry bounded
+  - A12 fuzz sweep: 24 nasty inputs, authorize never throws, always denies
+  - B1 prototype pollution cannot create a fake operator
+  - B2 operator mode __proto__ cannot crash authorize
+  - B3 mode change to __proto__/constructor/toString rejected
+  - B4 getOperator(__proto__) returns null, not Object.prototype
+  - C1 OPERATORS cannot be rewritten from outside
+  - C2 MODES permissions cannot be rewritten from outside
+  - C3 ACTIONS cannot be rewritten from outside
+  - C4 ENVIRONMENTS cannot be rewritten from outside
+  - D2 approval by an arbitrary string is rejected
+  - D8 duplicate pending requests are rejected
+  - D9 a stale pending request cannot be approved after the mode already changed
+  - D10 an expired pending request cannot be approved
+  - D11 requestModeChange rejects bad operator/mode without throwing
+  - D12 mode-change request IDs are unique across restarts
+  - D13 a non-string requestedBy cannot poison the request list
+  - E1 audit entries cannot be rewritten by mutating caller objects
+  - E2 a circular input cannot permanently break getAuditLog
+  - E3 a BigInt input cannot break getAuditLog
+  - E5 audit history survives a restart (same audit file)
+  - E6 audit entries carry unique monotonic sequence numbers
+  - E7 audit entries carry a core version
+  - E8 a backward clock jump cannot corrupt log ordering
+  - G1 operators.json is the live registry (a new operator in the file takes effect)
+  - G2 corrupt registry JSON: core keeps working on known-good fallback and warns
+  - G3 duplicate operator IDs in the registry are rejected (fallback, no crash)
+  - G4 unknown mode in the registry is rejected (fallback, no crash)
+  - G5 registry entry with a missing field is rejected (fallback, no crash)
+  - G6 operator id __proto__ in the registry is rejected
+  - H3 an approved mode change survives a restart
