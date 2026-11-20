@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T17:44:04.543Z",
+  "generatedAt": "2026-11-20T17:48:10.810Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -1262,6 +1262,17 @@
       "summary": "# Draft — Civil Law Firm Workforce Package (GALINYX, first industry)"
     },
     {
+      "file": "draft-scout-franklin-new-ventures-v2.md",
+      "draftId": "draft-scout-franklin-new-ventures-v2.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-scout-franklin-new-ventures-v2.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "## What Adamo caught"
+    },
+    {
       "file": "draft-scout-franklin-new-ventures.md",
       "draftId": "draft-scout-franklin-new-ventures.md",
       "operatorId": "",
@@ -2260,7 +2271,7 @@
   ],
   "auditStats": {
     "inMemoryEntries": 91,
-    "lastSeq": 128,
+    "lastSeq": 129,
     "persistFailures": 0
   }
 }

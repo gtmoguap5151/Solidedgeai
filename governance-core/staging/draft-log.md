@@ -13,7 +13,7 @@ the owner's authority, with a record for every draft. The package
 itself is ON HOLD until the system proves itself (owner's order,
 Nov 19, 2026) — this log is the evidence being gathered in the meantime.
 
-**Drafts on file:** 113 · **Last updated:** 2026-11-20 17:44 UTC · **Next update:** 2026-11-21 01:44 UTC · **Updates every 8 hours** · **Core:** v1.5.0
+**Drafts on file:** 114 · **Last updated:** 2026-11-20 17:48 UTC · **Next update:** 2026-11-21 01:48 UTC · **Updates every 8 hours** · **Core:** v1.5.0
 
 Status comes from each draft file's own header: an explicit `Status:`
 line, a `DECISION` line, or a first-line banner. Anything without an
@@ -336,10 +336,11 @@ the row (and the draft file's header) when it is decided.
 |---|---|---|---|
 | `draft-scout-civil-law-firm-package.md` | 2026-11-20 | Approved | Draft — Civil Law Firm Workforce Package (GALINYX, first industry) |
 
-## scout-franklin (1)
+## scout-franklin (2)
 
 | Draft | Staged | Status | Title |
 |---|---|---|---|
+| `draft-scout-franklin-new-ventures-v2.md` | 2026-11-20 | Staged — pending review | Five New Ventures — The Scout's Revised Brief (v2) |
 | `draft-scout-franklin-new-ventures.md` | 2026-11-20 | Staged — pending review | Five New Ventures — The Scout's First Brief |
 
 ## security-engineer (1)
