@@ -1,4 +1,5 @@
 DRAFT — NOT PUBLISHED. Staging only.
+Status: approved by the owner 2026-11-20 ~01:20 ET (audit seq 85) — registered as The Keepsake (draft-only)
 Written by: Governance Core — new-operator announcement, ordered by the owner
 Date: Nov 19, 2026
 Status: in staging
@@ -19,3 +20,6 @@ The Tailor designs the clothes. The Novelty Designer designs the rest. It knows 
 Draft-only, like every operator. It may draft designs to staging; it may not publish one. Every design waits for the owner's approval. It never uses the dead tagline or the dead subline, and it never promises anything the product cannot stand behind.
 
 The name is the owner's call. "Novelty Designer" is the role, not the name.
+
+---
+DECISION: Approved — registered as The Keepsake (draft-only) by owner order Nov 20, 2026 ("I say go").

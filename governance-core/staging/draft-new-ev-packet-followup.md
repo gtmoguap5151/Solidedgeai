@@ -1,4 +1,5 @@
 DRAFT — NOT PUBLISHED. Staging only.
+Status: approved by the owner 2026-11-20 ~01:20 ET (audit seq 85) — registered as The Chase (draft-only)
 Written by: Governance Core — new-operator announcement, ordered by the owner
 Date: Nov 19, 2026
 Status: in staging
@@ -19,3 +20,6 @@ It is the third leg of the EV team — Rapport opens the door, the Record Builde
 Draft-only, like every operator. It may draft to staging; it may not publish or send. Every follow-up waits for the owner's approval.
 
 The name is the owner's call. "Packet Follow-up" is the role, not the name.
+
+---
+DECISION: Approved — registered as The Chase (draft-only) by owner order Nov 20, 2026 ("I say go").

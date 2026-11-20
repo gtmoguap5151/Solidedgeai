@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T04:59:16.188Z",
+  "generatedAt": "2026-11-20T06:25:06.228Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -46,9 +46,9 @@
       "id": "galileo-operator",
       "name": "Galileo Ferraris",
       "environment": "galinyx-workforce",
-      "mode": "draft-only",
+      "mode": "full-except-spend",
       "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+      "statusNote": "Full permission except spend — one-week trial ordered by the owner Nov 20, 2026 (ends Nov 27, 2026). May read, advise, publish, and change things live; may never spend. Trial to see how he takes the responsibility."
     },
     {
       "id": "finance-brother-operator",
@@ -201,6 +201,126 @@
       "mode": "draft-only",
       "status": "deployed-unproven",
       "statusNote": "Paperwork worker — drafts assignment contracts and deal sheets. Named by Matt Nov 19, 2026 (voice call). Draft-only: may draft anything for reverse wholesaling. Nothing he drafts is sent, contacted, signed, or spent without the owner's approval per action (owner's rule, Nov 18, 2026). Its analysis has not yet been proven reliable."
+    },
+    {
+      "id": "forge-operator",
+      "name": "The Forge",
+      "environment": "galinyx-workforce",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "scout-operator",
+      "name": "The Scout",
+      "environment": "galinyx-workforce",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "curator-operator",
+      "name": "The Curator",
+      "environment": "galinyx-workforce",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "keystone-operator",
+      "name": "The Keystone",
+      "environment": "galinyx-workforce",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "seal-operator",
+      "name": "The Seal",
+      "environment": "galinyx-workforce",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "wright-operator",
+      "name": "The Wright",
+      "environment": "galinyx-workforce",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "knock-operator",
+      "name": "The Knock",
+      "environment": "rivet-reach",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "return-operator",
+      "name": "The Return",
+      "environment": "rivet-reach",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "bridge-operator",
+      "name": "The Bridge",
+      "environment": "rivet-reach",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "porch-operator",
+      "name": "The Porch",
+      "environment": "rivet-reach",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "rapport-operator",
+      "name": "Rapport",
+      "environment": "ev-passport",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "ledger-operator",
+      "name": "The Ledger",
+      "environment": "ev-passport",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "chase-operator",
+      "name": "The Chase",
+      "environment": "ev-passport",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "keepsake-operator",
+      "name": "The Keepsake",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "shelf-operator",
+      "name": "The Shelf",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
     }
   ],
   "environments": [
@@ -223,6 +343,11 @@
       "id": "reverse-wholesaling",
       "label": "Reverse Wholesaling",
       "kind": "real estate"
+    },
+    {
+      "id": "ev-passport",
+      "label": "EV Station Record Passport",
+      "kind": "records"
     }
   ],
   "modes": {
@@ -233,6 +358,17 @@
         "read": true,
         "advise": true,
         "publish": false,
+        "spend": false,
+        "write": true
+      }
+    },
+    "full-except-spend": {
+      "label": "Full — Except Spend",
+      "description": "May read, advise, publish, and change things live. May never spend. One-week trial ordered by the owner Nov 20, 2026; ends Nov 27, 2026.",
+      "permissions": {
+        "read": true,
+        "advise": true,
+        "publish": true,
         "spend": false,
         "write": true
       }
@@ -574,9 +710,22 @@
       "operatorName": "Catalog Worker",
       "title": "draft-new-catalog-worker.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
-      "summary": "The Catalog Worker is the newest member of the Blackpine Field environment. It owns the store catalog: every card on blackpinefield.com — what is listed, what …"
+      "summary": "The Catalog Worker is the newest member of the Blackpine Field environment. It owns the store catalog: every card on blackpinefield.com — what is listed, what …",
+      "decision": "DECISION: Approved — registered as The Shelf (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
+    },
+    {
+      "file": "draft-new-cloud-architect.md",
+      "draftId": "draft-new-cloud-architect.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-cloud-architect.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "Nov 20, 2026",
+      "summary": "The Cloud/Solutions Architect is the newest member of the Core and model team. It owns the ground the system stands on: the galinyx-ai Worker, the Cloudflare a…",
+      "decision": "DECISION: Approved — registered as The Keystone (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
     },
     {
       "file": "draft-new-customer-care-worker.md",
@@ -590,15 +739,28 @@
       "summary": "The Customer Care Worker is the newest member of the Apparel & Sales department. It drafts replies to buyer questions and sizing help: what size to order, what…"
     },
     {
+      "file": "draft-new-data-scientist.md",
+      "draftId": "draft-new-data-scientist.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-data-scientist.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "Nov 20, 2026",
+      "summary": "The Data Scientist is the newest member of the Core and model team. It owns the evidence: the dataset that trains Galileo, and the scores that say whether the …",
+      "decision": "DECISION: Approved — registered as The Curator (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
+    },
+    {
       "file": "draft-new-ev-packet-followup.md",
       "draftId": "draft-new-ev-packet-followup.md",
       "operatorId": "ev-packet-followup",
       "operatorName": "Packet Follow-up",
       "title": "draft-new-ev-packet-followup.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
-      "summary": "The Packet Follow-up is the newest member of the EV Station Record Passport environment. It owns the after: every delivered Passport gets a check-in, drafted i…"
+      "summary": "The Packet Follow-up is the newest member of the EV Station Record Passport environment. It owns the after: every delivered Passport gets a check-in, drafted i…",
+      "decision": "DECISION: Approved — registered as The Chase (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
     },
     {
       "file": "draft-new-ev-rapport.md",
@@ -607,9 +769,10 @@
       "operatorName": "Rapport",
       "title": "draft-new-ev-rapport.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
-      "summary": "Rapport is the first member of the EV Station Record Passport environment. It owns the relationship: finding charging station owners and operators, reaching ou…"
+      "summary": "Rapport is the first member of the EV Station Record Passport environment. It owns the relationship: finding charging station owners and operators, reaching ou…",
+      "decision": "DECISION: Approved — registered as Rapport (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
     },
     {
       "file": "draft-new-ev-record-builder.md",
@@ -618,9 +781,10 @@
       "operatorName": "Record Builder",
       "title": "draft-new-ev-record-builder.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
-      "summary": "The Record Builder is the newest member of the EV Station Record Passport environment. It owns the packet: every document a station owner sends in gets read, c…"
+      "summary": "The Record Builder is the newest member of the EV Station Record Passport environment. It owns the packet: every document a station owner sends in gets read, c…",
+      "decision": "DECISION: Approved — registered as The Ledger (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
     },
     {
       "file": "draft-new-listings-worker.md",
@@ -634,15 +798,28 @@
       "summary": "The Listings Worker is the newest member of the Apparel & Sales department. It owns the product listings: the titles, the descriptions, and the mockup placemen…"
     },
     {
+      "file": "draft-new-ml-engineer.md",
+      "draftId": "draft-new-ml-engineer.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-ml-engineer.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "Nov 20, 2026",
+      "summary": "The AI/Machine Learning Engineer is the newest member of the Core and model team. It owns the training: the Galileo dataset goes in, a tested GALINYX model com…",
+      "decision": "DECISION: Approved — registered as The Forge (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
+    },
+    {
       "file": "draft-new-novelty-designer.md",
       "draftId": "draft-new-novelty-designer.md",
       "operatorId": "novelty-designer",
       "operatorName": "Novelty Designer",
       "title": "draft-new-novelty-designer.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
-      "summary": "The Novelty Designer is the newest member of the Blackpine Field environment. It owns the gift table: shot glass sets, mugs, decals, patches, and other small g…"
+      "summary": "The Novelty Designer is the newest member of the Blackpine Field environment. It owns the gift table: shot glass sets, mugs, decals, patches, and other small g…",
+      "decision": "DECISION: Approved — registered as The Keepsake (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
     },
     {
       "file": "draft-new-orders-worker.md",
@@ -689,15 +866,28 @@
       "summary": "The Repeat Buyer Worker is the newest member of the Apparel & Sales department. It owns the second sale: the follow-up after delivery, the next-drop notices, a…"
     },
     {
+      "file": "draft-new-research-scientist.md",
+      "draftId": "draft-new-research-scientist.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-research-scientist.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "Nov 20, 2026",
+      "summary": "The Computer and Information Research Scientist is the newest member of the Core and model team. It owns the horizon: what exists now, what changed this month,…",
+      "decision": "DECISION: Approved — registered as The Scout (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
+    },
+    {
       "file": "draft-new-rivet-reach-contractor-followup.md",
       "draftId": "draft-new-rivet-reach-contractor-followup.md",
       "operatorId": "rivet-reach-contractor-followup",
       "operatorName": "Contractor Follow-up",
       "title": "draft-new-rivet-reach-contractor-followup.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
-      "summary": "The Contractor Follow-up is the newest member of the Rivet Reach environment, contractor side. It owns the second touch: every shop that heard from Rivet Reach…"
+      "summary": "The Contractor Follow-up is the newest member of the Rivet Reach environment, contractor side. It owns the second touch: every shop that heard from Rivet Reach…",
+      "decision": "DECISION: Approved — registered as The Return (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
     },
     {
       "file": "draft-new-rivet-reach-contractor-recruiter.md",
@@ -706,9 +896,10 @@
       "operatorName": "Contractor Recruiter",
       "title": "draft-new-rivet-reach-contractor-recruiter.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
-      "summary": "The Contractor Recruiter is the newest member of the Rivet Reach environment, contractor side. It owns finding contractors: fresh shops in Central Kentucky, th…"
+      "summary": "The Contractor Recruiter is the newest member of the Rivet Reach environment, contractor side. It owns finding contractors: fresh shops in Central Kentucky, th…",
+      "decision": "DECISION: Approved — registered as The Knock (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
     },
     {
       "file": "draft-new-rivet-reach-homeowner-followup.md",
@@ -717,9 +908,10 @@
       "operatorName": "Homeowner Follow-up",
       "title": "draft-new-rivet-reach-homeowner-followup.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
-      "summary": "The Homeowner Follow-up is the newest member of the Rivet Reach environment, homeowner side. It owns the after: every matched job gets a check-in, drafted in p…"
+      "summary": "The Homeowner Follow-up is the newest member of the Rivet Reach environment, homeowner side. It owns the after: every matched job gets a check-in, drafted in p…",
+      "decision": "DECISION: Approved — registered as The Porch (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
     },
     {
       "file": "draft-new-rivet-reach-homeowner-matcher.md",
@@ -728,9 +920,34 @@
       "operatorName": "Homeowner Matcher",
       "title": "draft-new-rivet-reach-homeowner-matcher.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "Nov 19, 2026",
-      "summary": "The Homeowner Matcher is the newest member of the Rivet Reach environment, homeowner side. It owns the match: every job request that comes in gets paired with …"
+      "summary": "The Homeowner Matcher is the newest member of the Rivet Reach environment, homeowner side. It owns the match: every job request that comes in gets paired with …",
+      "decision": "DECISION: Approved — registered as The Bridge (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
+    },
+    {
+      "file": "draft-new-security-engineer.md",
+      "draftId": "draft-new-security-engineer.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-security-engineer.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "Nov 20, 2026",
+      "summary": "The Information Security Analyst/Engineer is the newest member of the Core and model team. It owns the locks: the owner key that signs approvals, the per-opera…",
+      "decision": "DECISION: Approved — registered as The Seal (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
+    },
+    {
+      "file": "draft-new-systems-engineer.md",
+      "draftId": "draft-new-systems-engineer.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-systems-engineer.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "Nov 20, 2026",
+      "summary": "The Systems/Software Engineer is the newest member of the Core and model team. It owns the code the system runs on: the GALINYX OS shell, the Governance Core c…",
+      "decision": "DECISION: Approved — registered as The Wright (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
     },
     {
       "file": "draft-printify-department-product-setup.md",
@@ -753,6 +970,17 @@
       "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "## Method and limits"
+    },
+    {
+      "file": "draft-prova-names-fifteen-workers.md",
+      "draftId": "draft-prova-names-fifteen-workers.md",
+      "operatorId": "tester-operator",
+      "operatorName": "Prova",
+      "title": "draft-prova-names-fifteen-workers.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "",
+      "summary": "# Draft: Prova names the fifteen new workers"
     },
     {
       "file": "draft-prova-phase3-shell-test.md",
@@ -1306,304 +1534,419 @@
   },
   "audit": [
     {
-      "type": "authorization",
-      "timestamp": "2026-11-19T21:15:47.782Z",
-      "operatorId": "deadlock-operator",
-      "environment": "reverse-wholesaling",
-      "action": "write",
-      "allowed": true,
-      "reason": "Allowed: 'Deadlock' in mode 'Draft-Only' may 'write' in 'reverse-wholesaling'.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 71,
-      "coreVersion": "1.5.0",
-      "prevHash": "911436d8e5ca538b4f616959f48b35c9549f5965c2d2de4fb6d8b3b661226a6b",
-      "entryHash": "f3995d91c85e526d4e098a836f46cac1de193d17a13e2ea1f525eb2d64a41b6d"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T21:15:47.782Z",
-      "operatorId": "deadlock-operator",
-      "environment": "reverse-wholesaling",
-      "action": "publish",
-      "allowed": false,
-      "reason": "Denied: 'Deadlock' in mode 'Draft-Only' may not 'publish'. In mode 'Draft-Only', allowed actions are: read, advise, write.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 70,
-      "coreVersion": "1.5.0",
-      "prevHash": "2024270b6aaf1b3df6d3c8b7f1d4311171f697eed045eb1bf5ca8f4a2e268338",
-      "entryHash": "c4c918d537b8a76a1168942f3a509bdf79d2593db078fa7fbd3fb55ecfc6ba04"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T21:15:47.782Z",
-      "operatorId": "interlock-operator",
-      "environment": "reverse-wholesaling",
-      "action": "write",
-      "allowed": true,
-      "reason": "Allowed: 'Interlock' in mode 'Draft-Only' may 'write' in 'reverse-wholesaling'.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 69,
-      "coreVersion": "1.5.0",
-      "prevHash": "cd87a398f42fe7ff9744b8b97e9e326c2f9f289f1c6040662a8b54096f5e52f0",
-      "entryHash": "afb3a988aa91007ee5e671ea3642cb16d8d506bc8934db1b0b4ba47c97f2104d"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T21:15:47.781Z",
-      "operatorId": "interlock-operator",
-      "environment": "reverse-wholesaling",
-      "action": "publish",
-      "allowed": false,
-      "reason": "Denied: 'Interlock' in mode 'Draft-Only' may not 'publish'. In mode 'Draft-Only', allowed actions are: read, advise, write.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 68,
-      "coreVersion": "1.5.0",
-      "prevHash": "839b50cf17add5e7a0126eb5aef528b715c26245f057780fdb903d874310d8a0",
-      "entryHash": "d4d5bacc17cf7503dfbe68f42cb495575d2103a2c5a6bd0d0a3ded207550f067"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T21:15:47.781Z",
-      "operatorId": "matlock-operator",
-      "environment": "reverse-wholesaling",
-      "action": "write",
-      "allowed": true,
-      "reason": "Allowed: 'Matlock' in mode 'Draft-Only' may 'write' in 'reverse-wholesaling'.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 67,
-      "coreVersion": "1.5.0",
-      "prevHash": "c56dfb27232d2cf5b1da36efaa7462a19f3f0a05099faabc87c3d0b4bdcbde45",
-      "entryHash": "7f89463ef4f251a67731783d6ccb07615a9a6956ed98805c064dc79efcee371c"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T21:15:47.781Z",
-      "operatorId": "matlock-operator",
-      "environment": "reverse-wholesaling",
-      "action": "publish",
-      "allowed": false,
-      "reason": "Denied: 'Matlock' in mode 'Draft-Only' may not 'publish'. In mode 'Draft-Only', allowed actions are: read, advise, write.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 66,
-      "coreVersion": "1.5.0",
-      "prevHash": "041bd2facce467bc035e60073e412f70835a389e01b19495bd8d57fdb65b99c6",
-      "entryHash": "c46e5ee701708755868fbc10e09d940894696ff5057ed6a31c3ab480497d5200"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T21:15:47.781Z",
-      "operatorId": "sherlock-operator",
-      "environment": "reverse-wholesaling",
-      "action": "write",
-      "allowed": true,
-      "reason": "Allowed: 'Sherlock' in mode 'Draft-Only' may 'write' in 'reverse-wholesaling'.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 65,
-      "coreVersion": "1.5.0",
-      "prevHash": "553b6125c32a0d14edacfcfe98fc266c54352ce68b60e7076079afb356beb4cb",
-      "entryHash": "11d1c4d69c8e7c94d1642a1c299d6b9b8d5565eee6f5ed1ab50112209c047195"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T21:15:47.766Z",
-      "operatorId": "sherlock-operator",
-      "environment": "reverse-wholesaling",
-      "action": "publish",
-      "allowed": false,
-      "reason": "Denied: 'Sherlock' in mode 'Draft-Only' may not 'publish'. In mode 'Draft-Only', allowed actions are: read, advise, write.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 64,
-      "coreVersion": "1.5.0",
-      "prevHash": "66cf1a411e93b927d931bc17146b41b4e1553c3c8fa3b6547640c1d6906e8ef3",
-      "entryHash": "106d6f1024c65c4cb160b038c2a1bff952c121f27707e25501deeb3cdc90c23f"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T13:44:02.559Z",
-      "operatorId": "not-a-worker",
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.503Z",
+      "operatorId": "shelf-operator",
       "environment": "blackpine-field",
-      "action": "read",
-      "allowed": false,
-      "reason": "Unknown operator 'not-a-worker'. Access denied.",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Shelf' (shelf-operator) in 'blackpine-field', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
       "authenticated": false,
       "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 61,
-      "coreVersion": "1.4.0"
+      "newOperator": {
+        "id": "shelf-operator",
+        "name": "The Shelf",
+        "environment": "blackpine-field",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 105,
+      "coreVersion": "1.5.0",
+      "prevHash": "eb057109a2892b1e5a1831ce73bc65dae96618c59da371cdbbe86c1c7483df4c",
+      "entryHash": "61014fe2ec5315a39f46fbf3a1ab809d51c195165877aacc2d10080d8e432ed4"
     },
     {
-      "type": "authorization",
-      "timestamp": "2026-11-19T13:44:02.559Z",
-      "operatorId": "tailor-operator",
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.501Z",
+      "operatorId": "keepsake-operator",
+      "environment": "blackpine-field",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Keepsake' (keepsake-operator) in 'blackpine-field', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
+      "authenticated": false,
+      "authKeyId": null,
+      "newOperator": {
+        "id": "keepsake-operator",
+        "name": "The Keepsake",
+        "environment": "blackpine-field",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 104,
+      "coreVersion": "1.5.0",
+      "prevHash": "0a05d1a85c725e9ff5f5b1c24cae6bdcf0d4e3235931b1ba84edb9cb015778c7",
+      "entryHash": "a8ecc71c7fe92a1d28d2894cb153bfe8a7460e5bb16590235e4ac2aa7e92b964"
+    },
+    {
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.500Z",
+      "operatorId": "chase-operator",
+      "environment": "ev-passport",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Chase' (chase-operator) in 'ev-passport', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
+      "authenticated": false,
+      "authKeyId": null,
+      "newOperator": {
+        "id": "chase-operator",
+        "name": "The Chase",
+        "environment": "ev-passport",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 103,
+      "coreVersion": "1.5.0",
+      "prevHash": "16fdd1d404003b45260e780698388d41aff0150b54f0dd2722e3f2bc190de4b7",
+      "entryHash": "7827d9a271ece9206b82ebefcf7171ccf8a29d38935bb170369614566b918ef6"
+    },
+    {
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.497Z",
+      "operatorId": "ledger-operator",
+      "environment": "ev-passport",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Ledger' (ledger-operator) in 'ev-passport', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
+      "authenticated": false,
+      "authKeyId": null,
+      "newOperator": {
+        "id": "ledger-operator",
+        "name": "The Ledger",
+        "environment": "ev-passport",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 102,
+      "coreVersion": "1.5.0",
+      "prevHash": "5b325e17635506121dd19a1ce03b50df4c9194f0ae0cf04fa5be688818f1c11e",
+      "entryHash": "aff52cc7d0c019a1be85016e787df899e4be36b5769681548d4e7312177306e7"
+    },
+    {
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.495Z",
+      "operatorId": "rapport-operator",
+      "environment": "ev-passport",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'Rapport' (rapport-operator) in 'ev-passport', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
+      "authenticated": false,
+      "authKeyId": null,
+      "newOperator": {
+        "id": "rapport-operator",
+        "name": "Rapport",
+        "environment": "ev-passport",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 101,
+      "coreVersion": "1.5.0",
+      "prevHash": "9344f1e25e29a772e386cbc411ea804c1d5aca2aedcc9929d20ecf00c0261bcc",
+      "entryHash": "7832a541e202471355e9787578526a17e4b93d767a54a420d10527e98fef12be"
+    },
+    {
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.493Z",
+      "operatorId": "porch-operator",
       "environment": "rivet-reach",
-      "action": "write",
-      "allowed": false,
-      "reason": "Environment separation: 'The Tailor' is bound to 'blackpine-field' and may not act in 'rivet-reach'. Access denied.",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Porch' (porch-operator) in 'rivet-reach', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
       "authenticated": false,
       "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 60,
-      "coreVersion": "1.4.0"
+      "newOperator": {
+        "id": "porch-operator",
+        "name": "The Porch",
+        "environment": "rivet-reach",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 100,
+      "coreVersion": "1.5.0",
+      "prevHash": "64c1627b0b523109202874a60d6a323e73e56b36997a4c87ca7ce029949076e8",
+      "entryHash": "47793a4fce46c7ce025be0b15e547ed077dd84ecc7a27812b5e780d7135c35ef"
+    },
+    {
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.491Z",
+      "operatorId": "bridge-operator",
+      "environment": "rivet-reach",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Bridge' (bridge-operator) in 'rivet-reach', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
+      "authenticated": false,
+      "authKeyId": null,
+      "newOperator": {
+        "id": "bridge-operator",
+        "name": "The Bridge",
+        "environment": "rivet-reach",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 99,
+      "coreVersion": "1.5.0",
+      "prevHash": "06ec6775e1afe26cac92fe627c9672b05bf405d915a45daffdf67644d44c48bf",
+      "entryHash": "1e8dab47403c19fa9fd6cb246c223071b61649826cd92847c97d1f17d7075a11"
+    },
+    {
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.490Z",
+      "operatorId": "return-operator",
+      "environment": "rivet-reach",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Return' (return-operator) in 'rivet-reach', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
+      "authenticated": false,
+      "authKeyId": null,
+      "newOperator": {
+        "id": "return-operator",
+        "name": "The Return",
+        "environment": "rivet-reach",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 98,
+      "coreVersion": "1.5.0",
+      "prevHash": "4a1ce05114f5543938fade835cc9088e1020dc15edeedca5280063dd5e3d9b5d",
+      "entryHash": "ec0464935123f6f351bba99849ff448d079242050fd5f3b6aa96375755e93a81"
+    },
+    {
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.489Z",
+      "operatorId": "knock-operator",
+      "environment": "rivet-reach",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Knock' (knock-operator) in 'rivet-reach', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
+      "authenticated": false,
+      "authKeyId": null,
+      "newOperator": {
+        "id": "knock-operator",
+        "name": "The Knock",
+        "environment": "rivet-reach",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 97,
+      "coreVersion": "1.5.0",
+      "prevHash": "c673042767ffcfc70679bdff34c1af9f38db51aa435c0947f7f6917034a735a7",
+      "entryHash": "8f1e1a28c6d4e9b010bae08d75095eab25dd94c394103a5a24443b05d8920478"
+    },
+    {
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.487Z",
+      "operatorId": "wright-operator",
+      "environment": "galinyx-workforce",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Wright' (wright-operator) in 'galinyx-workforce', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
+      "authenticated": false,
+      "authKeyId": null,
+      "newOperator": {
+        "id": "wright-operator",
+        "name": "The Wright",
+        "environment": "galinyx-workforce",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 96,
+      "coreVersion": "1.5.0",
+      "prevHash": "06e9264ee3c57f0e2d733c3fd4f19ac9c07e2079921f2fadd33a5042a6ae2b45",
+      "entryHash": "a2c94b006a80fcf6cf3384c4a65397b81dc8368b6b63cd649a270167b012b543"
+    },
+    {
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.486Z",
+      "operatorId": "seal-operator",
+      "environment": "galinyx-workforce",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Seal' (seal-operator) in 'galinyx-workforce', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
+      "authenticated": false,
+      "authKeyId": null,
+      "newOperator": {
+        "id": "seal-operator",
+        "name": "The Seal",
+        "environment": "galinyx-workforce",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 95,
+      "coreVersion": "1.5.0",
+      "prevHash": "698ca5480905817512d3164b6a2fba6aa090f10ac6e239ccec0079f3a7075bc2",
+      "entryHash": "c02004166062de3857c19ba4dae17c77a7760c54da61dd92b7b73502ab928301"
+    },
+    {
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.484Z",
+      "operatorId": "keystone-operator",
+      "environment": "galinyx-workforce",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Keystone' (keystone-operator) in 'galinyx-workforce', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
+      "authenticated": false,
+      "authKeyId": null,
+      "newOperator": {
+        "id": "keystone-operator",
+        "name": "The Keystone",
+        "environment": "galinyx-workforce",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 94,
+      "coreVersion": "1.5.0",
+      "prevHash": "022ad396a05b9f6dbca2a8e6016743c8a99a2e0f94942d32336d3a9357f37a11",
+      "entryHash": "53e0ff9a9f03f89df929043749e749291d752233de06a3a89e522f91c7c83cc8"
+    },
+    {
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.482Z",
+      "operatorId": "curator-operator",
+      "environment": "galinyx-workforce",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Curator' (curator-operator) in 'galinyx-workforce', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
+      "authenticated": false,
+      "authKeyId": null,
+      "newOperator": {
+        "id": "curator-operator",
+        "name": "The Curator",
+        "environment": "galinyx-workforce",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 93,
+      "coreVersion": "1.5.0",
+      "prevHash": "71882518aa55816e0194dc71863e9a285bf0db6ef0cb245767b58042fc69585e",
+      "entryHash": "53a15fd8fbb91458d2da2b7dcaca0bf8a07356594787337b7b814e0d9d548d45"
+    },
+    {
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.480Z",
+      "operatorId": "scout-operator",
+      "environment": "galinyx-workforce",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Scout' (scout-operator) in 'galinyx-workforce', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
+      "authenticated": false,
+      "authKeyId": null,
+      "newOperator": {
+        "id": "scout-operator",
+        "name": "The Scout",
+        "environment": "galinyx-workforce",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 92,
+      "coreVersion": "1.5.0",
+      "prevHash": "50ec951cfea28f5d7d79b88ca4c91b00f8785fb438e587a92fe741a30a2cb81c",
+      "entryHash": "072c4a19a6bc3926c930a79a39b3e7c6a54831a5f95f644333c72a4a2e84fbc5"
+    },
+    {
+      "type": "operator-registration",
+      "timestamp": "2026-11-20T06:22:06.461Z",
+      "operatorId": "forge-operator",
+      "environment": "galinyx-workforce",
+      "action": "operator-registration",
+      "allowed": true,
+      "reason": "Owner 'owner' registered operator 'The Forge' (forge-operator) in 'galinyx-workforce', mode 'draft-only', status 'pending-confirmation'. Approval by identity claim (no owner key registered).",
+      "authenticated": false,
+      "authKeyId": null,
+      "newOperator": {
+        "id": "forge-operator",
+        "name": "The Forge",
+        "environment": "galinyx-workforce",
+        "mode": "draft-only",
+        "status": "pending-confirmation"
+      },
+      "seq": 91,
+      "coreVersion": "1.5.0",
+      "prevHash": "7584f19160d05db43115809e43bd4dc0cf0dcda24c429b7e9a50d165f43a0b87",
+      "entryHash": "d62cc319b4f0118d66fac05d7780a247be5f4b9bd66de7f5f5699a048a04bf37"
     },
     {
       "type": "authorization",
-      "timestamp": "2026-11-19T13:44:02.559Z",
+      "timestamp": "2026-11-20T06:17:30.217Z",
+      "operatorId": "galileo-operator",
+      "environment": "galinyx-workforce",
+      "action": "write",
+      "allowed": true,
+      "reason": "Allowed: 'Galileo Ferraris' in mode 'Full — Except Spend' may 'write' in 'galinyx-workforce'.",
+      "authenticated": false,
+      "authKeyId": null,
+      "authReason": "No proof presented; identity is a claim.",
+      "seq": 90,
+      "coreVersion": "1.5.0",
+      "prevHash": "9baf4b13dc4e6f48a7155c9fed4a2a7c95e77f5edd43959bbbf00f53989777e0",
+      "entryHash": "71f144006784537bc15e05f889883d78843ebd5f2b7a2084e71d133ce3eccf9f"
+    },
+    {
+      "type": "authorization",
+      "timestamp": "2026-11-20T06:17:30.216Z",
+      "operatorId": "galileo-operator",
+      "environment": "galinyx-workforce",
+      "action": "spend",
+      "allowed": false,
+      "reason": "Denied: 'Galileo Ferraris' in mode 'Full — Except Spend' may not 'spend'. In mode 'Full — Except Spend', allowed actions are: read, advise, publish, write.",
+      "authenticated": false,
+      "authKeyId": null,
+      "authReason": "No proof presented; identity is a claim.",
+      "seq": 89,
+      "coreVersion": "1.5.0",
+      "prevHash": "c5e2c3001ec23a996521fc2a49f389d9a9427a0f62762e66a68f185a936a8692",
+      "entryHash": "3e14333f7bb18a480c775639562e8b12f64e764d1acbe4bc276c281d64e2ae89"
+    },
+    {
+      "type": "authorization",
+      "timestamp": "2026-11-20T06:17:30.216Z",
+      "operatorId": "galileo-operator",
+      "environment": "galinyx-workforce",
+      "action": "publish",
+      "allowed": true,
+      "reason": "Allowed: 'Galileo Ferraris' in mode 'Full — Except Spend' may 'publish' in 'galinyx-workforce'.",
+      "authenticated": false,
+      "authKeyId": null,
+      "authReason": "No proof presented; identity is a claim.",
+      "seq": 88,
+      "coreVersion": "1.5.0",
+      "prevHash": "78cd21cf665bfd70e9f4631c14040b5f8077017c4786cbe6c9d22daca6201b1c",
+      "entryHash": "947585570bda24e3641d64b434599ed44b5230c63e02172f927a5b127cfa3b91"
+    },
+    {
+      "type": "authorization",
+      "timestamp": "2026-11-20T06:17:30.216Z",
+      "operatorId": "galileo-operator",
+      "environment": "galinyx-workforce",
+      "action": "advise",
+      "allowed": true,
+      "reason": "Allowed: 'Galileo Ferraris' in mode 'Full — Except Spend' may 'advise' in 'galinyx-workforce'.",
+      "authenticated": false,
+      "authKeyId": null,
+      "authReason": "No proof presented; identity is a claim.",
+      "seq": 87,
+      "coreVersion": "1.5.0",
+      "prevHash": "dc1e6298c55cbffbc809881d5160fff8bd868caa5174b5d2c909643de3d4edf0",
+      "entryHash": "8731a4fbdbda807e80706de9213099729d8755a547baa2907bbd3eca8b78d58a"
+    },
+    {
+      "type": "authorization",
+      "timestamp": "2026-11-20T06:17:30.216Z",
       "operatorId": "galileo-operator",
       "environment": "galinyx-workforce",
       "action": "read",
       "allowed": true,
-      "reason": "Allowed: 'Galileo Ferraris' in mode 'Draft-Only' may 'read' in 'galinyx-workforce'.",
+      "reason": "Allowed: 'Galileo Ferraris' in mode 'Full — Except Spend' may 'read' in 'galinyx-workforce'.",
       "authenticated": false,
       "authKeyId": null,
       "authReason": "No proof presented; identity is a claim.",
-      "seq": 59,
-      "coreVersion": "1.4.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T13:44:02.559Z",
-      "operatorId": "blackpine-operator",
-      "environment": "blackpine-field",
-      "action": "spend",
-      "allowed": false,
-      "reason": "Denied: 'Blackpine Operator' in mode 'Draft-Only' may not 'spend'. Read-only advisory mode allows observe and advise only.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 58,
-      "coreVersion": "1.4.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T13:44:02.559Z",
-      "operatorId": "tailor-operator",
-      "environment": "blackpine-field",
-      "action": "write",
-      "allowed": true,
-      "reason": "Allowed: 'The Tailor' in mode 'Draft-Only' may 'write' in 'blackpine-field'.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 57,
-      "coreVersion": "1.4.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T13:44:02.557Z",
-      "operatorId": "tailor-operator",
-      "environment": "blackpine-field",
-      "action": "publish",
-      "allowed": false,
-      "reason": "Denied: 'The Tailor' in mode 'Draft-Only' may not 'publish'. Read-only advisory mode allows observe and advise only.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 56,
-      "coreVersion": "1.4.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T13:43:56.491Z",
-      "operatorId": "not-a-worker",
-      "environment": "read",
-      "action": "undefined",
-      "allowed": false,
-      "reason": "Invalid input: operator, environment, and action must be non-empty ID strings. Access denied.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 55,
-      "coreVersion": "1.4.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T13:43:56.491Z",
-      "operatorId": "galileo-operator",
-      "environment": "read",
-      "action": "undefined",
-      "allowed": false,
-      "reason": "Invalid input: operator, environment, and action must be non-empty ID strings. Access denied.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 54,
-      "coreVersion": "1.4.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T13:43:56.491Z",
-      "operatorId": "blackpine-operator",
-      "environment": "spend",
-      "action": "undefined",
-      "allowed": false,
-      "reason": "Invalid input: operator, environment, and action must be non-empty ID strings. Access denied.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 53,
-      "coreVersion": "1.4.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T13:43:56.491Z",
-      "operatorId": "tailor-operator",
-      "environment": "write",
-      "action": "undefined",
-      "allowed": false,
-      "reason": "Invalid input: operator, environment, and action must be non-empty ID strings. Access denied.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 52,
-      "coreVersion": "1.4.0"
-    },
-    {
-      "type": "authorization",
-      "timestamp": "2026-11-19T13:43:56.489Z",
-      "operatorId": "tailor-operator",
-      "environment": "publish",
-      "action": "undefined",
-      "allowed": false,
-      "reason": "Invalid input: operator, environment, and action must be non-empty ID strings. Access denied.",
-      "authenticated": false,
-      "authKeyId": null,
-      "authReason": "No proof presented; identity is a claim.",
-      "seq": 51,
-      "coreVersion": "1.4.0"
-    },
-    {
-      "type": "owner-authorization",
-      "timestamp": "2026-11-19T13:19:38.263050Z",
-      "operatorId": "tailor-operator",
-      "environment": "blackpine-field",
-      "action": "authorize-draft-work",
-      "allowed": true,
-      "reason": "Owner 'owner' authorized The Tailor to mock up 10 different BLACKPINE tee designs (voice call 2026-11-19 ~08:17 ET). Drafts to staging; owner approval required before anything goes live, publishes, or spends.",
-      "authorizationId": "d67d3398-b85a-41f9-b5a4-4025df8bc4ec",
-      "scope": "10 BLACKPINE tee design mockups, drafts only",
-      "seq": 50,
-      "coreVersion": "1.3.0"
+      "seq": 86,
+      "coreVersion": "1.5.0",
+      "prevHash": "e84bbf3b07405002b067f39ca9922b37f87fc16c76aba70673ae8a1c676b475b",
+      "entryHash": "d59ce0e4970a53dbc2cf7ec5fc60e7d652d6ba6e7f74fd17890227c9cd080bf1"
     }
   ],
   "auditStats": {
-    "inMemoryEntries": 69,
-    "lastSeq": 82,
+    "inMemoryEntries": 91,
+    "lastSeq": 105,
     "persistFailures": 0
   }
 }

@@ -1,4 +1,5 @@
 DRAFT — NOT PUBLISHED. Staging only.
+Status: approved by the owner 2026-11-20 ~01:20 ET (audit seq 85) — registered as The Shelf (draft-only)
 Written by: Governance Core — new-operator announcement, ordered by the owner
 Date: Nov 19, 2026
 Status: in staging
@@ -19,3 +20,6 @@ The Blackpine Operator runs the store. The Catalog Worker keeps the shelf true. 
 Draft-only, like every operator. It may draft catalog changes to staging; it may not publish one. Every change waits for the owner's approval. It never uses the dead tagline or the dead subline, and it never promises anything the product cannot stand behind.
 
 The name is the owner's call. "Catalog Worker" is the role, not the name.
+
+---
+DECISION: Approved — registered as The Shelf (draft-only) by owner order Nov 20, 2026 ("I say go").

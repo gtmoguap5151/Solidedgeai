@@ -1,4 +1,5 @@
 DRAFT — NOT PUBLISHED. Staging only.
+Status: approved by the owner 2026-11-20 ~01:20 ET (audit seq 85) — registered as Rapport (draft-only)
 Written by: Governance Core — new-operator announcement, ordered by the owner
 Date: Nov 19, 2026
 Status: in staging
@@ -17,3 +18,6 @@ Rapport is the first member of the EV Station Record Passport environment. It ow
 It works the same way the rest of the system works: written-only outreach, plain words, no promises it can't keep. It never says the Passport is a certification or an inspection — it is a record, built remotely from documents. It never mentions tax credits. It never quotes a price, because no price is on file.
 
 Draft-only, like every operator. It may draft to staging; it may not publish or send. Every outreach draft waits for the owner's approval.
+
+---
+DECISION: Approved — registered as Rapport (draft-only) by owner order Nov 20, 2026 ("I say go").
