@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T14:42:44.463Z",
+  "generatedAt": "2026-11-20T14:56:36.485Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -1106,6 +1106,18 @@
       "decision": "DECISION NEEDED FROM MATT (one word, either way):"
     },
     {
+      "file": "draft-tailor-app-logo-redesign.md",
+      "draftId": "draft-tailor-app-logo-redesign.md",
+      "operatorId": "tailor-operator",
+      "operatorName": "The Tailor",
+      "title": "draft-tailor-app-logo-redesign.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "Nov 20, 2026",
+      "summary": "Photo: ~/workspace/brand-logos/rivet-reach/redesign/rr-contact-sheet.png",
+      "image": "~/workspace/brand-logos/rivet-reach/redesign/rr-contact-sheet.png"
+    },
+    {
       "file": "draft-tailor-design-01.md",
       "draftId": "draft-tailor-design-01.md",
       "operatorId": "tailor-operator",
@@ -2047,7 +2059,7 @@
   ],
   "auditStats": {
     "inMemoryEntries": 91,
-    "lastSeq": 110,
+    "lastSeq": 114,
     "persistFailures": 0
   }
 }
