@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T06:25:06.228Z",
+  "generatedAt": "2026-11-20T06:45:57.481Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -1003,6 +1003,17 @@
       "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "# Refreshed Next Contractor Wave — Rivet Reach"
+    },
+    {
+      "file": "draft-scout-franklin-new-ventures.md",
+      "draftId": "draft-scout-franklin-new-ventures.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-scout-franklin-new-ventures.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "## 1. Grant writing for small churches and nonprofits"
     },
     {
       "file": "draft-sherlock-jacksonville-leads.md",
