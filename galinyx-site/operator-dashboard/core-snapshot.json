@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T22:58:07.968Z",
+  "generatedAt": "2026-11-20T02:24:00.281Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -304,6 +304,17 @@
       "summary": "## Draft 1 — Black Friday deals shelf (top of the store, this week)"
     },
     {
+      "file": "draft-catalog-worker-christmas-childrens-price-buttons.md",
+      "draftId": "draft-catalog-worker-christmas-childrens-price-buttons.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-catalog-worker-christmas-childrens-price-buttons.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "Nov 19, 2026",
+      "summary": "## The 13 buttons"
+    },
+    {
       "file": "draft-closer-visitor-to-sale.md",
       "draftId": "draft-closer-visitor-to-sale.md",
       "operatorId": "",
@@ -557,6 +568,17 @@
       "summary": "I name her Prova."
     },
     {
+      "file": "draft-new-catalog-worker.md",
+      "draftId": "draft-new-catalog-worker.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-catalog-worker.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "Nov 19, 2026",
+      "summary": "The Catalog Worker is the newest member of the Blackpine Field environment. It owns the store catalog: every card on blackpinefield.com — what is listed, what …"
+    },
+    {
       "file": "draft-new-customer-care-worker.md",
       "draftId": "draft-new-customer-care-worker.md",
       "operatorId": "",
@@ -577,6 +599,17 @@
       "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "The Listings Worker is the newest member of the Apparel & Sales department. It owns the product listings: the titles, the descriptions, and the mockup placemen…"
+    },
+    {
+      "file": "draft-new-novelty-designer.md",
+      "draftId": "draft-new-novelty-designer.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-novelty-designer.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "Nov 19, 2026",
+      "summary": "The Novelty Designer is the newest member of the Blackpine Field environment. It owns the gift table: shot glass sets, mugs, decals, patches, and other small g…"
     },
     {
       "file": "draft-new-orders-worker.md",
@@ -1493,7 +1526,7 @@
   ],
   "auditStats": {
     "inMemoryEntries": 69,
-    "lastSeq": 74,
+    "lastSeq": 75,
     "persistFailures": 0
   }
 }
