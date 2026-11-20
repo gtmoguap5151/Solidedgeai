@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T14:56:36.485Z",
+  "generatedAt": "2026-11-20T17:30:09.482Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -321,6 +321,70 @@
       "mode": "draft-only",
       "status": "pending-confirmation",
       "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "intake-operator",
+      "name": "The Intake",
+      "environment": "civil-law",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "setter-operator",
+      "name": "The Setter",
+      "environment": "civil-law",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "chaser-operator",
+      "name": "The Chaser",
+      "environment": "civil-law",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "drafter-operator",
+      "name": "The Drafter",
+      "environment": "civil-law",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "keeper-of-dates-operator",
+      "name": "The Keeper of Dates",
+      "environment": "civil-law",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "ledger-hand-operator",
+      "name": "The Ledger Hand",
+      "environment": "civil-law",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "client-voice-operator",
+      "name": "The Client Voice",
+      "environment": "civil-law",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "file-keeper-operator",
+      "name": "The File Keeper",
+      "environment": "civil-law",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
     }
   ],
   "environments": [
@@ -348,6 +412,11 @@
       "id": "ev-passport",
       "label": "EV Station Record Passport",
       "kind": "records"
+    },
+    {
+      "id": "civil-law",
+      "label": "Civil Law Firm",
+      "kind": "law firm"
     }
   ],
   "modes": {
@@ -516,6 +585,17 @@
       "date": "Nov 20, 2026",
       "summary": "Photo: ~/workspace/blackpine-field/brand/storefront/storefront-a-luxury-editorial.png",
       "image": "~/workspace/blackpine-field/brand/storefront/storefront-a-luxury-editorial.png"
+    },
+    {
+      "file": "draft-council-five-picks.md",
+      "draftId": "draft-council-five-picks.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-council-five-picks.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "# Draft — Each Council Member Chooses Five Workers"
     },
     {
       "file": "draft-deadlock-d001-paperwork-checklist.md",
@@ -1070,6 +1150,17 @@
       "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "# Refreshed Next Contractor Wave — Rivet Reach"
+    },
+    {
+      "file": "draft-scout-civil-law-firm-package.md",
+      "draftId": "draft-scout-civil-law-firm-package.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-scout-civil-law-firm-package.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "2026-11-20",
+      "summary": "# Draft — Civil Law Firm Workforce Package (GALINYX, first industry)"
     },
     {
       "file": "draft-scout-franklin-new-ventures.md",
@@ -2059,7 +2150,7 @@
   ],
   "auditStats": {
     "inMemoryEntries": 91,
-    "lastSeq": 114,
+    "lastSeq": 126,
     "persistFailures": 0
   }
 }

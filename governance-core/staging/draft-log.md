@@ -13,7 +13,7 @@ the owner's authority, with a record for every draft. The package
 itself is ON HOLD until the system proves itself (owner's order,
 Nov 19, 2026) — this log is the evidence being gathered in the meantime.
 
-**Drafts on file:** 101 · **Last updated:** 2026-11-20 14:56 UTC · **Next update:** 2026-11-20 22:56 UTC · **Updates every 8 hours** · **Core:** v1.5.0
+**Drafts on file:** 103 · **Last updated:** 2026-11-20 17:30 UTC · **Next update:** 2026-11-21 01:30 UTC · **Updates every 8 hours** · **Core:** v1.5.0
 
 Status comes from each draft file's own header: an explicit `Status:`
 line, a `DECISION` line, or a first-line banner. Anything without an
@@ -60,6 +60,12 @@ the row (and the draft file's header) when it is decided.
 | `draft-content-operator-bf-deal-images.md` | 2026-11-20 | Staged — pending review | Black Friday Deal Pictures — Every Deal Gets One |
 | `draft-content-operator-marketing-gap.md` | 2026-11-20 | Approved | Close the Marketing Gap — What Moves, What Doesn't, and What We Push Next |
 | `draft-content-operator-storefront-redesign.md` | 2026-11-20 | Approved | In plain English |
+
+## council-five (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-council-five-picks.md` | 2026-11-20 | Staged — pending review | Draft — Each Council Member Chooses Five Workers |
 
 ## customer-care (1)
 
@@ -274,6 +280,12 @@ the row (and the draft file's header) when it is decided.
 | `draft-new-rivet-reach-contractor-recruiter.md` | 2026-11-20 | Approved | In plain English |
 | `draft-new-rivet-reach-homeowner-followup.md` | 2026-11-20 | Approved | In plain English |
 | `draft-new-rivet-reach-homeowner-matcher.md` | 2026-11-20 | Approved | In plain English |
+
+## scout-civil (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-scout-civil-law-firm-package.md` | 2026-11-20 | Approved | Draft — Civil Law Firm Workforce Package (GALINYX, first industry) |
 
 ## scout-franklin (1)
 

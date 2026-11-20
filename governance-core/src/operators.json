@@ -1,413 +1,482 @@
 {
-  "actions": [
-    "read",
-    "advise",
-    "publish",
-    "spend",
-    "write"
-  ],
-  "company": "GALINYX",
-  "environments": [
-    {
-      "id": "blackpine-field",
-      "kind": "storefront",
-      "label": "Blackpine Field"
-    },
-    {
-      "id": "rivet-reach",
-      "kind": "lead generation",
-      "label": "Rivet Reach"
-    },
-    {
-      "id": "galinyx-workforce",
-      "kind": "workforce",
-      "label": "GALINYX Workforce"
-    },
-    {
-      "id": "reverse-wholesaling",
-      "kind": "real estate",
-      "label": "Reverse Wholesaling"
-    },
-    {
-      "id": "ev-passport",
-      "kind": "records",
-      "label": "EV Station Record Passport"
-    }
-  ],
-  "governanceCore": "Authority, policies, permissions, oversight",
-  "modes": {
-    "draft-only": {
-      "description": "May observe, advise, and write drafts to a staging queue. May not publish, spend, or change anything live.",
-      "label": "Draft-Only",
-      "permissions": {
-        "advise": true,
-        "publish": false,
-        "read": true,
-        "spend": false,
-        "write": true
-      }
-    },
-    "full-except-spend": {
-      "description": "May read, advise, publish, and change things live. May never spend. One-week trial ordered by the owner Nov 20, 2026; ends Nov 27, 2026.",
-      "label": "Full — Except Spend",
-      "permissions": {
-        "advise": true,
-        "publish": true,
-        "read": true,
-        "spend": false,
-        "write": true
-      }
-    },
-    "not-deployed": {
-      "description": "Registered but not deployed. No access of any kind.",
-      "label": "Not Deployed",
-      "permissions": {
-        "advise": false,
-        "publish": false,
-        "read": false,
-        "spend": false,
-        "write": false
-      }
-    },
-    "read-only-advisory": {
-      "description": "May observe and advise. May not change anything.",
-      "label": "Read-Only Advisory",
-      "permissions": {
-        "advise": true,
-        "publish": false,
-        "read": true,
-        "spend": false,
-        "write": false
-      }
-    }
+ "actions": [
+  "read",
+  "advise",
+  "publish",
+  "spend",
+  "write"
+ ],
+ "company": "GALINYX",
+ "environments": [
+  {
+   "id": "blackpine-field",
+   "kind": "storefront",
+   "label": "Blackpine Field"
   },
-  "operators": [
-    {
-      "environment": "blackpine-field",
-      "id": "blackpine-operator",
-      "mode": "draft-only",
-      "name": "Blackpine Operator",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 17, 2026 (owner-approved). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "rivet-reach",
-      "id": "rivet-reach-operator",
-      "mode": "draft-only",
-      "name": "Rivet Reach Operator",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 17, 2026, on the owner's confirmation. May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "affiliate-operator",
-      "mode": "draft-only",
-      "name": "Affiliate Operator",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved mode change from read-only-advisory). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "black-friday-operator",
-      "mode": "draft-only",
-      "name": "Black Friday Operator",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved mode change from read-only-advisory). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "content-operator",
-      "mode": "draft-only",
-      "name": "Content Operator",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved mode change from read-only-advisory). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "galinyx-workforce",
-      "id": "galileo-operator",
-      "mode": "full-except-spend",
-      "name": "Galileo Ferraris",
-      "status": "deployed-unproven",
-      "statusNote": "Full permission except spend — one-week trial ordered by the owner Nov 20, 2026 (ends Nov 27, 2026). May read, advise, publish, and change things live; may never spend. Trial to see how he takes the responsibility."
-    },
-    {
-      "environment": "galinyx-workforce",
-      "id": "finance-brother-operator",
-      "mode": "draft-only",
-      "name": "Adamo — Finance Brother",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable. Named by Galileo Ferraris, Nov 18, 2026."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "tailor-operator",
-      "mode": "draft-only",
-      "name": "The Tailor",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). Full scope of work: he may draft anything for Blackpine Field. Nothing he drafts goes live, publishes, or spends without the owner's approval per action (owner's rule, Nov 18, 2026). Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "closer-operator",
-      "mode": "draft-only",
-      "name": "The Closer",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "rivet-reach",
-      "id": "homeowner-operator",
-      "mode": "draft-only",
-      "name": "The Hearth",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "partnerships-operator",
-      "mode": "draft-only",
-      "name": "The Handshake",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "deal-checker-operator",
-      "mode": "draft-only",
-      "name": "The Proof",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "performance-operator",
-      "mode": "draft-only",
-      "name": "The Mirror",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "galinyx-workforce",
-      "id": "tester-operator",
-      "mode": "draft-only",
-      "name": "Prova",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "supplier-operator",
-      "mode": "draft-only",
-      "name": "The Shuttle",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "listings-operator",
-      "mode": "draft-only",
-      "name": "Listings Worker",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "product-promotion-operator",
-      "mode": "draft-only",
-      "name": "Product Promotion Worker",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "orders-operator",
-      "mode": "draft-only",
-      "name": "Orders Worker",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "customer-care-operator",
-      "mode": "draft-only",
-      "name": "Customer Care Worker",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable. Hard rule: never promises refunds — all sales are final."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "pricing-promotions-operator",
-      "mode": "draft-only",
-      "name": "Pricing & Promotions Worker",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "blackpine-field",
-      "id": "repeat-buyer-operator",
-      "mode": "draft-only",
-      "name": "Repeat Buyer Worker",
-      "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "reverse-wholesaling",
-      "id": "sherlock-operator",
-      "mode": "draft-only",
-      "name": "Sherlock",
-      "status": "deployed-unproven",
-      "statusNote": "Lead finder. Named by Matt Nov 19, 2026 (voice call). Draft-only: may draft anything for reverse wholesaling. Nothing he drafts is sent, contacted, signed, or spent without the owner's approval per action (owner's rule, Nov 18, 2026). Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "reverse-wholesaling",
-      "id": "matlock-operator",
-      "mode": "draft-only",
-      "name": "Matlock",
-      "status": "deployed-unproven",
-      "statusNote": "Verifier — checks county records, liens, and case status. Named by Matt Nov 19, 2026 (voice call). Draft-only: may draft anything for reverse wholesaling. Nothing he drafts is sent, contacted, signed, or spent without the owner's approval per action (owner's rule, Nov 18, 2026). Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "reverse-wholesaling",
-      "id": "interlock-operator",
-      "mode": "draft-only",
-      "name": "Interlock",
-      "status": "deployed-unproven",
-      "statusNote": "Matcher — matches verified deals to cash buyers. Named by Matt Nov 19, 2026 (voice call). Draft-only: may draft anything for reverse wholesaling. Nothing he drafts is sent, contacted, signed, or spent without the owner's approval per action (owner's rule, Nov 18, 2026). Its analysis has not yet been proven reliable."
-    },
-    {
-      "environment": "reverse-wholesaling",
-      "id": "deadlock-operator",
-      "mode": "draft-only",
-      "name": "Deadlock",
-      "status": "deployed-unproven",
-      "statusNote": "Paperwork worker — drafts assignment contracts and deal sheets. Named by Matt Nov 19, 2026 (voice call). Draft-only: may draft anything for reverse wholesaling. Nothing he drafts is sent, contacted, signed, or spent without the owner's approval per action (owner's rule, Nov 18, 2026). Its analysis has not yet been proven reliable."
-    },
-    {
-      "id": "forge-operator",
-      "name": "The Forge",
-      "environment": "galinyx-workforce",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "scout-operator",
-      "name": "The Scout",
-      "environment": "galinyx-workforce",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "curator-operator",
-      "name": "The Curator",
-      "environment": "galinyx-workforce",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "keystone-operator",
-      "name": "The Keystone",
-      "environment": "galinyx-workforce",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "seal-operator",
-      "name": "The Seal",
-      "environment": "galinyx-workforce",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "wright-operator",
-      "name": "The Wright",
-      "environment": "galinyx-workforce",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "knock-operator",
-      "name": "The Knock",
-      "environment": "rivet-reach",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "return-operator",
-      "name": "The Return",
-      "environment": "rivet-reach",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "bridge-operator",
-      "name": "The Bridge",
-      "environment": "rivet-reach",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "porch-operator",
-      "name": "The Porch",
-      "environment": "rivet-reach",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "rapport-operator",
-      "name": "Rapport",
-      "environment": "ev-passport",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "ledger-operator",
-      "name": "The Ledger",
-      "environment": "ev-passport",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "chase-operator",
-      "name": "The Chase",
-      "environment": "ev-passport",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "keepsake-operator",
-      "name": "The Keepsake",
-      "environment": "blackpine-field",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    },
-    {
-      "id": "shelf-operator",
-      "name": "The Shelf",
-      "environment": "blackpine-field",
-      "mode": "draft-only",
-      "status": "pending-confirmation",
-      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
-    }
-  ],
-  "platform": "GALINYX OS",
-  "rules": [
-    "Each operator is bound to exactly one environment. No cross-environment access.",
-    "An operator may only perform actions its current mode allows.",
-    "Every authorization decision is recorded in an append-only audit log.",
-    "A mode change is never self-approved. A request is recorded as pending; only the owner can approve it."
-  ]
+  {
+   "id": "rivet-reach",
+   "kind": "lead generation",
+   "label": "Rivet Reach"
+  },
+  {
+   "id": "galinyx-workforce",
+   "kind": "workforce",
+   "label": "GALINYX Workforce"
+  },
+  {
+   "id": "reverse-wholesaling",
+   "kind": "real estate",
+   "label": "Reverse Wholesaling"
+  },
+  {
+   "id": "ev-passport",
+   "kind": "records",
+   "label": "EV Station Record Passport"
+  },
+  {
+   "id": "civil-law",
+   "kind": "law firm",
+   "label": "Civil Law Firm"
+  }
+ ],
+ "governanceCore": "Authority, policies, permissions, oversight",
+ "modes": {
+  "draft-only": {
+   "description": "May observe, advise, and write drafts to a staging queue. May not publish, spend, or change anything live.",
+   "label": "Draft-Only",
+   "permissions": {
+    "advise": true,
+    "publish": false,
+    "read": true,
+    "spend": false,
+    "write": true
+   }
+  },
+  "full-except-spend": {
+   "description": "May read, advise, publish, and change things live. May never spend. One-week trial ordered by the owner Nov 20, 2026; ends Nov 27, 2026.",
+   "label": "Full \u2014 Except Spend",
+   "permissions": {
+    "advise": true,
+    "publish": true,
+    "read": true,
+    "spend": false,
+    "write": true
+   }
+  },
+  "not-deployed": {
+   "description": "Registered but not deployed. No access of any kind.",
+   "label": "Not Deployed",
+   "permissions": {
+    "advise": false,
+    "publish": false,
+    "read": false,
+    "spend": false,
+    "write": false
+   }
+  },
+  "read-only-advisory": {
+   "description": "May observe and advise. May not change anything.",
+   "label": "Read-Only Advisory",
+   "permissions": {
+    "advise": true,
+    "publish": false,
+    "read": true,
+    "spend": false,
+    "write": false
+   }
+  }
+ },
+ "operators": [
+  {
+   "environment": "blackpine-field",
+   "id": "blackpine-operator",
+   "mode": "draft-only",
+   "name": "Blackpine Operator",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 17, 2026 (owner-approved). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "rivet-reach",
+   "id": "rivet-reach-operator",
+   "mode": "draft-only",
+   "name": "Rivet Reach Operator",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 17, 2026, on the owner's confirmation. May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "affiliate-operator",
+   "mode": "draft-only",
+   "name": "Affiliate Operator",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved mode change from read-only-advisory). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "black-friday-operator",
+   "mode": "draft-only",
+   "name": "Black Friday Operator",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved mode change from read-only-advisory). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "content-operator",
+   "mode": "draft-only",
+   "name": "Content Operator",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved mode change from read-only-advisory). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "galinyx-workforce",
+   "id": "galileo-operator",
+   "mode": "full-except-spend",
+   "name": "Galileo Ferraris",
+   "status": "deployed-unproven",
+   "statusNote": "Full permission except spend \u2014 one-week trial ordered by the owner Nov 20, 2026 (ends Nov 27, 2026). May read, advise, publish, and change things live; may never spend. Trial to see how he takes the responsibility."
+  },
+  {
+   "environment": "galinyx-workforce",
+   "id": "finance-brother-operator",
+   "mode": "draft-only",
+   "name": "Adamo \u2014 Finance Brother",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable. Named by Galileo Ferraris, Nov 18, 2026."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "tailor-operator",
+   "mode": "draft-only",
+   "name": "The Tailor",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). Full scope of work: he may draft anything for Blackpine Field. Nothing he drafts goes live, publishes, or spends without the owner's approval per action (owner's rule, Nov 18, 2026). Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "closer-operator",
+   "mode": "draft-only",
+   "name": "The Closer",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "rivet-reach",
+   "id": "homeowner-operator",
+   "mode": "draft-only",
+   "name": "The Hearth",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "partnerships-operator",
+   "mode": "draft-only",
+   "name": "The Handshake",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "deal-checker-operator",
+   "mode": "draft-only",
+   "name": "The Proof",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "performance-operator",
+   "mode": "draft-only",
+   "name": "The Mirror",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "galinyx-workforce",
+   "id": "tester-operator",
+   "mode": "draft-only",
+   "name": "Prova",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "supplier-operator",
+   "mode": "draft-only",
+   "name": "The Shuttle",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "listings-operator",
+   "mode": "draft-only",
+   "name": "Listings Worker",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "product-promotion-operator",
+   "mode": "draft-only",
+   "name": "Product Promotion Worker",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "orders-operator",
+   "mode": "draft-only",
+   "name": "Orders Worker",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "customer-care-operator",
+   "mode": "draft-only",
+   "name": "Customer Care Worker",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable. Hard rule: never promises refunds \u2014 all sales are final."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "pricing-promotions-operator",
+   "mode": "draft-only",
+   "name": "Pricing & Promotions Worker",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "blackpine-field",
+   "id": "repeat-buyer-operator",
+   "mode": "draft-only",
+   "name": "Repeat Buyer Worker",
+   "status": "deployed-unproven",
+   "statusNote": "Draft-only mode since Nov 19, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "reverse-wholesaling",
+   "id": "sherlock-operator",
+   "mode": "draft-only",
+   "name": "Sherlock",
+   "status": "deployed-unproven",
+   "statusNote": "Lead finder. Named by Matt Nov 19, 2026 (voice call). Draft-only: may draft anything for reverse wholesaling. Nothing he drafts is sent, contacted, signed, or spent without the owner's approval per action (owner's rule, Nov 18, 2026). Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "reverse-wholesaling",
+   "id": "matlock-operator",
+   "mode": "draft-only",
+   "name": "Matlock",
+   "status": "deployed-unproven",
+   "statusNote": "Verifier \u2014 checks county records, liens, and case status. Named by Matt Nov 19, 2026 (voice call). Draft-only: may draft anything for reverse wholesaling. Nothing he drafts is sent, contacted, signed, or spent without the owner's approval per action (owner's rule, Nov 18, 2026). Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "reverse-wholesaling",
+   "id": "interlock-operator",
+   "mode": "draft-only",
+   "name": "Interlock",
+   "status": "deployed-unproven",
+   "statusNote": "Matcher \u2014 matches verified deals to cash buyers. Named by Matt Nov 19, 2026 (voice call). Draft-only: may draft anything for reverse wholesaling. Nothing he drafts is sent, contacted, signed, or spent without the owner's approval per action (owner's rule, Nov 18, 2026). Its analysis has not yet been proven reliable."
+  },
+  {
+   "environment": "reverse-wholesaling",
+   "id": "deadlock-operator",
+   "mode": "draft-only",
+   "name": "Deadlock",
+   "status": "deployed-unproven",
+   "statusNote": "Paperwork worker \u2014 drafts assignment contracts and deal sheets. Named by Matt Nov 19, 2026 (voice call). Draft-only: may draft anything for reverse wholesaling. Nothing he drafts is sent, contacted, signed, or spent without the owner's approval per action (owner's rule, Nov 18, 2026). Its analysis has not yet been proven reliable."
+  },
+  {
+   "id": "forge-operator",
+   "name": "The Forge",
+   "environment": "galinyx-workforce",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "scout-operator",
+   "name": "The Scout",
+   "environment": "galinyx-workforce",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "curator-operator",
+   "name": "The Curator",
+   "environment": "galinyx-workforce",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "keystone-operator",
+   "name": "The Keystone",
+   "environment": "galinyx-workforce",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "seal-operator",
+   "name": "The Seal",
+   "environment": "galinyx-workforce",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "wright-operator",
+   "name": "The Wright",
+   "environment": "galinyx-workforce",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "knock-operator",
+   "name": "The Knock",
+   "environment": "rivet-reach",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "return-operator",
+   "name": "The Return",
+   "environment": "rivet-reach",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "bridge-operator",
+   "name": "The Bridge",
+   "environment": "rivet-reach",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "porch-operator",
+   "name": "The Porch",
+   "environment": "rivet-reach",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "rapport-operator",
+   "name": "Rapport",
+   "environment": "ev-passport",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "ledger-operator",
+   "name": "The Ledger",
+   "environment": "ev-passport",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "chase-operator",
+   "name": "The Chase",
+   "environment": "ev-passport",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "keepsake-operator",
+   "name": "The Keepsake",
+   "environment": "blackpine-field",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "shelf-operator",
+   "name": "The Shelf",
+   "environment": "blackpine-field",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "intake-operator",
+   "name": "The Intake",
+   "environment": "civil-law",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "setter-operator",
+   "name": "The Setter",
+   "environment": "civil-law",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "chaser-operator",
+   "name": "The Chaser",
+   "environment": "civil-law",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "drafter-operator",
+   "name": "The Drafter",
+   "environment": "civil-law",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "keeper-of-dates-operator",
+   "name": "The Keeper of Dates",
+   "environment": "civil-law",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "ledger-hand-operator",
+   "name": "The Ledger Hand",
+   "environment": "civil-law",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "client-voice-operator",
+   "name": "The Client Voice",
+   "environment": "civil-law",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  },
+  {
+   "id": "file-keeper-operator",
+   "name": "The File Keeper",
+   "environment": "civil-law",
+   "mode": "draft-only",
+   "status": "pending-confirmation",
+   "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+  }
+ ],
+ "platform": "GALINYX OS",
+ "rules": [
+  "Each operator is bound to exactly one environment. No cross-environment access.",
+  "An operator may only perform actions its current mode allows.",
+  "Every authorization decision is recorded in an append-only audit log.",
+  "A mode change is never self-approved. A request is recorded as pending; only the owner can approve it."
+ ]
 }
