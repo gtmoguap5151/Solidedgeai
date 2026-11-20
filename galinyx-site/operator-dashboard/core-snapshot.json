@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T06:51:44.393Z",
+  "generatedAt": "2026-11-20T07:05:41.683Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -438,6 +438,17 @@
       "decisionStatus": "approved",
       "date": "Nov 19, 2026",
       "summary": "## Draft 1 — Black Friday deals shelf (top of the store, this week)"
+    },
+    {
+      "file": "draft-catalog-worker-cheap-stocking-stuffers.md",
+      "draftId": "draft-catalog-worker-cheap-stocking-stuffers.md",
+      "operatorId": "catalog-operator",
+      "operatorName": "Catalog Worker",
+      "title": "draft-catalog-worker-cheap-stocking-stuffers.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "Nov 20, 2026",
+      "summary": "## The 15 stocking stuffers"
     },
     {
       "file": "draft-catalog-worker-christmas-childrens-price-buttons.md",
@@ -1371,6 +1382,17 @@
       "decisionStatus": "pending",
       "date": "Nov 19, 2026",
       "summary": "## The conflict, plainly"
+    },
+    {
+      "file": "draft-tailor-printify-stocking-stuffers.md",
+      "draftId": "draft-tailor-printify-stocking-stuffers.md",
+      "operatorId": "tailor-operator",
+      "operatorName": "The Tailor",
+      "title": "draft-tailor-printify-stocking-stuffers.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "Nov 20, 2026",
+      "summary": "> **IN PLAIN ENGLISH (the short version)**"
     },
     {
       "file": "draft-team-needs-affiliate-operator.md",
