@@ -877,13 +877,28 @@ function galileoCallSetOpenButton() {
 // live. If there is no canvas at all (portrait failed, so the avatar
 // removed it; or no portrait), there is nothing to watch for and the
 // still image stays — no polling, no retries.
+// The avatar that rides onto the call screen: the 3D head when it is
+// live, else the 2D live canvas (galileo-3d-avatar.js sets
+// window.__galileo3dLive and hides the 2D canvas when the head takes
+// over; if 3D ever fails it clears the flag and unhides the 2D canvas).
+function galileoCallAvatarCanvas() {
+  const canvas3d = galileoCallEl('galileo-avatar-3d');
+  if (canvas3d && canvas3d.classList && !canvas3d.classList.contains('hidden')) return canvas3d;
+  return galileoCallEl('galileo-avatar-canvas');
+}
+
 function galileoCallWatchCanvas() {
   galileoCallStopWatch();
-  const canvas = galileoCallEl('galileo-avatar-canvas');
-  if (!canvas || typeof MutationObserver !== 'function') return;
+  if (typeof MutationObserver !== 'function') return;
+  // Watch both avatar canvases — the 2D live canvas and the 3D head:
+  // whichever goes live while the call screen is open rides onto it.
+  const canvases = ['galileo-avatar-canvas', 'galileo-avatar-3d']
+    .map(id => galileoCallEl(id)).filter(Boolean);
+  if (!canvases.length) return;
   const observer = new MutationObserver(() => {
     if (!galileoCallOpen || galileoCallCanvasMoved) return;
-    if (!canvas.isConnected) return;
+    const canvas = galileoCallAvatarCanvas();
+    if (!canvas || !canvas.isConnected) return;
     if (canvas.classList && canvas.classList.contains('hidden')) return;
     const slot = galileoCallEl('galileo-call-avatar');
     const fallbackImg = galileoCallEl('galileo-call-img');
@@ -895,7 +910,7 @@ function galileoCallWatchCanvas() {
     galileoCallStopWatch();
   });
   try {
-    observer.observe(canvas, { attributes: true, attributeFilter: ['class'] });
+    canvases.forEach(c => observer.observe(c, { attributes: true, attributeFilter: ['class'] }));
     galileoCallWatch = observer;
   } catch (e) { /* no watcher — the still image stays */ }
 }
@@ -914,11 +929,11 @@ function galileoCallShow() {
   if (document.body && document.body.classList.contains('gated')) return;
   const slot = galileoCallEl('galileo-call-avatar');
   const fallbackImg = galileoCallEl('galileo-call-img');
-  const canvas = galileoCallEl('galileo-avatar-canvas');
+  const canvas = galileoCallAvatarCanvas();
   galileoCallCanvasMoved = false;
   if (canvas && slot && canvas.classList && !canvas.classList.contains('hidden')) {
-    // Moving the node keeps its 2D context and animation state — the
-    // same live avatar, now on the big stage.
+    // Moving the node keeps its drawing context and animation state —
+    // the same live avatar, now on the big stage.
     slot.appendChild(canvas);
     galileoCallCanvasMoved = true;
     if (fallbackImg) fallbackImg.classList.add('hidden');
@@ -928,9 +943,9 @@ function galileoCallShow() {
   }
   screen.classList.add('open');
   galileoCallOpen = true;
-  // Canvas still hidden (portrait loading)? Watch for it going live
-  // and move it onto the stage when it does — the screen must not
-  // stay on the still image after the avatar wakes up.
+  // Canvas still hidden (portrait or 3D model loading)? Watch for it
+  // going live and move it onto the stage when it does — the screen
+  // must not stay on the still image after the avatar wakes up.
   if (!galileoCallCanvasMoved) galileoCallWatchCanvas();
   galileoCallSyncBrain();
   galileoCallSetOpenButton();
@@ -943,14 +958,19 @@ function galileoCallHide() {
   if (!galileoCallOpen) return;
   galileoCallStopWatch();
   const screen = galileoCallEl('galileo-call');
-  const canvas = galileoCallEl('galileo-avatar-canvas');
   const img = galileoEl('galileo-avatar-img');
   // The canvas goes home so the small avatar keeps animating while
-  // Talk runs in the background.
-  if (galileoCallCanvasMoved && canvas && img && img.parentNode) {
-    img.parentNode.insertBefore(canvas, img);
-    galileoCallCanvasMoved = false;
-  }
+  // Talk runs in the background. Either canvas may have ridden up —
+  // the 3D head can go live mid-call and ride up on its own — so
+  // both come home if they are on the call screen.
+  ['galileo-avatar-canvas', 'galileo-avatar-3d'].forEach(id => {
+    const canvas = galileoCallEl(id);
+    const slot = galileoCallEl('galileo-call-avatar');
+    if (canvas && slot && canvas.parentNode === slot && img && img.parentNode) {
+      img.parentNode.insertBefore(canvas, img);
+    }
+  });
+  galileoCallCanvasMoved = false;
   const fallbackImg = galileoCallEl('galileo-call-img');
   if (fallbackImg) fallbackImg.classList.add('hidden');
   if (screen) screen.classList.remove('open');

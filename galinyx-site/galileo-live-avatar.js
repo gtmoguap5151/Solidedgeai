@@ -195,6 +195,11 @@
   }
 
   function takeOver(quiet) {
+    // The 3D head owns the avatar once it is live — this canvas yields
+    // (galileo-3d-avatar.js sets window.__galileo3dLive on takeover).
+    // If 3D ever fails after takeover it clears the flag and unhides
+    // this canvas itself, so the 2D avatar resumes without a reload.
+    if (window.__galileo3dLive) return;
     var img = $('galileo-avatar-img');
     var video = $('galileo-avatar-video');
     if (img) img.classList.add('hidden');
