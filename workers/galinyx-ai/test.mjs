@@ -317,6 +317,54 @@ const upstreamSystem = () => {
   );
 }
 
+// 19a. Chat with character 'lincoln' -> Lincoln's system instruction
+{
+  __resetRateLimits();
+  lastUpstream = null;
+  const res = await worker.fetch(
+    postChat({ character: 'lincoln', messages: [{ role: 'user', text: 'What is a contract?' }] }),
+    { GEMINI_API_KEY: FAKE_KEY }
+  );
+  const system = upstreamSystem();
+  check(
+    'chat character lincoln -> Lincoln system prompt, never legal advice',
+    res.status === 200 && system.includes('Abraham Lincoln') && system.includes('never give legal advice'),
+    'system starts: ' + system.slice(0, 60)
+  );
+}
+
+// 19b. Chat with character 'adamo' -> Adamo's system instruction
+{
+  __resetRateLimits();
+  lastUpstream = null;
+  const res = await worker.fetch(
+    postChat({ character: 'adamo', messages: [{ role: 'user', text: 'Where is the money?' }] }),
+    { GEMINI_API_KEY: FAKE_KEY }
+  );
+  const system = upstreamSystem();
+  check(
+    'chat character adamo -> Adamo system prompt, whole board',
+    res.status === 200 && system.includes('Adamo') && system.includes('whole board'),
+    'system starts: ' + system.slice(0, 60)
+  );
+}
+
+// 19c. Chat with character 'prova' -> Prova's system instruction
+{
+  __resetRateLimits();
+  lastUpstream = null;
+  const res = await worker.fetch(
+    postChat({ character: 'prova', messages: [{ role: 'user', text: 'Test this build.' }] }),
+    { GEMINI_API_KEY: FAKE_KEY }
+  );
+  const system = upstreamSystem();
+  check(
+    'chat character prova -> Prova system prompt, tester, earnest money',
+    res.status === 200 && system.includes('Prova') && system.includes('never spends earnest money'),
+    'system starts: ' + system.slice(0, 60)
+  );
+}
+
 // 20. No token -> 401, no Gemini call
 {
   __resetRateLimits();
@@ -455,6 +503,28 @@ const envWithAI = { GEMINI_API_KEY: FAKE_KEY, AI: mockAI };
       lastAIRun === null &&
       lastUpstream !== null &&
       system.includes('Benjamin Franklin'),
+    'data: ' + JSON.stringify(data)
+  );
+}
+
+// 26a. Chat brain:'galinyx' + character:'adamo' -> falls back to Gemini
+{
+  __resetRateLimits();
+  lastUpstream = null;
+  lastAIRun = null;
+  const res = await worker.fetch(
+    postChat({ brain: 'galinyx', character: 'adamo', messages: [{ role: 'user', text: 'Where is the money?' }] }),
+    envWithAI
+  );
+  const data = await res.json();
+  const system = upstreamSystem();
+  check(
+    'chat brain galinyx + adamo -> Gemini fallback, Adamo system',
+    res.status === 200 &&
+      data.brain === 'gemini' &&
+      lastAIRun === null &&
+      lastUpstream !== null &&
+      system.includes('Adamo'),
     'data: ' + JSON.stringify(data)
   );
 }
