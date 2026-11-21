@@ -13,7 +13,7 @@ the owner's authority, with a record for every draft. The package
 itself is ON HOLD until the system proves itself (owner's order,
 Nov 19, 2026) — this log is the evidence being gathered in the meantime.
 
-**Drafts on file:** 114 · **Last updated:** 2026-11-20 17:48 UTC · **Next update:** 2026-11-21 01:48 UTC · **Updates every 8 hours** · **Core:** v1.5.0
+**Drafts on file:** 120 · **Last updated:** 2026-11-21 00:48 UTC · **Next update:** 2026-11-21 08:48 UTC · **Updates every 8 hours** · **Core:** v1.5.0
 
 Status comes from each draft file's own header: an explicit `Status:`
 line, a `DECISION` line, or a first-line banner. Anything without an
@@ -25,8 +25,20 @@ the row (and the draft file's header) when it is decided.
 
 | Draft | Staged | Status | Title |
 |---|---|---|---|
-| `draft-adamo-money-check-civil-law-package.md` | 2026-11-20 | Staged — pending review | Adamo's money check — Civil Law Firm Workforce Package |
-| `draft-adamo-money-check-five-ventures.md` | 2026-11-20 | Staged — pending review | Adamo's money check — Franklin's five new ventures |
+| `draft-adamo-money-check-civil-law-package.md` | 2026-11-21 | Approved | Adamo's money check — Civil Law Firm Workforce Package |
+| `draft-adamo-money-check-five-ventures.md` | 2026-11-21 | Approved | Adamo's money check — Franklin's five new ventures |
+
+## adamo-systems (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-adamo-systems-analyst.md` | 2026-11-21 | Approved | In plain English |
+
+## adamo-what (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-adamo-what-he-needs.md` | 2026-11-21 | Staged — pending review | In plain English |
 
 ## blackpine-operator (1)
 
@@ -144,7 +156,7 @@ the row (and the draft file's header) when it is decided.
 
 | Draft | Staged | Status | Title |
 |---|---|---|---|
-| `draft-handshake-brand-sponsors.md` | 2026-11-20 | Staged — pending review | Brand Sponsors for Blackpine Field — Outreach Draft |
+| `draft-handshake-brand-sponsors.md` | 2026-11-21 | Staged — pending review | Brand Sponsors for Blackpine Field — Outreach Draft |
 
 ## handshake-pending (1)
 
@@ -308,6 +320,12 @@ the row (and the draft file's header) when it is decided.
 |---|---|---|---|
 | `draft-prova-phase3-shell-test.md` | 2026-11-19 | Staged — pending review | In plain English |
 
+## prova-reverse (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-prova-reverse-wholesaling-study.md` | 2026-11-21 | Approved | In plain English |
+
 ## repeat-buyer (1)
 
 | Draft | Staged | Status | Title |
@@ -343,6 +361,12 @@ the row (and the draft file's header) when it is decided.
 | `draft-scout-franklin-new-ventures-v2.md` | 2026-11-20 | Staged — pending review | Five New Ventures — The Scout's Revised Brief (v2) |
 | `draft-scout-franklin-new-ventures.md` | 2026-11-20 | Staged — pending review | Five New Ventures — The Scout's First Brief |
 
+## scout2-operator (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-new-scout2-operator.md` | 2026-11-20 | Approved | In plain English |
+
 ## security-engineer (1)
 
 | Draft | Staged | Status | Title |
@@ -354,6 +378,12 @@ the row (and the draft file's header) when it is decided.
 | Draft | Staged | Status | Title |
 |---|---|---|---|
 | `draft-setter-civil-law-booking-flow.md` | 2026-11-20 | Staged — pending review | Civil Law Firm — Consultation Booking Flow |
+
+## shelf-prepper (1)
+
+| Draft | Staged | Status | Title |
+|---|---|---|---|
+| `draft-shelf-prepper-gear.md` | 2026-11-20 | Staged — pending review | Draft: Prepping Department — 10 Picks |
 
 ## sherlock-jacksonville (1)
 
@@ -446,7 +476,7 @@ the row (and the draft file's header) when it is decided.
 | `draft-team-needs-rivet-reach-operator.md` | 2026-11-19 | Staged — pending review | In plain English |
 | `draft-team-needs-tailor-operator.md` | 2026-11-19 | Staged — pending review | In plain English |
 
-## unassigned (4)
+## unassigned (5)
 
 | Draft | Staged | Status | Title |
 |---|---|---|---|
@@ -454,3 +484,4 @@ the row (and the draft file's header) when it is decided.
 | `rivet-reach-draft-001-homeowner-post.md` | 2026-11-18 | Published | Rivet Reach Draft 001 Homeowner Post |
 | `blackpine-draft-002-revenue-boost-ideas.md` | 2026-11-19 | Approved (advisory) | Blackpine Draft 002 Revenue Boost Ideas |
 | `rivet-reach-draft-002-alternate-routes.md` | 2026-11-19 | Approved (advisory) | Rivet Reach Draft 002 Alternate Routes |
+| `position-catalog-2026-11-20.md` | 2026-11-21 | Staged — pending review | Position Catalog — Every Operator Defined & Categorized |

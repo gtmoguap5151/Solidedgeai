@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T17:48:10.810Z",
+  "generatedAt": "2026-11-21T00:48:23.208Z",
   "coreVersion": "1.5.0",
   "operators": [
     {
@@ -56,7 +56,7 @@
       "environment": "galinyx-workforce",
       "mode": "draft-only",
       "status": "deployed-unproven",
-      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable. Named by Galileo Ferraris, Nov 18, 2026."
+      "statusNote": "Draft-only mode since Nov 18, 2026 (owner-approved build). May draft to staging; may not publish, spend, or change anything live. Its analysis has not yet been proven reliable. Named by Galileo Ferraris, Nov 18, 2026. Whole-board systems-analyst responsibility added Nov 20, 2026 (owner order, audit seq 141): reads the whole board across all ten directions, finds where revenue is stuck, drafts the fix. Reports to Xena, Director."
     },
     {
       "id": "tailor-operator",
@@ -385,6 +385,14 @@
       "mode": "draft-only",
       "status": "pending-confirmation",
       "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven."
+    },
+    {
+      "id": "scout2-operator",
+      "name": "Scout 2",
+      "environment": "blackpine-field",
+      "mode": "draft-only",
+      "status": "pending-confirmation",
+      "statusNote": "Registered through the Core 2026-11-20 by owner approval; draft-only until proven. Title: Scout. Level: 2. Finds/sources new items for the Blackpine Field store; works for the Blackpine Operator (store operator), NOT for Franklin/Scout 1. Different permissions from Scout 1: no ventures, no grants, no council seat."
     }
   ],
   "environments": [
@@ -504,7 +512,7 @@
       "operatorName": "Adamo — Finance Brother",
       "title": "draft-adamo-money-check-civil-law-package.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "2026-11-20",
       "summary": "# Adamo's money check — Civil Law Firm Workforce Package"
     },
@@ -515,9 +523,33 @@
       "operatorName": "Adamo — Finance Brother",
       "title": "draft-adamo-money-check-five-ventures.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "2026-11-20",
       "summary": "## 1. Grant writing for small churches and nonprofits"
+    },
+    {
+      "file": "draft-adamo-systems-analyst.md",
+      "draftId": "draft-adamo-systems-analyst.md",
+      "operatorId": "finance-brother-operator",
+      "operatorName": "Adamo — Finance Brother",
+      "title": "draft-adamo-systems-analyst.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "Nov 20, 2026",
+      "summary": "Adamo (finance-brother-operator, galinyx-workforce) is a council member — finance & retail — and his character already describes him as a seasoned technical an…",
+      "decision": "DECISION: Approved — Adamo takes the whole-board systems-analyst responsibility (draft-only), reporting to Xena, Director, by owner order Nov 20, 2026."
+    },
+    {
+      "file": "draft-adamo-what-he-needs.md",
+      "draftId": "draft-adamo-what-he-needs.md",
+      "operatorId": "finance-brother-operator",
+      "operatorName": "Adamo — Finance Brother",
+      "title": "draft-adamo-what-he-needs.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "Nov 20, 2026",
+      "summary": "## Adamo's answer, cold",
+      "decision": "DECISION: Pending — the owner decides on the Curator loan and the earnest-money answer. The morning numbers pull is already scheduled work (daily inbox check + round table); Adamo's read folds into it."
     },
     {
       "file": "draft-blackpine-operator-store-improvements.md",
@@ -692,7 +724,7 @@
       "operatorName": "The Handshake",
       "title": "draft-handshake-brand-sponsors.md",
       "status": "draft",
-      "decisionStatus": "pending",
+      "decisionStatus": "approved",
       "date": "Nov 20, 2026",
       "summary": "## The store today — honest numbers only"
     },
@@ -1172,6 +1204,18 @@
       "decision": "DECISION: Approved — registered as The Bridge (draft-only) by owner order Nov 20, 2026 (\"I say go\")."
     },
     {
+      "file": "draft-new-scout2-operator.md",
+      "draftId": "draft-new-scout2-operator.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "draft-new-scout2-operator.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "Nov 20, 2026",
+      "summary": "Scout 1 is Benjamin Franklin (scout-operator, galinyx-workforce): new ventures, grant writing for clients, council member. Scout 2 (scout2-operator, blackpine-…",
+      "decision": "DECISION: Approved — registered as Scout 2 (draft-only) by owner order Nov 20, 2026 (\"Just create another\")."
+    },
+    {
       "file": "draft-new-security-engineer.md",
       "draftId": "draft-new-security-engineer.md",
       "operatorId": "",
@@ -1240,6 +1284,18 @@
       "summary": "## 1. What I checked and how"
     },
     {
+      "file": "draft-prova-reverse-wholesaling-study.md",
+      "draftId": "draft-prova-reverse-wholesaling-study.md",
+      "operatorId": "tester-operator",
+      "operatorName": "Prova",
+      "title": "draft-prova-reverse-wholesaling-study.md",
+      "status": "draft",
+      "decisionStatus": "approved",
+      "date": "Nov 20, 2026",
+      "summary": "## The nine lane rules (never break these)",
+      "decision": "DECISION: Approved — the owner said \"Let him go for it\" (Nov 20 ~19:44 ET, audit seq 144). Prova's study stands; his team proceeds with reverse-wholesaling work, draft-only: Sherlock finds leads, Matlock verifies record…"
+    },
+    {
       "file": "draft-rivet-reach-operator-next-wave.md",
       "draftId": "draft-rivet-reach-operator-next-wave.md",
       "operatorId": "rivet-reach-operator",
@@ -1293,6 +1349,17 @@
       "decisionStatus": "pending",
       "date": "2026-11-20",
       "summary": "## How to use this flow"
+    },
+    {
+      "file": "draft-shelf-prepper-gear.md",
+      "draftId": "draft-shelf-prepper-gear.md",
+      "operatorId": "shelf-operator",
+      "operatorName": "The Shelf",
+      "title": "draft-shelf-prepper-gear.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "# Draft: Prepping Department — 10 Picks"
     },
     {
       "file": "draft-sherlock-jacksonville-leads.md",
@@ -1762,6 +1829,17 @@
       "decisionStatus": "pending",
       "date": "Nov 18, 2026",
       "summary": "Yes. I need a supplier worker."
+    },
+    {
+      "file": "position-catalog-2026-11-20.md",
+      "draftId": "position-catalog-2026-11-20.md",
+      "operatorId": "",
+      "operatorName": "",
+      "title": "position-catalog-2026-11-20.md",
+      "status": "draft",
+      "decisionStatus": "pending",
+      "date": "2026-11-20",
+      "summary": "# Position Catalog — Every Operator Defined & Categorized"
     },
     {
       "file": "rivet-reach-draft-001-homeowner-post.md",
@@ -2271,7 +2349,7 @@
   ],
   "auditStats": {
     "inMemoryEntries": 91,
-    "lastSeq": 129,
+    "lastSeq": 145,
     "persistFailures": 0
   }
 }
