@@ -88,13 +88,21 @@ body.gated header,body.gated .layout,body.gated footer{display:none!important}
 .gate-card h1{font-size:24px;letter-spacing:-.02em;margin:14px 0 8px}
 .gate-card p{color:var(--muted);font-size:13px;line-height:1.6;margin:0 0 6px}
 .gate-card .field{text-align:left}
+/* Guest spaces (owner's order, Nov 21, 2026): a signed-in firm sees ONLY
+   its own package team. Owner-only nav is hidden for guests; the guest nav
+   (My Team) is hidden for the owner. The shell also refuses to open owner
+   views for a guest (see showView). No owner-peek path exists anywhere in
+   this file: the owner app has no view into a firm's space. */
+.guest-only{display:none!important}
+body.guest .guest-only{display:block!important}
+body.guest .owner-only{display:none!important}
 </style>
 </head>
 <body class="gated"><div class="app">
 <div id="auth-gate"><div class="gate-card">
 <div class="brand">GALI<span>NYX OS™</span></div>
 <h1>Sign in to open GALINYX OS</h1>
-<p>The workforce and the council — Galileo, Franklin, Lincoln, Adamo, and Prova — are private. They open only for the owner's sign-in.</p>
+<p>The owner's workspace and every firm's team space are private. Sign in to open yours — each account opens only its own space.</p>
 <div class="field"><label for="gate-email">Email</label><input id="gate-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
 <div class="field"><label for="gate-password">Password</label><input id="gate-password" type="password" autocomplete="current-password" placeholder="Your password"></div>
 <div class="row" style="justify-content:center"><button class="btn" onclick="gateSignIn()">Sign in</button><button class="btn secondary" onclick="gateSignUp()">Create account</button></div>
@@ -104,18 +112,19 @@ body.gated header,body.gated .layout,body.gated footer{display:none!important}
 <div class="layout">
 <aside class="sidebar" aria-label="Workspace navigation">
 <div class="side-label">WORKSPACE</div>
-<button class="nav active" data-view="home"><b>◈</b> Overview</button>
-<button class="nav" data-view="creator"><b>✳</b> Creator Studio</button>
-<button class="nav" data-view="memory"><b>▤</b> Project Memory</button>
-<button class="nav" data-view="tasks"><b>✓</b> Task Planner</button>
-<button class="nav" data-view="workforce"><b>⚙</b> Workforce</button>
-<button class="nav" data-view="galileo"><b>◐</b> Galileo</button>
-<button class="nav" data-view="franklin"><b>⚡</b> Franklin</button>
-<button class="nav" data-view="lincoln"><b>§</b> Lincoln</button>
-<button class="nav" data-view="adamo"><b>$</b> Adamo</button>
-<button class="nav" data-view="prova"><b>✗</b> Prova</button>
-<button class="nav" data-view="council-room"><b>⬡</b> Council Room</button>
-<button class="nav" data-view="activity"><b>◷</b> Activity Log</button>
+<button class="nav guest-only" data-view="guest"><b>⬢</b> My Team</button>
+<button class="nav active owner-only" data-view="home"><b>◈</b> Overview</button>
+<button class="nav owner-only" data-view="creator"><b>✳</b> Creator Studio</button>
+<button class="nav owner-only" data-view="memory"><b>▤</b> Project Memory</button>
+<button class="nav owner-only" data-view="tasks"><b>✓</b> Task Planner</button>
+<button class="nav owner-only" data-view="workforce"><b>⚙</b> Workforce</button>
+<button class="nav owner-only" data-view="galileo"><b>◐</b> Galileo</button>
+<button class="nav owner-only" data-view="franklin"><b>⚡</b> Franklin</button>
+<button class="nav owner-only" data-view="lincoln"><b>§</b> Lincoln</button>
+<button class="nav owner-only" data-view="adamo"><b>$</b> Adamo</button>
+<button class="nav owner-only" data-view="prova"><b>✗</b> Prova</button>
+<button class="nav owner-only" data-view="council-room"><b>⬡</b> Council Room</button>
+<button class="nav owner-only" data-view="activity"><b>◷</b> Activity Log</button>
 <button class="nav" data-view="account"><b>◉</b> Account</button>
 <div class="side-note" id="side-note">Your workspace entries are saved in this browser on this device. Sign in from Account to sync them across devices.</div>
 </aside>
@@ -131,6 +140,11 @@ body.gated header,body.gated .layout,body.gated footer{display:none!important}
 <article class="panel"><h2>Operating principle</h2><div class="metric" style="font-size:20px">Human-directed.</div><div class="sub">You choose what to save, what to do next, and what leaves the workspace.</div><div class="divider"></div><span class="chip">Review before action</span></article>
 <article class="panel full"><div class="section-title"><h2>Choose a workspace tool</h2><span class="tiny">Signed in as the owner — the workforce and the council open only behind your sign-in.</span></div><div class="grid"><button class="panel" onclick="showView('creator')" style="text-align:left;color:inherit;cursor:pointer"><h2>✳ Creator Studio</h2><div class="sub">Build a project brief, story premise, or character outline.</div></button><button class="panel" onclick="showView('memory')" style="text-align:left;color:inherit;cursor:pointer"><h2>▤ Project Memory</h2><div class="sub">Store notes with a project name and category.</div></button><button class="panel" onclick="showView('tasks')" style="text-align:left;color:inherit;cursor:pointer"><h2>✓ Task Planner</h2><div class="sub">Create tasks and track their status.</div></button><button class="panel" onclick="showView('workforce')" style="text-align:left;color:inherit;cursor:pointer"><h2>⚙ Workforce</h2><div class="sub">Meet the operators — and the Core that governs them.</div></button><button class="panel" onclick="showView('galileo')" style="text-align:left;color:inherit;cursor:pointer"><h2>◐ Galileo</h2><div class="sub">Talk to Galileo — he greets you first. Type, or speak and hear him answer.</div></button><button class="panel" onclick="showView('franklin')" style="text-align:left;color:inherit;cursor:pointer"><h2>⚡ Franklin</h2><div class="sub">Talk to Benjamin Franklin — new ventures, plain talk. He greets you first.</div></button><button class="panel" onclick="showView('lincoln')" style="text-align:left;color:inherit;cursor:pointer"><h2>§ Lincoln</h2><div class="sub">Talk to Abraham Lincoln — the civil-law authority, plain talk. He greets you first.</div></button><button class="panel" onclick="showView('adamo')" style="text-align:left;color:inherit;cursor:pointer"><h2>$ Adamo</h2><div class="sub">Talk to Adamo, the Finance Brother — the numbers, cold. He greets you first.</div></button><button class="panel" onclick="showView('prova')" style="text-align:left;color:inherit;cursor:pointer"><h2>✗ Prova</h2><div class="sub">Talk to Prova, the tester — he finds what breaks before anyone else does. He greets you first.</div></button><button class="panel" onclick="showView('council-room')" style="text-align:left;color:inherit;cursor:pointer"><h2>⬡ Council Room</h2><div class="sub">A quiet room — the notes the council passes each other, where you can read them. No live chatter.</div></button></div></article>
 </div></section>
+<section id="view-guest" class="view hidden">
+<div class="heading"><div><div class="eyebrow" id="guest-eyebrow">Your team</div><h1 id="guest-title">Your team.</h1><p id="guest-blurb"></p></div></div>
+<div class="callout" id="guest-callout">DRAFT-ONLY — Your team drafts; you decide. Nothing your team writes goes to a client, a tenant, a vendor, or anyone outside your firm until you approve it here. Your firm's information stays inside your space.</div>
+<div class="grid" id="guest-content"></div>
+</section>
 <section id="view-creator" class="view hidden">
 <div class="heading"><div><div class="eyebrow">Tool 01 / Create</div><h1>Creator Studio</h1><p>Turn a rough idea into a structured starting draft you can revise.</p></div></div>
 <div class="callout">This tool organizes the details you provide into a structured draft. It does not perform external research or verify facts. Generate with AI sends your idea to the GALINYX AI Worker; the key stays server-side.</div>
@@ -217,6 +231,7 @@ body.gated header,body.gated .layout,body.gated footer{display:none!important}
 <article class="panel hidden" id="account-signed-in">
 <h2>Signed in</h2>
 <div class="sub" id="account-email"></div>
+<div class="sub" id="account-package" style="margin-top:9px"></div>
 <div class="sub" id="account-sync-status" style="margin-top:9px"></div>
 <div class="row" style="margin-top:14px"><button class="btn secondary" onclick="sbSyncNow(true)">Sync now</button><button class="btn ghost" onclick="sbSignOut()">Sign out</button></div>
 <div class="tiny" style="margin-top:12px">Signing out keeps your local copy in this browser. Nothing is deleted from this device or your account.</div>
@@ -251,7 +266,7 @@ let lastDraft='';
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(data));if(typeof sbScheduleSync==='function')sbScheduleSync();return true}catch(e){alert('Browser storage is unavailable or full. Export your work before closing this page.');return false}}
 function log(action,detail){data.activity.unshift({id:Date.now()+Math.random(),action,detail,at:new Date().toISOString()});data.activity=data.activity.slice(0,100);persist();renderActivity();renderHomeActivity()}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));document.getElementById('view-'+name).classList.remove('hidden');document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===name));if(name==='memory')renderMemory();if(name==='tasks')renderTasks();if(name==='activity')renderActivity();if(name==='workforce')loadWorkforce();if(name==='home')renderHome();if(name==='account')renderAccount();if(name==='galileo'&&typeof initGalileoChat==='function')initGalileoChat();if(name==='franklin'&&typeof initFranklinChat==='function')initFranklinChat();if(name==='lincoln'&&typeof initLincolnChat==='function')initLincolnChat();if(name==='adamo'&&typeof initAdamoChat==='function')initAdamoChat();if(name==='prova'&&typeof initProvaChat==='function')initProvaChat();if(name==='council-room'&&typeof loadCouncilRoom==='function')loadCouncilRoom()}
+function showView(name){/* Guest spaces: a firm opens only its own team view and Account. Any other view routes back to the team. */if(typeof sbIsGuest==='function'&&sbIsGuest()&&name!=='guest'&&name!=='account'){name='guest'}document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));document.getElementById('view-'+name).classList.remove('hidden');document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===name));if(name==='memory')renderMemory();if(name==='tasks')renderTasks();if(name==='activity')renderActivity();if(name==='workforce')loadWorkforce();if(name==='home')renderHome();if(name==='account')renderAccount();if(name==='guest')guestRenderDrafts();if(name==='galileo'&&typeof initGalileoChat==='function')initGalileoChat();if(name==='franklin'&&typeof initFranklinChat==='function')initFranklinChat();if(name==='lincoln'&&typeof initLincolnChat==='function')initLincolnChat();if(name==='adamo'&&typeof initAdamoChat==='function')initAdamoChat();if(name==='prova'&&typeof initProvaChat==='function')initProvaChat();if(name==='council-room'&&typeof loadCouncilRoom==='function')loadCouncilRoom()}
 document.querySelectorAll('.nav').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
 function renderHome(){document.getElementById('metric-projects').textContent=data.projects.length;document.getElementById('metric-memory').textContent=data.memories.length;document.getElementById('metric-tasks').textContent=data.tasks.filter(t=>!t.done).length;renderHomeActivity()}
 function eventItem(x){return '<div class="item"><div class="dot"></div><div><strong>'+esc(x.action)+'</strong><small>'+esc(x.detail||'')+' · '+esc(new Date(x.at).toLocaleString())+'</small></div></div>'}
@@ -460,6 +475,105 @@ document.getElementById('wf-audit-note').textContent='Showing '+au.length+' of '
 function clearActivity(){if(!confirm('Clear the local activity log? This does not delete projects, memories, or tasks.'))return;data.activity=[];persist();renderActivity();renderHomeActivity()}
 function exportData(){const blob=new Blob([JSON.stringify({schemaVersion:1,exportedAt:new Date().toISOString(),product:'GALINYX OS workspace',data},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='galinyx-os-workspace-export.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);log('Workspace backup exported','JSON backup created for safekeeping')}
 function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(String(reader.result||''));const incoming=parsed&&parsed.data;if(!incoming||!Array.isArray(incoming.projects)||!Array.isArray(incoming.memories)||!Array.isArray(incoming.tasks)||!Array.isArray(incoming.activity))throw new Error('This file is not a valid GALINYX OS workspace backup.');if(!confirm('Import this backup and replace the workspace data currently saved in this browser? Export your current data first if you want to keep it.'))return;data={projects:incoming.projects,memories:incoming.memories,tasks:incoming.tasks,activity:incoming.activity,workerDrafts:Array.isArray(incoming.workerDrafts)?incoming.workerDrafts:[],deleted:mergeDeleted(data.deleted,incoming.deleted)};ensureLocalIds();if(!persist())return;renderHome();renderMemory();renderTasks();renderActivity();log('Workspace backup imported','Imported data from '+file.name);alert('Workspace backup imported.')}catch(error){alert(error instanceof Error?error.message:'Unable to import this file.')}finally{event.target.value=''}};reader.onerror=()=>{alert('The backup file could not be read.');event.target.value=''};reader.readAsText(file)}
+/* ---------- Guest spaces: one app, one sign-in, a package stamp ----------
+   Owner's order + design pick, Nov 21, 2026. Each account carries a package
+   stamp in the Supabase licenses table (migration 002). At sign-in the
+   shell reads the stamp and loads ONLY that package's team from
+   packages.js. The owner keeps the full app unchanged. A firm sees its
+   team, its hard lines, and its drafts — nothing else.
+   Privacy rule (owner's, Nov 21, 2026, hard): NO owner-peek path. Nothing
+   in this file opens a firm's space from the owner's sign-in, and no
+   function here reads another account's data. */
+let sbRole=null; /* 'owner' | 'guest' | null (not loaded yet) */
+let sbLicense=null; /* package slug from the licenses table, or null */
+let sbGuestSpacesReady=false; /* true once the licenses table answers */
+const SB_ACCESS_CACHE_KEY='galinyx-os-access-v1';
+function sbIsGuest(){return document.body.classList.contains('guest')}
+function sbAccessCacheRead(){try{const c=JSON.parse(localStorage.getItem(SB_ACCESS_CACHE_KEY)||'null');return (c&&sbUser&&c.uid===sbUser.id)?c:null}catch(e){return null}}
+function sbAccessCacheWrite(){try{if(sbUser)localStorage.setItem(SB_ACCESS_CACHE_KEY,JSON.stringify({uid:sbUser.id,role:sbRole,license:sbLicense,ready:sbGuestSpacesReady,at:new Date().toISOString()}))}catch(e){}}
+function sbWithTimeout(promise,ms){return Promise.race([promise,new Promise(resolve=>setTimeout(()=>resolve('__timeout__'),ms))])}
+async function sbLoadAccess(){
+sbRole=null;sbLicense=null;sbGuestSpacesReady=false;
+if(!sbClient||!sbUser)return;
+try{
+const res=await sbWithTimeout(sbClient.from('licenses').select('package').eq('user_id',sbUser.id).maybeSingle(),8000);
+if(res==='__timeout__'){const c=sbAccessCacheRead();if(c){sbRole=c.role;sbLicense=c.license;sbGuestSpacesReady=!!c.ready}return}
+if(res.error){
+if(sbIsSetupError(res.error)){return} /* licenses table not set up yet: guest spaces don't exist, owner mode */
+const c=sbAccessCacheRead();if(c){sbRole=c.role;sbLicense=c.license;sbGuestSpacesReady=!!c.ready}return
+}
+sbGuestSpacesReady=true;
+sbLicense=res.data?res.data.package:null;
+try{
+const prof=await sbClient.from('profiles').select('role').eq('id',sbUser.id).maybeSingle();
+sbRole=(prof.data&&prof.data.role)||'guest';
+}catch(e){sbRole='guest'}
+sbAccessCacheWrite();
+}catch(e){
+const c=sbAccessCacheRead();if(c){sbRole=c.role;sbLicense=c.license;sbGuestSpacesReady=!!c.ready}
+}
+}
+function sbApplyAccess(){
+/* Before migration 002 is applied there are no guest spaces at all, so the
+   signed-in account gets the full app — the behavior the shell has always
+   had. After it, only role 'owner' gets the full app. */
+const isOwner=!sbGuestSpacesReady||sbRole==='owner';
+document.body.classList.toggle('guest',!isOwner);
+if(isOwner)return;
+const pkg=(sbLicense&&window.GALINYX_PACKAGES)?window.GALINYX_PACKAGES[sbLicense]:null;
+if(pkg)guestRenderTeam(pkg);else guestRenderNoPackage();
+showView('guest');
+}
+function guestRenderTeam(pkg){
+const eyebrow=document.getElementById('guest-eyebrow'),title=document.getElementById('guest-title'),blurb=document.getElementById('guest-blurb'),content=document.getElementById('guest-content');
+if(!content)return;
+if(eyebrow)eyebrow.textContent='Your team · '+pkg.label;
+if(title)title.textContent=pkg.label+' team.';
+if(blurb)blurb.textContent=pkg.blurb;
+const held=pkg.held?'<div class="callout">HELD FROM OFFER — '+esc(pkg.heldNote||'This package is held from offer on the owner\u2019s word.')+'</div>':'';
+const character=pkg.character?'<div class="sub" style="margin-top:6px">The voice this team carries: <strong>'+esc(pkg.character)+'</strong>.</div>':'';
+const workers=pkg.workers.map(w=>'<div class="item"><div class="dot"></div><div style="flex:1;min-width:0"><strong>'+esc(w.name)+'</strong><small>'+esc(w.role)+'</small></div></div>').join('');
+const lines=pkg.hardLines.map(l=>'<li>'+esc(l)+'</li>').join('');
+content.innerHTML=held
++'<article class="panel full"><div class="section-title"><h2>Your team — 8 workers, one brain</h2><span class="tiny">Draft-only · you approve everything</span></div>'+character+'<div class="list" style="margin-top:12px">'+workers+'</div></article>'
++'<article class="panel"><h2>Hard lines — never broken</h2><ol class="rules">'+lines+'</ol></article>'
++'<article class="panel wide"><div class="section-title"><h2>Drafts waiting for your yes</h2><span class="tiny">Nothing leaves your firm until you approve it here</span></div><div id="guest-drafts" class="list"></div></article>';
+guestRenderDrafts();
+}
+function guestRenderNoPackage(){
+const eyebrow=document.getElementById('guest-eyebrow'),title=document.getElementById('guest-title'),blurb=document.getElementById('guest-blurb'),content=document.getElementById('guest-content');
+if(eyebrow)eyebrow.textContent='Your space';
+if(title)title.textContent='No package assigned yet.';
+if(blurb)blurb.textContent='This account is signed in, but no team package has been assigned to it yet. Your space opens here — your team, your drafts, your approvals — once the owner assigns your package.';
+if(content)content.innerHTML='<article class="panel full"><h2>What happens next</h2><div class="sub">When your package is assigned, sign in again (or reload) and your team appears here: eight workers who draft the office work, and every draft waits for your yes before it goes anywhere. Nothing is charged and nothing is shared until then.</div></article>';
+}
+/* Guest drafts: the firm's own decision queue. Drafts land here for the
+   firm's yes or no. Stored in this browser, namespaced by account, until
+   a guest-drafts table lands (future migration). No drafts are seeded —
+   no firm is in yet, so there is nothing to show. */
+const SB_GUEST_DRAFTS_KEY='galinyx-os-guest-drafts-v1';
+function guestLoadDrafts(){try{const all=JSON.parse(localStorage.getItem(SB_GUEST_DRAFTS_KEY)||'{}');return (sbUser&&Array.isArray(all[sbUser.id]))?all[sbUser.id]:[]}catch(e){return[]}}
+function guestSaveDrafts(list){try{const all=JSON.parse(localStorage.getItem(SB_GUEST_DRAFTS_KEY)||'{}');if(sbUser){all[sbUser.id]=list;localStorage.setItem(SB_GUEST_DRAFTS_KEY,JSON.stringify(all))}}catch(e){}}
+function guestRenderDrafts(){
+const el=document.getElementById('guest-drafts');
+if(!el)return;
+const drafts=guestLoadDrafts();
+if(!drafts.length){el.innerHTML='<div class="empty">No drafts yet. When your team writes something for you — a notice, a reminder, a rent roll, an estimate — it lands here for your yes or no. Nothing leaves your firm until you approve it.</div>';return}
+el.innerHTML=drafts.map(d=>{
+const decided=d.status==='approved'||d.status==='denied';
+return '<div class="item"><div class="dot" style="background:'+(d.status==='approved'?'#7dc69b':d.status==='denied'?'#e08a8a':'#edb57b')+'"></div><div style="flex:1;min-width:0"><strong>'+esc(d.title)+' <span class="badge">'+esc(decided?('Decided: '+d.status):'Waiting for your yes')+'</span></strong><small>'+esc(d.worker||'')+(d.date?' · '+esc(d.date):'')+'</small><small>'+esc(d.summary||'')+'</small>'+(decided?'<small>Decided '+esc(d.decidedAt?new Date(d.decidedAt).toLocaleString():'')+'</small>':'<div class="row" style="margin-top:9px"><button class="btn" style="padding:8px 11px" onclick="guestDecideDraft(\''+esc(d.id)+'\',true)">Approve</button><button class="btn ghost" style="padding:8px 11px" onclick="guestDecideDraft(\''+esc(d.id)+'\',false)">Deny</button></div>')+'</div></div>';
+}).join('');
+}
+function guestDecideDraft(id,approve){
+const drafts=guestLoadDrafts();
+const d=drafts.find(x=>x.id===id);
+if(!d||d.status==='approved'||d.status==='denied')return;
+d.status=approve?'approved':'denied';
+d.decidedAt=new Date().toISOString();
+guestSaveDrafts(drafts);
+log((approve?'Guest draft approved':'Guest draft denied'),d.title);
+guestRenderDrafts();
+}
 /* ---------- Phase 2: Supabase accounts + sync (local-first) ---------- */
 /* The publishable key below is designed to ship in frontend code. The
    service_role (secret) key is never used here. Google sign-in is not
@@ -486,8 +600,9 @@ const ok=await sbLoadLibrary();
 if(!ok||!window.supabase||!window.supabase.createClient){sbState='unavailable';sbUpdateAccountUI();return}
 try{sbClient=window.supabase.createClient(SB_URL,SB_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}catch(e){sbState='unavailable';sbUpdateAccountUI();return}
 sbState='ready';
-sbClient.auth.onAuthStateChange((event,session)=>{sbUser=session?session.user:null;if(event==='SIGNED_IN'&&sbUser){sbEnsureProfile();sbSyncNow()}sbUpdateAccountUI()});
+sbClient.auth.onAuthStateChange((event,session)=>{sbUser=session?session.user:null;if(event==='INITIAL_SESSION')return;if(event==='SIGNED_IN'&&sbUser){sbLoadAccess().then(()=>{sbApplyAccess();sbUpdateAccountUI()});sbEnsureProfile();sbSyncNow()}else{if(event==='SIGNED_OUT'){sbRole=null;sbLicense=null;sbGuestSpacesReady=false;document.body.classList.remove('guest')}sbUpdateAccountUI()}});
 try{const res=await sbClient.auth.getSession();sbUser=res.data&&res.data.session?res.data.session.user:null}catch(e){sbUser=null}
+if(sbUser){await sbLoadAccess();sbApplyAccess()}
 sbUpdateAccountUI();
 if(sbUser){sbEnsureProfile();sbSyncNow()}
 }
@@ -566,7 +681,7 @@ if(res.error){sbAuthMessage('Could not sign in: '+res.error.message);return}
 sbAuthMessage('Signed in.');
 log('Signed in',email);
 }
-async function sbSignOut(){if(sbClient){try{await sbClient.auth.signOut()}catch(e){}}sbUser=null;sbSyncState='idle';sbUpdateAccountUI();log('Signed out','Local copy kept in this browser.')}
+async function sbSignOut(){if(sbClient){try{await sbClient.auth.signOut()}catch(e){}}sbUser=null;sbRole=null;sbLicense=null;sbGuestSpacesReady=false;document.body.classList.remove('guest');sbSyncState='idle';sbUpdateAccountUI();log('Signed out','Local copy kept in this browser.')}
 function sbTableRows(kind){
 const uid=sbUser.id;
 if(kind==='projects')return data.projects.map(p=>({user_id:uid,id:p.id,title:p.title,kind:p.kind||null,created_at:p.at||null}));
@@ -624,6 +739,7 @@ const outEl=sbEl('account-signed-out'),inEl=sbEl('account-signed-in');
 if(outEl)outEl.classList.toggle('hidden',signedIn);
 if(inEl)inEl.classList.toggle('hidden',!signedIn);
 const emailEl=sbEl('account-email');if(emailEl)emailEl.textContent=signedIn?('Signed in as '+sbUser.email):'';
+const pkgEl=sbEl('account-package');if(pkgEl){if(!signedIn)pkgEl.textContent='';else if(!sbGuestSpacesReady||sbRole==='owner')pkgEl.textContent='Owner account — the full app: workspace, workforce, and council.';else if(sbLicense&&window.GALINYX_PACKAGES&&window.GALINYX_PACKAGES[sbLicense])pkgEl.textContent='Your space: '+window.GALINYX_PACKAGES[sbLicense].label+' team — 8 workers, draft-only.';else pkgEl.textContent='No package assigned to this account yet. Your space opens when the owner assigns your team\u2019s package.';}
 const who=sbEl('whoami');if(who){if(signedIn){const short=(sbUser.email||'').split('@')[0]||sbUser.email;who.textContent=short;who.title='Signed in as '+sbUser.email;}else{who.textContent='Signed out';who.title='Not signed in — open Account to sign in.';}}
 const syncEl=sbEl('account-sync-status');
 if(syncEl){
@@ -637,7 +753,7 @@ else syncEl.textContent='Sync ready.';
 const note=sbEl('account-setup-note');
 if(note){let ok=false;try{ok=localStorage.getItem(SB_SYNC_OK_KEY)==='1'}catch(e){}note.classList.toggle('hidden',ok)}
 const side=sbEl('side-note');
-if(side)side.textContent=signedIn?('Signed in as '+sbUser.email+'. Your work saves here first, then syncs to your account.'):'Sign in to open the app — the workforce and chats stay behind your sign-in.';
+if(side)side.textContent=!signedIn?'Sign in to open the app — each account opens only its own space.':sbIsGuest()?'This is your firm\u2019s space. Your team drafts; you approve. Nothing leaves your firm without your yes.':('Signed in as '+sbUser.email+'. Your work saves here first, then syncs to your account.');
 if(sbOfflineSession)sbSetStatus('Workspace · Offline — signed in');
 else if(sbState==='unavailable')sbSetStatus('Workspace · Local only');
 else if(!signedIn)sbSetStatus('Workspace · Signed out');
@@ -645,10 +761,11 @@ else if(sbSyncState==='syncing')sbSetStatus('Workspace · Syncing…');
 else if(sbSyncState==='setup-pending')sbSetStatus('Workspace · Sync setup pending');
 else if(sbSyncState==='error')sbSetStatus('Workspace · Sync failed — local copy safe');
 else sbSetStatus('Workspace · Synced');
+if(signedIn&&sbIsGuest()){if(sbLicense&&window.GALINYX_PACKAGES&&window.GALINYX_PACKAGES[sbLicense])sbSetStatus('Your team · '+window.GALINYX_PACKAGES[sbLicense].label);else sbSetStatus('Signed in · No package yet');}
 renderMemory();renderTasks();
 }
 window.addEventListener('online',()=>{if(sbUser)sbSyncNow()});
 sbInit();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register(new URL('./sw.js',document.baseURI)).catch(()=>{}))}
 renderHome();renderMemory();renderTasks();renderActivity();
-</script><script src="./studio-ai.js"></script><script src="./galileo-avatar.js"></script><script src="./xena-avatar.js"></script><script src="./galileo-avatar-video.js"></script><script src="./galileo-live-avatar.js"></script><script src="./galileo-3d-avatar.js"></script><script src="./galileo-chat.js"></script><script src="./franklin-chat.js"></script><script src="./lincoln-avatar.js"></script><script src="./orbit-g-avatar.js"></script><script src="./lincoln-chat.js"></script><script src="./adamo-chat.js"></script><script src="./prova-chat.js"></script><script src="./council-room.js"></script></body></html>
+</script><script src="./studio-ai.js"></script><script src="./galileo-avatar.js"></script><script src="./xena-avatar.js"></script><script src="./galileo-avatar-video.js"></script><script src="./galileo-live-avatar.js"></script><script src="./galileo-3d-avatar.js"></script><script src="./galileo-chat.js"></script><script src="./franklin-chat.js"></script><script src="./lincoln-avatar.js"></script><script src="./orbit-g-avatar.js"></script><script src="./lincoln-chat.js"></script><script src="./adamo-chat.js"></script><script src="./prova-chat.js"></script><script src="./council-room.js"></script><script src="./packages.js"></script></body></html>
