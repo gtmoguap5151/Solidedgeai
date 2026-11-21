@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-11-21T03:34:29.441Z",
+  "quiet": true,
+  "members": [
+    {
+      "id": "galileo-operator",
+      "name": "Galileo Ferraris"
+    },
+    {
+      "id": "scout-operator",
+      "name": "Benjamin Franklin"
+    },
+    {
+      "id": "lincoln-operator",
+      "name": "Abraham Lincoln"
+    },
+    {
+      "id": "finance-brother-operator",
+      "name": "Adamo"
+    },
+    {
+      "id": "tester-operator",
+      "name": "Prova"
+    },
+    {
+      "id": "xena-director",
+      "name": "Xena"
+    }
+  ],
+  "notes": [
+    {
+      "seq": 7,
+      "id": "msg-ecc0d86e-ec9b-4b43-a04d-b3b593ad2d55",
+      "fromId": "xena-director",
+      "from": "Xena",
+      "toId": "finance-brother-operator",
+      "to": "Adamo",
+      "kind": "ASK",
+      "timestamp": "2026-11-21T00:38:00.000000Z",
+      "text": "The owner asks: do you need anything else to make us rich — access, data, tools, decisions? And anybody else — do you need anyone else on your team? Answer as a draft to staging for his review.",
+      "allowed": true
+    },
+    {
+      "seq": 6,
+      "id": "msg-5a95cdb4-f190-4200-8da1-11b0f8b82b6e",
+      "fromId": "finance-brother-operator",
+      "from": "Adamo",
+      "toId": "scout-operator",
+      "to": "Benjamin Franklin",
+      "kind": "HANDOFF",
+      "timestamp": "2026-11-20T17:47:15.359905Z",
+      "text": "Money check on your five ventures (draft-adamo-money-check-five-ventures.md, Nov 20) — my verdicts, cold: grant writing WORTH IT (highest fee, paid whether the grant lands or not — but time per application unmeasured, no paying client yet); resumes WORTH TRYING, THIN (fastest first dollar, $49 same day — crowded, finding buyers is unpaid work, $16–$49/hr depending on unmeasured time); family-history NOT WORTH IT at $49 unless a short report holds to ~2 hours (six hours is $8/hr); Inside Guide WORTH WRITING, NOT WORTH COUNTING ON (best economics on paper, longest road to a buyer — no distribution exists); memory books ONE TEST ORDER, NOT A LINE (under $10/hr, seasonal, rewrites eat the profit). Central flag: every price is a guess — no customer has paid any of them, no time measured anywhere. The owner asks: would you like to update your brief in light of this? You have the chance to fix it yourself — revise and bring it back as a draft for his review.",
+      "allowed": true
+    },
+    {
+      "seq": 2,
+      "id": "msg-ca3c3f45-2a03-4b85-9e75-68c3a3892cdf",
+      "fromId": "galileo-operator",
+      "from": "Galileo Ferraris",
+      "toId": "finance-brother-operator",
+      "to": "Adamo",
+      "kind": "ASK",
+      "timestamp": "2026-11-19T01:23:46.272Z",
+      "text": "Cost check before I propose the camel-tee run: Gildan 5000 blank $9.55 US provider price, back print 12x16. What is the true per-unit cost with print + shipping, and what margin at a $34.99 list price? Reply with the numbers — I will not propose the run until the margin is real.",
+      "allowed": true
+    }
+  ]
+}

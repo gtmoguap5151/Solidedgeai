@@ -1,5 +1,5 @@
-const CACHE_NAME = "galinyx-os-shell-v24";
-const SHELL_FILES = ["./", "./index.html", "./studio-ai.js", "./galileo-avatar.js", "./xena-avatar.js", "./galileo-avatar-video.js", "./galileo-live-avatar.js", "./galileo-3d-avatar.js", "./galileo-chat.js", "./franklin-chat.js", "./lincoln-avatar.js", "./orbit-g-avatar.js", "./lincoln-chat.js", "./adamo-chat.js", "./prova-chat.js", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
+const CACHE_NAME = "galinyx-os-shell-v25";
+const SHELL_FILES = ["./", "./index.html", "./studio-ai.js", "./galileo-avatar.js", "./xena-avatar.js", "./galileo-avatar-video.js", "./galileo-live-avatar.js", "./galileo-3d-avatar.js", "./galileo-chat.js", "./franklin-chat.js", "./lincoln-avatar.js", "./orbit-g-avatar.js", "./lincoln-chat.js", "./adamo-chat.js", "./prova-chat.js", "./council-room.js", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -35,11 +35,13 @@ self.addEventListener("fetch", (event) => {
   }
 
   // The Core snapshot is republished whenever the registry, staging, or audit
-  // log changes. Always try the network first so the Workforce view and the
-  // Core screen show the latest published snapshot; fall back to the cached
-  // copy only when offline. (Cache-first here would freeze the snapshot at
-  // the first load, since this worker never re-fetches a cache hit.)
-  if (request.url.endsWith('core-snapshot.json')) {
+  // log changes, and the Council Room snapshot whenever the council passes
+  // a new note. Always try the network first so the Workforce view, the
+  // Core screen, and the Council Room show the latest published snapshot;
+  // fall back to the cached copy only when offline. (Cache-first here
+  // would freeze the snapshot at the first load, since this worker never
+  // re-fetches a cache hit.)
+  if (request.url.endsWith('core-snapshot.json') || request.url.endsWith('council-room.json')) {
     event.respondWith(
       fetch(request).then((response) => {
         if (response.ok) {
