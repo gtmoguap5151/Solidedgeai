@@ -69,6 +69,20 @@
   .badge.amber { background: #3a2f16; color: var(--amber); border: 1px solid #6b5518; }
   .badge.grey { background: #262b28; color: var(--muted); border: 1px solid var(--border); }
   .badge.green { background: var(--green-soft); color: #8fd6a8; border: 1px solid #2f6b45; }
+  .badge.red { background: #3a1d1d; color: #e08a8a; border: 1px solid #6b2f2f; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+  tr:last-child td { border-bottom: none; }
+  .updated { color: var(--muted); font-size: 13px; }
+  .updated strong { color: var(--text); }
+  .empty { color: var(--muted); font-size: 14px; }
+  .fallback { color: var(--amber); font-size: 14px; }
+  .draft-title a { color: var(--text); font-weight: 600; text-decoration: none; }
+  .draft-title a:hover { text-decoration: underline; }
+  .draft-decision { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .draft-published { font-size: 13px; margin-top: 4px; }
+  .draft-published a { color: var(--green); }
   .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin: 12px 0; font-size: 15px; }
   .kv dt { color: var(--muted); }
   .kv dd { margin: 0; }
@@ -252,14 +266,8 @@
   <section class="card">
     <h2>Staging drafts — what the operators wrote</h2>
     <p class="sub">Drafts only. Nothing here is published, and nothing goes live without the owner reviewing it first.</p>
-    <div class="note">
-      <strong>Blackpine Operator — Black Friday post (Nov 17, 2026):</strong><br>
-      "Black Friday's coming to Blackpine Field. 60 products across 9 departments, eighteen deer-season picks, all gear judged under load. No gimmicks, no fake sales — real stuff for real hunts. The Black Friday front opens this week. blackpinefield.com"
-    </div>
-    <div class="note">
-      <strong>Rivet Reach Operator — homeowner post (Nov 17, 2026):</strong><br>
-      "Got a project you've been putting off? Rivet Reach matches you with local contractors in Central Kentucky, around Nashville, and Knoxville. No account needed to start — tell us about the job and we'll find the right crew. rivetreach.com"
-    </div>
+    <div id="staging-drafts"><p class="audit-empty">Loading…</p></div>
+    <p class="updated" id="drafts-updated"></p>
   </section>
 
   <section class="card">
@@ -280,5 +288,121 @@
   GALINYX OS — Governance Core · Blackpine Operator Dashboard · Built Nov 17, 2026. Workforce operators (Galileo Ferraris, Finance Brother) added Nov 18, 2026.
   Figures carry their own verification dates; nothing on this page is a live feed.
 </footer>
+<script>
+(function () {
+  var draftsEl = document.getElementById('staging-drafts');
+  var updatedEl = document.getElementById('drafts-updated');
+
+  function fmtTime(iso) {
+    try {
+      return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    } catch (e) {
+      return iso;
+    }
+  }
+
+  function text(tag, str, cls) {
+    var el = document.createElement(tag);
+    if (cls) el.className = cls;
+    el.textContent = str;
+    return el;
+  }
+
+  function parseDate(str) {
+    var t = Date.parse(str || '');
+    return isNaN(t) ? 0 : t;
+  }
+
+  function decisionLabel(status) {
+    if (status === 'approved') return 'Approved';
+    if (status === 'denied') return 'Denied';
+    return 'Pending review';
+  }
+
+  function decisionBadge(status) {
+    if (status === 'approved') return 'badge green';
+    if (status === 'denied') return 'badge red';
+    return 'badge amber';
+  }
+
+  function showFallback() {
+    updatedEl.textContent = '';
+    draftsEl.innerHTML = '';
+    draftsEl.appendChild(text('p', 'Staging drafts could not be loaded. The figures on this page need a fresh snapshot — nothing here is estimated or invented.', 'fallback'));
+  }
+
+  function renderDrafts(snap) {
+    var drafts = (snap.staging || []).slice();
+    // Newest first; undated entries last, in snapshot order.
+    drafts.sort(function (a, b) { return parseDate(b.date) - parseDate(a.date); });
+    draftsEl.innerHTML = '';
+    if (drafts.length === 0) {
+      draftsEl.appendChild(text('p', 'No drafts in staging.', 'empty'));
+      return;
+    }
+    var table = document.createElement('table');
+    var thead = document.createElement('thead');
+    var hr = document.createElement('tr');
+    ['Draft', 'Operator', 'Date', 'Decision'].forEach(function (h) {
+      hr.appendChild(text('th', h));
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+    var tbody = document.createElement('tbody');
+    drafts.forEach(function (d) {
+      var tr = document.createElement('tr');
+      var titleCell = document.createElement('td');
+      var titleWrap = document.createElement('div');
+      titleWrap.className = 'draft-title';
+      var link = document.createElement('a');
+      link.href = 'https://github.com/gtmoguap5151/Solidedgeai/blob/main/governance-core/staging/' + d.file;
+      link.textContent = d.title || d.file;
+      titleWrap.appendChild(link);
+      titleCell.appendChild(titleWrap);
+      if (d.decision) {
+        titleCell.appendChild(text('div', d.decision, 'draft-decision'));
+      }
+      if (d.status === 'published' && d.publishedUrl) {
+        var pub = document.createElement('div');
+        pub.className = 'draft-published';
+        var pubLink = document.createElement('a');
+        pubLink.href = d.publishedUrl;
+        pubLink.textContent = 'Published';
+        pub.appendChild(pubLink);
+        titleCell.appendChild(pub);
+      }
+      tr.appendChild(titleCell);
+      tr.appendChild(text('td', d.operatorName || d.operatorId || '—'));
+      tr.appendChild(text('td', d.date || '—'));
+      var decisionCell = document.createElement('td');
+      decisionCell.appendChild(text('span', decisionLabel(d.decisionStatus), decisionBadge(d.decisionStatus)));
+      tr.appendChild(decisionCell);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    draftsEl.appendChild(table);
+    var total = document.createElement('p');
+    total.className = 'updated';
+    total.textContent = drafts.length + ' drafts in staging.';
+    draftsEl.appendChild(total);
+  }
+
+  fetch('core-snapshot.json', { cache: 'no-store' })
+    .then(function (res) {
+      if (!res.ok) throw new Error('snapshot fetch failed: ' + res.status);
+      return res.json();
+    })
+    .then(function (snap) {
+      updatedEl.innerHTML = '';
+      updatedEl.appendChild(document.createTextNode('Snapshot last updated '));
+      updatedEl.appendChild(text('strong', fmtTime(snap.generatedAt)));
+      updatedEl.appendChild(document.createTextNode('. Core version ' + snap.coreVersion + '.'));
+      renderDrafts(snap);
+    })
+    .catch(function () {
+      showFallback();
+    });
+})();
+</script>
 </body>
 </html>
