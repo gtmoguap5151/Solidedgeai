@@ -208,6 +208,9 @@
       try { video.pause(); } catch (e) { /* ignore */ }
     }
     if (canvas) canvas.classList.remove('hidden');
+    // Signal to the 3D script: this canvas has content and is a valid
+    // fallback if the 3D head ever fails after takeover.
+    window.__galileo2dLive = true;
     if (!quiet) live = true;
   }
 
@@ -393,10 +396,14 @@
       // A drawing error must never spin the loop — stop the live
       // avatar and hand the slot back to the video / still.
       live = false;
+      window.__galileo2dLive = false;
       cancelAnimationFrame(rafId);
       var img = $('galileo-avatar-img');
       var video = $('galileo-avatar-video');
       if (canvas) canvas.classList.add('hidden');
+      // ONE HEAD: if the 3D head owns the slot, leave the fallback
+      // alone — it must not reappear beside the 3D head.
+      if (window.__galileo3dLive) return;
       if (video && video.dataset.loop) {
         video.classList.remove('hidden');
       } else if (img) {

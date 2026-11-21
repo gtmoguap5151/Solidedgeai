@@ -28,11 +28,12 @@
 (function () {
   'use strict';
 
-  var GLB_URL = 'https://galinyx-3d.pages.dev/galileo-head-v1.glb';
+  var GLB_URL = 'https://galinyx-3d.pages.dev/galileo-head-v2.glb';
   var FRAME_MS = 33; // ~30 fps
 
   var canvas = null, img = null, video = null, canvas2d = null;
   var live = false;      // 3D head on screen
+  var tookOver = false;  // 3D head has taken over at least once
   var started = false;   // load attempted (once)
   var renderer = null, scene = null, camera = null, rig = null, headMesh = null;
   var jawIdx = -1, blinkIdx = -1;
@@ -47,13 +48,48 @@
   function smooth(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
 
   function fail(reason) {
-    // Graceful: drop the 3D canvas, let the 2D avatar carry on.
+    // Graceful: drop the 3D canvas and hand the slot back to exactly
+    // ONE fallback — the 2D live canvas if it is live, else the
+    // portrait. (Before takeover, fail() leaves the slot alone: the
+    // 2D avatar owns it until this head takes over.)
     if (window.console && console.warn) console.warn('[galileo-3d] unavailable:', reason);
+    var hadTakenOver = tookOver;
     live = false;
+    tookOver = false;
     window.__galileo3dLive = false;
     if (canvas && canvas.parentElement) canvas.parentElement.removeChild(canvas);
     canvas = null;
     if (renderer) { try { renderer.dispose(); } catch (e) { /* already gone */ } renderer = null; }
+    if (!hadTakenOver) return;
+    // Hand the slot back to exactly ONE fallback in each place. The 2D
+    // live canvas is the fallback everywhere it can be; the portrait
+    // (chat panel) or the call portrait (call screen) is the last
+    // resort. If the 2D canvas was riding the call screen when the 3D
+    // head failed, it becomes the call avatar — the call portrait
+    // stays hidden, so the stage never shows two heads.
+    var c2 = el('galileo-avatar-canvas');
+    var c2Live = !!(c2 && window.__galileo2dLive);
+    var callEl = el('galileo-call');
+    var slot = el('galileo-call-avatar');
+    var callOpen = !!(callEl && callEl.classList.contains('open'));
+    if (callOpen && c2Live && slot && c2.parentElement === slot) {
+      var callImgOnStage = el('galileo-call-img');
+      if (callImgOnStage) callImgOnStage.classList.add('hidden');
+      c2.classList.remove('hidden');
+      return;
+    }
+    if (callOpen) {
+      var callImg = el('galileo-call-img');
+      if (callImg) callImg.classList.remove('hidden');
+    }
+    if (c2Live) {
+      if (img) img.classList.add('hidden');
+      if (video) { video.classList.add('hidden'); try { video.pause(); } catch (e) { /* ignore */ } }
+      c2.classList.remove('hidden');
+    } else if (img) {
+      if (video) { video.classList.add('hidden'); try { video.pause(); } catch (e) { /* ignore */ } }
+      img.classList.remove('hidden');
+    }
   }
 
   function ensureCanvas() {
@@ -68,10 +104,7 @@
     img.parentElement.insertBefore(canvas, img);
     canvas.addEventListener('webglcontextlost', function (e) {
       e.preventDefault();
-      fail('WebGL context lost');
-      // Hand the avatar back to the 2D canvas.
-      var c2 = el('galileo-avatar-canvas');
-      if (c2) c2.classList.remove('hidden');
+      fail('WebGL context lost'); // fail() hands the slot to one fallback
     }, false);
   }
 
@@ -112,7 +145,20 @@
     ['speaking', 'thinking', 'listening'].forEach(function (cls) {
       canvas.classList.toggle(cls, !!state[cls]);
     });
-    if (live && canvas.classList.contains('hidden')) canvas.classList.remove('hidden');
+    // ONE HEAD: while the 3D head is live, it owns the slot — re-hide
+    // the portrait, the video loops and the 2D canvas on every state
+    // change. initGalileoChat re-runs on every view open and un-hides
+    // the video (or the portrait on video error); this observer fires
+    // on that class change and puts the second head away again before
+    // the next frame. (classList.add on an already-hidden element is a
+    // no-op, so this cannot loop the observer.)
+    if (live) {
+      if (img) img.classList.add('hidden');
+      if (video) { video.classList.add('hidden'); try { video.pause(); } catch (e) { /* ignore */ } }
+      canvas2d = el('galileo-avatar-canvas');
+      if (canvas2d) canvas2d.classList.add('hidden');
+      if (canvas.classList.contains('hidden')) canvas.classList.remove('hidden');
+    }
     if (!s) jawTarget = 0;
   }
 
@@ -145,6 +191,7 @@
 
   function takeOver() {
     live = true;
+    tookOver = true;
     window.__galileo3dLive = true;
     if (img) img.classList.add('hidden');
     if (video) { video.classList.add('hidden'); video.pause(); }
@@ -158,11 +205,15 @@
     // riding on it — the 3D head rides up too, so the call screen is
     // never left showing a hidden canvas. (No inline style: the call
     // screen sizes .chat-avatar itself, same as the 2D canvas.)
+    // ONE HEAD on the call screen too: the call portrait is hidden
+    // when the head rides up, so the stage never shows two heads.
     var callEl = el('galileo-call');
     var slot = el('galileo-call-avatar');
     if (callEl && callEl.classList.contains('open') && slot &&
         canvas2d && canvas2d.parentElement === slot) {
       slot.appendChild(canvas);
+      var callImg = el('galileo-call-img');
+      if (callImg) callImg.classList.add('hidden');
     }
     requestAnimationFrame(frame);
   }

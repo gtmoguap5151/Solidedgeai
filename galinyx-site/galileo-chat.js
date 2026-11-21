@@ -1140,8 +1140,11 @@ async function initGalileoChat() {
 
   // Live avatar: if the video loops loaded, the video element replaces
   // the still portrait. If video cannot play, the still stands in.
+  // ONE HEAD: this init re-runs on every view open — when the 3D head
+  // owns the slot, the video and portrait stay hidden (the 3D script
+  // also re-asserts this, but the un-hide must not happen at all).
   const avatarVideo = galileoEl('galileo-avatar-video');
-  if (avatarVideo && galileoVideoSrc('idle')) {
+  if (avatarVideo && galileoVideoSrc('idle') && !window.__galileo3dLive) {
     galileoVideoMode = true;
     if (avatarImg) avatarImg.classList.add('hidden');
     avatarVideo.classList.remove('hidden');
@@ -1155,7 +1158,7 @@ async function initGalileoChat() {
     avatarVideo.onerror = () => {
       galileoVideoMode = false;
       avatarVideo.classList.add('hidden');
-      if (avatarImg) avatarImg.classList.remove('hidden');
+      if (avatarImg && !window.__galileo3dLive) avatarImg.classList.remove('hidden');
     };
   }
 
