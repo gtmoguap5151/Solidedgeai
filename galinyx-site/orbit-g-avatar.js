@@ -1,8 +1,8 @@
 /**
  * orbit-g-avatar.js — GALINYX orbit-G mark as a neutral placeholder
- * avatar for council members who have no real face: Adamo and Prova.
+ * avatar for council members who have no real face: Adamo and Einstein.
  *
- * No portrait of Adamo Ferraris survives and Prova has no face at
+ * No portrait of Adamo Ferraris survives and Einstein has no face at
  * all — neither gets an invented face. The orbit-G mark stands in
  * until Matt designs their avatars. The source mark lives in the
  * workspace at brand/logo-options/media-generation-galinyx-logo-a-

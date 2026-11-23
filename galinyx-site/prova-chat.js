@@ -1,5 +1,5 @@
 /**
- * prova-chat.js — Talk to Prova on the GALINYX OS shell.
+ * prova-chat.js — Talk to Einstein on the GALINYX OS shell.
  *
  * Mirrors franklin-chat.js: a chat with Prova, the tester — the
  * trial every build must pass — independent of the Muse app. Prova
@@ -55,7 +55,7 @@ const PROVA_TAP_LINES = [
 // Fallback initial if no avatar file is loaded.
 const PROVA_FALLBACK_AVATAR =
   'data:image/svg+xml,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" fill="#2a1c17"/><text x="64" y="88" font-family="sans-serif" font-size="64" font-weight="bold" fill="#e0b8a0" text-anchor="middle">P</text></svg>'
+    '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" fill="#2a1c17"/><text x="64" y="88" font-family="sans-serif" font-size="64" font-weight="bold" fill="#e0b8a0" text-anchor="middle">E</text></svg>'
   );
 
 let provaHistory = []; // {role:'user'|'model'|'system', text}
@@ -113,8 +113,8 @@ function provaSetState(state) {
   const label = {
     idle: 'Here — tap his portrait to say hello, or type below.',
     listening: 'Listening… speak now.',
-    thinking: 'Prova is thinking…',
-    speaking: 'Prova is speaking…',
+    thinking: 'Einstein is thinking…',
+    speaking: 'Einstein is speaking…',
   }[state] || 'Here.';
   status.textContent = label;
 }
@@ -159,7 +159,7 @@ function provaRender() {
     if (message.role === 'model') {
       const thumb = document.createElement('img');
       thumb.className = 'chat-thumb';
-      thumb.alt = 'Prova';
+      thumb.alt = 'Albert Einstein';
       thumb.src = provaAvatarSrc();
       row.appendChild(thumb);
     }
@@ -452,7 +452,7 @@ function provaStartTalkSession() {
     return;
   }
   if (!('speechSynthesis' in window)) {
-    provaAddMessage('system', "This browser can't speak Prova's replies out loud — Talk needs spoken replies. Type your message instead.");
+    provaAddMessage('system', "This browser can't speak Einstein's replies out loud — Talk needs spoken replies. Type your message instead.");
     return;
   }
   // One voice session at a time: stop any push-to-talk listen first.
@@ -565,7 +565,7 @@ async function sendProvaMessage() {
     typingRow.className = 'chat-msg prova typing';
     const thumb = document.createElement('img');
     thumb.className = 'chat-thumb';
-    thumb.alt = 'Prova';
+    thumb.alt = 'Albert Einstein';
     thumb.src = provaAvatarSrc();
     const bubble = document.createElement('div');
     bubble.className = 'chat-bubble typing-dots';
@@ -604,7 +604,7 @@ async function sendProvaMessage() {
       );
     }
     const reply = typeof result.text === 'string' ? result.text.trim() : '';
-    if (!reply) throw new Error('Prova came back empty — try again.');
+    if (!reply) throw new Error('Einstein came back empty — try again.');
     if (typingRow) typingRow.remove();
     provaAddMessage('model', reply);
     if (provaVoiceOn) {
@@ -615,7 +615,7 @@ async function sendProvaMessage() {
     }
   } catch (error) {
     if (typingRow) typingRow.remove();
-    provaAddMessage('system', error && error.message ? error.message : 'Prova could not be reached.');
+    provaAddMessage('system', error && error.message ? error.message : 'Einstein could not be reached.');
     provaSetState('idle');
   } finally {
     provaBusy = false;
@@ -690,7 +690,7 @@ async function initProvaChat() {
       if (sendButton) sendButton.disabled = true;
       const status = provaEl('prova-status');
       if (status) status.textContent = 'AI not set up yet — the owner needs to set the API key.';
-      provaAddMessage('system', 'AI is not configured yet. The owner needs to set the API key before Prova can answer.');
+      provaAddMessage('system', 'AI is not configured yet. The owner needs to set the API key before Einstein can answer.');
       return;
     }
     if (!response.ok) throw new Error('unreachable');
